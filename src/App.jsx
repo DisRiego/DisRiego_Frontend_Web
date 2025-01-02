@@ -1,16 +1,28 @@
-import { useState } from 'react'
-import Navbar from "./components/Navbar"
-import Footer from "./components/Footer"
-import Sidebar from "./components/Sidebar"
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { useState } from "react";
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
+import Sidebar from "./components/Sidebar";
+import Home from "./pages/Home"
 
-function App() {
-  const [count, setCount] = useState(0)
-
+function AppContent() {
   return (
     <>
-      <h1>Hola</h1>
+      <Routes>
+        <Route path="/" element={<Home />} />
+      </Routes>
     </>
-  )
+  );
 }
 
-export default App
+function App() {
+  return (
+    <>
+      <BrowserRouter>
+        <AppContent />
+      </BrowserRouter>
+    </>
+  );
+}
+
+export default App;
