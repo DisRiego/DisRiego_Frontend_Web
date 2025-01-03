@@ -1,9 +1,23 @@
-const Sidebar = () => {
+import { Link } from "react-router-dom";
+
+const Sidebar = ({ handleOptionChange, selectedOption }) => {
   return (
     <>
-        <h1>Sidebar</h1>
+      <div className="sidebar-options">
+        <Link
+          onClick={() => handleOptionChange("rol")}
+          to="/dashboard/rol"
+        >
+          Rol
+        </Link>
+        <Link
+          onClick={() => handleOptionChange("otro")}
+        >
+          Otro
+        </Link>
+      </div>
     </>
-  )
-}
+  );
+};
 
-export default Sidebar
+export default Sidebar;

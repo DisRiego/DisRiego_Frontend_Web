@@ -1,19 +1,39 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import Head from "../components/dashboard/Head";
+import Sidebar from "../components/Sidebar";
+import Rol from "../components/dashboard/Rol";
 
 const Dashboard = () => {
-  let [date, setDate] = useState({});
+  const { id } = useParams();
+  const [selectedOption, setSelectedOption] = useState(id);
 
-  date = {
-    title: "Titulo",
-    description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas eget vehicula urna. Sed vitae quam eu nunc varius mollis.",
+  useEffect(() => {
+    setSelectedOption(id);
+  }, [id]);
+
+  const handleOptionChange = (option) => {
+    setSelectedOption(option);
+  };
+
+  const renderSelectedComponent = () => {
+    switch (selectedOption) {
+      case "rol":
+        return <Rol />;
+    }
   };
 
   return (
     <>
-      <h1>Dashboard</h1>
-        <Head date={date}/>
+      <div className="columns">
+        <div className="column">
+          <Sidebar
+            handleOptionChange={handleOptionChange}
+            selectedOption={selectedOption}
+          />
+        </div>
+        <div className="column">{renderSelectedComponent()}</div>
+      </div>
     </>
   );
 };
