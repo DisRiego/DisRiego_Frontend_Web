@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import Head from "../components/dashboard/Head";
 import Sidebar from "../components/Sidebar";
 import Rol from "../components/dashboard/Rol";
+import Notification from "../components/dashboard/Notification";
 
 const Dashboard = () => {
   const { id } = useParams();
@@ -18,8 +19,10 @@ const Dashboard = () => {
 
   const renderSelectedComponent = () => {
     switch (selectedOption) {
+      case "notification":
+        return <Notification />;
       case "rol":
-        return <Rol />;
+        return 1;
     }
   };
 

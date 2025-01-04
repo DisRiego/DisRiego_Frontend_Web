@@ -1,21 +1,13 @@
-import { Link } from "react-router-dom";
+import Option from "./dashboard/sidebar/option";
+import Option_user from "./dashboard/sidebar/option_user";
 
 const Sidebar = ({ handleOptionChange, selectedOption }) => {
   return (
     <>
-      <div className="sidebar-options">
-        <Link
-          onClick={() => handleOptionChange("rol")}
-          to="/dashboard/rol"
-        >
-          Rol
-        </Link>
-        <Link
-          onClick={() => handleOptionChange("otro")}
-        >
-          Otro
-        </Link>
-      </div>
+      <Option_user
+        handleOptionChange={handleOptionChange}
+        selectedOption={selectedOption}
+      />
     </>
   );
 };
