@@ -1,7 +1,7 @@
 .column.is-narrow {
   padding-right: 0px;
   padding-bottom: 0px;
-  border-right: 1px solid #1f2229;
+  border-right: 1px solid #585858;
 }
 
 .navbar-item span.icon {
@@ -41,12 +41,12 @@
   width: 100%;
   padding: 10px;
   transition: all 0.2s;
-  border-radius: 10px;
+  border-radius: 20px;
 }
 
 .sidebar-options .navbar-item:hover {
-  border: 2px solid #1f2229;
-  border-radius: 10px;
+  border: 2px solid #585858;
+  border-radius: 20px;
   transition: all 1s;
 }
 
@@ -73,7 +73,7 @@
 }
 
 .separator {
-  background-color: var(--bulma-hr-background-color);
+  background-color: #585858;
   height: 1px;
   width: 100%;
   margin: 10px 0;
@@ -81,7 +81,7 @@
 
 .toggle-btn {
   position: absolute;
-  top: 50%;
+  top: 4.5%;
   right: -10.5px;
   transform: translateY(-50%);
   width: 20px;
@@ -98,6 +98,7 @@
 }
 
 .toggle-btn > svg {
+  color: #585858;
   width: 10px;
   height: 10px;
 }
@@ -115,13 +116,13 @@
   align-items: center;
   margin: 20px;
   padding: 10px;
-  border-radius: 10px;
+  border-radius: 20px;
   transition: all 0.5s;
 }
 
 .sidebar-user .navbar-item:hover {
-  border: 2px solid #1f2229;
-  border-radius: 10px;
+  border: 2px solid #585858;
+  border-radius: 20px;
 }
 
 .dashboard {
@@ -133,8 +134,8 @@
 }
 
 .sidebar-options .navbar-item.selected {
-  color: hsl(0, 0%, 4%);
-  background-color: hsl(153deg, 53%, calc(53% + 0%));
-  border-radius: 10px;
+  color: hsl(147, 41%, 9%);
+  background-color: #c2e96a;
+  border-radius: 20px;
   transition: all 0.2s;
 }
