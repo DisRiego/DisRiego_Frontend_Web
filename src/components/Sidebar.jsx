@@ -1,13 +1,58 @@
-import Option from "./dashboard/sidebar/option";
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { FaUser, FaChevronRight, FaChevronLeft } from "react-icons/fa";
 import Option_user from "./dashboard/sidebar/option_user";
+import Icon from "../assets/icons/DisRiego.svg";
 
 const Sidebar = ({ handleOptionChange, selectedOption }) => {
+  const storedSidebarState = localStorage.getItem("sidebarState");
+  const initialState = storedSidebarState
+    ? JSON.parse(storedSidebarState)
+    : false;
+  const [isCollapsed, setIsCollapsed] = useState(initialState);
+
+  const toggleSidebar = () => {
+    const newState = !isCollapsed;
+    setIsCollapsed(newState);
+    localStorage.setItem("sidebarState", JSON.stringify(newState));
+  };
+
   return (
     <>
-      <Option_user
-        handleOptionChange={handleOptionChange}
-        selectedOption={selectedOption}
-      />
+      <div className={`sidebar ${isCollapsed ? "collapsed" : ""}`}>
+        <div className="sidebar-logo">
+          <a className="navbar-item" to="/">
+            <span className="icon">
+              <img src={Icon} alt="Logo de la Empresa" />
+            </span>
+            {!isCollapsed && (
+            <span className="is-size-5 has-text-weight-bold">
+              Dis Riego
+            </span>
+          )}
+          </a>
+        </div>
+        <Option_user
+          handleOptionChange={handleOptionChange}
+          selectedOption={selectedOption}
+          isCollapsed={isCollapsed}
+        />
+        <div className="sidebar-user">
+          <Link
+            className="navbar-item"
+            onClick={() => handleOptionChange("profile")}
+            to="/dashboard/profile"
+          >
+            <span className="icon">
+              <FaUser />
+            </span>
+            {!isCollapsed && <span>Sebastian</span>}
+          </Link>
+        </div>
+        <button className="toggle-btn" onClick={toggleSidebar}>
+          {isCollapsed ? <FaChevronRight /> : <FaChevronLeft />}
+        </button>
+      </div>
     </>
   );
 };

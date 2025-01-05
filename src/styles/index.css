@@ -1,0 +1,140 @@
+.column.is-narrow {
+  padding-right: 0px;
+  padding-bottom: 0px;
+  border-right: 1px solid #1f2229;
+}
+
+.navbar-item span.icon {
+  font-size: 1.2rem;
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  height: 100vh;
+  /* border-right: 1px solid #1F2229; */
+  transition: all 0.2s;
+  position: sticky;
+  top: 0;
+  width: 250px;
+  white-space: nowrap;
+}
+
+.sidebar.collapsed {
+  width: 80px;
+}
+
+.sidebar-logo .navbar-item {
+  display: flex;
+  justify-content: left;
+  align-items: center;
+  width: 100%;
+  padding: 20px;
+  transition: all 0.2s;
+}
+
+.sidebar-options .navbar-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 10px;
+  transition: all 0.2s;
+  border-radius: 10px;
+}
+
+.sidebar-options .navbar-item:hover {
+  border: 2px solid #1f2229;
+  border-radius: 10px;
+  transition: all 1s;
+}
+
+.sidebar-options .navbar-item span.icon {
+  margin-right: 10px;
+  font-size: 1.2rem;
+}
+
+.sidebar.collapsed .navbar-item span {
+  display: none;
+}
+
+.sidebar.collapsed .navbar-item span.icon {
+  display: flex;
+  margin: auto;
+}
+
+.sidebar.collapsed .sidebar-logo h1 {
+  display: none;
+}
+
+.sidebar.collapsed .sidebar-logo img {
+  margin: 0 auto;
+}
+
+.separator {
+  background-color: var(--bulma-hr-background-color);
+  height: 1px;
+  width: 100%;
+  margin: 10px 0;
+}
+
+.toggle-btn {
+  position: absolute;
+  top: 50%;
+  right: -10.5px;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.toggle-btn > svg {
+  width: 10px;
+  height: 10px;
+}
+
+.toggle-btn:hover {
+  background: #f0f0f0;
+}
+
+.sidebar.collapsed .toggle-btn {
+  right: -10.5px;
+}
+
+.sidebar-user .navbar-item {
+  display: flex;
+  align-items: center;
+  margin: 20px;
+  padding: 10px;
+  border-radius: 10px;
+  transition: all 0.5s;
+}
+
+.sidebar-user .navbar-item:hover {
+  border: 2px solid #1f2229;
+  border-radius: 10px;
+}
+
+.dashboard {
+  padding: 0px;
+}
+
+.column-option {
+  padding: 40px 30px;
+}
+
+.sidebar-options .navbar-item.selected {
+  color: hsl(0, 0%, 4%);
+  background-color: hsl(153deg, 53%, calc(53% + 0%));
+  border-radius: 10px;
+  transition: all 0.2s;
+}

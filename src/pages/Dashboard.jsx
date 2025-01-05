@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import Head from "../components/dashboard/Head";
 import Sidebar from "../components/Sidebar";
-import Rol from "../components/dashboard/Rol";
 import Notification from "../components/dashboard/Notification";
 
 const Dashboard = () => {
@@ -12,6 +10,18 @@ const Dashboard = () => {
   useEffect(() => {
     setSelectedOption(id);
   }, [id]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
   const handleOptionChange = (option) => {
     setSelectedOption(option);
@@ -28,14 +38,14 @@ const Dashboard = () => {
 
   return (
     <>
-      <div className="columns">
-        <div className="column">
+      <div className="columns dashboard">
+        <div className="column is-narrow">
           <Sidebar
             handleOptionChange={handleOptionChange}
             selectedOption={selectedOption}
           />
         </div>
-        <div className="column">{renderSelectedComponent()}</div>
+        <div className="column column-option">{renderSelectedComponent()}</div>
       </div>
     </>
   );
