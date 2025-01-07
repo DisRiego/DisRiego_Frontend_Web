@@ -6,8 +6,8 @@ const Notification = () => {
     buttons: {
       button1: {
         icon: "MdDownloadDone",
-        class: "",
-        text: "Marcar todo como leido",
+        class: "color-hover",
+        text: "Marcar todo como leído",
       },
     },
   };

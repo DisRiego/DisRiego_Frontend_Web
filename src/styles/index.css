@@ -1,3 +1,45 @@
+:root {
+  --bulma-text-family: "Roboto";
+  --bulma-title-size: 30px;
+}
+
+span, .title {
+  font-family: var(--bulma-text-family);
+}
+
+.container-text p.title{
+  font-size: 1.5em;
+  margin-bottom: 0px;
+}
+
+p.title + p{
+  margin-top: 1em;
+}
+
+
+.button{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: var(--bulma-text-family);
+}
+
+.button.color-hover{
+  color: black;
+  background-color: #c2e96a;
+}
+
+.button svg{
+  margin-right: 10px;
+}
+
+.container-head{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1em;
+}
+
 .column.is-narrow {
   padding-right: 0px;
   padding-bottom: 0px;
@@ -14,7 +56,6 @@
   justify-content: space-between;
   align-items: center;
   height: 100vh;
-  /* border-right: 1px solid #1F2229; */
   transition: all 0.2s;
   position: sticky;
   top: 0;
@@ -41,12 +82,12 @@
   width: 100%;
   padding: 10px;
   transition: all 0.2s;
-  border-radius: 20px;
+  border-radius: 1em;
 }
 
 .sidebar-options .navbar-item:hover {
   border: 2px solid #585858;
-  border-radius: 20px;
+  border-radius: 1em;
   transition: all 1s;
 }
 
@@ -116,26 +157,26 @@
   align-items: center;
   margin: 20px;
   padding: 10px;
-  border-radius: 20px;
+  border-radius: 1em;
   transition: all 0.5s;
 }
 
 .sidebar-user .navbar-item:hover {
   border: 2px solid #585858;
-  border-radius: 20px;
+  border-radius: 1em;
 }
 
 .dashboard {
   padding: 0px;
 }
 
-.column-option {
-  padding: 40px 30px;
+.column.column-option {
+  padding: 50px 40px;
 }
 
 .sidebar-options .navbar-item.selected {
   color: hsl(147, 41%, 9%);
   background-color: #c2e96a;
-  border-radius: 20px;
+  border-radius: 1em;
   transition: all 0.2s;
 }

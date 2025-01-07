@@ -11,7 +11,7 @@ const Head = ({ data }) => {
       const IconComponent = Icon[button.icon];
 
       return (
-        <button key={key} className={button.class}>
+        <button key={key} className={"button " + button.class}>
           {IconComponent && <IconComponent />}
           {button.text}
         </button>
@@ -21,9 +21,13 @@ const Head = ({ data }) => {
 
   return (
     <>
-      <p className="">{data.title}</p>
-      {data.description ? <p>{data.description}</p> : ""}
-      <div className="buttons-container">{renderButtons()}</div>
+      <div className="container-head">
+        <div className="container-text">
+        <p className="title">{data.title}</p>
+        {data.description ? <p>{data.description}</p> : ""}
+        </div>
+        <div className="buttons">{renderButtons()}</div>
+      </div>
     </>
   );
 };

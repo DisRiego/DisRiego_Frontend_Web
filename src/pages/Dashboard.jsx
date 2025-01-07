@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import Notification from "../components/dashboard/Notification";
+import Fault_report from "../components/dashboard/Fault_report";
 
 const Dashboard = () => {
   const { id } = useParams();
@@ -31,8 +32,8 @@ const Dashboard = () => {
     switch (selectedOption) {
       case "notification":
         return <Notification />;
-      case "rol":
-        return 1;
+      case "report":
+        return <Fault_report />;
     }
   };
 
