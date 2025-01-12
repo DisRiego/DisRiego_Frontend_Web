@@ -1,7 +1,7 @@
 import Head from "./Head";
 
 const Notification = () => {
-  const data = {
+  const head_data = {
     title: "Mis Notificaciones",
     buttons: {
       button1: {
@@ -13,7 +13,7 @@ const Notification = () => {
   };
   return (
     <>
-      <Head data={data} />
+      <Head head_data={head_data} />
     </>
   );
 };

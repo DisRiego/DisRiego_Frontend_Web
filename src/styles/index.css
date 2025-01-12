@@ -3,41 +3,12 @@
   --bulma-title-size: 30px;
 }
 
-span, .title {
+span,
+.title,
+p,
+th,
+td {
   font-family: var(--bulma-text-family);
-}
-
-.container-text p.title{
-  font-size: 1.5em;
-  margin-bottom: 0px;
-}
-
-p.title + p{
-  margin-top: 1em;
-}
-
-
-.button{
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-family: var(--bulma-text-family);
-}
-
-.button.color-hover{
-  color: black;
-  background-color: #c2e96a;
-}
-
-.button svg{
-  margin-right: 10px;
-}
-
-.container-head{
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1em;
 }
 
 .column.is-narrow {
@@ -171,7 +142,7 @@ p.title + p{
 }
 
 .column.column-option {
-  padding: 50px 40px;
+  padding: 50px 40px 40px;
 }
 
 .sidebar-options .navbar-item.selected {
@@ -179,4 +150,100 @@ p.title + p{
   background-color: #c2e96a;
   border-radius: 1em;
   transition: all 0.2s;
+}
+
+.container-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5em;
+  gap: 1em;
+}
+
+.container-text p.title {
+  font-size: 1.5em;
+  margin-bottom: 0px;
+}
+
+p.title + p {
+  margin-top: 1em;
+}
+
+.container-button {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: end;
+  gap: 1em;
+}
+
+.button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: var(--bulma-text-family);
+}
+
+.button.color-hover {
+  color: black;
+  background-color: #c2e96a;
+}
+
+.button svg {
+  margin-right: 10px;
+}
+
+.button-filter {
+  display: flex;
+  align-items: center;
+}
+
+.container-search {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1em;
+}
+
+.search {
+  display: flex;
+  flex-grow: 1;
+  max-width: 50%;
+}
+
+.button svg {
+  margin-right: 0px;
+}
+
+.menu-option {
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  right: 0;
+  transform: translateY(-100%);
+}
+
+.column-option .table-container {
+  overflow: visible;
+  overflow-y: visible;
+}
+
+@media (max-width: 630px) {
+  .column-option .table-container {
+    overflow: visible;
+    overflow-x: auto;
+  }
+}
+
+.menu-option > .box {
+  border: 1px solid var(--bulma-border);
+  padding: 5px;
+}
+
+.menu-option > .box > .button {
+  border-style: none;
+  justify-content: flex-start;
+}
+
+.menu-option > .box > .button:hover {
+  background-color: #c2e96a;
+  color: black;
 }
