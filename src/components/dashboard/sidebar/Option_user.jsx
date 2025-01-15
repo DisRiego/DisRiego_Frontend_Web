@@ -60,7 +60,7 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
         </Link>
         <Link
           className={`navbar-item ${
-            selectedOption === "report" || "detail" ? "selected" : ""
+            selectedOption === "report" ? "selected" : ""
           }`}
           onClick={() => handleOptionChange("report")}
           to="/dashboard/report"
