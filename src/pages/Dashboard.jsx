@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
+import Navegation from "../components/dashboard/Navegation";
 import Notification from "../components/dashboard/Notification";
 import Fault_report from "../components/dashboard/Fault_report";
+import Invoice_detail from "../components/dashboard/Invoice_detail";
+
 
 const Dashboard = () => {
   const { id } = useParams();
@@ -34,6 +37,8 @@ const Dashboard = () => {
         return <Notification />;
       case "report":
         return <Fault_report />;
+      case "detail":
+        return <Invoice_detail />;
     }
   };
 
@@ -46,7 +51,10 @@ const Dashboard = () => {
             selectedOption={selectedOption}
           />
         </div>
-        <div className="column column-option">{renderSelectedComponent()}</div>
+        <div className="column column-option">
+          <Navegation />
+          {renderSelectedComponent()}
+        </div>
       </div>
     </>
   );

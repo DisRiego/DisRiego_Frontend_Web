@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Head from "./Head";
 import Search from "./Search";
 import Filter from "./Filter";
@@ -7,6 +8,7 @@ import Pagination from "./Pagination";
 
 const Fault_report = () => {
   const [data, setData] = useState([]);
+  const navegation = useNavigate();
 
   const head_data = {
     title: "Reportes de fallos",
@@ -53,79 +55,7 @@ const Fault_report = () => {
         fallo: "daño bateria",
         fecha: "2024-12-25",
         estado: "0",
-      },
-      {
-        id: 2,
-        predio: "predio 2",
-        lote: "lote 2",
-        fallo: "daño bateria",
-        fecha: "2024-12-25",
-        estado: "0",
-      },
-      {
-        id: 2,
-        predio: "predio 2",
-        lote: "lote 2",
-        fallo: "daño bateria",
-        fecha: "2024-12-25",
-        estado: "0",
-      },
-      {
-        id: 2,
-        predio: "predio 2",
-        lote: "lote 2",
-        fallo: "daño bateria",
-        fecha: "2024-12-25",
-        estado: "0",
-      },
-      {
-        id: 2,
-        predio: "predio 2",
-        lote: "lote 2",
-        fallo: "daño bateria",
-        fecha: "2024-12-25",
-        estado: "0",
-      },
-      {
-        id: 2,
-        predio: "predio 2",
-        lote: "lote 2",
-        fallo: "daño bateria",
-        fecha: "2024-12-25",
-        estado: "0",
-      },
-      {
-        id: 2,
-        predio: "predio 2",
-        lote: "lote 2",
-        fallo: "daño bateria",
-        fecha: "2024-12-25",
-        estado: "0",
-      },
-      {
-        id: 2,
-        predio: "predio 2",
-        lote: "lote 2",
-        fallo: "daño bateria",
-        fecha: "2024-12-25",
-        estado: "0",
-      },
-      {
-        id: 2,
-        predio: "predio 2",
-        lote: "lote 2",
-        fallo: "daño bateria",
-        fecha: "2024-12-25",
-        estado: "0",
-      },
-      {
-        id: 2,
-        predio: "predio 2",
-        lote: "lote 2",
-        fallo: "daño bateria",
-        fecha: "2024-12-25",
-        estado: "0",
-      },
+      }
     ]);
   }, []);
 
@@ -144,6 +74,10 @@ const Fault_report = () => {
     { icon: "LuDownload", name: "Descargar" },
   ];
 
+  const handleOnClick = async () => {
+    navegation("detail");
+  };
+
   return (
     <>
       <Head head_data={head_data} />
@@ -153,6 +87,7 @@ const Fault_report = () => {
       </div>
       <Table columns={columns} data={mapData} options={options}/>
       <Pagination/>
+      <button className="button" onClick={handleOnClick}>Detalles</button>
     </>
   );
 };
