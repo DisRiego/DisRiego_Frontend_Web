@@ -75,7 +75,7 @@ const Fault_report = () => {
   ];
 
   const handleOnClick = async () => {
-    navegation("detail");
+    navegation("detail/1");
   };
 
   return (
@@ -87,7 +87,7 @@ const Fault_report = () => {
       </div>
       <Table columns={columns} data={mapData} options={options}/>
       <Pagination/>
-      <button className="button" onClick={handleOnClick}>Detalles</button>
+      <button className="button" onClick={handleOnClick}>Submodulo</button>
     </>
   );
 };

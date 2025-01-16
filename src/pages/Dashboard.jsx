@@ -1,19 +1,35 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import Navegation from "../components/dashboard/Navegation";
 import Notification from "../components/dashboard/Notification";
 import Fault_report from "../components/dashboard/Fault_report";
 import Invoice_detail from "../components/dashboard/Invoice_detail";
-
+import Property from "../components/dashboard/Property";
+import Property_detail from "../components/dashboard/Property_detail";
+import Lot_detail from "../components/dashboard/Lot_detail";
 
 const Dashboard = () => {
   const { id } = useParams();
+  const location = useLocation();
   const [selectedOption, setSelectedOption] = useState(id);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
 
   useEffect(() => {
-    setSelectedOption(id);
-  }, [id]);
+    if (!isNaN(id)) {
+      const segments = location.pathname.split("/").filter(Boolean);
+      const length = segments.length;
+      const ante_penultimat_esegment = segments[length - 3];
+      const penultimate_segment = segments[length - 2];
+      const last_segment = segments[length - 1];
+
+      setSelectedOption(
+        `${ante_penultimat_esegment}/${penultimate_segment}/${last_segment}`
+      );
+    } else {
+      setSelectedOption(id);
+    }
+  }, [id, location.pathname]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -32,12 +48,19 @@ const Dashboard = () => {
   };
 
   const renderSelectedComponent = () => {
+    console.log(id);
     switch (selectedOption) {
       case "notification":
         return <Notification />;
+      case "property":
+        return <Property />;
+      case `property/detail/${id}`:
+        return <Property_detail />;
+      case `lot/detail/${id}`:
+        return <Lot_detail />;
       case "report":
         return <Fault_report />;
-      case "detail":
+      case `report/detail/${id}`:
         return <Invoice_detail />;
     }
   };

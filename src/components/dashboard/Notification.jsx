@@ -2,7 +2,7 @@ import Head from "./Head";
 
 const Notification = () => {
   const head_data = {
-    title: "Mis Notificaciones",
+    title: "Notificaciones",
     buttons: {
       button1: {
         icon: "MdDownloadDone",

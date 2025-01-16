@@ -1,6 +1,23 @@
 const Names_navegation = {
-    "report": ["Mis reportes"],  // Módulo principal
-    "detail": ["Detalles del reporte #"],      // Submódulo dentro de "Mis reportes"
-}
-
-export default Names_navegation;
+    "report": {
+      name: "Reporte de fallos",
+      submodules: {
+        "detail": "Detalles del reporte #",
+      },
+    },
+    "property": {
+      name: "Mis Predios",
+      submodules: {
+        "detail": "Detalles del predio #",
+      },
+    },
+    "lot": {
+      name: "Mis Lotes",
+      submodules: {
+        "detail": "Detalles del lote #",
+      },
+    },
+  };
+  
+  export default Names_navegation;
+  

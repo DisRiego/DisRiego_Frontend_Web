@@ -15,7 +15,9 @@ function AppContent() {
         <Route path="/login" element={<Login />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/dashboard/:id" element={<Dashboard />} />
-        <Route path="/dashboard/report/:id" element={<Dashboard />} />
+        <Route path="/dashboard/property/detail/:id" element={<Dashboard />} />
+        <Route path="/dashboard/property/detail/:id/lot/detail/:id" element={<Dashboard />} />
+        <Route path="/dashboard/report/detail/:id" element={<Dashboard />} />
       </Routes>
     </>
   );
