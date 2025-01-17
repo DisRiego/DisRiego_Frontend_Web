@@ -1,15 +1,22 @@
 import { IoSearch } from "react-icons/io5";
 
-const Search = () => {
+const Search = ({ onSearch }) => {
+  const handleInputChange = (event) => {
+    onSearch(event.target.value);
+  };
+
   return (
-    <>
-      <p class="control search has-icons-left">
-        <span class="icon is-small is-left">
-          <IoSearch />
-        </span>
-        <input class="input" type="text" placeholder="Búsqueda" />
-      </p>
-    </>
+    <div className="control search has-icons-left">
+      <span className="icon is-small is-left">
+        <IoSearch />
+      </span>
+      <input
+        className="input"
+        type="text"
+        placeholder="Búsqueda"
+        onChange={handleInputChange}
+      />
+    </div>
   );
 };
 

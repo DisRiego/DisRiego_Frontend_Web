@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import Head from "./Head";
 import Search from "./Search";
 import Filter from "./Filter";
@@ -8,7 +7,9 @@ import Pagination from "./Pagination";
 
 const Fault_report = () => {
   const [data, setData] = useState([]);
-  const navegation = useNavigate();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
 
   const head_data = {
     title: "Reportes de fallos",
@@ -55,18 +56,33 @@ const Fault_report = () => {
         fallo: "daño bateria",
         fecha: "2024-12-25",
         estado: "0",
-      }
+      },
+      {
+        id: 3,
+        predio: "predio 3",
+        lote: "lote 3",
+        fallo: "daño controlador",
+        fecha: "2024-12-28",
+        estado: "1",
+      },
     ]);
   }, []);
 
-  const mapData = data.map((info) => ({
-    "ID Reporte": info.id,
-    "Nombre del predio": info.predio,
-    "Nombre del lote": info.lote,
-    "Posible fallo": info.fallo,
-    "Fecha de reporte del fallo": info.fecha,
-    Estado: info.estado,
-  }));
+  const filteredData = data
+    .filter((info) =>
+      Object.values(info)
+        .join(" ")
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase())
+    )
+    .map((info) => ({
+      "ID Reporte": info.id,
+      "Nombre del predio": info.predio,
+      "Nombre del lote": info.lote,
+      "Posible fallo": info.fallo,
+      "Fecha de reporte del fallo": info.fecha,
+      Estado: info.estado,
+    }));
 
   const options = [
     { icon: "BiShow", name: "Ver detalles" },
@@ -74,20 +90,25 @@ const Fault_report = () => {
     { icon: "LuDownload", name: "Descargar" },
   ];
 
-  const handleOnClick = async () => {
-    navegation("1");
-  };
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedData = filteredData.slice(
+    startIndex,
+    startIndex + itemsPerPage
+  );
 
   return (
     <>
       <Head head_data={head_data} />
       <div className="container-search">
-        <Search />
-        <Filter />
+        <Search onSearch={setSearchTerm} /> <Filter />
       </div>
-      <Table columns={columns} data={mapData} options={options}/>
-      <Pagination/>
-      <button className="button" onClick={handleOnClick}>Submodulo</button>
+      <Table columns={columns} data={paginatedData} options={options} />
+      <Pagination
+        totalItems={filteredData.length}
+        itemsPerPage={itemsPerPage}
+        currentPage={currentPage}
+        onPageChange={setCurrentPage}
+      />
     </>
   );
 };

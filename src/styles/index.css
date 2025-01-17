@@ -2,6 +2,7 @@
   --bulma-text-family: "Roboto";
   --bulma-title-size: 30px;
   --text-navegation-size: 14px;
+  --pagination-current-color: hsl(0, 0%, 14%);
 }
 
 span,
