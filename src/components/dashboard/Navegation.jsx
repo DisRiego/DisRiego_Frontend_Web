@@ -5,56 +5,59 @@ const Navegation = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // Divide la ruta en segmentos y elimina vacíos
   const pathSegments = location.pathname.split("/").filter(Boolean);
 
-  // Si solo hay un segmento o si la ruta es simplemente "dashboard", no mostramos nada
-  if (pathSegments.length === 1 || (pathSegments[0] === "dashboard" && pathSegments.length === 2)) {
-    return null;
+  // Si la ruta no tiene suficientes segmentos para un breadcrumb, no se muestra
+  if (pathSegments.length < 3) {
+    return null; // No mostrar si no hay submódulos o detalles
   }
 
   const breadcrumb = [];
-  let pathAccumulator = "/dashboard"; // Para construir las rutas dinámicas
+  let currentPath = "";
 
-  // Recorremos todos los segmentos de la ruta
-  for (let i = 0; i < pathSegments.length; i++) {
-    const segment = pathSegments[i];
-    
-    // Si hay un módulo principal (ej: "property", "lot"), lo agregamos
-    if (Names_navegation[segment]) {
+  pathSegments.forEach((segment, index) => {
+    // Construir el camino actual de la ruta
+    currentPath += `/${segment}`;
+
+    if (index === 0 || segment === "dashboard") {
+      // Ignorar el primer segmento o "dashboard"
+      return;
+    }
+
+    const isNumber = !isNaN(segment); // Verificar si el segmento actual es un número
+    const parentSegment = pathSegments[index - 1]; // Segmento anterior (módulo padre)
+    const parentModule = Names_navegation[parentSegment]; // Buscar el módulo padre en la configuración
+
+    // Agregar el módulo principal al breadcrumb
+    if (index === 1 && Names_navegation[segment]) {
       breadcrumb.push({
         name: Names_navegation[segment].name,
-        path: `${pathAccumulator}/${segment}`,
+        path: currentPath,
       });
-      pathAccumulator += `/${segment}`;
+      return;
     }
 
-    // Si hay un submódulo (ej: "detail", "lot"), lo agregamos
-    if (Names_navegation[segment]?.submodules) {
-      const subModuleName = Names_navegation[segment].submodules[pathSegments[i + 1]]; // Usamos el siguiente segmento como submódulo
-      if (subModuleName) {
-        const idSegment = pathSegments[i + 2]; // ID del elemento (como el #1)
-        const formattedSubModuleName = subModuleName.includes("#")
-          ? subModuleName.replace("#", `#${idSegment || ""}`)
-          : subModuleName;
-
-        breadcrumb.push({
-          name: formattedSubModuleName,
-          path: `${pathAccumulator}/${pathSegments[i + 1]}${idSegment ? `/${idSegment}` : ""}`,
-        });
-      }
+    // Agregar submódulos dinámicos (detalles con IDs)
+    if (parentModule?.submodules?.detail && isNumber) {
+      const detailName = parentModule.submodules.detail.replace(
+        "#",
+        `#${segment}`
+      );
+      breadcrumb.push({
+        name: detailName,
+        path: currentPath,
+      });
     }
-  }
+  });
 
   return (
     <div className="navigation">
       {breadcrumb.map((item, index) => (
         <span key={index} className="breadcrumb">
-          {/* Comprobamos si es el último elemento o si el breadcrumb es "Mis Lotes" */}
-          {index === breadcrumb.length - 1 || item.name === "Mis Lotes" ? (
-            // Si es el último o "Mis Lotes", solo mostramos el nombre sin hacerlo clickeable
+          {location.pathname === item.path ? (
             <span>{item.name}</span>
           ) : (
-            // Si no es el último, mostramos un botón para navegar
             <button onClick={() => navigate(item.path)}>{item.name}</button>
           )}
           {index < breadcrumb.length - 1 && " > "}

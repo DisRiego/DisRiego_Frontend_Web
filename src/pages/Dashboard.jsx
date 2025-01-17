@@ -19,12 +19,11 @@ const Dashboard = () => {
     if (!isNaN(id)) {
       const segments = location.pathname.split("/").filter(Boolean);
       const length = segments.length;
-      const ante_penultimat_esegment = segments[length - 3];
       const penultimate_segment = segments[length - 2];
       const last_segment = segments[length - 1];
 
       setSelectedOption(
-        `${ante_penultimat_esegment}/${penultimate_segment}/${last_segment}`
+        `${penultimate_segment}/${last_segment}`
       );
     } else {
       setSelectedOption(id);
@@ -54,13 +53,13 @@ const Dashboard = () => {
         return <Notification />;
       case "property":
         return <Property />;
-      case `property/detail/${id}`:
+      case `property/${id}`:
         return <Property_detail />;
-      case `lot/detail/${id}`:
+      case `lot/${id}`:
         return <Lot_detail />;
       case "report":
         return <Fault_report />;
-      case `report/detail/${id}`:
+      case `report/${id}`:
         return <Invoice_detail />;
     }
   };

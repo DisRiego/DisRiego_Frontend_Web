@@ -75,7 +75,7 @@ const Fault_report = () => {
   ];
 
   const handleOnClick = async () => {
-    navegation("detail/1");
+    navegation("1");
   };
 
   return (

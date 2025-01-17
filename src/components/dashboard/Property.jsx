@@ -5,7 +5,7 @@ const Property = () => {
   const navigate = useNavigate();
 
   const handleOnClick = async () => {
-    navigate("detail/1");
+    navigate("1");
   };
 
   return (
