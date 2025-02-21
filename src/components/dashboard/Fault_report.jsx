@@ -42,7 +42,7 @@ const Fault_report = () => {
   useEffect(() => {
     setData([
       {
-        id: 1,
+        id: 123,
         predio: "predio 1",
         lote: "lote 1",
         fallo: "daño válvula",
@@ -50,7 +50,7 @@ const Fault_report = () => {
         estado: "1",
       },
       {
-        id: 2,
+        id: 234,
         predio: "predio 2",
         lote: "lote 2",
         fallo: "daño bateria",
@@ -58,7 +58,7 @@ const Fault_report = () => {
         estado: "0",
       },
       {
-        id: 3,
+        id: 345,
         predio: "predio 3",
         lote: "lote 3",
         fallo: "daño controlador",
