@@ -1,19 +1,19 @@
 import Head from "./Head";
 
 const Notification = () => {
-  const data = {
-    title: "Mis Notificaciones",
+  const head_data = {
+    title: "Notificaciones",
     buttons: {
       button1: {
         icon: "MdDownloadDone",
-        class: "",
-        text: "Marcar todo como leido",
+        class: "color-hover",
+        text: "Marcar todo como leído",
       },
     },
   };
   return (
     <>
-      <Head data={data} />
+      <Head head_data={head_data} />
     </>
   );
 };

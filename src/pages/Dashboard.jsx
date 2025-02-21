@@ -1,15 +1,34 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
+import Navegation from "../components/dashboard/Navegation";
 import Notification from "../components/dashboard/Notification";
+import Fault_report from "../components/dashboard/Fault_report";
+import Invoice_detail from "../components/dashboard/Invoice_detail";
+import Property from "../components/dashboard/Property";
+import Property_detail from "../components/dashboard/Property_detail";
+import Lot_detail from "../components/dashboard/Lot_detail";
 
 const Dashboard = () => {
   const { id } = useParams();
+  const location = useLocation();
   const [selectedOption, setSelectedOption] = useState(id);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
 
   useEffect(() => {
-    setSelectedOption(id);
-  }, [id]);
+    if (!isNaN(id)) {
+      const segments = location.pathname.split("/").filter(Boolean);
+      const length = segments.length;
+      const penultimate_segment = segments[length - 2];
+      const last_segment = segments[length - 1];
+
+      setSelectedOption(
+        `${penultimate_segment}/${last_segment}`
+      );
+    } else {
+      setSelectedOption(id);
+    }
+  }, [id, location.pathname]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -28,11 +47,20 @@ const Dashboard = () => {
   };
 
   const renderSelectedComponent = () => {
+    console.log(id);
     switch (selectedOption) {
       case "notification":
         return <Notification />;
-      case "rol":
-        return 1;
+      case "property":
+        return <Property />;
+      case `property/${id}`:
+        return <Property_detail />;
+      case `lot/${id}`:
+        return <Lot_detail />;
+      case "report":
+        return <Fault_report />;
+      case `report/${id}`:
+        return <Invoice_detail />;
     }
   };
 
@@ -45,7 +73,10 @@ const Dashboard = () => {
             selectedOption={selectedOption}
           />
         </div>
-        <div className="column column-option">{renderSelectedComponent()}</div>
+        <div className="column column-option">
+          <Navegation />
+          {renderSelectedComponent()}
+        </div>
       </div>
     </>
   );

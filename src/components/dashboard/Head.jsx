@@ -1,19 +1,20 @@
 import Icon from "../Icon";
 
-const Head = ({ data }) => {
+const Head = ({ head_data }) => {
   const renderButtons = () => {
-    if (!data.buttons || Object.keys(data.buttons).length === 0) {
+    if (!head_data.buttons || Object.keys(head_data.buttons).length === 0) {
       return null;
     }
 
-    return Object.keys(data.buttons).map((key) => {
-      const button = data.buttons[key];
+    return Object.keys(head_data.buttons).map((key) => {
+      const button = head_data.buttons[key];
       const IconComponent = Icon[button.icon];
 
       return (
-        <button key={key} className={button.class}>
-          {IconComponent && <IconComponent />}
-          {button.text}
+        <button key={key} className={"button " + button.class}>
+          <span className="icon">
+          {IconComponent && <IconComponent />}</span>
+          <span>{button.text}</span>
         </button>
       );
     });
@@ -21,9 +22,13 @@ const Head = ({ data }) => {
 
   return (
     <>
-      <p className="">{data.title}</p>
-      {data.description ? <p>{data.description}</p> : ""}
-      <div className="buttons-container">{renderButtons()}</div>
+      <div className="container-head">
+        <div className="container-text">
+        <p className="title">{head_data.title}</p>
+        {head_data.description ? <p>{head_data.description}</p> : ""}
+        </div>
+        <div className="container-button">{renderButtons()}</div>
+      </div>
     </>
   );
 };

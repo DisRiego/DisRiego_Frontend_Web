@@ -68,7 +68,7 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
           <span className="icon">
             <TbReport />
           </span>
-          {!isCollapsed && <span>Reporte de fallos</span>}
+          {!isCollapsed && <span>Mis reportes de fallos</span>}
         </Link>
         <Link
           className={`navbar-item ${

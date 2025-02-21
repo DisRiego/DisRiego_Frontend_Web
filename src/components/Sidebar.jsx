@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { FaUser, FaChevronRight, FaChevronLeft } from "react-icons/fa";
-import Option_user from "./dashboard/sidebar/option_user";
+import Option_user from "./dashboard/sidebar/Option_user";
 import Icon from "../assets/icons/DisRiego.svg";
 
 const Sidebar = ({ handleOptionChange, selectedOption }) => {
