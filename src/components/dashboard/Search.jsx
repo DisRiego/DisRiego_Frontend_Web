@@ -13,7 +13,7 @@ const Search = ({ onSearch }) => {
       <input
         className="input"
         type="text"
-        placeholder="Buscar por número de documento"
+        placeholder="Buscar..."
         onChange={handleInputChange}
       />
     </div>

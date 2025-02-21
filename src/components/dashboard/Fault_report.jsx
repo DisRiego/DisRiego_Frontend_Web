@@ -50,6 +50,14 @@ const Fault_report = () => {
         estado: "1",
       },
       {
+        id: 123,
+        predio: "predio 1",
+        lote: "lote 1",
+        fallo: "daño medidor",
+        fecha: "2025-01-10",
+        estado: "1",
+      },
+      {
         id: 234,
         predio: "predio 2",
         lote: "lote 2",
