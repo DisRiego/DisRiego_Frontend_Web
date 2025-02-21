@@ -7,7 +7,7 @@ const Filter = () => {
         <button className="button-filter">
           <span className="icon">
           <IoFilterSharp /></span>
-          <span>Filtrar</span>
+          <span>Filtros</span>
         </button>
       </div>
     </>
