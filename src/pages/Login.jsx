@@ -1,8 +1,10 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "bulma/css/bulma.min.css"; // Importar Bulma
 
 const Login = () => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
@@ -11,12 +13,16 @@ const Login = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.post("https://disriego-backend.onrender.com/login", {
-        email,
-        password,
-      });
+      const response = await axios.post(
+        "https://disriego-backend.onrender.com/login",
+        {
+          email,
+          password,
+        }
+      );
 
       setMessage(response.data.message);
+      navigate("/dashboard");
     } catch (error) {
       setMessage(error.response?.data?.error || "Login failed");
     }
@@ -53,9 +59,13 @@ const Login = () => {
               />
             </div>
           </div>
-          <button type="submit" className="button is-primary is-fullwidth">Login</button>
+          <button type="submit" className="button is-primary is-fullwidth">
+            Login
+          </button>
         </form>
-        {message && <p className="has-text-danger has-text-centered mt-3">{message}</p>}
+        {message && (
+          <p className="has-text-danger has-text-centered mt-3">{message}</p>
+        )}
       </div>
     </div>
   );
