@@ -255,3 +255,7 @@ p.title + p {
   background-color: #c2e96a;
   color: black;
 }
+
+.buttons > .button-login{
+  background-color: #c2e96a;
+}
