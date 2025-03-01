@@ -87,7 +87,7 @@ const Login = () => {
               </div>
               <button
                 type="submit"
-                className="button button-login is-fullwidth is-primary button-login"
+                className="button is-fullwidth is-primary button-login"
               >
                 Iniciar Sesión
               </button>

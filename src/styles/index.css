@@ -346,3 +346,11 @@ form > .button-login{
   margin-top: 4em;
   margin-bottom: 1em;
 }
+
+.modal-card > .modal-card-head{
+  box-shadow: none;
+}
+
+.modal-card > .modal-card-foot{
+  background-color: var(--bulma-modal-card-head-background-color);
+}

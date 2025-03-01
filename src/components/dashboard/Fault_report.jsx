@@ -4,12 +4,25 @@ import Search from "./Search";
 import Filter from "./Filter";
 import Table from "./Table";
 import Pagination from "./Pagination";
+import Form from "./Form";
 
 const Fault_report = () => {
   const [data, setData] = useState([]);
+  const [showForm, setShowForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
+
+  const handleButtonClick = (buttonText) => {
+    if (buttonText === "Reportar fallo") {
+      setShowForm(true);
+    }
+
+    //Aqui es donde se debe implementar la funcionalidad del reporte
+    if (buttonText === "Descargar reporte") {
+      console.log("Generando reporte...");
+    }
+  };
 
   const head_data = {
     title: "Reportes de fallos",
@@ -106,7 +119,7 @@ const Fault_report = () => {
 
   return (
     <>
-      <Head head_data={head_data} />
+      <Head head_data={head_data} onButtonClick={handleButtonClick} />
       <div className="container-search">
         <Search onSearch={setSearchTerm} /> <Filter />
       </div>
@@ -117,6 +130,11 @@ const Fault_report = () => {
         currentPage={currentPage}
         onPageChange={setCurrentPage}
       />
+      {showForm && (
+        <>
+          <Form title="Reportar fallo" onClose={() => setShowForm(false)} />
+        </>
+      )}
     </>
   );
 };

@@ -17,8 +17,7 @@ const Table = ({ columns, data, options }) => {
       const clickedOutside =
         !Object.values(menuRefs.current).some(
           (ref) => ref && ref.contains(event.target)
-        ) &&
-        !event.target.closest(".button-option"); // Incluye el botón en la validación
+        ) && !event.target.closest(".button-option");
 
       if (clickedOutside) {
         setActiveRow(null);

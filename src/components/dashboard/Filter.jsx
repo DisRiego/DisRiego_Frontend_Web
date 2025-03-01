@@ -1,12 +1,13 @@
 import { IoFilterSharp } from "react-icons/io5";
 
-const Filter = () => {
+const Filter = ({ onFilterClick }) => {
   return (
     <>
-      <div className="button">
+      <div className="button" onClick={onFilterClick}>
         <button className="button-filter">
           <span className="icon">
-          <IoFilterSharp /></span>
+            <IoFilterSharp />
+          </span>
           <span>Filtros</span>
         </button>
       </div>

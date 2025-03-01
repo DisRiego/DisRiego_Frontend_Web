@@ -8,6 +8,10 @@ import Invoice_detail from "../components/dashboard/Invoice_detail";
 import Property from "../components/dashboard/Property";
 import Property_detail from "../components/dashboard/Property_detail";
 import Lot_detail from "../components/dashboard/Lot_detail";
+import Rol from "../components/dashboard/Rol";
+import Rol_detail from "../components/dashboard/Rol_detail";
+import User from "../components/dashboard/User";
+import User_detail from "../components/dashboard/User_detail";
 
 const Dashboard = () => {
   const { id } = useParams();
@@ -22,9 +26,7 @@ const Dashboard = () => {
       const penultimate_segment = segments[length - 2];
       const last_segment = segments[length - 1];
 
-      setSelectedOption(
-        `${penultimate_segment}/${last_segment}`
-      );
+      setSelectedOption(`${penultimate_segment}/${last_segment}`);
     } else {
       setSelectedOption(id);
     }
@@ -51,6 +53,14 @@ const Dashboard = () => {
     switch (selectedOption) {
       case "notification":
         return <Notification />;
+      case "rol":
+        return <Rol />;
+      case `rol/${id}`:
+        return <Rol_detail />;
+      case "user":
+        return <User />;
+      case `user/${id}`:
+        return <User_detail />;
       case "property":
         return <Property />;
       case `property/${id}`:
