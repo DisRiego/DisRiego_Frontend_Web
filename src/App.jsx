@@ -3,9 +3,10 @@ import { useState } from "react";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import Sidebar from "./components/Sidebar";
-import Home from "./pages/Home"
-import Login from "./pages/Login"
-import Dashboard from "./pages/Dashboard"
+import Home from "./pages/Home";
+import Login from "./pages/Login";
+import Dashboard from "./pages/Dashboard";
+import Signup from "./pages/Signup";
 
 function AppContent() {
   return (
@@ -13,6 +14,7 @@ function AppContent() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/dashboard/:id" element={<Dashboard />} />
         <Route path="/dashboard/property/:id" element={<Dashboard />} />

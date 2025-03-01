@@ -259,3 +259,90 @@ p.title + p {
 .buttons > .button-login{
   background-color: #c2e96a;
 }
+
+.container-login > .background-image{
+  margin-top: 0;
+
+}
+
+.background-image{
+  background-image: url("../img//distrito_riego.jpg");
+  background-size: cover;
+  background-repeat: no-repeat;
+  height: 100vh;
+}
+
+.columns > .column-padding{
+  padding: 0em 3.5em;
+}
+
+.form-container{
+  height: 100vh;
+  background-color: var(--bulma-scheme-main);
+}
+
+.icon-login{
+  margin-right: 1em;
+}
+
+.text-login{
+  margin: 2em 0em;
+}
+
+.title-mb{
+  margin-bottom: 4em;
+}
+
+.control > .input-padding{
+  padding: 1.4em;
+}
+
+.mb-1em{
+  margin-bottom: 1em;
+}
+
+.mt-2em{
+  margin-top: 1.5em;
+}
+
+form > .button-login{
+  background-color: #c2e96a;
+}
+
+.separator {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 1em 0em;
+  background-color: transparent;
+}
+
+.separator::before,
+.separator::after {
+  content: "";
+  flex: 1;
+  border-bottom: 1px solid;
+  border-color: #b9bfca;
+}
+
+.button-padding{
+  padding: 4em 4em 0em;
+}
+
+.separator::before {
+  margin-right: 10px;
+}
+
+.separator::after {
+  margin-left: 10px;
+}
+
+.separator span {
+  padding: 0 10px;
+  font-weight: bold;
+}
+
+form > .button-login{
+  margin-top: 4em;
+  margin-bottom: 1em;
+}
