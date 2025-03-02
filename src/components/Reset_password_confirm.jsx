@@ -5,18 +5,20 @@ import Icon from "../assets/icons/DisRiego.svg";
 import IconGoogle from "../img/icon/iconGoogle.svg";
 import IconOutlook from "../img/icon/iconOutlook.svg";
 import { IoMdWarning } from "react-icons/io";
-import { validateEmail } from "../hooks/useValidations.jsx";
+import { validatePassword } from "../hooks/useValidations.jsx";
 
-const Reset_password = () => {
+const Reset_password_confirm = () => {
   const navigate = useNavigate();
   const [loginError, setLoginError] = useState("");
 
   const [formData, setFormData] = useState({
-    email: "",
+    password: "",
+    repeat_password: "",
   });
 
   const [errors, setErrors] = useState({
-    email: "",
+    password: "",
+    repeat_password: "",
   });
 
   const handleChange = (e) => {
@@ -26,11 +28,19 @@ const Reset_password = () => {
       [name]: value,
     });
 
-    if (name === "email") {
-      const isValid = validateEmail(value);
+    if (name === "password") {
+      const isValid = validatePassword(value);
       setErrors({
         ...errors,
-        email: isValid ? "" : "false",
+        password: isValid ? "" : "false",
+      });
+    }
+
+    if (name === "repeat_password") {
+      const isValid = validatePassword(value);
+      setErrors({
+        ...errors,
+        repeat_password: isValid ? "" : "false",
       });
     }
   };
@@ -39,19 +49,19 @@ const Reset_password = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (errors.email === "") {
+    if (errors.password === "" && errors.repeat_password === "") {
       try {
         console.log(formData);
         const response = await axios.post(
-          import.meta.env.VITE_URI_BACKEND_USER + "/login",
+          import.meta.env.VITE_URI_BACKEND_USER + "/",
           formData
         );
-        navigate("/dashboard");
+        navigate("/login");
       } catch (error) {
-        setLoginError("El correo electrónico es inválido.");
+        setLoginError("La contraseña no es inválida.");
       }
     } else {
-      setLoginError("El correo electrónico es inválido.");
+      setLoginError("Las contraseñas no coinciden.");
     }
   };
 
@@ -67,11 +77,10 @@ const Reset_password = () => {
 
             <div className="has-text-centered">
               <h3 className="subtitle has-text-weight-semibold mb-2">
-                ¿Olvidaste tu contraseña?
+                Restablecer contraseña
               </h3>
               <p className="title-mb">
-                No te preocupes, ingresa tu correo para recibir las
-                instrucciones de restablecer la contraseña.
+                Ingresa tu nueva contraseña para completar el proceso.
               </p>
             </div>
 
@@ -79,10 +88,21 @@ const Reset_password = () => {
               <div className="field">
                 <div className="control">
                   <input
-                    name="email"
-                    type="email"
+                    name="password"
+                    type="password"
                     className="input input-padding"
-                    placeholder="Email"
+                    placeholder="Ingresa tu nueva contraseña"
+                    onChange={handleChange}
+                  />
+                </div>
+              </div>
+              <div className="field">
+                <div className="control">
+                  <input
+                    name="repeat_password"
+                    type="password"
+                    className="input input-padding"
+                    placeholder="Ingresa nuevamente tu nueva contraseña"
                     onChange={handleChange}
                   />
                 </div>
@@ -95,9 +115,9 @@ const Reset_password = () => {
               )}
               <button
                 type="submit"
-                className="button is-fullwidth is-primary button-login"
+                className="button text-button is-fullwidth is-primary button-login"
               >
-                Enviar correo
+                Confirmar
               </button>
             </form>
             <div className="has-text-centered">
@@ -114,4 +134,4 @@ const Reset_password = () => {
   );
 };
 
-export default Reset_password;
+export default Reset_password_confirm;

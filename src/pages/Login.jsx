@@ -4,26 +4,64 @@ import axios from "axios";
 import Icon from "../assets/icons/DisRiego.svg";
 import IconGoogle from "../img/icon/iconGoogle.svg";
 import IconOutlook from "../img/icon/iconOutlook.svg";
+import { IoMdWarning } from "react-icons/io";
+import { validateEmail, validatePassword } from "../hooks/useValidations.jsx";
 
 const Login = () => {
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [loginError, setLoginError] = useState("");
+
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+
+  const [errors, setErrors] = useState({
+    email: "",
+    password: "",
+  });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+
+    if (name === "email") {
+      const isValid = validateEmail(value);
+      setErrors({
+        ...errors,
+        email: isValid ? "" : "false",
+      });
+    }
+
+    if (name === "password") {
+      const isValid = validatePassword(value);
+      setErrors({
+        ...errors,
+        password: isValid ? "" : "false",
+      });
+    }
+  };
   const [message, setMessage] = useState("");
 
-  const handleLogin = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    try {
-      const response = await axios.post(import.meta.env.URI_USER + "/login", {
-        email,
-        password,
-      });
-
-      setMessage(response.data.message);
-      navigate("/dashboard");
-    } catch (error) {
-      setMessage(error.response?.data?.error || "Login failed");
+    if (errors.email === "" && errors.password === "") {
+      try {
+        console.log(formData);
+        const response = await axios.post(
+          import.meta.env.VITE_URI_BACKEND_USER + "/login",
+          formData
+        );
+        navigate("/dashboard");
+      } catch (error) {
+        setLoginError("El correo electrónico o la contraseña son incorrectos.");
+      }
+    } else {
+      setLoginError("El correo electrónico o la contraseña son inválidos.");
     }
   };
 
@@ -60,31 +98,35 @@ const Login = () => {
               </div>
             </div>
 
-            <form className="" onSubmit={handleLogin}>
+            <form className="" onSubmit={handleSubmit}>
               <div className="field">
                 <div className="control">
                   <input
+                    name="email"
                     type="email"
                     className="input input-padding"
                     placeholder="Email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
+                    onChange={handleChange}
                   />
                 </div>
               </div>
               <div className="field">
                 <div className="control">
                   <input
+                    name="password"
                     type="password"
                     className="input input-padding"
-                    value={password}
                     placeholder="Contraseña"
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
+                    onChange={handleChange}
                   />
                 </div>
               </div>
+              {loginError && (
+                <div className="is-flex is-flex-direction-row	is-justify-content-center is-align-items-center">
+                  <IoMdWarning className="icon login-error mr-3" />
+                  <p className="login-error is-6">{loginError}</p>
+                </div>
+              )}
               <button
                 type="submit"
                 className="button is-fullwidth is-primary button-login"
@@ -92,7 +134,10 @@ const Login = () => {
                 Iniciar Sesión
               </button>
             </form>
-
+            <div className="has-text-centered mb-2">
+              <span>¿Olvidaste tu contraseña?</span>
+              <Link to="/login/resetpassword"> Restablécela aquí.</Link>
+            </div>
             <div className="has-text-centered">
               <span>¿No tienes cuenta? </span>
               <Link to="/signup">Haz clic aquí.</Link>

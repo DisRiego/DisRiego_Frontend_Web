@@ -293,6 +293,10 @@ p.title + p {
   margin-bottom: 4em;
 }
 
+.title-mb3{
+  margin-bottom: 3em;
+}
+
 .control > .input-padding{
   padding: 1.4em;
 }
@@ -307,6 +311,7 @@ p.title + p {
 
 form > .button-login{
   background-color: #c2e96a;
+  font-weight: bold;
 }
 
 .separator {
@@ -345,6 +350,11 @@ form > .button-login{
 form > .button-login{
   margin-top: 4em;
   margin-bottom: 1em;
+}
+
+.login-error{
+  color: #e86059;
+  font-weight:bold;
 }
 
 .modal-card > .modal-card-head{
