@@ -1,13 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Icon from "../assets/icons/DisRiego.svg";
 import IconGoogle from "../img/icon/iconGoogle.svg";
 import IconOutlook from "../img/icon/iconOutlook.svg";
 import { IoMdWarning } from "react-icons/io";
+import { IoArrowBack } from "react-icons/io5";
 import { validateEmail } from "../hooks/useValidations.jsx";
 
 const Reset_password = () => {
+  const [showButton, setShowButton] = useState(window.innerWidth >= 768);
   const navigate = useNavigate();
   const [loginError, setLoginError] = useState("");
 
@@ -18,6 +20,18 @@ const Reset_password = () => {
   const [errors, setErrors] = useState({
     email: "",
   });
+
+  useEffect(() => {
+    const handleResize = () => {
+      setShowButton(window.innerWidth >= 768);
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -57,6 +71,11 @@ const Reset_password = () => {
 
   return (
     <div className="container-login">
+      {showButton && (
+        <Link className="button-back" to="/">
+          <IoArrowBack className="icon" />
+        </Link>
+      )}
       <div className="columns background-image">
         <div className="column is-4-tablet is-4-desktop is-4-widescreen is-offset-two-thirds is-one-third is-flex is-flex-direction-column is-justify-content-center form-container column-padding">
           <div className="">

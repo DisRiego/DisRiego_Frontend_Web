@@ -1,13 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Icon from "../assets/icons/DisRiego.svg";
 import IconGoogle from "../img/icon/iconGoogle.svg";
 import IconOutlook from "../img/icon/iconOutlook.svg";
 import { IoMdWarning } from "react-icons/io";
+import { IoArrowBack } from "react-icons/io5";
 import { validateEmail, validatePassword } from "../hooks/useValidations.jsx";
 
 const Login = () => {
+  const [showButton, setShowButton] = useState(window.innerWidth >= 768);
   const navigate = useNavigate();
   const [loginError, setLoginError] = useState("");
 
@@ -44,6 +46,19 @@ const Login = () => {
       });
     }
   };
+
+  useEffect(() => {
+    const handleResize = () => {
+      setShowButton(window.innerWidth >= 768);
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
   const [message, setMessage] = useState("");
 
   const handleSubmit = async (e) => {
@@ -67,6 +82,11 @@ const Login = () => {
 
   return (
     <div className="container-login">
+      {showButton && (
+        <Link className="button-back" to="/">
+          <IoArrowBack className="icon" />
+        </Link>
+      )}
       <div className="columns background-image">
         <div className="column is-4-tablet is-4-desktop is-4-widescreen is-offset-two-thirds is-one-third is-flex is-flex-direction-column is-justify-content-center form-container column-padding">
           <div className="">
@@ -144,6 +164,7 @@ const Login = () => {
             </div>
           </div>
         </div>
+
         {message && (
           <p className="has-text-danger has-text-centered m-3">{message}</p>
         )}

@@ -23,7 +23,7 @@ td {
   font-size: 1.2rem;
 }
 
-.navegation{
+.navegation {
   margin-bottom: 1em;
   font-family: var(--bulma-text-family);
   font-size: var(--text-navegation-size);
@@ -256,60 +256,59 @@ p.title + p {
   color: black;
 }
 
-.buttons > .button-login{
+.buttons > .button-login {
   background-color: #c2e96a;
 }
 
-.container-login > .background-image{
+.container-login > .background-image {
   margin-top: 0;
-
 }
 
-.background-image{
+.background-image {
   background-image: url("../img//distrito_riego.jpg");
   background-size: cover;
   background-repeat: no-repeat;
   height: 100vh;
 }
 
-.columns > .column-padding{
+.columns > .column-padding {
   padding: 0em 3.5em;
 }
 
-.form-container{
+.form-container {
   height: 100vh;
   background-color: var(--bulma-scheme-main);
 }
 
-.icon-login{
+.icon-login {
   margin-right: 1em;
 }
 
-.text-login{
+.text-login {
   margin: 2em 0em;
 }
 
-.title-mb{
+.title-mb {
   margin-bottom: 4em;
 }
 
-.title-mb3{
+.title-mb3 {
   margin-bottom: 3em;
 }
 
-.control > .input-padding{
+.control > .input-padding {
   padding: 1.4em;
 }
 
-.mb-1em{
+.mb-1em {
   margin-bottom: 1em;
 }
 
-.mt-2em{
+.mt-2em {
   margin-top: 1.5em;
 }
 
-form > .button-login{
+form > .button-login {
   background-color: #c2e96a;
   font-weight: bold;
 }
@@ -330,7 +329,7 @@ form > .button-login{
   border-color: #b9bfca;
 }
 
-.button-padding{
+.button-padding {
   padding: 4em 4em 0em;
 }
 
@@ -347,20 +346,33 @@ form > .button-login{
   font-weight: bold;
 }
 
-form > .button-login{
+form > .button-login {
   margin-top: 4em;
   margin-bottom: 1em;
 }
 
-.login-error{
+.login-error {
   color: #e86059;
-  font-weight:bold;
+  font-weight: bold;
 }
 
-.modal-card > .modal-card-head{
+.modal-card > .modal-card-head {
   box-shadow: none;
 }
 
-.modal-card > .modal-card-foot{
+.modal-card > .modal-card-foot {
   background-color: var(--bulma-modal-card-head-background-color);
+}
+
+.button-back {
+  display: flex;
+  gap: 0.5em;
+  bottom: 1rem;
+  left: 1rem;
+  position: fixed;
+  border: 3px solid #c2e96a;
+  color: #c2e96a;
+  padding: 0.5em;
+  border-radius: 10px;
+  margin-top: 0px;
 }
