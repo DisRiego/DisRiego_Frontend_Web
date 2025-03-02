@@ -83,7 +83,7 @@ const Reset_password_confirm = () => {
   return (
     <div className="container-login">
       {showButton && (
-        <Link className="button-back" to="/">
+        <Link className="button-back" to="/login">
           <IoArrowBack className="icon" />
         </Link>
       )}
