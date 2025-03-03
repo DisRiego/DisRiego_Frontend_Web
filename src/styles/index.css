@@ -363,7 +363,70 @@ form > .button-login {
 .modal-card > .modal-card-foot {
   background-color: var(--bulma-modal-card-head-background-color);
 }
+/*css de filtro roles*/
+.view-filter {
+  display: flex;
+  flex-direction: column;
+  width: 25em;
+  height: 100vh;
+  padding: 3em;
+  position: fixed;
+  top: 0;
+  right: 0;
+  border-radius: 0;
+  background: var(--bulma-scheme-main);
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+}
 
+.view-filter-body {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.view-filter-buttons {
+  display: flex;
+  justify-content: space-between;
+}
+
+.accordion {
+  margin-bottom: 0.5em;
+}
+
+.accordion-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+}
+
+.accordion-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-in-out;
+  padding-left: 1em;
+}
+
+.accordion-body.open {
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+.icon.open {
+  transform: rotate(180deg);
+}
+
+.container-status {
+  padding-left: 1em;
+}
+
+.cont-table {
+  border: 2px solid var(--bulma-border);
+  padding: 5px 10px 5px 5px;
+  border-radius: 10px;
+  margin-left: 0.5em;
+}
+
+/*css de filtro roles*/
 .button-back {
   display: flex;
   gap: 0.5em;
