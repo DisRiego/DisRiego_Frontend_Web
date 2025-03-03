@@ -4,14 +4,14 @@ import Sidebar from "../components/Sidebar";
 import Navegation from "../components/dashboard/Navegation";
 import Notification from "../components/dashboard/Notification";
 import Fault_report from "../components/dashboard/Fault_report";
-import Invoice_detail from "../components/dashboard/Invoice_detail";
+import Invoice_detail from "../components/dashboard/details/Invoice_detail";
 import Property from "../components/dashboard/Property";
-import Property_detail from "../components/dashboard/Property_detail";
-import Lot_detail from "../components/dashboard/Lot_detail";
+import Property_detail from "../components/dashboard/details/Property_detail";
+import Lot_detail from "../components/dashboard/details/Lot_detail";
 import Rol from "../components/dashboard/Rol";
-import Rol_detail from "../components/dashboard/Rol_detail";
+import Rol_detail from "../components/dashboard/details/Rol_detail";
 import User from "../components/dashboard/User";
-import User_detail from "../components/dashboard/User_detail";
+import User_detail from "../components/dashboard/details/User_detail";
 
 const Dashboard = () => {
   const { id } = useParams();
