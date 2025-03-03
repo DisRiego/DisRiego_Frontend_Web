@@ -72,7 +72,7 @@ const Reset_password = () => {
   return (
     <div className="container-login">
       {showButton && (
-        <Link className="button-back" to="/">
+        <Link className="button-back" to="/login">
           <IoArrowBack className="icon" />
         </Link>
       )}
