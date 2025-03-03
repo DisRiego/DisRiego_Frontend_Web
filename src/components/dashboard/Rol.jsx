@@ -6,6 +6,9 @@ import Table from "./Table";
 import Pagination from "./Pagination";
 import Form from "./Form";
 import View_filter from "./View_filter";
+import { jsPDF } from "jspdf";
+import Icon from "../../assets/icons/Disriego_title.png";
+import { autoTable } from 'jspdf-autotable'
 
 const Rol = () => {
   const [data, setData] = useState([]);
@@ -23,9 +26,69 @@ const Rol = () => {
     //Aqui es donde se debe implementar la funcionalidad del reporte
     if (buttonText === "Descargar reporte") {
       console.log("Generando reporte...");
+      generateReport();
     }
   };
 
+  const generateReport = () => {
+    const doc = new jsPDF();
+    //colorear fondo
+    doc.setFillColor(243, 242, 247); // Azul claro
+    doc.rect(0, 0, 210, 53, "F"); // colorear una parte de la pagina
+    // agregar logo (usando base 64 directamente sobre la importacion)
+    doc.addImage(Icon, "PNG", 156, 12, 38, 8);
+
+
+    doc.setFontSize(17);
+    doc.setFont("Roboto", "bold")
+    doc.text("REPORTE DE ROLES", 12, 18);
+    doc.setFontSize(10);
+    doc.setTextColor(94, 100, 112);
+    doc.text(`${new Date().toLocaleString()}`, 12, 32);
+    doc.text(`[Nombre del usuario]`, 12, 44);
+    doc.text(`[Dirección de la empresa]`, 194, 27, { align: "right" }); 
+    doc.text(`[Ciudad, Dept. País]`, 194, 33, { align: "right" }); 
+    doc.text(`[Teléfono]`, 194, 39, { align: "right" }); 
+    doc.setTextColor(0, 0, 0);
+    doc.text(`Fecha de generación:`, 12, 27);
+    doc.text(`Generado por:`, 12, 39);
+    doc.setFontSize(11);
+    doc.text("Roles actuales en el sistema", 12, 63);
+    doc.setFontSize(11);
+    doc.setTextColor(94, 100, 112);
+    doc.setFont("Roboto", "Normal")
+    doc.text(`Cantidad de roles: ${data.length}`, 12, 68);
+    const headers = ["Nombre del rol", "Descripción", "Cantidad de usuarios", "Permisos"];
+    const headerWidths = [40, 60, 40, 60]; 
+    
+    doc.setFontSize(10);
+    doc.setTextColor(0, 0, 0); 
+    
+    let x = 20;
+    headers.forEach((header, index) => {
+      doc.text(header, x + 5, 97); // Agrega el texto sin rectángulo de fondo
+      x += headerWidths[index];
+    });
+
+        // Agregar tabla con autoTable
+        autoTable(doc, { 
+          startY: 80,
+          margin: { left: 12 },
+          head: [["Nombre del rol", "Descripción", "Cantidad de usuarios", "Permisos"]],
+          body: data.map((rol) => [
+            rol.nombre,
+            rol.descripcion,
+            "-",
+            rol.permisos.map((p) => p.nombre).join(", "),
+          ]),
+          theme: "grid",
+          headStyles: { fillColor: [255, 255, 255], textColor: [89, 89, 89], fontStyle: "bold", 
+          lineColor: [234, 236, 240], lineWidth: 0.5,}, 
+          bodyStyles: { textColor: [89, 89, 89] },
+          styles: { fontSize: 10, cellPadding: 3, lineColor: [234, 236, 240] }, 
+        });
+    doc.save("reporte_roles.pdf");
+  };
   const handleFilterClick = () => {
     setShowFilter(true);
     console.log("Filtros...");
