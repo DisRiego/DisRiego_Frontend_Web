@@ -23,7 +23,7 @@ td {
   font-size: 1.2rem;
 }
 
-.navegation{
+.navegation {
   margin-bottom: 1em;
   font-family: var(--bulma-text-family);
   font-size: var(--text-navegation-size);
@@ -256,56 +256,55 @@ p.title + p {
   color: black;
 }
 
-.buttons > .button-login{
+.buttons > .button-login {
   background-color: #c2e96a;
 }
 
-.container-login > .background-image{
+.container-login > .background-image {
   margin-top: 0;
-
 }
 
-.background-image{
+.background-image {
   background-image: url("../img//distrito_riego.jpg");
   background-size: cover;
   background-repeat: no-repeat;
   height: 100vh;
 }
 
-.columns > .column-padding{
+.columns > .column-padding {
   padding: 0em 3.5em;
 }
 
-.form-container{
+.form-container {
   height: 100vh;
   background-color: var(--bulma-scheme-main);
 }
 
-.icon-login{
+.icon-login {
   margin-right: 1em;
 }
 
-.text-login{
+.text-login {
   margin: 2em 0em;
 }
 
-.title-mb{
+.title-mb {
   margin-bottom: 4em;
 }
 
-.control > .input-padding{
+.control > .input-padding {
   padding: 1.4em;
 }
 
-.mb-1em{
+.mb-1em {
   margin-bottom: 1em;
 }
 
-.mt-2em{
+.mt-2em {
   margin-top: 1.5em;
 }
 
-form > .button-login{
+form > .button-login {
   background-color: #c2e96a;
 }
 
@@ -325,7 +324,7 @@ form > .button-login{
   border-color: #b9bfca;
 }
 
-.button-padding{
+.button-padding {
   padding: 4em 4em 0em;
 }
 
@@ -342,39 +341,31 @@ form > .button-login{
   font-weight: bold;
 }
 
-form > .button-login{
+form > .button-login {
   margin-top: 4em;
   margin-bottom: 1em;
 }
 
-.modal-card > .modal-card-head{
+.modal-card > .modal-card-head {
   box-shadow: none;
 }
 
-.modal-card > .modal-card-foot{
+.modal-card > .modal-card-foot {
   background-color: var(--bulma-modal-card-head-background-color);
 }
 /*css de filtro roles*/
 .view-filter {
-  width: 350px;
+  display: flex;
+  flex-direction: column;
+  width: 25em;
   height: 100vh;
-  padding: 20px;
-  position: fixed; /* Asegura que sea fijo */
+  padding: 3em;
+  position: fixed;
   top: 0;
   right: 0;
   border-radius: 0;
-  background: #1e1e1e;
-  color: #fff;
+  background: var(--bulma-scheme-main);
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.view-filter-title {
-  font-size: 1.5rem;
-  font-weight: bold;
-  margin-bottom: 10px;
 }
 
 .view-filter-body {
@@ -382,25 +373,47 @@ form > .button-login{
   overflow-y: auto;
 }
 
-.view-filter-field {
-  margin-bottom: 15px;
-}
-
-.view-filter-label {
-  font-weight: bold;
-  display: block;
-  margin-bottom: 5px;
-}
-
 .view-filter-buttons {
   display: flex;
   justify-content: space-between;
 }
 
-/* Eliminar el borde morado en los selects */
-.view-filter select:focus {
-  outline: none;
-  box-shadow: none;
-  border-color: #ccc;
+.accordion {
+  margin-bottom: 0.5em;
 }
+
+.accordion-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+}
+
+.accordion-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-in-out;
+  padding-left: 1em;
+}
+
+.accordion-body.open {
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+.icon.open {
+  transform: rotate(180deg);
+}
+
+.container-status {
+  padding-left: 1em;
+}
+
+.cont-table {
+  border: 2px solid var(--bulma-border);
+  padding: 5px 10px 5px 5px;
+  border-radius: 10px;
+  margin-left: 0.5em;
+}
+
 /*css de filtro roles*/
