@@ -6,6 +6,7 @@ import Table from "./Table";
 import Pagination from "./Pagination";
 import Form from "./Form";
 import View_filter from "./View_filter";
+import Filter_rol from "./form_filters/Filter_rol";
 import { jsPDF } from "jspdf";
 import Icon from "../../assets/icons/Disriego_title.png";
 import { autoTable } from 'jspdf-autotable'
@@ -91,7 +92,6 @@ const Rol = () => {
   };
   const handleFilterClick = () => {
     setShowFilter(true);
-    console.log("Filtros...");
   };
 
   const head_data = {
@@ -125,13 +125,27 @@ const Rol = () => {
         id: 1,
         nombre: "Admin",
         descripcion: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-        permisos: [{ id: 1, nombre: "crear usuario", categoria: "usuario" }],
+        permisos: [
+          { id: 1, nombre: "Crear usuario", categoria: "usuario" },
+          { id: 2, nombre: "Crear rol", categoria: "rol" },
+          { id: 3, nombre: "Crear predio", categoria: "predio" },
+          { id: 4, nombre: "Editar usuario", categoria: "usuario" },
+          { id: 5, nombre: "Inhabilitar usuario", categoria: "usuario" },
+          {
+            id: 6,
+            nombre: "Descargar reporte de usuario",
+            categoria: "usuario",
+          },
+          { id: 7, nombre: "Ver detalles de un usuario", categoria: "usuario" },
+        ],
+        estado: "Activo",
       },
       {
         id: 2,
         nombre: "Usuario",
         descripcion: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
         permisos: [{ id: 1, nombre: "crear usuario", categoria: "usuario" }],
+        estado: "Inactivo",
       },
     ]);
   }, []);
@@ -146,6 +160,8 @@ const Rol = () => {
     .map((info) => ({
       "Nombre del rol": info.nombre,
       Descripción: info.descripcion,
+      Permisos: info.permisos,
+      Estado: info.estado,
     }));
 
   const options = [
@@ -181,7 +197,7 @@ const Rol = () => {
       )}
       {showFilter && (
         <>
-          <View_filter
+          <Filter_rol
             title="Filtros de rol"
             onClose={() => setShowFilter(false)}
           />
