@@ -4,7 +4,6 @@ import Search from "./Search";
 import Filter from "./Filter";
 import Table from "./Table";
 import Pagination from "./Pagination";
-import Form from "./Form";
 
 const Fault_report = () => {
   const [data, setData] = useState([]);

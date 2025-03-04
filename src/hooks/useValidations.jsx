@@ -16,3 +16,13 @@ export const validatePassword = (password) => {
     hasLowercase && hasUppercase && hasNumber && hasSpecialChar && isValidLength
   );
 };
+
+export const validateText = (text) => {
+  const nameRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
+  return nameRegex.test(text) && text.trim() !== "";
+};
+
+export const validateTextArea = (fullText) => {
+  const nameRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
+  return nameRegex.test(fullText) && fullText.trim() !== "";
+};

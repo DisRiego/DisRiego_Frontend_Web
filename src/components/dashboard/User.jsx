@@ -4,8 +4,8 @@ import Search from "./Search";
 import Filter from "./Filter";
 import Table from "./Table";
 import Pagination from "./Pagination";
-import Form from "./Form";
-import View_filter from "./View_filter";
+import Form_add_user from "./forms/adds/Form_add_user";
+import Filter_user from "./filters/Filter_user";
 
 const User = () => {
   const [data, setData] = useState([]);
@@ -16,7 +16,7 @@ const User = () => {
   const itemsPerPage = 5;
 
   const handleButtonClick = (buttonText) => {
-    if (buttonText === "Añadir rol") {
+    if (buttonText === "Añadir usuario") {
       setShowForm(true);
     }
 
@@ -50,11 +50,13 @@ const User = () => {
   };
 
   const columns = [
+    "ID",
     "Nombres",
     "Apellidos",
     "Tipo de documento",
     "Numero de documento",
     "Fecha de expedición",
+    "Numero de telefono",
     "Roles",
     "Estado",
     "Opciones",
@@ -98,6 +100,7 @@ const User = () => {
         .includes(searchTerm.toLowerCase())
     )
     .map((info) => ({
+      ID: info.id,
       Nombres: info.nombres,
       Apellidos: info.apellidos,
       "Tipo de documento": info.tipo_documento,
@@ -136,12 +139,15 @@ const User = () => {
       />
       {showForm && (
         <>
-          <Form title="Añadir Rol" onClose={() => setShowForm(false)} />
+          <Form_add_user
+            title="Añadir Usuario"
+            onClose={() => setShowForm(false)}
+          />
         </>
       )}
       {showFilter && (
         <>
-          <View_filter
+          <Filter_user
             title="Filtros de rol"
             onClose={() => setShowFilter(false)}
           />
