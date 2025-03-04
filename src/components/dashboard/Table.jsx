@@ -78,7 +78,7 @@ const Table = ({ columns, data, options }) => {
                         <>
                           {row[column].slice(0, 4).map((permiso, index) => (
                             <span key={index}>
-                              {permiso.nombre}
+                              {permiso.name}
                               {index < 3 ? ", " : ""}
                             </span>
                           ))}
@@ -90,7 +90,7 @@ const Table = ({ columns, data, options }) => {
                       ) : (
                         row[column].map((permiso, index) => (
                           <span key={index}>
-                            {permiso.nombre}
+                            {permiso.name}
                             {index < row[column].length - 1 ? ", " : ""}
                           </span>
                         ))
