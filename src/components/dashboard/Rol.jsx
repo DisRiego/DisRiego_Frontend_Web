@@ -4,9 +4,8 @@ import Search from "./Search";
 import Filter from "./Filter";
 import Table from "./Table";
 import Pagination from "./Pagination";
-import Form from "./Form";
-import View_filter from "./View_filter";
-import Filter_rol from "./filter_fields/Filter_rol";
+import Form_add_rol from "./forms/adds/Form_add_rol";
+import Filter_rol from "./filters/Filter_rol";
 import { jsPDF } from "jspdf";
 import Icon from "../../assets/icons/Disriego_title.png";
 import { autoTable } from "jspdf-autotable";
@@ -203,7 +202,7 @@ const Rol = () => {
       />
       {showForm && (
         <>
-          <Form title="Añadir Rol" onClose={() => setShowForm(false)} />
+          <Form_add_rol title="Añadir Rol" onClose={() => setShowForm(false)} />
         </>
       )}
       {showFilter && (
