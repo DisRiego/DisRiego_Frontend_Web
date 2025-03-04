@@ -122,6 +122,7 @@ const Rol = () => {
   };
 
   const columns = [
+    "ID",
     "Nombre del rol",
     "Descripción",
     "Cantidad de usuarios",
@@ -136,6 +137,7 @@ const Rol = () => {
         id: 1,
         nombre: "Admin",
         descripcion: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+        cantidad: 1,
         permisos: [
           { id: 1, nombre: "Crear usuario", categoria: "usuario" },
           { id: 2, nombre: "Crear rol", categoria: "rol" },
@@ -155,6 +157,7 @@ const Rol = () => {
         id: 2,
         nombre: "Usuario",
         descripcion: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+        cantidad: 10,
         permisos: [{ id: 1, nombre: "crear usuario", categoria: "usuario" }],
         estado: "Inactivo",
       },
@@ -169,8 +172,10 @@ const Rol = () => {
         .includes(searchTerm.toLowerCase())
     )
     .map((info) => ({
+      ID: info.id,
       "Nombre del rol": info.nombre,
       Descripción: info.descripcion,
+      "Cantidad de usuarios": info.cantidad,
       Permisos: info.permisos,
       Estado: info.estado,
     }));

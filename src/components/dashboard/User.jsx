@@ -50,6 +50,7 @@ const User = () => {
   };
 
   const columns = [
+    "ID",
     "Nombres",
     "Apellidos",
     "Tipo de documento",
@@ -99,6 +100,7 @@ const User = () => {
         .includes(searchTerm.toLowerCase())
     )
     .map((info) => ({
+      ID: info.id,
       Nombres: info.nombres,
       Apellidos: info.apellidos,
       "Tipo de documento": info.tipo_documento,

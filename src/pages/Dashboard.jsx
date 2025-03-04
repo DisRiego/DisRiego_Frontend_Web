@@ -49,7 +49,6 @@ const Dashboard = () => {
   };
 
   const renderSelectedComponent = () => {
-    console.log(id);
     switch (selectedOption) {
       case "notification":
         return <Notification />;
