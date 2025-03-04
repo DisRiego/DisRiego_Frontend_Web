@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import Confirm_add_rol from "../../confirm_view/confirm_add_rol";
+import Confirm_add_rol from "../../confirm_view/adds/Confirm_add_rol";
 import {
   validateText,
   validateTextArea,

@@ -67,10 +67,10 @@ const Rol = () => {
         ["Nombre del rol", "Descripción", "Cantidad de usuarios", "Permisos"],
       ],
       body: data.map((rol) => [
-        rol.nombre,
-        rol.descripcion,
+        rol.name,
+        rol.description,
         "-",
-        rol.permisos.map((p) => p.nombre).join(", "),
+        rol.permissions.map((p) => p.name).join(", "),
       ]),
       theme: "grid",
       headStyles: {
@@ -143,15 +143,6 @@ const Rol = () => {
     };
 
     fetchRoles();
-    //   {
-    //     id: 2,
-    //     nombre: "Usuario",
-    //     descripcion: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-    //     cantidad: 10,
-    //     permisos: [{ id: 1, nombre: "crear usuario", categoria: "usuario" }],
-    //     estado: "Inactivo",
-    //   },
-    // ]);
   }, []);
 
   const filteredData = data

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { SlOptionsVertical } from "react-icons/sl";
-import Confirm_add_rol from "./confirm_view/confirm_add_rol";
+import Confirm_add_rol from "./confirm_view/adds/Confirm_add_rol";
 import Icon from "../Icon";
 
 const OptionsButton = ({ onClick }) => (

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Message from "../../Message";
+import Message from "../../../Message.jsx";
 
 const Confirm_add_rol = ({ confirMessage, onClose, onConfirm }) => {
   const [showMessage, setShowMessage] = useState(false);
