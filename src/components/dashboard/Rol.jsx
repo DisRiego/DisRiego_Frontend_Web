@@ -58,7 +58,6 @@ const Rol = () => {
     doc.setTextColor(94, 100, 112);
     doc.setFont("Roboto", "Normal");
     doc.text(`Cantidad de roles: ${data.length}`, 12, 68);
-<<<<<<< HEAD
 
         // Agregar tabla con autoTable
         autoTable(doc, { 
@@ -88,49 +87,6 @@ const Rol = () => {
               doc.text(`Página ${i}/${pageCount}`, pageWidth - 10, pageHeight - 10, { align: "right" });
             }
         
-=======
-    const headers = [
-      "Nombre del rol",
-      "Descripción",
-      "Cantidad de usuarios",
-      "Permisos",
-    ];
-    const headerWidths = [40, 60, 40, 60];
-
-    doc.setFontSize(10);
-    doc.setTextColor(0, 0, 0);
-
-    let x = 20;
-    headers.forEach((header, index) => {
-      doc.text(header, x + 5, 97); // Agrega el texto sin rectángulo de fondo
-      x += headerWidths[index];
-    });
-
-    // Agregar tabla con autoTable
-    autoTable(doc, {
-      startY: 80,
-      margin: { left: 12 },
-      head: [
-        ["Nombre del rol", "Descripción", "Cantidad de usuarios", "Permisos"],
-      ],
-      body: data.map((rol) => [
-        rol.nombre,
-        rol.descripcion,
-        "-",
-        rol.permisos.map((p) => p.nombre).join(", "),
-      ]),
-      theme: "grid",
-      headStyles: {
-        fillColor: [255, 255, 255],
-        textColor: [89, 89, 89],
-        fontStyle: "bold",
-        lineColor: [234, 236, 240],
-        lineWidth: 0.5,
-      },
-      bodyStyles: { textColor: [89, 89, 89] },
-      styles: { fontSize: 10, cellPadding: 3, lineColor: [234, 236, 240] },
-    });
->>>>>>> 16d4ee637275343ac4c53158c16223ba990ea576
     doc.save("reporte_roles.pdf");
   };
   const handleFilterClick = () => {
