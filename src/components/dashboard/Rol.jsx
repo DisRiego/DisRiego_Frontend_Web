@@ -124,6 +124,7 @@ const Rol = () => {
   const columns = [
     "Nombre del rol",
     "Descripción",
+    "Cantidad de usuarios",
     "Permisos",
     "Estado",
     "Opciones",
