@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { FaUser, FaChevronRight, FaChevronLeft } from "react-icons/fa";
-import Option_user from "./dashboard/sidebar/Option_user";
+import Option_user from "./dashboard/Option_user";
 import Icon from "../assets/icons/DisRiego.svg";
 
 const Sidebar = ({ handleOptionChange, selectedOption }) => {
@@ -26,10 +26,8 @@ const Sidebar = ({ handleOptionChange, selectedOption }) => {
               <img src={Icon} alt="Logo de la Empresa" />
             </span>
             {!isCollapsed && (
-            <span className="is-size-5 has-text-weight-bold">
-              Dis Riego
-            </span>
-          )}
+              <span className="is-size-5 has-text-weight-bold">Dis Riego</span>
+            )}
           </a>
         </div>
         <Option_user

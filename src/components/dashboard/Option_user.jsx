@@ -5,6 +5,8 @@ import { HiOutlineBell } from "react-icons/hi";
 import { TbMapSearch, TbReport, TbLogout } from "react-icons/tb";
 import { LuWallet } from "react-icons/lu";
 import { RiLogoutBoxRLine } from "react-icons/ri";
+import { LuUserCog } from "react-icons/lu";
+import { LuUsersRound } from "react-icons/lu";
 
 const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
   return (
@@ -21,6 +23,30 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
             <HiOutlineBell />
           </span>
           {!isCollapsed && <span>Notificaciones</span>}
+        </Link>
+        <Link
+          className={`navbar-item ${
+            selectedOption === "rol" ? "selected" : ""
+          }`}
+          onClick={() => handleOptionChange("rol")}
+          to="/dashboard/rol"
+        >
+          <span className="icon">
+            <LuUserCog />
+          </span>
+          {!isCollapsed && <span>Gestión de roles</span>}
+        </Link>
+        <Link
+          className={`navbar-item ${
+            selectedOption === "user" ? "selected" : ""
+          }`}
+          onClick={() => handleOptionChange("user")}
+          to="/dashboard/user"
+        >
+          <span className="icon">
+            <LuUsersRound />
+          </span>
+          {!isCollapsed && <span>Gestión de usuarios</span>}
         </Link>
         <Link
           className={`navbar-item ${

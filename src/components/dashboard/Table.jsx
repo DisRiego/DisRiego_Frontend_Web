@@ -17,8 +17,7 @@ const Table = ({ columns, data, options }) => {
       const clickedOutside =
         !Object.values(menuRefs.current).some(
           (ref) => ref && ref.contains(event.target)
-        ) &&
-        !event.target.closest(".button-option"); // Incluye el botón en la validación
+        ) && !event.target.closest(".button-option");
 
       if (clickedOutside) {
         setActiveRow(null);
@@ -54,12 +53,34 @@ const Table = ({ columns, data, options }) => {
             <tr key={rowIndex}>
               {columns.map((column, colIndex) => (
                 <td key={`${rowIndex}-${colIndex}`}>
-                  {column === "Opciones" ? (
+                  {column === "Permisos" && Array.isArray(row[column]) ? (
+                    row[column].length > 4 ? (
+                      <>
+                        {row[column].slice(0, 4).map((permiso, index) => (
+                          <span key={index}>
+                            {permiso.nombre}
+                            {index < 3 ? ", " : ""}
+                          </span>
+                        ))}
+                        <span className="cont-table">
+                          {" "}
+                          +{row[column].length - 4}
+                        </span>
+                      </>
+                    ) : (
+                      row[column].map((permiso, index) => (
+                        <span key={index}>
+                          {permiso.nombre}
+                          {index < row[column].length - 1 ? ", " : ""}
+                        </span>
+                      ))
+                    )
+                  ) : column === "Opciones" ? (
                     <div
                       className="is-relative"
                       ref={(el) => {
                         if (el) menuRefs.current[rowIndex] = el;
-                        else delete menuRefs.current[rowIndex]; // Limpia referencias obsoletas
+                        else delete menuRefs.current[rowIndex];
                       }}
                     >
                       <OptionsButton onClick={() => handleClick(rowIndex)} />
