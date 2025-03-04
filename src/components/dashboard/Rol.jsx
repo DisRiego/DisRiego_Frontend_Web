@@ -6,9 +6,10 @@ import Table from "./Table";
 import Pagination from "./Pagination";
 import Form from "./Form";
 import View_filter from "./View_filter";
+import Filter_rol from "./filter_fields/Filter_rol";
 import { jsPDF } from "jspdf";
 import Icon from "../../assets/icons/Disriego_title.png";
-import { autoTable } from 'jspdf-autotable'
+import { autoTable } from "jspdf-autotable";
 
 const Rol = () => {
   const [data, setData] = useState([]);
@@ -38,17 +39,16 @@ const Rol = () => {
     // agregar logo (usando base 64 directamente sobre la importacion)
     doc.addImage(Icon, "PNG", 156, 10, 39, 11);
 
-
     doc.setFontSize(17);
-    doc.setFont("Roboto", "bold")
+    doc.setFont("Roboto", "bold");
     doc.text("REPORTE DE ROLES", 12, 18);
     doc.setFontSize(10);
     doc.setTextColor(94, 100, 112);
     doc.text(`${new Date().toLocaleString()}`, 12, 32);
     doc.text(`[Nombre del usuario]`, 12, 44);
-    doc.text(`[Dirección de la empresa]`, 194, 27, { align: "right" }); 
-    doc.text(`[Ciudad, Dept. País]`, 194, 33, { align: "right" }); 
-    doc.text(`[Teléfono]`, 194, 39, { align: "right" }); 
+    doc.text(`[Dirección de la empresa]`, 194, 27, { align: "right" });
+    doc.text(`[Ciudad, Dept. País]`, 194, 33, { align: "right" });
+    doc.text(`[Teléfono]`, 194, 39, { align: "right" });
     doc.setTextColor(0, 0, 0);
     doc.text(`Fecha de generación:`, 12, 27);
     doc.text(`Generado por:`, 12, 39);
@@ -56,8 +56,9 @@ const Rol = () => {
     doc.text("Roles actuales en el sistema", 12, 63);
     doc.setFontSize(11);
     doc.setTextColor(94, 100, 112);
-    doc.setFont("Roboto", "Normal")
+    doc.setFont("Roboto", "Normal");
     doc.text(`Cantidad de roles: ${data.length}`, 12, 68);
+<<<<<<< HEAD
 
         // Agregar tabla con autoTable
         autoTable(doc, { 
@@ -87,11 +88,53 @@ const Rol = () => {
               doc.text(`Página ${i}/${pageCount}`, pageWidth - 10, pageHeight - 10, { align: "right" });
             }
         
+=======
+    const headers = [
+      "Nombre del rol",
+      "Descripción",
+      "Cantidad de usuarios",
+      "Permisos",
+    ];
+    const headerWidths = [40, 60, 40, 60];
+
+    doc.setFontSize(10);
+    doc.setTextColor(0, 0, 0);
+
+    let x = 20;
+    headers.forEach((header, index) => {
+      doc.text(header, x + 5, 97); // Agrega el texto sin rectángulo de fondo
+      x += headerWidths[index];
+    });
+
+    // Agregar tabla con autoTable
+    autoTable(doc, {
+      startY: 80,
+      margin: { left: 12 },
+      head: [
+        ["Nombre del rol", "Descripción", "Cantidad de usuarios", "Permisos"],
+      ],
+      body: data.map((rol) => [
+        rol.nombre,
+        rol.descripcion,
+        "-",
+        rol.permisos.map((p) => p.nombre).join(", "),
+      ]),
+      theme: "grid",
+      headStyles: {
+        fillColor: [255, 255, 255],
+        textColor: [89, 89, 89],
+        fontStyle: "bold",
+        lineColor: [234, 236, 240],
+        lineWidth: 0.5,
+      },
+      bodyStyles: { textColor: [89, 89, 89] },
+      styles: { fontSize: 10, cellPadding: 3, lineColor: [234, 236, 240] },
+    });
+>>>>>>> 16d4ee637275343ac4c53158c16223ba990ea576
     doc.save("reporte_roles.pdf");
   };
   const handleFilterClick = () => {
     setShowFilter(true);
-    console.log("Filtros...");
   };
 
   const head_data = {
@@ -125,13 +168,27 @@ const Rol = () => {
         id: 1,
         nombre: "Admin",
         descripcion: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-        permisos: [{ id: 1, nombre: "crear usuario", categoria: "usuario" }],
+        permisos: [
+          { id: 1, nombre: "Crear usuario", categoria: "usuario" },
+          { id: 2, nombre: "Crear rol", categoria: "rol" },
+          { id: 3, nombre: "Crear predio", categoria: "predio" },
+          { id: 4, nombre: "Editar usuario", categoria: "usuario" },
+          { id: 5, nombre: "Inhabilitar usuario", categoria: "usuario" },
+          {
+            id: 6,
+            nombre: "Descargar reporte de usuario",
+            categoria: "usuario",
+          },
+          { id: 7, nombre: "Ver detalles de un usuario", categoria: "usuario" },
+        ],
+        estado: "Activo",
       },
       {
         id: 2,
         nombre: "Usuario",
         descripcion: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
         permisos: [{ id: 1, nombre: "crear usuario", categoria: "usuario" }],
+        estado: "Inactivo",
       },
     ]);
   }, []);
@@ -146,6 +203,8 @@ const Rol = () => {
     .map((info) => ({
       "Nombre del rol": info.nombre,
       Descripción: info.descripcion,
+      Permisos: info.permisos,
+      Estado: info.estado,
     }));
 
   const options = [
@@ -181,7 +240,7 @@ const Rol = () => {
       )}
       {showFilter && (
         <>
-          <View_filter
+          <Filter_rol
             title="Filtros de rol"
             onClose={() => setShowFilter(false)}
           />
