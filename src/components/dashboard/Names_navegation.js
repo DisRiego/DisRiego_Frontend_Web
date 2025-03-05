@@ -23,6 +23,12 @@ const Names_navegation = {
         "detail": "Detalles del lote #",
       },  
     },
+    "rol": {
+      name: "Gestión de roles",
+      submodules: {
+        "detail": "Detalles del rol #",
+      },  
+    },
   };
   
   export default Names_navegation;

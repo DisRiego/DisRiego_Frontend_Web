@@ -1,51 +1,67 @@
 import { useState, useEffect } from "react";
-import Confirm_add_rol from "../../confirm_view/confirm_add_rol";
+import Confirm_add_rol from "../../confirm_view/adds/Confirm_add_rol";
 import {
   validateText,
   validateTextArea,
 } from "../../../../hooks/useValidations";
+import axios from "axios";
+import { IoMdWarning } from "react-icons/io";
 
 const Form_add_rol = ({ title, onClose }) => {
   const [showConfirm, setShowConfirm] = useState(false);
   const [permissions, setPermissions] = useState([]);
   const [openCategories, setOpenCategories] = useState({});
   const [filters, setFilters] = useState({ permisos: {} });
+  const [confirMessage, setConfirMessage] = useState();
+  const [method, setMethod] = useState();
+  const [uriPost, setUriPost] = useState();
+
   const [formData, setFormData] = useState({
-    nombre: "",
-    descripcion: "",
-    permisos: [{}],
+    name: "",
+    description: "",
+    permissions: [],
   });
-  const [errors, setErrors] = useState({ nombre: "", descripcion: "" });
+  const [errors, setErrors] = useState({
+    name: "",
+    description: "",
+    permissions: "",
+  });
   const [submitted, setSubmitted] = useState(false);
+
+  useEffect(() => {
+    const fetchPermissions = async () => {
+      try {
+        const response = await axios.get(
+          import.meta.env.VITE_URI_BACKEND + "/roles/permissions/"
+        );
+        setPermissions(response.data);
+      } catch (error) {
+        console.error("Error al obtener los permisos:", error);
+      }
+    };
+
+    fetchPermissions();
+  }, []);
 
   console.log(formData);
 
-  useEffect(() => {
-    const loadedPermissions = [
-      { id: 1, nombre: "Crear usuario", categoria: "usuario" },
-      { id: 2, nombre: "Crear rol", categoria: "rol" },
-      { id: 3, nombre: "Crear predio", categoria: "predio" },
-      { id: 4, nombre: "Editar usuario", categoria: "usuario" },
-      { id: 5, nombre: "Inhabilitar usuario", categoria: "usuario" },
-      { id: 6, nombre: "Descargar reporte de usuario", categoria: "usuario" },
-      { id: 7, nombre: "Ver detalles de un usuario", categoria: "usuario" },
-      { id: 8, nombre: "Editar rol", categoria: "rol" },
-      { id: 9, nombre: "Editar predio", categoria: "predio" },
-    ];
-    setPermissions(loadedPermissions);
-  }, []);
-
   const handleSaveClick = () => {
     setSubmitted(true);
-    const isNombreValid = validateText(formData.nombre);
-    const isDescripcionValid = validateTextArea(formData.descripcion);
+    const isNameValid = validateText(formData.name);
+    const isDescriptionValid = validateTextArea(formData.description);
+    const hasSelectedPermissions = formData.permissions.length > 0;
 
     setErrors({
-      nombre: isNombreValid ? "" : "false",
-      descripcion: isDescripcionValid ? "" : "false",
+      name: isNameValid ? "" : "false",
+      description: isDescriptionValid ? "" : "false",
+      permissions: hasSelectedPermissions
+        ? ""
+        : "Debe seleccionar al menos un permiso",
     });
 
-    if (isNombreValid && isDescripcionValid) {
+    if (isNameValid && isDescriptionValid && hasSelectedPermissions) {
+      setConfirMessage('¿Desea crear el rol "' + formData.name + '"?');
+      setMethod("post");
       setShowConfirm(true);
     }
   };
@@ -56,17 +72,21 @@ const Form_add_rol = ({ title, onClose }) => {
 
   const handlePermissionChange = (event) => {
     const { name, checked } = event.target;
+    const permissionId = Number(name);
 
     setFilters((prevFilters) => {
-      const updatedPermisos = { ...prevFilters.permisos, [name]: checked };
+      const updatedPermisos = {
+        ...prevFilters.permisos,
+        [permissionId]: checked,
+      };
 
       const selectedPermissions = Object.keys(updatedPermisos)
         .filter((key) => updatedPermisos[key])
-        .map((id) => Number(id));
+        .map(Number);
 
       setFormData((prevFormData) => ({
         ...prevFormData,
-        permisos: selectedPermissions,
+        permissions: selectedPermissions,
       }));
 
       return { ...prevFilters, permisos: updatedPermisos };
@@ -90,8 +110,8 @@ const Form_add_rol = ({ title, onClose }) => {
 
   const groupedPermissions = permissions.reduce((acc, permiso) => {
     const categoria =
-      permiso.categoria.charAt(0).toUpperCase() +
-      permiso.categoria.slice(1).toLowerCase();
+      permiso.category.charAt(0).toUpperCase() +
+      permiso.category.slice(1).toLowerCase();
 
     if (!acc[categoria]) {
       acc[categoria] = [];
@@ -119,12 +139,12 @@ const Form_add_rol = ({ title, onClose }) => {
               <div className="control">
                 <input
                   className={`input ${
-                    submitted && (errors.nombre ? "is-false" : "is-true")
+                    submitted && errors.name ? "is-false" : "is-true"
                   }`}
                   type="text"
-                  name="nombre"
+                  name="name"
                   placeholder="Nombre del rol"
-                  value={formData.nombre}
+                  value={formData.name}
                   onChange={handleChange}
                 />
               </div>
@@ -134,11 +154,11 @@ const Form_add_rol = ({ title, onClose }) => {
               <div className="control">
                 <textarea
                   className={`textarea ${
-                    submitted && (errors.descripcion ? "is-false" : "is-true")
+                    submitted && errors.description ? "is-false" : "is-true"
                   }`}
-                  name="descripcion"
+                  name="description"
                   placeholder="Descripción del rol"
-                  value={formData.descripcion}
+                  value={formData.description}
                   onChange={handleChange}
                 />
               </div>
@@ -170,13 +190,19 @@ const Form_add_rol = ({ title, onClose }) => {
                             checked={filters.permisos[permiso.id] || false}
                             onChange={handlePermissionChange}
                           />{" "}
-                          {permiso.nombre}
+                          {permiso.description}
                         </label>
                       </div>
                     ))}
                   </div>
                 </div>
               ))}
+              {submitted && errors.permissions && (
+                <div className="is-flex is-flex-direction-row	is-justify-content-center is-align-items-center">
+                  <IoMdWarning className="icon login-error mr-3" />
+                  <p className="login-error is-6">{errors.permissions}</p>
+                </div>
+              )}
             </div>
           </section>
           <footer className="modal-card-foot is-flex is-justify-content-center">
@@ -193,8 +219,10 @@ const Form_add_rol = ({ title, onClose }) => {
       </div>
       {showConfirm && (
         <Confirm_add_rol
-          onCancel={handleCancelConfirm}
-          selectedPermissions={filters.permisos}
+          onClose={handleCancelConfirm}
+          confirMessage={confirMessage}
+          method={method}
+          formData={formData}
         />
       )}
     </>

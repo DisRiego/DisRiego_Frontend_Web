@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { SlOptionsVertical } from "react-icons/sl";
-import Confirm_add_rol from "./confirm_view/confirm_add_rol";
+import Confirm_add_rol from "./confirm_view/adds/Confirm_add_rol";
 import Icon from "../Icon";
 
 const OptionsButton = ({ onClick }) => (
@@ -78,7 +78,7 @@ const Table = ({ columns, data, options }) => {
                         <>
                           {row[column].slice(0, 4).map((permiso, index) => (
                             <span key={index}>
-                              {permiso.nombre}
+                              {permiso.name}
                               {index < 3 ? ", " : ""}
                             </span>
                           ))}
@@ -90,7 +90,7 @@ const Table = ({ columns, data, options }) => {
                       ) : (
                         row[column].map((permiso, index) => (
                           <span key={index}>
-                            {permiso.nombre}
+                            {permiso.name}
                             {index < row[column].length - 1 ? ", " : ""}
                           </span>
                         ))

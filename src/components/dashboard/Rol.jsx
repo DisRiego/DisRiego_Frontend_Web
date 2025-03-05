@@ -9,6 +9,7 @@ import Filter_rol from "./filters/Filter_rol";
 import { jsPDF } from "jspdf";
 import Icon from "../../assets/icons/Disriego_title.png";
 import { autoTable } from "jspdf-autotable";
+import axios from "axios";
 
 const Rol = () => {
   const [data, setData] = useState([]);
@@ -16,16 +17,16 @@ const Rol = () => {
   const [showFilter, setShowFilter] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
+  const itemsPerPage = 9;
+  const [loading, setLoading] = useState("");
 
   const handleButtonClick = (buttonText) => {
     if (buttonText === "Añadir rol") {
       setShowForm(true);
     }
 
-    //Aqui es donde se debe implementar la funcionalidad del reporte
     if (buttonText === "Descargar reporte") {
-      console.log("Generando reporte...");
+      setLoading("is-loading");
       generateReport();
     }
   };
@@ -70,10 +71,10 @@ const Rol = () => {
         ["Nombre del rol", "Descripción", "Cantidad de usuarios", "Permisos"],
       ],
       body: data.map((rol) => [
-        rol.nombre,
-        rol.descripcion,
+        rol.name,
+        rol.description,
         "-",
-        rol.permisos.map((p) => p.nombre).join(", "),
+        rol.permissions.map((p) => p.name).join(", "),
       ]),
       theme: "grid",
       headStyles: {
@@ -86,11 +87,8 @@ const Rol = () => {
       bodyStyles: { textColor: [89, 89, 89] },
       styles: { fontSize: 10, cellPadding: 3, lineColor: [234, 236, 240] },
     });
-
-    // Agregar imagen en el pie de página
     doc.addImage(Icon, "PNG", 12, 280, 32, 9);
-
-    // Numeración de páginas
+    // Agregar numeración de páginas en el pie de página
     const pageCount = doc.internal.getNumberOfPages();
     for (let i = 1; i <= pageCount; i++) {
       doc.setPage(i);
@@ -101,7 +99,6 @@ const Rol = () => {
         align: "right",
       });
     }
-
     // Convertir el PDF a un Blob
     const pdfBlob = doc.output("blob");
 
@@ -143,38 +140,25 @@ const Rol = () => {
     "Opciones",
   ];
 
+  const fetchRoles = async () => {
+    try {
+      const response = await axios.get(
+        import.meta.env.VITE_URI_BACKEND + "/roles"
+      );
+      setData(response.data);
+      console.log(response.data);
+    } catch (error) {
+      console.error("Error al obtener los roles:", error);
+    }
+  };
+
   useEffect(() => {
-    setData([
-      {
-        id: 1,
-        nombre: "Admin",
-        descripcion: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-        cantidad: 1,
-        permisos: [
-          { id: 1, nombre: "Crear usuario", categoria: "usuario" },
-          { id: 2, nombre: "Crear rol", categoria: "rol" },
-          { id: 3, nombre: "Crear predio", categoria: "predio" },
-          { id: 4, nombre: "Editar usuario", categoria: "usuario" },
-          { id: 5, nombre: "Inhabilitar usuario", categoria: "usuario" },
-          {
-            id: 6,
-            nombre: "Descargar reporte de usuario",
-            categoria: "usuario",
-          },
-          { id: 7, nombre: "Ver detalles de un usuario", categoria: "usuario" },
-        ],
-        estado: "Activo",
-      },
-      {
-        id: 2,
-        nombre: "Usuario",
-        descripcion: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-        cantidad: 10,
-        permisos: [{ id: 1, nombre: "crear usuario", categoria: "usuario" }],
-        estado: "Inactivo",
-      },
-    ]);
+    fetchRoles();
   }, []);
+
+  const updateData = async () => {
+    await fetchRoles();
+  };
 
   const filteredData = data
     .filter((info) =>
@@ -185,10 +169,10 @@ const Rol = () => {
     )
     .map((info) => ({
       ID: info.id,
-      "Nombre del rol": info.nombre,
-      Descripción: info.descripcion,
+      "Nombre del rol": info.name,
+      Descripción: info.description,
       "Cantidad de usuarios": info.cantidad,
-      Permisos: info.permisos,
+      Permisos: info.permissions,
       Estado: info.estado,
     }));
 
@@ -206,7 +190,11 @@ const Rol = () => {
 
   return (
     <>
-      <Head head_data={head_data} onButtonClick={handleButtonClick} />
+      <Head
+        head_data={head_data}
+        onButtonClick={handleButtonClick}
+        loading={loading}
+      />
       <div className="container-search">
         <Search onSearch={setSearchTerm} />
         <Filter onFilterClick={handleFilterClick} />
