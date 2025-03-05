@@ -321,6 +321,10 @@ form > .button-login {
   background-color: transparent;
 }
 
+.separator.separator-sidebar {
+  background-color: #b9bfca;
+}
+
 .separator::before,
 .separator::after {
   content: "";
@@ -441,51 +445,11 @@ form > .button-login {
 }
 
 .rol-detail {
-  padding: 20px;
-}
-
-.rol-detail__breadcrumb {
-  border-radius: 5px;
-  padding: 10px;
-}
-
-.rol-detail__box {
-  border-radius: 8px;
-  padding: 15px;
-  margin-bottom: 15px;
-}
-
-.rol-detail__title {
-  color: #333;
-  font-weight: bold;
-}
-
-.rol-detail__subtitle {
-  color: #666;
-}
-
-.custom-box {
-  background-color: #1e1e1e;
-  box-shadow: none;
-  border: 1px;
+  padding: 1em;
+  margin-bottom: 1em;
+  border: 1px solid hsl(221, 14%, calc(24% + 0%));
   padding: 1rem;
-  border-radius: 5px;
-}
-
-.rol-detail__tag {
-  font-size: 0.9rem;
-  padding: 5px 10px;
-  border-radius: 5px;
-}
-
-.breadcrumb {
-  background-color: #1e1e1e ; /* Ajusta el color al modo oscuro */
-  color: #ccc;
-  border-radius: 5px;
-}
-
-.breadcrumb a {
-  color: #6da8f5; /* Color azul claro para enlaces */
+  border-radius: 10px;
 }
 
 .modal-card > .modal-card-body {
@@ -526,4 +490,8 @@ form > .button-login {
 }
 .message > .message-header > .title-message {
   margin-bottom: 0px;
+}
+
+.navigation {
+  margin-bottom: 1em;
 }
