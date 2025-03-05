@@ -419,9 +419,9 @@ form > .button-login {
   padding-left: 1em;
 }
 
-.cont-table {
-  border: 2px solid ;
-  padding: 5px 10px 5px 5px;
+.icon.cont-table {
+  border: 2px solid var(--bulma-border);
+  padding: 0px 10px 0px 10px;
   border-radius: 10px;
   margin-left: 0.5em;
 }
@@ -440,7 +440,6 @@ form > .button-login {
   margin-top: 0px;
 }
 
-/*ver detalle*/
 .rol-detail {
   padding: 20px;
 }
@@ -489,4 +488,42 @@ form > .button-login {
   color: #6da8f5; /* Color azul claro para enlaces */
 }
 
-/*ver detalle*/
+.modal-card > .modal-card-body {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.control > .is-true {
+  border-color: #c2e96a;
+}
+
+.control > .is-false {
+  border-color: #b8332c;
+}
+
+.modal-card > .modal-confirm {
+  padding: 2em;
+}
+
+.text-confirm {
+  margin-bottom: 1.5em;
+}
+
+.message {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 40;
+  margin: 1em;
+}
+
+.message > .message-header.is-true {
+  background-color: #c2e96a;
+}
+
+.message > .message-header.is-false {
+  background-color: hsl(348, 100%, 70%);
+}
+.message > .message-header > .title-message {
+  margin-bottom: 0px;
+}

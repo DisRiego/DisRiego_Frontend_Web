@@ -4,12 +4,12 @@ import Search from "./Search";
 import Filter from "./Filter";
 import Table from "./Table";
 import Pagination from "./Pagination";
-import Form from "./Form";
-import View_filter from "./View_filter";
-import Filter_rol from "./filter_fields/Filter_rol";
+import Form_add_rol from "./forms/adds/Form_add_rol";
+import Filter_rol from "./filters/Filter_rol";
 import { jsPDF } from "jspdf";
 import Icon from "../../assets/icons/Disriego_title.png";
 import { autoTable } from "jspdf-autotable";
+import axios from "axios";
 
 const Rol = () => {
   const [data, setData] = useState([]);
@@ -17,7 +17,7 @@ const Rol = () => {
   const [showFilter, setShowFilter] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
+  const itemsPerPage = 9;
 
   const handleButtonClick = (buttonText) => {
     if (buttonText === "Añadir rol") {
@@ -37,7 +37,7 @@ const Rol = () => {
     doc.setFillColor(243, 242, 247); // Azul claro
     doc.rect(0, 0, 210, 53, "F"); // colorear una parte de la pagina
     // agregar logo (usando base 64 directamente sobre la importacion)
-    doc.addImage(Icon, "PNG", 156, 12, 38, 8);
+    doc.addImage(Icon, "PNG", 156, 10, 39, 11);
 
     doc.setFontSize(17);
     doc.setFont("Roboto", "bold");
@@ -58,22 +58,6 @@ const Rol = () => {
     doc.setTextColor(94, 100, 112);
     doc.setFont("Roboto", "Normal");
     doc.text(`Cantidad de roles: ${data.length}`, 12, 68);
-    const headers = [
-      "Nombre del rol",
-      "Descripción",
-      "Cantidad de usuarios",
-      "Permisos",
-    ];
-    const headerWidths = [40, 60, 40, 60];
-
-    doc.setFontSize(10);
-    doc.setTextColor(0, 0, 0);
-
-    let x = 20;
-    headers.forEach((header, index) => {
-      doc.text(header, x + 5, 97); // Agrega el texto sin rectángulo de fondo
-      x += headerWidths[index];
-    });
 
     // Agregar tabla con autoTable
     autoTable(doc, {
@@ -83,14 +67,14 @@ const Rol = () => {
         ["Nombre del rol", "Descripción", "Cantidad de usuarios", "Permisos"],
       ],
       body: data.map((rol) => [
-        rol.nombre,
-        rol.descripcion,
+        rol.name,
+        rol.description,
         "-",
-        rol.permisos.map((p) => p.nombre).join(", "),
+        rol.permissions.map((p) => p.name).join(", "),
       ]),
       theme: "grid",
       headStyles: {
-        fillColor: [255, 255, 255],
+        fillColor: [252, 252, 253],
         textColor: [89, 89, 89],
         fontStyle: "bold",
         lineColor: [234, 236, 240],
@@ -99,6 +83,19 @@ const Rol = () => {
       bodyStyles: { textColor: [89, 89, 89] },
       styles: { fontSize: 10, cellPadding: 3, lineColor: [234, 236, 240] },
     });
+    doc.addImage(Icon, "PNG", 12, 280, 32, 9);
+    // Agregar numeración de páginas en el pie de página
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(10);
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      doc.text(`Página ${i}/${pageCount}`, pageWidth - 10, pageHeight - 10, {
+        align: "right",
+      });
+    }
+
     doc.save("reporte_roles.pdf");
   };
   const handleFilterClick = () => {
@@ -123,43 +120,34 @@ const Rol = () => {
   };
 
   const columns = [
+    "ID",
     "Nombre del rol",
     "Descripción",
+    "Cantidad de usuarios",
     "Permisos",
     "Estado",
     "Opciones",
   ];
 
+  const fetchRoles = async () => {
+    try {
+      const response = await axios.get(
+        import.meta.env.VITE_URI_BACKEND + "/roles"
+      );
+      setData(response.data);
+      console.log(response.data);
+    } catch (error) {
+      console.error("Error al obtener los roles:", error);
+    }
+  };
+
   useEffect(() => {
-    setData([
-      {
-        id: 1,
-        nombre: "Admin",
-        descripcion: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-        permisos: [
-          { id: 1, nombre: "Crear usuario", categoria: "usuario" },
-          { id: 2, nombre: "Crear rol", categoria: "rol" },
-          { id: 3, nombre: "Crear predio", categoria: "predio" },
-          { id: 4, nombre: "Editar usuario", categoria: "usuario" },
-          { id: 5, nombre: "Inhabilitar usuario", categoria: "usuario" },
-          {
-            id: 6,
-            nombre: "Descargar reporte de usuario",
-            categoria: "usuario",
-          },
-          { id: 7, nombre: "Ver detalles de un usuario", categoria: "usuario" },
-        ],
-        estado: "Activo",
-      },
-      {
-        id: 2,
-        nombre: "Usuario",
-        descripcion: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-        permisos: [{ id: 1, nombre: "crear usuario", categoria: "usuario" }],
-        estado: "Inactivo",
-      },
-    ]);
+    fetchRoles();
   }, []);
+
+  const updateData = async () => {
+    await fetchRoles();
+  };
 
   const filteredData = data
     .filter((info) =>
@@ -169,9 +157,11 @@ const Rol = () => {
         .includes(searchTerm.toLowerCase())
     )
     .map((info) => ({
-      "Nombre del rol": info.nombre,
-      Descripción: info.descripcion,
-      Permisos: info.permisos,
+      ID: info.id,
+      "Nombre del rol": info.name,
+      Descripción: info.description,
+      "Cantidad de usuarios": info.cantidad,
+      Permisos: info.permissions,
       Estado: info.estado,
     }));
 
@@ -203,7 +193,7 @@ const Rol = () => {
       />
       {showForm && (
         <>
-          <Form title="Añadir Rol" onClose={() => setShowForm(false)} />
+          <Form_add_rol title="Añadir Rol" onClose={() => setShowForm(false)} />
         </>
       )}
       {showFilter && (
