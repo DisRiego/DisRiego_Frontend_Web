@@ -18,15 +18,15 @@ const Rol = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 9;
+  const [loading, setLoading] = useState("");
 
   const handleButtonClick = (buttonText) => {
     if (buttonText === "Añadir rol") {
       setShowForm(true);
     }
 
-    //Aqui es donde se debe implementar la funcionalidad del reporte
     if (buttonText === "Descargar reporte") {
-      console.log("Generando reporte...");
+      setLoading("is-loading");
       generateReport();
     }
   };
@@ -96,7 +96,10 @@ const Rol = () => {
       });
     }
 
-    doc.save("reporte_roles.pdf");
+    setTimeout(() => {
+      doc.save("reporte_roles.pdf");
+      setLoading("");
+    }, 500);
   };
   const handleFilterClick = () => {
     setShowFilter(true);
@@ -179,7 +182,11 @@ const Rol = () => {
 
   return (
     <>
-      <Head head_data={head_data} onButtonClick={handleButtonClick} />
+      <Head
+        head_data={head_data}
+        onButtonClick={handleButtonClick}
+        loading={loading}
+      />
       <div className="container-search">
         <Search onSearch={setSearchTerm} />
         <Filter onFilterClick={handleFilterClick} />
