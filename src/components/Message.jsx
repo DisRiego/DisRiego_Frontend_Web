@@ -1,13 +1,17 @@
-const Message = ({ onClose }) => {
+const Message = ({ onClose, status, message }) => {
   console.log("Mostrando mensaje");
   return (
     <>
-      <article class="message is-true">
-        <div class="message-header is-true">
-          <p className="has-text-black">Inhabilitación exitoso</p>
-          <button onClick={onClose} class="delete" aria-label="delete"></button>
+      <article className="message">
+        <div className={"message-header " + status}>
+          <p className="has-text-black">Prueba</p>
+          <button
+            onClick={onClose}
+            className="delete"
+            aria-label="delete"
+          ></button>
         </div>
-        <div class="message-body">Se ha inhabilitado el rol correctamente</div>
+        <div className="message-body">{message}</div>
       </article>
     </>
   );

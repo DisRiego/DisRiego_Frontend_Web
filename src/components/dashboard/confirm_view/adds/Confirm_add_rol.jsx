@@ -1,12 +1,31 @@
 import { useState } from "react";
 import Message from "../../../Message.jsx";
+import axios from "axios";
 
-const Confirm_add_rol = ({ confirMessage, onClose, onConfirm }) => {
+const Confirm_add_rol = ({ confirMessage, onClose, method, formData }) => {
   const [showMessage, setShowMessage] = useState(false);
+  const [message, setMessage] = useState("");
+  const [status, setStatus] = useState("");
 
-  const handleConfirm = () => {
-    setShowMessage(true);
+  const handleConfirm = async () => {
+    try {
+      const response = await axios({
+        method: method,
+        url:
+          import.meta.env.VITE_URI_BACKEND +
+          import.meta.env.VITE_ROUTE_BACKEND_ROL,
+        data: formData,
+      });
+      setMessage("Se creo el rol");
+      setStatus("is-true");
+      setShowMessage(true);
+    } catch (error) {
+      setMessage(error.response.data.detail.data);
+      setStatus("is-false");
+      setShowMessage(true);
+    }
   };
+
   return (
     <>
       <div className="modal is-active">
@@ -32,7 +51,13 @@ const Confirm_add_rol = ({ confirMessage, onClose, onConfirm }) => {
           </div>
         </div>
       </div>
-      {showMessage && <Message onClose={() => setShowMessage(false)} />}
+      {showMessage && (
+        <Message
+          onClose={() => setShowMessage(false)}
+          status={status}
+          message={message}
+        />
+      )}
     </>
   );
 };

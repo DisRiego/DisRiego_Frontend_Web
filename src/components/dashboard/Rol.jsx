@@ -17,7 +17,7 @@ const Rol = () => {
   const [showFilter, setShowFilter] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
+  const itemsPerPage = 9;
 
   const handleButtonClick = (buttonText) => {
     if (buttonText === "Añadir rol") {
@@ -129,21 +129,25 @@ const Rol = () => {
     "Opciones",
   ];
 
-  useEffect(() => {
-    const fetchRoles = async () => {
-      try {
-        const response = await axios.get(
-          import.meta.env.VITE_URI_BACKEND_USER + "/roles"
-        );
-        setData(response.data);
-        console.log(response.data);
-      } catch (error) {
-        console.error("Error al obtener los roles:", error);
-      }
-    };
+  const fetchRoles = async () => {
+    try {
+      const response = await axios.get(
+        import.meta.env.VITE_URI_BACKEND + "/roles"
+      );
+      setData(response.data);
+      console.log(response.data);
+    } catch (error) {
+      console.error("Error al obtener los roles:", error);
+    }
+  };
 
+  useEffect(() => {
     fetchRoles();
   }, []);
+
+  const updateData = async () => {
+    await fetchRoles();
+  };
 
   const filteredData = data
     .filter((info) =>
