@@ -87,8 +87,10 @@ const Rol = () => {
       bodyStyles: { textColor: [89, 89, 89] },
       styles: { fontSize: 10, cellPadding: 3, lineColor: [234, 236, 240] },
     });
+    // Agregar imagen en el pie de página
     doc.addImage(Icon, "PNG", 12, 280, 32, 9);
-    // Agregar numeración de páginas en el pie de página
+
+    // Numeración de páginas
     const pageCount = doc.internal.getNumberOfPages();
     for (let i = 1; i <= pageCount; i++) {
       doc.setPage(i);
@@ -99,6 +101,7 @@ const Rol = () => {
         align: "right",
       });
     }
+
     // Convertir el PDF a un Blob
     const pdfBlob = doc.output("blob");
 
@@ -106,7 +109,10 @@ const Rol = () => {
     const pdfUrl = URL.createObjectURL(pdfBlob);
 
     // Abrir el PDF en una nueva pestaña
-    window.open(pdfUrl, "_blank");
+    setTimeout(() => {
+      window.open(pdfUrl, "_blank");
+      setLoading("");
+    }, 500);
   };
 
   const handleFilterClick = () => {
