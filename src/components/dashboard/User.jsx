@@ -4,17 +4,16 @@ import Search from "./Search";
 import Filter from "./Filter";
 import Table from "./Table";
 import Pagination from "./Pagination";
-import Form_add_rol from "./forms/adds/Form_add_rol";
-import Filter_rol from "./filters/Filter_rol";
+import Form_add_user from "./forms/adds/Form_add_user";
+import Filter_user from "./filters/Filter_user";
+import { autoTable } from "jspdf-autotable";
 import { jsPDF } from "jspdf";
 import Icon from "../../assets/icons/Disriego_title.png";
-import { autoTable } from "jspdf-autotable";
-import axios from "axios";
 import RobotoNormalFont from "../../assets/fonts/Roboto-Regular.ttf";
 import RobotoBoldFont from "../../assets/fonts/Roboto-Bold.ttf";
-import Message from "../Message";
+import axios from "axios";
 
-const Rol = () => {
+const User = () => {
   const [data, setData] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [showFilter, setShowFilter] = useState(false);
@@ -23,22 +22,20 @@ const Rol = () => {
   const itemsPerPage = 9;
   const [loading, setLoading] = useState("");
   const [loadingTable, setLoadingTable] = useState(false);
-  const [showMessage, setShowMessage] = useState(false);
-  const [message, setMessage] = useState(false);
-  const [status, setStatus] = useState(false);
 
   const handleButtonClick = (buttonText) => {
-    if (buttonText === "Añadir rol") {
+    if (buttonText === "Añadir usuario") {
       setShowForm(true);
     }
 
+    //Aqui es donde se debe implementar la funcionalidad del reporte
     if (buttonText === "Descargar reporte") {
       setLoading("is-loading");
-      generateReport();
+      generateUserReport();
     }
   };
 
-  const generateReport = () => {
+  const generateUserReport = () => {
     const doc = new jsPDF();
 
     // Add Roboto font to the document
@@ -46,22 +43,18 @@ const Rol = () => {
     doc.addFont(RobotoBoldFont, "Roboto", "bold");
 
     //colorear fondo
-    doc.setFillColor(243, 242, 247);
+    doc.setFillColor(243, 242, 247); // Azul claro
     doc.rect(0, 0, 210, 53, "F"); // colorear una parte de la pagina
     // agregar logo (usando base 64 directamente sobre la importacion)
-
     doc.addImage(Icon, "PNG", 156, 10, 39, 11);
 
-    doc.setTextColor(0, 0, 0);
     doc.setFontSize(17);
     doc.setFont("Roboto", "bold");
-    doc.text("REPORTE DE ROLES", 12, 18);
+    doc.text("REPORTE DE USUARIOS", 12, 18);
     doc.setFontSize(11);
     doc.text(`Fecha de generación:`, 12, 27);
     doc.text(`Generado por:`, 12, 39);
-    /*doc.setTextColor(94, 100, 112);*/
-    doc.text("Roles actuales en el sistema", 12, 63);
-
+    doc.text("Usuarios registrados actualmente", 12, 63);
     doc.setTextColor(94, 100, 112);
     doc.setFont("Roboto", "normal");
     doc.setFontSize(10);
@@ -71,50 +64,67 @@ const Rol = () => {
     doc.text(`[Dirección de la empresa]`, 194, 27, { align: "right" });
     doc.text(`[Ciudad, Dept. País]`, 194, 33, { align: "right" });
     doc.text(`[Teléfono]`, 194, 39, { align: "right" });
-    doc.text(`Cantidad de roles: ${data.length}`, 12, 68);
+    doc.text(`Cantidad de usuarios: ${data.length}`, 12, 68);
 
     // Agregar tabla con autoTable
     autoTable(doc, {
       startY: 80,
       margin: { left: 12 },
       head: [
-        ["Nombre del rol", "Descripción", "Cantidad de usuarios", "Permisos"],
+        [
+          "Nombre",
+          "Tipo de documento",
+          "Numero de documento",
+          "Correo Electronico",
+          "Número de Telefono",
+          "Direccion",
+          "Roles",
+          "Estado",
+        ],
       ],
-      body: data.map((rol) => [
-        rol.nombre,
-        rol.descripcion,
+      body: data.map((user) => [
+        user.nombres + " " + user.apellidos,
+        user.tipo_documento,
+        user.num_documento,
         "-",
-        rol.permisos.map((p) => p.nombre).join(", "),
+        "-",
+        "-",
+        user.roles,
+        user.estado,
       ]),
       theme: "grid",
       headStyles: {
         fillColor: [252, 252, 253],
         textColor: [0, 0, 0],
         fontStyle: "bold",
+        font: "Roboto",
         lineColor: [234, 236, 240],
         lineWidth: 0.5,
-        font: "Roboto", // Add Roboto font to table headers
       },
-      bodyStyles: {
-        textColor: [89, 89, 89],
-        font: "Roboto", // Add Roboto font to table body
-      },
+      bodyStyles: { textColor: [89, 89, 89], font: "Roboto" },
       styles: {
-        fontSize: 10,
+        fontSize: 9,
         cellPadding: 3,
         lineColor: [234, 236, 240],
+        font: "Roboto",
+      },
+      columnStyles: {
+        0: { cellWidth: "auto" },
+        1: { cellWidth: "auto" },
+        2: { cellWidth: "auto" },
+        3: { cellWidth: "auto" },
+        4: { cellWidth: "auto" },
+        5: { cellWidth: "auto" },
+        6: { cellWidth: "auto" },
+        7: { cellWidth: "auto" },
       },
     });
-
     doc.addImage(Icon, "PNG", 12, 280, 32, 9);
-
     // Agregar numeración de páginas en el pie de página
     const pageCount = doc.internal.getNumberOfPages();
     for (let i = 1; i <= pageCount; i++) {
       doc.setPage(i);
       doc.setFontSize(10);
-
-      doc.setFont("Roboto", "normal"); // Set Roboto font for page numbers
       const pageWidth = doc.internal.pageSize.getWidth();
       const pageHeight = doc.internal.pageSize.getHeight();
       doc.text(`Página ${i}/${pageCount}`, pageWidth - 10, pageHeight - 10, {
@@ -137,16 +147,18 @@ const Rol = () => {
 
   const handleFilterClick = () => {
     setShowFilter(true);
+    console.log("Filtros...");
   };
 
   const head_data = {
-    title: "Gestión de roles",
-    description: "En esta sección puedes administrar los roles del sistema.",
+    title: "Gestión de usuarios",
+    description:
+      "En esta sección puedes gestionar usuarios, asignar roles y editar su información.",
     buttons: {
       button1: {
         icon: "FaPlus",
         class: "color-hover",
-        text: "Añadir rol",
+        text: "Añadir usuario",
       },
       button2: {
         icon: "LuDownload",
@@ -158,46 +170,35 @@ const Rol = () => {
 
   const columns = [
     "ID",
-    "Nombre del rol",
-    "Descripción",
-    "Cantidad de usuarios",
-    "Permisos",
+    "Nombres",
+    "Apellidos",
+    "Tipo de documento",
+    "Numero de documento",
+    "Correo Electronico",
+    "Numero de telefono",
+    "Dirección",
+    "Roles",
     "Estado",
     "Opciones",
   ];
 
-  const fetchRoles = async () => {
+  const fetchUsers = async () => {
     try {
       setLoadingTable(true);
       const response = await axios.get(
-        import.meta.env.VITE_URI_BACKEND + "/roles"
+        import.meta.env.VITE_URI_BACKEND + "/users"
       );
-      setData(response.data);
-      console.log(response.data);
+      setData(response.data.users);
     } catch (error) {
-      console.error("Error al obtener los roles:", error);
+      console.error("Error al obtener los usuarios:", error);
     } finally {
       setLoadingTable(false);
     }
   };
 
   useEffect(() => {
-    fetchRoles();
+    fetchUsers();
   }, []);
-
-  useEffect(() => {
-    if (showMessage) {
-      const timer = setTimeout(() => {
-        setShowMessage(false);
-      }, 3000);
-
-      return () => clearTimeout(timer);
-    }
-  }, [showMessage]);
-
-  const updateData = async () => {
-    await fetchRoles();
-  };
 
   const filteredData = data
     .filter((info) =>
@@ -208,10 +209,14 @@ const Rol = () => {
     )
     .map((info) => ({
       ID: info.id,
-      "Nombre del rol": info.name,
-      Descripción: info.description,
-      "Cantidad de usuarios": info.cantidad,
-      Permisos: info.permissions,
+      Nombres: info.name,
+      Apellidos: info.first_last_name + info.second_last_name,
+      "Tipo de documento": info.type_document_id,
+      "Numero de documento": info.document_number,
+      "Correo Electronico": info.email,
+      "Numero de telefono": info.phone,
+      Dirección: info.address,
+      Roles: info.roles,
       Estado: info.estado,
     }));
 
@@ -252,32 +257,22 @@ const Rol = () => {
       />
       {showForm && (
         <>
-          <Form_add_rol
-            title="Añadir Rol"
+          <Form_add_user
+            title="Añadir Usuario"
             onClose={() => setShowForm(false)}
-            setShowMessage={setShowMessage}
-            setMessage={setMessage}
-            setStatus={setStatus}
           />
         </>
       )}
       {showFilter && (
         <>
-          <Filter_rol
+          <Filter_user
             title="Filtros de rol"
             onClose={() => setShowFilter(false)}
           />
         </>
       )}
-      {showMessage && (
-        <Message
-          message={message}
-          status={status}
-          onClose={() => setShowMessage(false)}
-        />
-      )}
     </>
   );
 };
 
-export default Rol;
+export default User;

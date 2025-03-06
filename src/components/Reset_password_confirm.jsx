@@ -6,22 +6,21 @@ import IconGoogle from "../img/icon/iconGoogle.svg";
 import IconOutlook from "../img/icon/iconOutlook.svg";
 import { IoMdWarning } from "react-icons/io";
 import { IoArrowBack } from "react-icons/io5";
-import { validateEmail, validatePassword } from "../hooks/useValidations.jsx";
+import { validatePassword } from "../hooks/useValidations.jsx";
 
-const Login = () => {
+const Reset_password_confirm = () => {
   const [showButton, setShowButton] = useState(window.innerWidth >= 768);
   const navigate = useNavigate();
   const [loginError, setLoginError] = useState("");
-  const [loading, setLoading] = useState("");
 
   const [formData, setFormData] = useState({
-    email: "",
     password: "",
+    repeat_password: "",
   });
 
   const [errors, setErrors] = useState({
-    email: "",
     password: "",
+    repeat_password: "",
   });
 
   const handleChange = (e) => {
@@ -31,19 +30,19 @@ const Login = () => {
       [name]: value,
     });
 
-    if (name === "email") {
-      const isValid = validateEmail(value);
-      setErrors({
-        ...errors,
-        email: isValid ? "" : "false",
-      });
-    }
-
     if (name === "password") {
       const isValid = validatePassword(value);
       setErrors({
         ...errors,
         password: isValid ? "" : "false",
+      });
+    }
+
+    if (name === "repeat_password") {
+      const isValid = validatePassword(value);
+      setErrors({
+        ...errors,
+        repeat_password: isValid ? "" : "false",
       });
     }
   };
@@ -65,28 +64,26 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (errors.email === "" && errors.password === "") {
+    if (errors.password === "" && errors.repeat_password === "") {
       try {
-        setLoading("is-loading");
+        console.log(formData);
         const response = await axios.post(
-          import.meta.env.VITE_URI_BACKEND + "/login",
+          import.meta.env.VITE_URI_BACKEND_USER + "/",
           formData
         );
-        navigate("/dashboard");
+        navigate("/login");
       } catch (error) {
-        setLoading("");
-        setLoginError("El correo electrónico o la contraseña son incorrectos.");
+        setLoginError("La contraseña no es inválida.");
       }
     } else {
-      setLoading("");
-      setLoginError("El correo electrónico o la contraseña son inválidos.");
+      setLoginError("Las contraseñas no coinciden.");
     }
   };
 
   return (
     <div className="container-login">
       {showButton && (
-        <Link className="button-back" to="/">
+        <Link className="button-back" to="/login">
           <IoArrowBack className="icon" />
         </Link>
       )}
@@ -98,37 +95,23 @@ const Login = () => {
               <h2 className="title has-text-centered ">Dis Riego</h2>
             </div>
 
-            <div className="field">
-              <div className="buttons">
-                <button className="button is-fullwidth">
-                  <span className="icon">
-                    <img src={IconGoogle} alt="Icono Club" />
-                  </span>
-                  <p>Google</p>
-                </button>
-                <button className="button is-fullwidth">
-                  <span className="icon">
-                    <img src={IconOutlook} alt="Icono Club" />
-                  </span>
-                  <p>Microsoft</p>
-                </button>
-              </div>
-            </div>
-
-            <div className="field">
-              <div className="separator">
-                <p>O</p>
-              </div>
+            <div className="has-text-centered">
+              <h3 className="subtitle has-text-weight-semibold mb-2">
+                Restablecer contraseña
+              </h3>
+              <p className="title-mb">
+                Ingresa tu nueva contraseña para completar el proceso.
+              </p>
             </div>
 
             <form className="" onSubmit={handleSubmit}>
               <div className="field">
                 <div className="control">
                   <input
-                    name="email"
-                    type="email"
+                    name="password"
+                    type="password"
                     className="input input-padding"
-                    placeholder="Email"
+                    placeholder="Ingresa tu nueva contraseña"
                     onChange={handleChange}
                   />
                 </div>
@@ -136,10 +119,10 @@ const Login = () => {
               <div className="field">
                 <div className="control">
                   <input
-                    name="password"
+                    name="repeat_password"
                     type="password"
                     className="input input-padding"
-                    placeholder="Contraseña"
+                    placeholder="Ingresa nuevamente tu nueva contraseña"
                     onChange={handleChange}
                   />
                 </div>
@@ -152,24 +135,17 @@ const Login = () => {
               )}
               <button
                 type="submit"
-                className={
-                  "button is-fullwidth is-primary button-login " + loading
-                }
+                className="button text-button is-fullwidth is-primary button-login"
               >
-                Iniciar Sesión
+                Confirmar
               </button>
             </form>
-            <div className="has-text-centered mb-2">
-              <span>¿Olvidaste tu contraseña?</span>
-              <Link to="/login/resetpassword"> Restablécela aquí.</Link>
-            </div>
             <div className="has-text-centered">
-              <span>¿No tienes cuenta? </span>
-              <Link to="/signup">Haz clic aquí.</Link>
+              <span>¿Quieres volver al inicio de sesión? </span>
+              <Link to="/login">Haz clic aquí.</Link>
             </div>
           </div>
         </div>
-
         {message && (
           <p className="has-text-danger has-text-centered m-3">{message}</p>
         )}
@@ -178,4 +154,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Reset_password_confirm;

@@ -23,7 +23,7 @@ td {
   font-size: 1.2rem;
 }
 
-.navegation{
+.navegation {
   margin-bottom: 1em;
   font-family: var(--bulma-text-family);
   font-size: var(--text-navegation-size);
@@ -256,6 +256,274 @@ p.title + p {
   color: black;
 }
 
-.buttons > .button-login{
+.buttons > .button-login {
   background-color: #c2e96a;
+}
+
+.container-login > .background-image {
+  margin-top: 0;
+}
+
+.background-image {
+  background-image: url("../img//distrito_riego.jpg");
+  background-size: cover;
+  background-repeat: no-repeat;
+  height: 100vh;
+}
+
+.columns > .column-padding {
+  padding: 0em 3.5em;
+}
+
+.form-container {
+  height: 100vh;
+  background-color: var(--bulma-scheme-main);
+}
+
+.icon-login {
+  margin-right: 1em;
+}
+
+.text-login {
+  margin: 2em 0em;
+}
+
+.title-mb {
+  margin-bottom: 4em;
+}
+
+.title-mb3 {
+  margin-bottom: 3em;
+}
+
+.control > .input-padding {
+  padding: 1.4em;
+}
+
+.mb-1em {
+  margin-bottom: 1em;
+}
+
+.mt-2em {
+  margin-top: 1.5em;
+}
+
+form > .button-login {
+  background-color: #c2e96a;
+  font-weight: bold;
+}
+
+.separator {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 1em 0em;
+  background-color: transparent;
+}
+
+.separator.separator-sidebar {
+  background-color: #b9bfca;
+}
+
+.separator::before,
+.separator::after {
+  content: "";
+  flex: 1;
+  border-bottom: 1px solid;
+  border-color: #b9bfca;
+}
+
+.button-padding {
+  padding: 4em 4em 0em;
+}
+
+.separator::before {
+  margin-right: 10px;
+}
+
+.separator::after {
+  margin-left: 10px;
+}
+
+.separator span {
+  padding: 0 10px;
+  font-weight: bold;
+}
+
+form > .button-login {
+  margin-top: 4em;
+  margin-bottom: 1em;
+}
+
+.login-error {
+  color: #e86059;
+  font-weight: bold;
+}
+
+.modal-card > .modal-card-head {
+  box-shadow: none;
+}
+
+.modal-card > .modal-card-foot {
+  background-color: var(--bulma-modal-card-head-background-color);
+}
+/*css de filtro roles*/
+.view-filter {
+  display: flex;
+  flex-direction: column;
+  width: 25em;
+  height: 100vh;
+  padding: 3em;
+  position: fixed;
+  top: 0;
+  right: 0;
+  border-radius: 0;
+  background: var(--bulma-scheme-main);
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+}
+
+.view-filter-body {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.view-filter-buttons {
+  display: flex;
+  justify-content: space-between;
+}
+
+.accordion {
+  margin-bottom: 0.5em;
+}
+
+.accordion-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+}
+
+.accordion-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-in-out;
+  padding-left: 1em;
+}
+
+.accordion-body.open {
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+.icon.open {
+  transform: rotate(180deg);
+}
+
+.container-status {
+  padding-left: 1em;
+}
+
+.icon.cont-table {
+  border: 2px solid var(--bulma-border);
+  padding: 0px 10px 0px 10px;
+  border-radius: 10px;
+  margin-left: 0.5em;
+}
+
+/*css de filtro roles*/
+.button-back {
+  display: flex;
+  gap: 0.5em;
+  bottom: 1rem;
+  left: 1rem;
+  position: fixed;
+  border: 3px solid #c2e96a;
+  color: #c2e96a;
+  padding: 0.5em;
+  border-radius: 10px;
+  margin-top: 0px;
+}
+
+.rol-detail {
+  padding: 1em;
+  margin-bottom: 1em;
+  border: 1px solid hsl(221, 14%, calc(24% + 0%));
+  padding: 1rem;
+  border-radius: 10px;
+}
+
+.modal-card > .modal-card-body {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.control > .is-true {
+  border-color: #c2e96a;
+}
+
+.control > .is-false {
+  border-color: #b8332c;
+}
+
+.modal-card > .modal-confirm {
+  padding: 2em;
+}
+
+.text-confirm {
+  margin-bottom: 1.5em;
+}
+
+.message {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 40;
+  margin: 1em;
+}
+
+.message > .message-header.is-true {
+  background-color: #c2e96a;
+}
+
+.message > .message-header.is-false {
+  background-color: hsl(348, 100%, 70%);
+}
+.message > .message-header > .title-message {
+  margin-bottom: 0px;
+}
+
+.navigation {
+  margin-bottom: 1em;
+}
+
+tbody > tr > .loader-cell {
+  padding: 1em;
+}
+
+.loader-cell > .loader {
+  width: 2.5em;
+  height: 2.5em;
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-top: 4px solid var(--bulma-table-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto;
+}
+
+.loader-text {
+  text-align: center;
+  color: var(--bulma-table-color);
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.detail-status {
+  pointer-events: none;
 }
