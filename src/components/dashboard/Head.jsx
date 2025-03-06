@@ -1,6 +1,6 @@
 import Icon from "../Icon";
 
-const Head = ({ head_data, onButtonClick }) => {
+const Head = ({ head_data, onButtonClick, loading }) => {
   const renderButtons = () => {
     if (!head_data.buttons || Object.keys(head_data.buttons).length === 0) {
       return null;
@@ -9,11 +9,12 @@ const Head = ({ head_data, onButtonClick }) => {
     return Object.keys(head_data.buttons).map((key) => {
       const button = head_data.buttons[key];
       const IconComponent = Icon[button.icon];
+      const isLoading = button.text === "Descargar reporte" ? loading : "";
 
       return (
         <button
           key={key}
-          className={"button " + button.class}
+          className={`button ${button.class} ${isLoading}`}
           onClick={() => onButtonClick(button.text)}
         >
           <span className="icon">{IconComponent && <IconComponent />}</span>

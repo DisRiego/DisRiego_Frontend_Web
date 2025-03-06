@@ -4,8 +4,8 @@ import Search from "./Search";
 import Filter from "./Filter";
 import Table from "./Table";
 import Pagination from "./Pagination";
-import Form from "./Form";
-import View_filter from "./View_filter";
+import Form_add_user from "./forms/adds/Form_add_user";
+import Filter_user from "./filters/Filter_user";
 import { autoTable } from "jspdf-autotable";
 import { jsPDF } from "jspdf";
 import Icon from "../../assets/icons/Disriego_title.png";
@@ -24,7 +24,7 @@ const User = () => {
   const itemsPerPage = 5;
 
   const handleButtonClick = (buttonText) => {
-    if (buttonText === "Añadir rol") {
+    if (buttonText === "Añadir usuario") {
       setShowForm(true);
     }
 
@@ -127,7 +127,9 @@ const User = () => {
       doc.setFontSize(10);
       const pageWidth = doc.internal.pageSize.getWidth();
       const pageHeight = doc.internal.pageSize.getHeight();
-      doc.text(`Página ${i}/${pageCount}`, pageWidth - 10, pageHeight - 10, { align: "right" });
+      doc.text(`Página ${i}/${pageCount}`, pageWidth - 10, pageHeight - 10, {
+        align: "right",
+      });
     }
 
     doc.save("Reporte_Usuarios.pdf");
@@ -157,11 +159,13 @@ const User = () => {
   };
 
   const columns = [
+    "ID",
     "Nombres",
     "Apellidos",
     "Tipo de documento",
     "Numero de documento",
     "Fecha de expedición",
+    "Numero de telefono",
     "Roles",
     "Estado",
     "Opciones",
@@ -216,6 +220,7 @@ const User = () => {
         .includes(searchTerm.toLowerCase())
     )
     .map((info) => ({
+      ID: info.id,
       Nombres: info.nombres,
       Apellidos: info.apellidos,
       "Tipo de documento": info.tipo_documento,
@@ -254,12 +259,15 @@ const User = () => {
       />
       {showForm && (
         <>
-          <Form title="Añadir Rol" onClose={() => setShowForm(false)} />
+          <Form_add_user
+            title="Añadir Usuario"
+            onClose={() => setShowForm(false)}
+          />
         </>
       )}
       {showFilter && (
         <>
-          <View_filter
+          <Filter_user
             title="Filtros de rol"
             onClose={() => setShowFilter(false)}
           />

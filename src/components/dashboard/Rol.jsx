@@ -4,12 +4,12 @@ import Search from "./Search";
 import Filter from "./Filter";
 import Table from "./Table";
 import Pagination from "./Pagination";
-import Form from "./Form";
-import View_filter from "./View_filter";
-import Filter_rol from "./filter_fields/Filter_rol";
+import Form_add_rol from "./forms/adds/Form_add_rol";
+import Filter_rol from "./filters/Filter_rol";
 import { jsPDF } from "jspdf";
 import Icon from "../../assets/icons/Disriego_title.png";
 import { autoTable } from "jspdf-autotable";
+import axios from "axios";
 
 // Import Roboto font files (you'll need to have these files in your project)
 // You can download them from Google Fonts or use a CDN
@@ -22,16 +22,16 @@ const Rol = () => {
   const [showFilter, setShowFilter] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
+  const itemsPerPage = 9;
+  const [loading, setLoading] = useState("");
 
   const handleButtonClick = (buttonText) => {
     if (buttonText === "Añadir rol") {
       setShowForm(true);
     }
 
-    //Aqui es donde se debe implementar la funcionalidad del reporte
     if (buttonText === "Descargar reporte") {
-      console.log("Generando reporte...");
+      setLoading("is-loading");
       generateReport();
     }
   };
@@ -47,6 +47,7 @@ const Rol = () => {
     doc.setFillColor(243, 242, 247); 
     doc.rect(0, 0, 210, 53, "F"); // colorear una parte de la pagina
     // agregar logo (usando base 64 directamente sobre la importacion)
+
     doc.addImage(Icon, "PNG", 156, 10, 39, 11);
 
     doc.setTextColor(0, 0, 0);  
@@ -110,6 +111,7 @@ const Rol = () => {
     for (let i = 1; i <= pageCount; i++) {
       doc.setPage(i);
       doc.setFontSize(10);
+
       doc.setFont("Roboto", "normal"); // Set Roboto font for page numbers
       const pageWidth = doc.internal.pageSize.getWidth();
       const pageHeight = doc.internal.pageSize.getHeight();
@@ -117,6 +119,7 @@ const Rol = () => {
     }
         
     doc.save("reporte_roles.pdf");
+
   };
 
   const handleFilterClick = () => {
@@ -141,43 +144,34 @@ const Rol = () => {
   };
 
   const columns = [
+    "ID",
     "Nombre del rol",
     "Descripción",
+    "Cantidad de usuarios",
     "Permisos",
     "Estado",
     "Opciones",
   ];
 
+  const fetchRoles = async () => {
+    try {
+      const response = await axios.get(
+        import.meta.env.VITE_URI_BACKEND + "/roles"
+      );
+      setData(response.data);
+      console.log(response.data);
+    } catch (error) {
+      console.error("Error al obtener los roles:", error);
+    }
+  };
+
   useEffect(() => {
-    setData([
-      {
-        id: 1,
-        nombre: "Admin",
-        descripcion: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-        permisos: [
-          { id: 1, nombre: "Crear usuario", categoria: "usuario" },
-          { id: 2, nombre: "Crear rol", categoria: "rol" },
-          { id: 3, nombre: "Crear predio", categoria: "predio" },
-          { id: 4, nombre: "Editar usuario", categoria: "usuario" },
-          { id: 5, nombre: "Inhabilitar usuario", categoria: "usuario" },
-          {
-            id: 6,
-            nombre: "Descargar reporte de usuario",
-            categoria: "usuario",
-          },
-          { id: 7, nombre: "Ver detalles de un usuario", categoria: "usuario" },
-        ],
-        estado: "Activo",
-      },
-      {
-        id: 2,
-        nombre: "Usuario",
-        descripcion: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-        permisos: [{ id: 1, nombre: "crear usuario", categoria: "usuario" }],
-        estado: "Inactivo",
-      },
-    ]);
+    fetchRoles();
   }, []);
+
+  const updateData = async () => {
+    await fetchRoles();
+  };
 
   const filteredData = data
     .filter((info) =>
@@ -187,9 +181,11 @@ const Rol = () => {
         .includes(searchTerm.toLowerCase())
     )
     .map((info) => ({
-      "Nombre del rol": info.nombre,
-      Descripción: info.descripcion,
-      Permisos: info.permisos,
+      ID: info.id,
+      "Nombre del rol": info.name,
+      Descripción: info.description,
+      "Cantidad de usuarios": info.cantidad,
+      Permisos: info.permissions,
       Estado: info.estado,
     }));
 
@@ -207,7 +203,11 @@ const Rol = () => {
 
   return (
     <>
-      <Head head_data={head_data} onButtonClick={handleButtonClick} />
+      <Head
+        head_data={head_data}
+        onButtonClick={handleButtonClick}
+        loading={loading}
+      />
       <div className="container-search">
         <Search onSearch={setSearchTerm} />
         <Filter onFilterClick={handleFilterClick} />
@@ -221,7 +221,7 @@ const Rol = () => {
       />
       {showForm && (
         <>
-          <Form title="Añadir Rol" onClose={() => setShowForm(false)} />
+          <Form_add_rol title="Añadir Rol" onClose={() => setShowForm(false)} />
         </>
       )}
       {showFilter && (

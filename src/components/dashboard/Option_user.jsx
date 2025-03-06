@@ -108,7 +108,7 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
           </span>
           {!isCollapsed && <span>Mi cuenta</span>}
         </Link>
-        <div className="separator"></div>
+        <div className="separator separator-sidebar"></div>
         <button className="navbar-item">
           <span className="icon">
             <RiLogoutBoxRLine />
