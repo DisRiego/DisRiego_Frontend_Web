@@ -9,11 +9,9 @@ import Filter_user from "./filters/Filter_user";
 import { autoTable } from "jspdf-autotable";
 import { jsPDF } from "jspdf";
 import Icon from "../../assets/icons/Disriego_title.png";
-
-// Import Roboto font files (you'll need to have these files in your project)
-// You can download them from Google Fonts or use a CDN
 import RobotoNormalFont from "../../assets/fonts/Roboto-Regular.ttf";
 import RobotoBoldFont from "../../assets/fonts/Roboto-Bold.ttf";
+import axios from "axios";
 
 const User = () => {
   const [data, setData] = useState([]);
@@ -21,7 +19,9 @@ const User = () => {
   const [showFilter, setShowFilter] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
+  const itemsPerPage = 9;
+  const [loading, setLoading] = useState("");
+  const [loadingTable, setLoadingTable] = useState(false);
 
   const handleButtonClick = (buttonText) => {
     if (buttonText === "Añadir usuario") {
@@ -30,17 +30,17 @@ const User = () => {
 
     //Aqui es donde se debe implementar la funcionalidad del reporte
     if (buttonText === "Descargar reporte") {
+      setLoading("is-loading");
       generateUserReport();
-      console.log("Generando reporte...");
     }
   };
 
   const generateUserReport = () => {
     const doc = new jsPDF();
 
-        // Add Roboto font to the document
-        doc.addFont(RobotoNormalFont, "Roboto", "normal");
-        doc.addFont(RobotoBoldFont, "Roboto", "bold");
+    // Add Roboto font to the document
+    doc.addFont(RobotoNormalFont, "Roboto", "normal");
+    doc.addFont(RobotoBoldFont, "Roboto", "bold");
 
     //colorear fondo
     doc.setFillColor(243, 242, 247); // Azul claro
@@ -76,7 +76,7 @@ const User = () => {
           "Tipo de documento",
           "Numero de documento",
           "Correo Electronico",
-          "Telefono",
+          "Número de Telefono",
           "Direccion",
           "Roles",
           "Estado",
@@ -132,7 +132,17 @@ const User = () => {
       });
     }
 
-    doc.save("Reporte_Usuarios.pdf");
+    // Convertir el PDF a un Blob
+    const pdfBlob = doc.output("blob");
+
+    // Crear una URL del Blob
+    const pdfUrl = URL.createObjectURL(pdfBlob);
+
+    // Abrir el PDF en una nueva pestaña
+    setTimeout(() => {
+      window.open(pdfUrl, "_blank");
+      setLoading("");
+    }, 500);
   };
 
   const handleFilterClick = () => {
@@ -164,52 +174,30 @@ const User = () => {
     "Apellidos",
     "Tipo de documento",
     "Numero de documento",
-    "Fecha de expedición",
+    "Correo Electronico",
     "Numero de telefono",
+    "Dirección",
     "Roles",
     "Estado",
     "Opciones",
   ];
 
+  const fetchUsers = async () => {
+    try {
+      setLoadingTable(true);
+      const response = await axios.get(
+        import.meta.env.VITE_URI_BACKEND + "/users"
+      );
+      setData(response.data.users);
+    } catch (error) {
+      console.error("Error al obtener los usuarios:", error);
+    } finally {
+      setLoadingTable(false);
+    }
+  };
+
   useEffect(() => {
-    setData([
-      {
-        id: 1,
-        nombres: "Sebastian",
-        apellidos: "Perdomo Cardozo",
-        tipo_documento: "C.C",
-        num_documento: 1010115909,
-        fecha_expedicion: "24-02-2020",
-        roles: "Administrador, Cliente",
-        // roles: [
-        //   { id: 1, nombre: "Administrador" },
-        //   { id: 2, nombre: "Cliente" },
-        // ],
-        estado: "activo",
-      },
-      {
-        id: 2,
-        nombres: "Deivy",
-        apellidos: "Mora",
-        tipo_documento: "C.C",
-        num_documento: 123456789,
-        fecha_expedicion: "15-06-2021",
-        roles: "Cliente",
-        // roles: [{ id: 1, nombre: "Administrador" }],
-        estado: "activo",
-      },
-      {
-        id: 3,
-        nombres: "Juan",
-        apellidos: "Rodriguez",
-        tipo_documento: "C.C",
-        num_documento: 123456789,
-        fecha_expedicion: "15-06-2021",
-        roles: "Cliente",
-        // roles: [{ id: 1, nombre: "Administrador" }],
-        estado: "activo",
-      },
-    ]);
+    fetchUsers();
   }, []);
 
   const filteredData = data
@@ -221,11 +209,13 @@ const User = () => {
     )
     .map((info) => ({
       ID: info.id,
-      Nombres: info.nombres,
-      Apellidos: info.apellidos,
-      "Tipo de documento": info.tipo_documento,
-      "Numero de documento": info.num_documento,
-      "Fecha de expedición": info.fecha_expedicion,
+      Nombres: info.name,
+      Apellidos: info.first_last_name + info.second_last_name,
+      "Tipo de documento": info.type_document_id,
+      "Numero de documento": info.document_number,
+      "Correo Electronico": info.email,
+      "Numero de telefono": info.phone,
+      Dirección: info.address,
       Roles: info.roles,
       Estado: info.estado,
     }));
@@ -234,7 +224,6 @@ const User = () => {
     { icon: "BiShow", name: "Ver detalles" },
     { icon: "BiEditAlt", name: "Editar" },
     { icon: "LuDownload", name: "Inhabilitar" },
-    { icon: "LuDownload", name: "Descargar" },
   ];
 
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -245,12 +234,21 @@ const User = () => {
 
   return (
     <>
-      <Head head_data={head_data} onButtonClick={handleButtonClick} />
+      <Head
+        head_data={head_data}
+        onButtonClick={handleButtonClick}
+        loading={loading}
+      />
       <div className="container-search">
         <Search onSearch={setSearchTerm} />
         <Filter onFilterClick={handleFilterClick} />
       </div>
-      <Table columns={columns} data={paginatedData} options={options} />
+      <Table
+        columns={columns}
+        data={paginatedData}
+        options={options}
+        loadingTable={loadingTable}
+      />
       <Pagination
         totalItems={filteredData.length}
         itemsPerPage={itemsPerPage}

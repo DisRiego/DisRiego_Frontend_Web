@@ -29,6 +29,12 @@ const Names_navegation = {
         "detail": "Detalles del rol #",
       },  
     },
+    "user": {
+      name: "Gestión de usuarios",
+      submodules: {
+        "detail": "Detalles del usuario #",
+      },  
+    },
   };
   
   export default Names_navegation;

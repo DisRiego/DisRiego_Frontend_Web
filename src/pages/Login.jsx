@@ -68,7 +68,6 @@ const Login = () => {
     if (errors.email === "" && errors.password === "") {
       try {
         setLoading("is-loading");
-        console.log(formData);
         const response = await axios.post(
           import.meta.env.VITE_URI_BACKEND + "/login",
           formData

@@ -38,36 +38,58 @@ const Rol_detail = ({ role }) => {
         <div className="is-flex is-justify-content-space-between is-align-items-center">
           <h3 className="title is-6">Estado actual</h3>
           <span
-            className={`tag ${
+            className={`button detail-status ${
               rolInfo.status === "Operativo" ? "is-success" : "is-danger"
             }`}
           >
             {rolInfo.status}
           </span>
         </div>
-        <h3 className="title is-6">Nombre del rol</h3>
-        <p>{rolInfo.name}</p>
-        <h3 className="title is-6 mt-3">Descripción</h3>
-        <p>{rolInfo.description}</p>
+        <div className="columns">
+          <div className="column">
+            <h3 className="title is-6 mb-2">Nombre del rol</h3>
+            <p>{rolInfo.name}</p>
+          </div>
+          <div className="column">
+            <h3 className="title is-6 mb-2">Descripción</h3>
+            <p>{rolInfo.description}</p>
+          </div>
+        </div>
       </div>
 
       {/* Permisos */}
       {rolInfo.permisos && rolInfo.permisos.length > 0 ? (
-        rolInfo.permisos.map((modulo, index) => (
-          <div key={index} className="rol-detail ">
-            <h3 className="title is-6">
-              Permisos{" "}
-              <span className="has-text-grey-light">
-                (Módulo {modulo.nombre})
-              </span>
-            </h3>
-            <ul>
-              {modulo.permisos.map((permiso, idx) => (
-                <li key={idx}> - {permiso}</li>
-              ))}
-            </ul>
-          </div>
-        ))
+        rolInfo.permisos.map((modulo, index) => {
+          // Crear un array de tres columnas vacías
+          const columnas = [[], [], []];
+
+          // Distribuir los permisos en las tres columnas de manera intercalada
+          modulo.permisos.forEach((permiso, i) => {
+            columnas[i % 3].push(permiso);
+          });
+
+          return (
+            <div key={index} className="rol-detail">
+              <h3 className="title is-6">
+                Permisos{" "}
+                <span className="has-text-grey-light">
+                  (Módulo {modulo.nombre})
+                </span>
+              </h3>
+              <div className="columns">
+                {columnas.map((columna, colIndex) => (
+                  <div className="column pt-0" key={colIndex}>
+                    <ul>
+                      {columna.map((permiso, idx) => (
+                        <li key={idx}>*{permiso}</li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })
       ) : (
         <p>No hay permisos asignados.</p>
       )}
