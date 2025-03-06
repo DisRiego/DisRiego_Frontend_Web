@@ -10,11 +10,9 @@ import { jsPDF } from "jspdf";
 import Icon from "../../assets/icons/Disriego_title.png";
 import { autoTable } from "jspdf-autotable";
 import axios from "axios";
-
-// Import Roboto font files (you'll need to have these files in your project)
-// You can download them from Google Fonts or use a CDN
 import RobotoNormalFont from "../../assets/fonts/Roboto-Regular.ttf";
 import RobotoBoldFont from "../../assets/fonts/Roboto-Bold.ttf";
+import Message from "../Message";
 
 const Rol = () => {
   const [data, setData] = useState([]);
@@ -25,6 +23,9 @@ const Rol = () => {
   const itemsPerPage = 9;
   const [loading, setLoading] = useState("");
   const [loadingTable, setLoadingTable] = useState(false);
+  const [showMessage, setShowMessage] = useState(false);
+  const [message, setMessage] = useState(false);
+  const [status, setStatus] = useState(false);
 
   const handleButtonClick = (buttonText) => {
     if (buttonText === "Añadir rol") {
@@ -184,6 +185,16 @@ const Rol = () => {
     fetchRoles();
   }, []);
 
+  useEffect(() => {
+    if (showMessage) {
+      const timer = setTimeout(() => {
+        setShowMessage(false);
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [showMessage]);
+
   const updateData = async () => {
     await fetchRoles();
   };
@@ -241,7 +252,13 @@ const Rol = () => {
       />
       {showForm && (
         <>
-          <Form_add_rol title="Añadir Rol" onClose={() => setShowForm(false)} />
+          <Form_add_rol
+            title="Añadir Rol"
+            onClose={() => setShowForm(false)}
+            setShowMessage={setShowMessage}
+            setMessage={setMessage}
+            setStatus={setStatus}
+          />
         </>
       )}
       {showFilter && (
@@ -251,6 +268,13 @@ const Rol = () => {
             onClose={() => setShowFilter(false)}
           />
         </>
+      )}
+      {showMessage && (
+        <Message
+          message={message}
+          status={status}
+          onClose={() => setShowMessage(false)}
+        />
       )}
     </>
   );

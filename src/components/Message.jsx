@@ -1,5 +1,4 @@
 const Message = ({ onClose, status, message }) => {
-  console.log("Mostrando mensaje");
   return (
     <>
       <article className="message">

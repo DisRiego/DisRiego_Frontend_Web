@@ -7,7 +7,13 @@ import {
 import axios from "axios";
 import { IoMdWarning } from "react-icons/io";
 
-const Form_add_rol = ({ title, onClose }) => {
+const Form_add_rol = ({
+  title,
+  onClose,
+  setShowMessage,
+  setMessage,
+  setStatus,
+}) => {
   const [showConfirm, setShowConfirm] = useState(false);
   const [permissions, setPermissions] = useState([]);
   const [openCategories, setOpenCategories] = useState({});
@@ -64,10 +70,6 @@ const Form_add_rol = ({ title, onClose }) => {
       setMethod("post");
       setShowConfirm(true);
     }
-  };
-
-  const handleCancelConfirm = () => {
-    setShowConfirm(false);
   };
 
   const handlePermissionChange = (event) => {
@@ -219,10 +221,16 @@ const Form_add_rol = ({ title, onClose }) => {
       </div>
       {showConfirm && (
         <Confirm_add_rol
-          onClose={handleCancelConfirm}
+          onClose={() => {
+            setShowConfirm(false);
+          }}
+          onSuccess={onClose}
           confirMessage={confirMessage}
           method={method}
           formData={formData}
+          setShowMessage={setShowMessage}
+          setMessage={setMessage}
+          setStatus={setStatus}
         />
       )}
     </>
