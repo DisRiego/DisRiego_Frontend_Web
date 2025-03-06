@@ -1,4 +1,4 @@
-const Form_add_user = ({ title, onClose }) => {
+const Form_edit_user = ({ title, onClose }) => {
   return (
     <>
       <div className="modal is-active">
@@ -104,4 +104,4 @@ const Form_add_user = ({ title, onClose }) => {
   );
 };
 
-export default Form_add_user;
+export default Form_edit_user;
