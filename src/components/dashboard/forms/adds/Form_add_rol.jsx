@@ -141,7 +141,7 @@ const Form_add_rol = ({
               <div className="control">
                 <input
                   className={`input ${
-                    submitted && errors.name ? "is-false" : "is-true"
+                    submitted ? (errors.name ? "is-false" : "is-true") : ""
                   }`}
                   type="text"
                   name="name"
@@ -156,7 +156,11 @@ const Form_add_rol = ({
               <div className="control">
                 <textarea
                   className={`textarea ${
-                    submitted && errors.description ? "is-false" : "is-true"
+                    submitted
+                      ? errors.description
+                        ? "is-false"
+                        : "is-true"
+                      : ""
                   }`}
                   name="description"
                   placeholder="Descripción del rol"
