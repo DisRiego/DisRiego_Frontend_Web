@@ -10,6 +10,11 @@ import { autoTable } from "jspdf-autotable";
 import { jsPDF } from "jspdf";
 import Icon from "../../assets/icons/Disriego_title.png";
 
+// Import Roboto font files (you'll need to have these files in your project)
+// You can download them from Google Fonts or use a CDN
+import RobotoNormalFont from "../../assets/fonts/Roboto-Regular.ttf";
+import RobotoBoldFont from "../../assets/fonts/Roboto-Bold.ttf";
+
 const User = () => {
   const [data, setData] = useState([]);
   const [showForm, setShowForm] = useState(false);
@@ -33,6 +38,10 @@ const User = () => {
   const generateUserReport = () => {
     const doc = new jsPDF();
 
+        // Add Roboto font to the document
+        doc.addFont(RobotoNormalFont, "Roboto", "normal");
+        doc.addFont(RobotoBoldFont, "Roboto", "bold");
+
     //colorear fondo
     doc.setFillColor(243, 242, 247); // Azul claro
     doc.rect(0, 0, 210, 53, "F"); // colorear una parte de la pagina
@@ -42,21 +51,19 @@ const User = () => {
     doc.setFontSize(17);
     doc.setFont("Roboto", "bold");
     doc.text("REPORTE DE USUARIOS", 12, 18);
-    doc.setFontSize(10);
+    doc.setFontSize(11);
+    doc.text(`Fecha de generación:`, 12, 27);
+    doc.text(`Generado por:`, 12, 39);
+    doc.text("Usuarios registrados actualmente", 12, 63);
     doc.setTextColor(94, 100, 112);
+    doc.setFont("Roboto", "normal");
+    doc.setFontSize(10);
     doc.text(`${new Date().toLocaleString()}`, 12, 32);
     doc.text(`[Nombre del usuario]`, 12, 44);
+    doc.setFontSize(11);
     doc.text(`[Dirección de la empresa]`, 194, 27, { align: "right" });
     doc.text(`[Ciudad, Dept. País]`, 194, 33, { align: "right" });
     doc.text(`[Teléfono]`, 194, 39, { align: "right" });
-    doc.setTextColor(0, 0, 0);
-    doc.text(`Fecha de generación:`, 12, 27);
-    doc.text(`Generado por:`, 12, 39);
-    doc.setFontSize(11);
-    doc.text("Usuarios registrados actualmente", 12, 63);
-    doc.setFontSize(11);
-    doc.setTextColor(94, 100, 112);
-    doc.setFont("Roboto", "normal");
     doc.text(`Cantidad de usuarios: ${data.length}`, 12, 68);
 
     // Agregar tabla con autoTable
@@ -88,7 +95,7 @@ const User = () => {
       theme: "grid",
       headStyles: {
         fillColor: [252, 252, 253],
-        textColor: [89, 89, 89],
+        textColor: [0, 0, 0],
         fontStyle: "bold",
         font: "Roboto",
         lineColor: [234, 236, 240],
@@ -123,7 +130,7 @@ const User = () => {
       doc.text(`Página ${i}/${pageCount}`, pageWidth - 10, pageHeight - 10, { align: "right" });
     }
 
-    doc.save("reporte_roles.pdf");
+    doc.save("Reporte_Usuarios.pdf");
   };
 
   const handleFilterClick = () => {
