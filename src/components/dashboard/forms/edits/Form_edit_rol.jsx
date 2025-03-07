@@ -7,7 +7,7 @@ import {
 import axios from "axios";
 import { IoMdWarning } from "react-icons/io";
 
-const Form_add_rol = ({
+const Form_edit_rol = ({
   title,
   onClose,
   setShowMessage,
@@ -241,4 +241,4 @@ const Form_add_rol = ({
   );
 };
 
-export default Form_add_rol;
+export default Form_edit_rol;

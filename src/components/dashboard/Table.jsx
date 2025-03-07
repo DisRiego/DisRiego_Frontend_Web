@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { SlOptionsVertical } from "react-icons/sl";
 import Confirm_add_rol from "./confirm_view/adds/Confirm_add_rol";
+import Form_edit_rol from "./forms/edits/Form_edit_rol";
+import Form_edit_user from "./forms/edits/Form_edit_user";
 import Icon from "../Icon";
 
 const OptionsButton = ({ onClick }) => (
@@ -17,6 +19,8 @@ const Table = ({ columns, data, options, loadingTable }) => {
   const [showConfirm, setShowConfirm] = useState(false);
   const [activeRow, setActiveRow] = useState(null);
   const menuRefs = useRef({});
+  const [showEditRol, setShowEditRol] = useState();
+  const [showEditUser, setShowEditUser] = useState();
 
   const [dots, setDots] = useState("");
 
@@ -57,6 +61,13 @@ const Table = ({ columns, data, options, loadingTable }) => {
     if (id === "rol" && option.name === "Inhabilitar") {
       setConfirMessage(`¿Desea inhabilitar el rol "${row["Nombre del rol"]}"?`);
       setShowConfirm(true);
+    }
+    if (id === "rol" && option.name === "Editar") {
+      setShowEditRol(true);
+    }
+
+    if (id === "user" && option.name === "Editar") {
+      setShowEditUser(true);
     }
   };
 
@@ -161,6 +172,18 @@ const Table = ({ columns, data, options, loadingTable }) => {
           title="Filtros de rol"
           confirMessage={confirMessage}
           onClose={() => setShowConfirm(false)}
+        />
+      )}
+      {showEditRol && (
+        <Form_edit_rol
+          title="Editar usuario"
+          onClose={() => setShowEditRol(false)}
+        />
+      )}
+      {showEditUser && (
+        <Form_edit_user
+          title="Editar usuario"
+          onClose={() => setShowEditUser(false)}
         />
       )}
     </div>

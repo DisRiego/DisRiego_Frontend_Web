@@ -177,7 +177,7 @@ const User = () => {
     "Correo Electronico",
     "Numero de telefono",
     "Dirección",
-    "Roles",
+    "Rol",
     "Estado",
     "Opciones",
   ];
@@ -216,7 +216,7 @@ const User = () => {
       "Correo Electronico": info.email,
       "Numero de telefono": info.phone,
       Dirección: info.address,
-      Roles: info.roles,
+      Rol: info.roles,
       Estado: info.estado,
     }));
 
