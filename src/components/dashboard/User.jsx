@@ -78,7 +78,7 @@ const User = () => {
           "Correo Electronico",
           "Número de Telefono",
           "Direccion",
-          "Roles",
+          "Rol",
           "Estado",
         ],
       ],

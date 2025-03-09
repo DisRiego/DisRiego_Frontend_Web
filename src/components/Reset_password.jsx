@@ -7,6 +7,7 @@ import IconOutlook from "../img/icon/iconOutlook.svg";
 import { IoMdWarning } from "react-icons/io";
 import { IoArrowBack } from "react-icons/io5";
 import { validateEmail } from "../hooks/useValidations.jsx";
+import emailjs from "@emailjs/browser";
 
 const Reset_password = () => {
   const [showButton, setShowButton] = useState(window.innerWidth >= 768);
@@ -55,12 +56,39 @@ const Reset_password = () => {
 
     if (errors.email === "") {
       try {
-        console.log(formData);
         const response = await axios.post(
-          import.meta.env.VITE_URI_BACKEND_USER + "/login",
+          import.meta.env.VITE_URI_BACKEND + "/users/request-reset-password",
           formData
         );
-        navigate("/dashboard");
+
+        emailjs
+          .send(
+            "service_3n57kiy",
+            "template_dhmkfwx",
+            {
+              to_name: "Nombre del destinatario",
+              message:
+                "http://localhost:5173/login/resetpassword/" +
+                response.data.token,
+              email: formData.email,
+              phone: "Número de teléfono",
+              address: "Dirección",
+              city: "Ciudad",
+              country: "País",
+              reply_to: formData.email,
+            },
+            "zYatJthjuGoFy8q22"
+          )
+          .then(
+            (result) => {
+              console.log("Mensaje enviado con éxito:", result.text);
+              alert("Correo enviado correctamente");
+            },
+            (error) => {
+              console.error("Error al enviar el correo:", error.text);
+              alert("Hubo un error al enviar el correo");
+            }
+          );
       } catch (error) {
         setLoginError("El correo electrónico es inválido.");
       }

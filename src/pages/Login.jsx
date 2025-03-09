@@ -69,7 +69,7 @@ const Login = () => {
       try {
         setLoading("is-loading");
         const response = await axios.post(
-          import.meta.env.VITE_URI_BACKEND + "/login",
+          import.meta.env.VITE_URI_BACKEND + "/users/login",
           formData
         );
         navigate("/dashboard");

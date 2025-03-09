@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import Icon from "../assets/icons/DisRiego.svg";
 import IconGoogle from "../img/icon/iconGoogle.svg";
@@ -12,6 +12,7 @@ const Reset_password_confirm = () => {
   const [showButton, setShowButton] = useState(window.innerWidth >= 768);
   const navigate = useNavigate();
   const [loginError, setLoginError] = useState("");
+  const token = useParams();
 
   const [formData, setFormData] = useState({
     password: "",
@@ -66,13 +67,19 @@ const Reset_password_confirm = () => {
 
     if (errors.password === "" && errors.repeat_password === "") {
       try {
-        console.log(formData);
+        const dataToSend = {
+          token: token.id,
+          new_password: formData.password,
+        };
+        console.log(dataToSend);
         const response = await axios.post(
-          import.meta.env.VITE_URI_BACKEND_USER + "/",
-          formData
+          import.meta.env.VITE_URI_BACKEND +
+            "/users/reset-password/" +
+            token.id,
+          dataToSend
         );
-        navigate("/login");
       } catch (error) {
+        console.log(error);
         setLoginError("La contraseña no es inválida.");
       }
     } else {
