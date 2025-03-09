@@ -1,0 +1,34 @@
+name: Test Frontend
+
+on:
+  push:
+    branches:
+      - test  # Ejecutar las pruebas cuando haya cambios en la rama test
+
+jobs:
+  test-frontend:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '20.17'
+
+    - name: Install dependencies
+      run: |
+        npm install  # Instalar las dependencias del frontend
+
+    - name: Run Frontend Tests (Cypress)
+      run: |
+        npx cypress run   # Ejecutar las pruebas con Cypress
+
+    - name: Upload test report
+      if: success()
+      uses: actions/upload-artifact@v4
+      with:
+        name: cypress-report
+        path: cypress/results  # Ruta del reporte generado por Cypress
