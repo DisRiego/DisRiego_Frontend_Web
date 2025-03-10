@@ -527,3 +527,7 @@ tbody > tr > .loader-cell {
 .detail-status {
   pointer-events: none;
 }
+
+.modal-card > section.padding-modal {
+  padding-bottom: 32px;
+}

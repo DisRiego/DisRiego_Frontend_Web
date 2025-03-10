@@ -8,11 +8,17 @@ import { IoMdWarning } from "react-icons/io";
 import { IoArrowBack } from "react-icons/io5";
 import { validateEmail } from "../hooks/useValidations.jsx";
 import emailjs from "@emailjs/browser";
+import Modal from "./Modal.jsx";
 
 const Reset_password = () => {
   const [showButton, setShowButton] = useState(window.innerWidth >= 768);
   const navigate = useNavigate();
   const [loginError, setLoginError] = useState("");
+  const [loading, setLoading] = useState("");
+  const [showModal, setShowModal] = useState();
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [actionButton, setActionButton] = useState("");
 
   const [formData, setFormData] = useState({
     email: "",
@@ -58,6 +64,7 @@ const Reset_password = () => {
 
     if (errors.email === "") {
       try {
+        setLoading("is-loading");
         const response = await axios.post(
           import.meta.env.VITE_URI_BACKEND + "/users/request-reset-password",
           formData
@@ -83,18 +90,29 @@ const Reset_password = () => {
           )
           .then(
             (result) => {
-              console.log("Mensaje enviado con éxito:", result.text);
-              alert("Correo enviado correctamente");
+              setLoading("");
+              setTitle("Correo enviado exisotamente");
+              setDescription(
+                "Hemos enviado un correo con las instrucciones para restablecer o recordar tu contraseña. Revisa tu bandeja de entrada y, si no lo encuentras, verifica en la carpeta de spam o correo no deseado."
+              );
+              setActionButton(() => () => navigate("/login"));
+              setShowModal(true);
             },
             (error) => {
-              console.error("Error al enviar el correo:", error.text);
-              alert("Hubo un error al enviar el correo");
+              setTitle("Error al enviar el correo de recuperación");
+              setDescription(
+                "Ocurrió un problema al generar y enviar el correo de recuperación de contraseña. Por favor, inténtalo de nuevo."
+              );
+              setActionButton(() => () => setShowModal(false));
+              setShowModal(true);
             }
           );
       } catch (error) {
+        setLoading("");
         setLoginError("El correo electrónico es inválido.");
       }
     } else {
+      setLoading("");
       setLoginError("El correo electrónico es inválido.");
     }
   };
@@ -144,7 +162,9 @@ const Reset_password = () => {
               )}
               <button
                 type="submit"
-                className="button is-fullwidth is-primary button-login"
+                className={
+                  "button is-fullwidth is-primary button-login " + loading
+                }
               >
                 Enviar correo
               </button>
@@ -159,6 +179,13 @@ const Reset_password = () => {
           <p className="has-text-danger has-text-centered m-3">{message}</p>
         )}
       </div>
+      {showModal && (
+        <Modal
+          title={title}
+          description={description}
+          actionButton={actionButton}
+        />
+      )}
     </div>
   );
 };

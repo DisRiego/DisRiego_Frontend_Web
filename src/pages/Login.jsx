@@ -74,7 +74,6 @@ const Login = () => {
           import.meta.env.VITE_URI_BACKEND + "/users/login",
           formData
         );
-        navigate("/dashboard");
       } catch (error) {
         setLoading("");
         setLoginError("El correo electrónico o la contraseña son incorrectos.");
