@@ -41,6 +41,8 @@ const Reset_password = () => {
       [name]: value,
     });
 
+    setLoginError("");
+
     if (name === "email") {
       const isValid = validateEmail(value);
       setErrors({

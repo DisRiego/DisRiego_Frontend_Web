@@ -58,6 +58,18 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
           <span className="icon">
             <TbMapSearch />
           </span>
+          {!isCollapsed && <span>Gestión de predios</span>}
+        </Link>
+        <Link
+          className={`navbar-item ${
+            selectedOption === "properties" ? "selected" : ""
+          }`}
+          onClick={() => handleOptionChange("properties")}
+          to="/dashboard/properties"
+        >
+          <span className="icon">
+            <TbMapSearch />
+          </span>
           {!isCollapsed && <span>Mis predios y lotes</span>}
         </Link>
         <Link

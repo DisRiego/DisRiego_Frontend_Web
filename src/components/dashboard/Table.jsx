@@ -4,6 +4,8 @@ import { SlOptionsVertical } from "react-icons/sl";
 import Confirm_add_rol from "./confirm_view/adds/Confirm_add_rol";
 import Form_edit_rol from "./forms/edits/Form_edit_rol";
 import Form_edit_user from "./forms/edits/Form_edit_user";
+import Form_edit_property from "./forms/edits/Form_edit_property";
+import Form_edit_property_user from "./forms/edits/Form_edit_property_user";
 import Icon from "../Icon";
 
 const OptionsButton = ({ onClick }) => (
@@ -21,6 +23,8 @@ const Table = ({ columns, data, options, loadingTable }) => {
   const menuRefs = useRef({});
   const [showEditRol, setShowEditRol] = useState();
   const [showEditUser, setShowEditUser] = useState();
+  const [showEditProperty, setShowEditProperty] = useState();
+  const [showEditPropertyUser, setShowEditPropertyUser] = useState();
 
   const [dots, setDots] = useState("");
 
@@ -68,6 +72,14 @@ const Table = ({ columns, data, options, loadingTable }) => {
 
     if (id === "user" && option.name === "Editar") {
       setShowEditUser(true);
+    }
+
+    if (id === "property" && option.name === "Editar") {
+      setShowEditProperty(true);
+    }
+
+    if (id === "properties" && option.name === "Editar") {
+      setShowEditPropertyUser(true);
     }
   };
 
@@ -184,6 +196,18 @@ const Table = ({ columns, data, options, loadingTable }) => {
         <Form_edit_user
           title="Editar usuario"
           onClose={() => setShowEditUser(false)}
+        />
+      )}
+      {showEditProperty && (
+        <Form_edit_property
+          title="Editar predio"
+          onClose={() => setShowEditProperty(false)}
+        />
+      )}
+      {showEditPropertyUser && (
+        <Form_edit_property_user
+          title="Editar predio"
+          onClose={() => setShowEditPropertyUser(false)}
         />
       )}
     </div>

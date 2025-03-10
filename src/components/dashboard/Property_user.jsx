@@ -4,37 +4,21 @@ import Head from "./Head";
 import Search from "./Search";
 import Filter from "./Filter";
 import Table from "./Table";
-import Pagination from "./Pagination";
-import Form_add_property from "./forms/adds/Form_add_property";
-import Message from "../Message";
 
-const Property = () => {
+const Property_user = () => {
   const [data, setData] = useState([]);
-  const [showForm, setShowForm] = useState(false);
   const [showFilter, setShowFilter] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 9;
   const [loading, setLoading] = useState("");
   const [loadingTable, setLoadingTable] = useState(false);
-  const [showMessage, setShowMessage] = useState(false);
-  const [message, setMessage] = useState(false);
-  const [status, setStatus] = useState(false);
 
   const handleButtonClick = (buttonText) => {
-    if (buttonText === "Añadir predio") {
-      setShowForm(true);
-    }
-
     if (buttonText === "Descargar reporte") {
       setLoading("is-loading");
       generateReport();
     }
-  };
-
-  const generateReport = () => {
-    // Aqui va el codigo de generar reporte
-    console.log("Generando reporte...");
   };
 
   const handleFilterClick = () => {
@@ -42,32 +26,18 @@ const Property = () => {
   };
 
   const head_data = {
-    title: "Gestión de predios",
+    title: "Mis predios y lotes",
     description:
-      "En esta sección puedes gestionar predios, registrar nuevos lotes y visualizar sus detalles.",
-    buttons: {
-      button1: {
-        icon: "FaPlus",
-        class: "color-hover",
-        text: "Añadir predio",
-      },
-      button2: {
-        icon: "LuDownload",
-        class: "",
-        text: "Descargar reporte",
-      },
-    },
+      "En esta sección podrás visualizar la información de los predios y lotes vinculados a su número de identificación.",
   };
 
   const columns = [
-    "ID",
     "ID del predio",
-    "Nombre",
-    "Número de documento del dueño",
+    "Nombre del predio",
     "Folio de matricula inmobiliaria",
-    "Extensión",
     "Latitud",
     "Longitud",
+    "Extensión",
     "Estado",
     "Opciones",
   ];
@@ -181,25 +151,8 @@ const Property = () => {
         options={options}
         loadingTable={loadingTable}
       />
-      <Pagination
-        totalItems={filteredData.length}
-        itemsPerPage={itemsPerPage}
-        currentPage={currentPage}
-        onPageChange={setCurrentPage}
-      />
-      {showForm && (
-        <>
-          <Form_add_property
-            title="Añadir predio"
-            onClose={() => setShowForm(false)}
-            setShowMessage={setShowMessage}
-            setMessage={setMessage}
-            setStatus={setStatus}
-          />
-        </>
-      )}
     </>
   );
 };
 
-export default Property;
+export default Property_user;

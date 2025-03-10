@@ -31,6 +31,8 @@ const Login = () => {
       [name]: value,
     });
 
+    setLoginError("");
+
     if (name === "email") {
       const isValid = validateEmail(value);
       setErrors({
