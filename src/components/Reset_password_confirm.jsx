@@ -7,11 +7,17 @@ import IconOutlook from "../img/icon/iconOutlook.svg";
 import { IoMdWarning } from "react-icons/io";
 import { IoArrowBack } from "react-icons/io5";
 import { validatePassword } from "../hooks/useValidations.jsx";
+import Modal from "./Modal.jsx";
 
 const Reset_password_confirm = () => {
   const [showButton, setShowButton] = useState(window.innerWidth >= 768);
   const navigate = useNavigate();
   const [loginError, setLoginError] = useState("");
+  const [loading, setLoading] = useState("");
+  const [showModal, setShowModal] = useState();
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [actionButton, setActionButton] = useState("");
   const token = useParams();
 
   const [formData, setFormData] = useState({
@@ -30,6 +36,8 @@ const Reset_password_confirm = () => {
       ...formData,
       [name]: value,
     });
+
+    setLoginError("");
 
     if (name === "password") {
       const isValid = validatePassword(value);
@@ -61,6 +69,8 @@ const Reset_password_confirm = () => {
   }, []);
 
   const [message, setMessage] = useState("");
+  console.log("Nueva contraseña: " + formData.password);
+  console.log("Nueva contraseña x2: " + formData.repeat_password);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -78,9 +88,21 @@ const Reset_password_confirm = () => {
             token.id,
           dataToSend
         );
+
+        setLoading("");
+        setTitle("Contraseña cambiada exitosamente");
+        setDescription(
+          "Tu contraseña ha sido actualizada correctamente. Ahora puedes iniciar sesión con tu nueva contraseña."
+        );
+        setActionButton(() => () => navigate("/login"));
+        setShowModal(true);
       } catch (error) {
-        console.log(error);
-        setLoginError("La contraseña no es inválida.");
+        setTitle("Error al cambiar la contraseña");
+        setDescription(
+          "Ocurrió un problema al intentar actualizar tu contraseña. Por favor, inténtalo de nuevo."
+        );
+        setActionButton(() => () => setShowModal(false));
+        setShowModal(true);
       }
     } else {
       setLoginError("Las contraseñas no coinciden.");
@@ -142,7 +164,10 @@ const Reset_password_confirm = () => {
               )}
               <button
                 type="submit"
-                className="button text-button is-fullwidth is-primary button-login"
+                className={
+                  "button text-button is-fullwidth is-primary button-login" +
+                  loading
+                }
               >
                 Confirmar
               </button>
@@ -157,6 +182,13 @@ const Reset_password_confirm = () => {
           <p className="has-text-danger has-text-centered m-3">{message}</p>
         )}
       </div>
+      {showModal && (
+        <Modal
+          title={title}
+          description={description}
+          actionButton={actionButton}
+        />
+      )}
     </div>
   );
 };
