@@ -78,13 +78,19 @@ const Rol = () => {
       startY: 80,
       margin: { left: 12 },
       head: [
-        ["Nombre del rol", "Descripción", "Cantidad de usuarios", "Permisos"],
+        [
+          "Nombre del rol",
+          "Descripción",
+          "Cantidad de usuarios",
+          "Permisos",
+          "Estado",
+        ],
       ],
       body: data.map((rol) => [
-        rol.nombre,
-        rol.descripcion,
+        rol.name,
+        rol.description,
         "-",
-        rol.permisos.map((p) => p.nombre).join(", "),
+        rol.permissions.map((p) => p.nombre).join(", "),
       ]),
       theme: "grid",
       headStyles: {
