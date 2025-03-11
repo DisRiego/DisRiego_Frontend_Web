@@ -14,9 +14,12 @@
     "axios": "^1.8.1",
     "bulma": "^1.0.3",
     "bulma-carousel": "^4.0.24",
+    "chart.js": "^4.4.8",
+    "date-fns": "^4.1.0",
     "jspdf": "^3.0.0",
     "jspdf-autotable": "^5.0.2",
     "react": "^18.3.1",
+    "react-chartjs-2": "^5.3.0",
     "react-dom": "^18.3.1",
     "react-icons": "^5.4.0",
     "react-router-dom": "^7.1.1"

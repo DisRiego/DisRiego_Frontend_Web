@@ -531,3 +531,44 @@ tbody > tr > .loader-cell {
 .modal-card > section.padding-modal {
   padding-bottom: 32px;
 }
+
+.uptake-value-energy{
+  color: #BC9110;
+  font-family: 'Roboto';
+}
+
+.uptake-value-water{
+  color: #5B93FF;
+  font-family: 'Roboto';
+}
+
+.production-value-energy{
+  color: #E5877F;
+  font-family: 'Roboto';
+}
+
+.storage-value-energy{
+  color: #418B60;
+  font-family: 'Roboto';
+}
+
+.tabs.is-toggle ul li.is-active a {
+  background-color: #E9F3D5 !important;
+  border-color: #D0D5DD !important;
+  color: #2A6041 !important;
+  font-weight: 600 !important;
+}
+
+.tabs-period.right ul li.is-active a,
+.tabs-period.right ul li a.active-tab {
+  background-color: #418B60 !important;
+  color: white !important;
+  border-radius: 10px !important;
+}
+
+.tabs-period.left ul li.is-active a,
+.tabs-period.left ul li a.active-tab {
+  background-color: #7CA8FF !important;
+  color: white !important;
+  border-radius: 10px !important;
+}
