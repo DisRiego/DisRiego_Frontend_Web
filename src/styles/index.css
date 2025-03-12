@@ -196,6 +196,10 @@ p.title + p {
   background-color: #c2e96a;
 }
 
+.button.color-hover:disabled {
+  color: hsl(221, 14%, 71%);
+}
+
 .button svg {
   margin-right: 10px;
 }
@@ -530,4 +534,41 @@ tbody > tr > .loader-cell {
 
 .modal-card > section.padding-modal {
   padding-bottom: 32px;
+}
+
+.control > .select {
+  width: 100%;
+}
+.control > .select select {
+  display: flex;
+  width: 100%;
+}
+
+.control > .select.is-true select {
+  border-color: #c2e96a;
+}
+
+.control > .select.is-false select {
+  border-color: #b8332c;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: brightness(0) saturate(100%) invert(17%) sepia(23%) saturate(498%)
+    hue-rotate(185deg) brightness(98%) contrast(84%);
+}
+
+.input-error {
+  color: #b8332c;
+}
+
+.icon-password {
+  margin-right: 1em;
+}
+
+.icon-password.is-true {
+  color: #c2e96a;
+}
+
+.icon-password.is-false {
+  color: #b8332c;
 }

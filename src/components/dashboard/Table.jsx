@@ -25,6 +25,7 @@ const Table = ({ columns, data, options, loadingTable }) => {
   const [showEditUser, setShowEditUser] = useState();
   const [showEditProperty, setShowEditProperty] = useState();
   const [showEditPropertyUser, setShowEditPropertyUser] = useState();
+  const [idRow, setIdRow] = useState();
 
   const [dots, setDots] = useState("");
 
@@ -59,8 +60,9 @@ const Table = ({ columns, data, options, loadingTable }) => {
   };
 
   const handleOption = async (option, row) => {
+    setIdRow(row.ID);
     if (option.name === "Ver detalles") {
-      navigate(`${row.ID}`);
+      navigate(`${idRow}`);
     }
     if (id === "rol" && option.name === "Inhabilitar") {
       setConfirMessage(`¿Desea inhabilitar el rol "${row["Nombre del rol"]}"?`);
@@ -190,6 +192,7 @@ const Table = ({ columns, data, options, loadingTable }) => {
         <Form_edit_rol
           title="Editar usuario"
           onClose={() => setShowEditRol(false)}
+          idRow={idRow}
         />
       )}
       {showEditUser && (

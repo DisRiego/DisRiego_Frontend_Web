@@ -13,7 +13,9 @@ const Form_edit_rol = ({
   setShowMessage,
   setMessage,
   setStatus,
+  idRow,
 }) => {
+  const [data, setData] = useState();
   const [showConfirm, setShowConfirm] = useState(false);
   const [permissions, setPermissions] = useState([]);
   const [openCategories, setOpenCategories] = useState({});
@@ -21,6 +23,7 @@ const Form_edit_rol = ({
   const [confirMessage, setConfirMessage] = useState();
   const [method, setMethod] = useState();
   const [uriPost, setUriPost] = useState();
+  const [isLoading, setIsLoading] = useState(true);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -35,21 +38,57 @@ const Form_edit_rol = ({
   const [submitted, setSubmitted] = useState(false);
 
   useEffect(() => {
-    const fetchPermissions = async () => {
-      try {
-        const response = await axios.get(
-          import.meta.env.VITE_URI_BACKEND + "/roles/permissions/"
-        );
-        setPermissions(response.data);
-      } catch (error) {
-        console.error("Error al obtener los permisos:", error);
-      }
-    };
-
-    fetchPermissions();
+    fetchData();
   }, []);
 
-  console.log(formData);
+  const fetchData = async () => {
+    await fetchPermissions();
+    await fetchRol();
+    setIsLoading(false);
+  };
+
+  const fetchRol = async () => {
+    try {
+      const response = await axios.get(
+        import.meta.env.VITE_URI_BACKEND + "/roles/" + idRow
+      );
+
+      if (response.data.success && response.data.data.length > 0) {
+        const rolData = response.data.data[0]; // Acceder al primer objeto dentro de `data`
+
+        setData(rolData);
+
+        setFormData({
+          name: rolData.name || "",
+          description: rolData.description || "",
+          permissions: rolData.permissions?.map((p) => p.id) || [],
+        });
+
+        setFilters((prevFilters) => ({
+          ...prevFilters,
+          permisos: rolData.permissions.reduce((acc, permiso) => {
+            acc[permiso.id] = true;
+            return acc;
+          }, {}),
+        }));
+      } else {
+        console.error("El rol no fue encontrado");
+      }
+    } catch (error) {
+      console.log("Error al obtener el rol", error);
+    }
+  };
+
+  const fetchPermissions = async () => {
+    try {
+      const response = await axios.get(
+        import.meta.env.VITE_URI_BACKEND + "/roles/permissions/"
+      );
+      setPermissions(response.data);
+    } catch (error) {
+      console.error("Error al obtener los permisos:", error);
+    }
+  };
 
   const handleSaveClick = () => {
     setSubmitted(true);
@@ -148,6 +187,7 @@ const Form_edit_rol = ({
                   placeholder="Nombre del rol"
                   value={formData.name}
                   onChange={handleChange}
+                  disabled={isLoading}
                 />
               </div>
             </div>
@@ -166,6 +206,7 @@ const Form_edit_rol = ({
                   placeholder="Descripción del rol"
                   value={formData.description}
                   onChange={handleChange}
+                  disabled={isLoading}
                 />
               </div>
             </div>
@@ -195,6 +236,7 @@ const Form_edit_rol = ({
                             name={permiso.id}
                             checked={filters.permisos[permiso.id] || false}
                             onChange={handlePermissionChange}
+                            disabled={isLoading}
                           />{" "}
                           {permiso.description}
                         </label>
@@ -235,6 +277,7 @@ const Form_edit_rol = ({
           setShowMessage={setShowMessage}
           setMessage={setMessage}
           setStatus={setStatus}
+          updateData={updateData}
         />
       )}
     </>

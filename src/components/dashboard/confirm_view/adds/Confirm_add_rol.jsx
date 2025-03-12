@@ -10,14 +10,14 @@ const Confirm_add_rol = ({
   setMessage,
   setStatus,
   onSuccess,
+  updateData,
+  uriPost,
 }) => {
   const handleConfirm = async () => {
     try {
       const response = await axios({
         method: method,
-        url:
-          import.meta.env.VITE_URI_BACKEND +
-          import.meta.env.VITE_ROUTE_BACKEND_ROL,
+        url: import.meta.env.VITE_URI_BACKEND + uriPost,
         data: formData,
       });
       setMessage("Se creo el rol");
@@ -25,6 +25,7 @@ const Confirm_add_rol = ({
       setShowMessage(true);
       onClose();
       onSuccess();
+      updateData();
     } catch (error) {
       setMessage(error.response.data.detail.data);
       setStatus("is-false");

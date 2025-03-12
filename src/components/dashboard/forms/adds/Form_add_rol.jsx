@@ -13,6 +13,7 @@ const Form_add_rol = ({
   setShowMessage,
   setMessage,
   setStatus,
+  updateData,
 }) => {
   const [showConfirm, setShowConfirm] = useState(false);
   const [permissions, setPermissions] = useState([]);
@@ -20,7 +21,8 @@ const Form_add_rol = ({
   const [filters, setFilters] = useState({ permisos: {} });
   const [confirMessage, setConfirMessage] = useState();
   const [method, setMethod] = useState();
-  const [uriPost, setUriPost] = useState();
+  const [uriPost, setUriPost] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -38,9 +40,11 @@ const Form_add_rol = ({
     const fetchPermissions = async () => {
       try {
         const response = await axios.get(
-          import.meta.env.VITE_URI_BACKEND + "/roles/permissions/"
+          import.meta.env.VITE_URI_BACKEND +
+            import.meta.env.VITE_ROUTE_BACKEND_ROL_PERMISSIONS
         );
         setPermissions(response.data);
+        setIsLoading(false);
       } catch (error) {
         console.error("Error al obtener los permisos:", error);
       }
@@ -48,8 +52,6 @@ const Form_add_rol = ({
 
     fetchPermissions();
   }, []);
-
-  console.log(formData);
 
   const handleSaveClick = () => {
     setSubmitted(true);
@@ -68,6 +70,7 @@ const Form_add_rol = ({
     if (isNameValid && isDescriptionValid && hasSelectedPermissions) {
       setConfirMessage('¿Desea crear el rol "' + formData.name + '"?');
       setMethod("post");
+      setUriPost(import.meta.env.VITE_ROUTE_BACKEND_ROL);
       setShowConfirm(true);
     }
   };
@@ -148,6 +151,7 @@ const Form_add_rol = ({
                   placeholder="Nombre del rol"
                   value={formData.name}
                   onChange={handleChange}
+                  disabled={isLoading}
                 />
               </div>
             </div>
@@ -166,6 +170,7 @@ const Form_add_rol = ({
                   placeholder="Descripción del rol"
                   value={formData.description}
                   onChange={handleChange}
+                  disabled={isLoading}
                 />
               </div>
             </div>
@@ -235,6 +240,8 @@ const Form_add_rol = ({
           setShowMessage={setShowMessage}
           setMessage={setMessage}
           setStatus={setStatus}
+          updateData={updateData}
+          uriPost={uriPost}
         />
       )}
     </>

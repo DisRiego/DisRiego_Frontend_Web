@@ -8,6 +8,7 @@ import { IoMdWarning } from "react-icons/io";
 import { IoArrowBack } from "react-icons/io5";
 import { validatePassword } from "../hooks/useValidations.jsx";
 import Modal from "./Modal.jsx";
+import { MdError } from "react-icons/md";
 
 const Reset_password_confirm = () => {
   const [showButton, setShowButton] = useState(window.innerWidth >= 768);
@@ -21,13 +22,21 @@ const Reset_password_confirm = () => {
   const token = useParams();
 
   const [formData, setFormData] = useState({
-    password: "",
-    repeat_password: "",
+    new_password: "",
+    confirm_password: "",
   });
 
   const [errors, setErrors] = useState({
-    password: "",
-    repeat_password: "",
+    new_password: "",
+    confirm_password: "",
+  });
+
+  const [passwordCriteria, setPasswordCriteria] = useState({
+    length: false,
+    hasNumber: false,
+    hasUppercase: false,
+    hasLowercase: false,
+    hasSpecialChar: false,
   });
 
   const handleChange = (e) => {
@@ -39,19 +48,35 @@ const Reset_password_confirm = () => {
 
     setLoginError("");
 
-    if (name === "password") {
+    if (name === "new_password") {
       const isValid = validatePassword(value);
       setErrors({
         ...errors,
-        password: isValid ? "" : "false",
+        new_password: isValid ? "" : "false",
       });
     }
 
-    if (name === "repeat_password") {
+    if (name === "confirm_password") {
       const isValid = validatePassword(value);
       setErrors({
         ...errors,
-        repeat_password: isValid ? "" : "false",
+        confirm_password: isValid ? "" : "false",
+      });
+    }
+
+    if (name === "new_password") {
+      const value = e.target.value;
+      setPasswordCriteria({
+        length: value.length >= 12,
+        hasNumber: /\d/.test(value),
+        hasUppercase: /[A-ZÑ]/.test(value),
+        hasLowercase: /[a-zñ]/.test(value),
+        hasSpecialChar: /[.,;_@%+\-]/.test(value),
+      });
+
+      setErrors({
+        ...errors,
+        new_password: validatePassword(value) ? "" : "false",
       });
     }
   };
@@ -69,45 +94,71 @@ const Reset_password_confirm = () => {
   }, []);
 
   const [message, setMessage] = useState("");
-  console.log("Nueva contraseña: " + formData.password);
-  console.log("Nueva contraseña x2: " + formData.repeat_password);
+  console.log(formData);
+  console.log(errors);
+  console.log(passwordCriteria);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (errors.password === "" && errors.repeat_password === "") {
-      try {
-        const dataToSend = {
-          token: token.id,
-          new_password: formData.password,
-        };
-        console.log(dataToSend);
-        const response = await axios.post(
-          import.meta.env.VITE_URI_BACKEND +
-            "/users/reset-password/" +
-            token.id,
-          dataToSend
+    // Validar si la nueva contraseña cumple con los criterios de seguridad
+    if (
+      !passwordCriteria.length ||
+      !passwordCriteria.hasNumber ||
+      !passwordCriteria.hasUppercase ||
+      !passwordCriteria.hasLowercase ||
+      !passwordCriteria.hasSpecialChar
+    ) {
+      setLoginError("La contraseña no cumple con los requisitos de seguridad.");
+      return;
+    }
+
+    // Verificar si las contraseñas coinciden
+    if (formData.new_password !== formData.confirm_password) {
+      setLoginError("Las contraseñas no coinciden.");
+      return;
+    }
+
+    try {
+      setLoading("is-loading");
+      const response = await axios.post(
+        import.meta.env.VITE_URI_BACKEND +
+          import.meta.env.VITE_ROUTE_BACKEND_LOGIN_UPDATE_RESETPASSWORD +
+          token.id,
+        formData
+      );
+
+      setLoading("");
+      setTitle("Contraseña cambiada exitosamente");
+      setDescription(
+        "Tu contraseña ha sido actualizada correctamente. Ahora puedes iniciar sesión con tu nueva contraseña."
+      );
+      setActionButton(() => () => navigate("/login"));
+      setShowModal(true);
+    } catch (error) {
+      console.log(error.status);
+      if (error.status == "404") {
+        setTitle("Error al cambiar la contraseña");
+        setDescription(
+          "El enlace para cambiar la contraseña ha expirado o es inválido. Por favor, genera uno nuevo e inténtalo nuevamente."
         );
 
         setLoading("");
-        setTitle("Contraseña cambiada exitosamente");
-        setDescription(
-          "Tu contraseña ha sido actualizada correctamente. Ahora puedes iniciar sesión con tu nueva contraseña."
-        );
-        setActionButton(() => () => navigate("/login"));
+        setActionButton(() => () => setShowModal(false));
         setShowModal(true);
-      } catch (error) {
+      } else {
         setTitle("Error al cambiar la contraseña");
         setDescription(
           "Ocurrió un problema al intentar actualizar tu contraseña. Por favor, inténtalo de nuevo."
         );
+        setLoading("");
         setActionButton(() => () => setShowModal(false));
         setShowModal(true);
       }
-    } else {
-      setLoginError("Las contraseñas no coinciden.");
     }
   };
+
+  console.log(loading);
 
   return (
     <div className="container-login">
@@ -137,7 +188,7 @@ const Reset_password_confirm = () => {
               <div className="field">
                 <div className="control">
                   <input
-                    name="password"
+                    name="new_password"
                     type="password"
                     className="input input-padding"
                     placeholder="Ingresa tu nueva contraseña"
@@ -148,7 +199,7 @@ const Reset_password_confirm = () => {
               <div className="field">
                 <div className="control">
                   <input
-                    name="repeat_password"
+                    name="confirm_password"
                     type="password"
                     className="input input-padding"
                     placeholder="Ingresa nuevamente tu nueva contraseña"
@@ -156,6 +207,71 @@ const Reset_password_confirm = () => {
                   />
                 </div>
               </div>
+              <div className="field">
+                <div className="control">
+                  <div className="is-flex">
+                    <MdError
+                      className={
+                        formData.new_password === ""
+                          ? "icon-password"
+                          : passwordCriteria.length
+                          ? "icon-password is-true"
+                          : "icon-password is-false"
+                      }
+                    />
+                    <p>Mínimo 12 caracteres</p>
+                  </div>
+                  <div className="is-flex">
+                    <MdError
+                      className={
+                        formData.new_password === ""
+                          ? "icon-password"
+                          : passwordCriteria.hasUppercase
+                          ? "icon-password is-true"
+                          : "icon-password is-false"
+                      }
+                    />
+                    <p>Mínimo una letra mayúscula</p>
+                  </div>
+                  <div className="is-flex">
+                    <MdError
+                      className={
+                        formData.new_password === ""
+                          ? "icon-password"
+                          : passwordCriteria.hasLowercase
+                          ? "icon-password is-true"
+                          : "icon-password is-false"
+                      }
+                    />
+                    <p>Mínimo una letra minúscula</p>
+                  </div>
+                  <div className="is-flex">
+                    <MdError
+                      className={
+                        formData.new_password === ""
+                          ? "icon-password"
+                          : passwordCriteria.hasNumber
+                          ? "icon-password is-true"
+                          : "icon-password is-false"
+                      }
+                    />
+                    <p>Mínimo un número</p>
+                  </div>
+                  <div className="is-flex">
+                    <MdError
+                      className={
+                        formData.new_password === ""
+                          ? "icon-password"
+                          : passwordCriteria.hasSpecialChar
+                          ? "icon-password is-true"
+                          : "icon-password is-false"
+                      }
+                    />
+                    <p>Mínimo un carácter especial</p>
+                  </div>
+                </div>
+              </div>
+
               {loginError && (
                 <div className="is-flex is-flex-direction-row	is-justify-content-center is-align-items-center">
                   <IoMdWarning className="icon login-error mr-3" />
@@ -165,8 +281,7 @@ const Reset_password_confirm = () => {
               <button
                 type="submit"
                 className={
-                  "button text-button is-fullwidth is-primary button-login" +
-                  loading
+                  "button is-fullwidth is-primary button-login " + loading
                 }
               >
                 Confirmar

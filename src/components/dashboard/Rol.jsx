@@ -26,6 +26,7 @@ const Rol = () => {
   const [showMessage, setShowMessage] = useState(false);
   const [message, setMessage] = useState(false);
   const [status, setStatus] = useState(false);
+  const [buttonDisabled, setButtonDisabled] = useState(true);
 
   const handleButtonClick = (buttonText) => {
     if (buttonText === "Añadir rol") {
@@ -87,10 +88,11 @@ const Rol = () => {
         ],
       ],
       body: data.map((rol) => [
-        rol.name,
-        rol.description,
-        "-",
-        rol.permissions.map((p) => p.nombre).join(", "),
+        toTitleCase(rol.role_name),
+        toTitleCase(rol.role_description),
+        rol.quantity_users,
+        toTitleCase(rol.permissions.map((p) => p.name).join(", ")),
+        toTitleCase(rol.status_name),
       ]),
       theme: "grid",
       headStyles: {
@@ -141,6 +143,11 @@ const Rol = () => {
     }, 500);
   };
 
+  const toTitleCase = (str) => {
+    if (typeof str !== "string") return str; // Evita errores con números u otros tipos
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  };
+
   const handleFilterClick = () => {
     setShowFilter(true);
   };
@@ -176,15 +183,20 @@ const Rol = () => {
     try {
       setLoadingTable(true);
       const response = await axios.get(
-        import.meta.env.VITE_URI_BACKEND + "/roles"
+        import.meta.env.VITE_URI_BACKEND +
+          import.meta.env.VITE_ROUTE_BACKEND_ROL
       );
-      setData(response.data);
-      console.log(response.data);
+      setData(response.data.data);
+      setButtonDisabled(false);
     } catch (error) {
       console.error("Error al obtener los roles:", error);
     } finally {
       setLoadingTable(false);
     }
+  };
+
+  const updateData = async () => {
+    fetchRoles();
   };
 
   useEffect(() => {
@@ -201,10 +213,6 @@ const Rol = () => {
     }
   }, [showMessage]);
 
-  const updateData = async () => {
-    await fetchRoles();
-  };
-
   const filteredData = data
     .filter((info) =>
       Object.values(info)
@@ -213,12 +221,12 @@ const Rol = () => {
         .includes(searchTerm.toLowerCase())
     )
     .map((info) => ({
-      ID: info.id,
-      "Nombre del rol": info.name,
-      Descripción: info.description,
-      "Cantidad de usuarios": info.cantidad,
-      Permisos: info.permissions,
-      Estado: info.estado,
+      ID: info.role_id,
+      "Nombre del rol": toTitleCase(info.role_name),
+      Descripción: toTitleCase(info.role_description),
+      "Cantidad de usuarios": info.quantity_users,
+      Permisos: info.permissions.map((p) => toTitleCase(p.name)).join(", "),
+      Estado: toTitleCase(info.status_name),
     }));
 
   const options = [
@@ -239,10 +247,11 @@ const Rol = () => {
         head_data={head_data}
         onButtonClick={handleButtonClick}
         loading={loading}
+        buttonDisabled={buttonDisabled}
       />
       <div className="container-search">
         <Search onSearch={setSearchTerm} />
-        <Filter onFilterClick={handleFilterClick} />
+        <Filter onFilterClick={handleFilterClick} data={data} />
       </div>
       <Table
         columns={columns}
@@ -264,6 +273,7 @@ const Rol = () => {
             setShowMessage={setShowMessage}
             setMessage={setMessage}
             setStatus={setStatus}
+            updateData={updateData}
           />
         </>
       )}

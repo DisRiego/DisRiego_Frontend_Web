@@ -22,6 +22,10 @@ const User = () => {
   const itemsPerPage = 9;
   const [loading, setLoading] = useState("");
   const [loadingTable, setLoadingTable] = useState(false);
+  const [showMessage, setShowMessage] = useState(false);
+  const [message, setMessage] = useState(false);
+  const [status, setStatus] = useState(false);
+  const [buttonDisabled, setButtonDisabled] = useState(true);
 
   const handleButtonClick = (buttonText) => {
     if (buttonText === "Añadir usuario") {
@@ -36,7 +40,7 @@ const User = () => {
   };
 
   const generateUserReport = () => {
-    const doc = new jsPDF();
+    const doc = new jsPDF("landscape");
 
     // Add Roboto font to the document
     doc.addFont(RobotoNormalFont, "Roboto", "normal");
@@ -44,9 +48,9 @@ const User = () => {
 
     //colorear fondo
     doc.setFillColor(243, 242, 247); // Azul claro
-    doc.rect(0, 0, 210, 53, "F"); // colorear una parte de la pagina
+    doc.rect(0, 0, 300, 53, "F"); // colorear una parte de la pagina
     // agregar logo (usando base 64 directamente sobre la importacion)
-    doc.addImage(Icon, "PNG", 156, 10, 39, 11);
+    doc.addImage(Icon, "PNG", 246, 10, 39, 11);
 
     doc.setFontSize(17);
     doc.setFont("Roboto", "bold");
@@ -61,9 +65,9 @@ const User = () => {
     doc.text(`${new Date().toLocaleString()}`, 12, 32);
     doc.text(`[Nombre del usuario]`, 12, 44);
     doc.setFontSize(11);
-    doc.text(`[Dirección de la empresa]`, 194, 27, { align: "right" });
-    doc.text(`[Ciudad, Dept. País]`, 194, 33, { align: "right" });
-    doc.text(`[Teléfono]`, 194, 39, { align: "right" });
+    doc.text(`[Dirección de la empresa]`, 285, 27, { align: "right" });
+    doc.text(`[Ciudad, Dept. País]`, 285, 33, { align: "right" });
+    doc.text(`[Teléfono]`, 285, 39, { align: "right" });
     doc.text(`Cantidad de usuarios: ${data.length}`, 12, 68);
 
     // Agregar tabla con autoTable
@@ -83,14 +87,18 @@ const User = () => {
         ],
       ],
       body: data.map((user) => [
-        user.nombres + " " + user.apellidos,
-        user.tipo_documento,
-        user.num_documento,
-        "-",
-        "-",
-        "-",
-        user.roles,
-        user.estado,
+        toTitleCase(user.name) +
+          " " +
+          toTitleCase(user.first_last_name) +
+          "" +
+          toTitleCase(user.second_last_name),
+        toTitleCase(user.type_document_name),
+        user.document_number,
+        user.email,
+        user.phone,
+        toTitleCase(user.address),
+        user.roles.map((p) => toTitleCase(p.name)).join(", "),
+        toTitleCase(user.status_name),
       ]),
       theme: "grid",
       headStyles: {
@@ -119,7 +127,7 @@ const User = () => {
         7: { cellWidth: "auto" },
       },
     });
-    doc.addImage(Icon, "PNG", 12, 280, 32, 9);
+    doc.addImage(Icon, "PNG", 12, 190, 32, 9);
     // Agregar numeración de páginas en el pie de página
     const pageCount = doc.internal.getNumberOfPages();
     for (let i = 1; i <= pageCount; i++) {
@@ -143,6 +151,11 @@ const User = () => {
       window.open(pdfUrl, "_blank");
       setLoading("");
     }, 500);
+  };
+
+  const toTitleCase = (str) => {
+    if (typeof str !== "string") return str; // Evita errores con números u otros tipos
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
   };
 
   const handleFilterClick = () => {
@@ -182,13 +195,19 @@ const User = () => {
     "Opciones",
   ];
 
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
   const fetchUsers = async () => {
     try {
       setLoadingTable(true);
       const response = await axios.get(
-        import.meta.env.VITE_URI_BACKEND + "/users"
+        import.meta.env.VITE_URI_BACKEND +
+          import.meta.env.VITE_ROUTE_BACKEND_USERS
       );
-      setData(response.data.users);
+      setData(response.data.data);
+      setButtonDisabled(false);
     } catch (error) {
       console.error("Error al obtener los usuarios:", error);
     } finally {
@@ -196,9 +215,9 @@ const User = () => {
     }
   };
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
+  const updateData = async () => {
+    fetchRoles();
+  };
 
   const filteredData = data
     .filter((info) =>
@@ -209,15 +228,18 @@ const User = () => {
     )
     .map((info) => ({
       ID: info.id,
-      Nombres: info.name,
-      Apellidos: info.first_last_name + info.second_last_name,
-      "Tipo de documento": info.type_document_id,
+      Nombres: toTitleCase(info.name),
+      Apellidos:
+        toTitleCase(info.first_last_name) +
+        " " +
+        toTitleCase(info.second_last_name),
+      "Tipo de documento": toTitleCase(info.type_document_name),
       "Numero de documento": info.document_number,
       "Correo Electronico": info.email,
       "Numero de telefono": info.phone,
-      Dirección: info.address,
-      Rol: info.roles,
-      Estado: info.estado,
+      Dirección: toTitleCase(info.address),
+      Rol: info.roles.map((p) => toTitleCase(p.name)).join(", "),
+      Estado: toTitleCase(info.status_name),
     }));
 
   const options = [
@@ -238,6 +260,7 @@ const User = () => {
         head_data={head_data}
         onButtonClick={handleButtonClick}
         loading={loading}
+        buttonDisabled={buttonDisabled}
       />
       <div className="container-search">
         <Search onSearch={setSearchTerm} />
@@ -260,6 +283,10 @@ const User = () => {
           <Form_add_user
             title="Añadir Usuario"
             onClose={() => setShowForm(false)}
+            setShowMessage={setShowMessage}
+            setMessage={setMessage}
+            setStatus={setStatus}
+            updateData={updateData}
           />
         </>
       )}
