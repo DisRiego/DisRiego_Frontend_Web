@@ -3,8 +3,10 @@ import { Link } from "react-router-dom";
 import { FaUser, FaChevronRight, FaChevronLeft } from "react-icons/fa";
 import Option_user from "./dashboard/Option_user";
 import Icon from "../assets/icons/DisRiego.svg";
+import { jwtDecode } from "jwt-decode";
 
 const Sidebar = ({ handleOptionChange, selectedOption }) => {
+  const token = localStorage.getItem("token");
   const storedSidebarState = localStorage.getItem("sidebarState");
   const initialState = storedSidebarState
     ? JSON.parse(storedSidebarState)
@@ -16,6 +18,9 @@ const Sidebar = ({ handleOptionChange, selectedOption }) => {
     setIsCollapsed(newState);
     localStorage.setItem("sidebarState", JSON.stringify(newState));
   };
+
+  const decoded = jwtDecode(token);
+  console.log(decoded.name);
 
   return (
     <>
@@ -44,7 +49,7 @@ const Sidebar = ({ handleOptionChange, selectedOption }) => {
             <span className="icon">
               <FaUser />
             </span>
-            {!isCollapsed && <span>Sebastian</span>}
+            {!isCollapsed && <span>{decoded.name}</span>}
           </Link>
         </div>
         <button className="toggle-btn" onClick={toggleSidebar}>
