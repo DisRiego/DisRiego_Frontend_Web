@@ -7,6 +7,7 @@ import Table from "./Table";
 import Pagination from "./Pagination";
 import Form_add_property from "./forms/adds/Form_add_property";
 import Message from "../Message";
+import axios from "axios";
 
 const Property = () => {
   const [data, setData] = useState([]);
@@ -34,113 +35,6 @@ const Property = () => {
 
   const generateReport = () => {
     // Aqui va el codigo de generar reporte
-    const doc = new jsPDF();
-
-    // Add Roboto font to the document
-    doc.addFont(RobotoNormalFont, "Roboto", "normal");
-    doc.addFont(RobotoBoldFont, "Roboto", "bold");
-
-    //colorear fondo
-    doc.setFillColor(243, 242, 247);
-    doc.rect(0, 0, 210, 53, "F"); // colorear una parte de la pagina
-    // agregar logo (usando base 64 directamente sobre la importacion)
-
-    doc.addImage(Icon, "PNG", 156, 10, 39, 11);
-
-    doc.setTextColor(0, 0, 0);
-    doc.setFontSize(17);
-    doc.setFont("Roboto", "bold");
-    doc.text("REPORTE DE PREDIOS", 12, 18);
-    doc.setFontSize(11);
-    doc.text(`Fecha de generación:`, 12, 27);
-    doc.text(`Generado por:`, 12, 39);
-    /*doc.setTextColor(94, 100, 112);*/
-    doc.text("Predios actuales en el sistema", 12, 63);
-
-    doc.setTextColor(94, 100, 112);
-    doc.setFont("Roboto", "normal");
-    doc.setFontSize(10);
-    doc.text(`${new Date().toLocaleString()}`, 12, 32);
-    doc.text(`[Nombre del usuario]`, 12, 44);
-    doc.setFontSize(11);
-    doc.text(`[Dirección de la empresa]`, 194, 27, { align: "right" });
-    doc.text(`[Ciudad, Dept. País]`, 194, 33, { align: "right" });
-    doc.text(`[Teléfono]`, 194, 39, { align: "right" });
-    doc.text(`Cantidad de Predios: ${data.length}`, 12, 68);
-
-    // Agregar tabla con autoTable
-    autoTable(doc, {
-      startY: 80,
-      margin: { left: 12 },
-      head: [
-        [
-          "ID del predio",
-          "Nombre",
-          "Número de documento del dueño",
-          "Folio de matricula inmobiliaria",
-          "Extensión",
-          "Latitud",
-          "Longitud",
-          "Estado",
-        ],
-      ],
-      body: filteredData.map((property) => [
-        property["ID del predio"],
-        property.Nombre,
-        property["Número de documento del dueño"],
-        property["Folio de matricula inmobiliaria"],
-        property.Extensión,
-        property.Latitud,
-        property.Longitud,
-        property.Estado,
-      ]),
-      theme: "grid",
-      headStyles: {
-        fillColor: [252, 252, 253],
-        textColor: [0, 0, 0],
-        fontStyle: "bold",
-        lineColor: [234, 236, 240],
-        lineWidth: 0.5,
-        font: "Roboto", // Add Roboto font to table headers
-      },
-      bodyStyles: {
-        textColor: [89, 89, 89],
-        font: "Roboto", // Add Roboto font to table body
-      },
-      styles: {
-        fontSize: 10,
-        cellPadding: 3,
-        lineColor: [234, 236, 240],
-      },
-    });
-
-    doc.addImage(Icon, "PNG", 12, 280, 32, 9);
-
-    // Agregar numeración de páginas en el pie de página
-    const pageCount = doc.internal.getNumberOfPages();
-    for (let i = 1; i <= pageCount; i++) {
-      doc.setPage(i);
-      doc.setFontSize(10);
-
-      doc.setFont("Roboto", "normal"); // Set Roboto font for page numbers
-      const pageWidth = doc.internal.pageSize.getWidth();
-      const pageHeight = doc.internal.pageSize.getHeight();
-      doc.text(`Página ${i}/${pageCount}`, pageWidth - 10, pageHeight - 10, {
-        align: "right",
-      });
-    }
-
-    // Convertir el PDF a un Blob
-    const pdfBlob = doc.output("blob");
-
-    // Crear una URL del Blob
-    const pdfUrl = URL.createObjectURL(pdfBlob);
-
-    // Abrir el PDF en una nueva pestaña
-    setTimeout(() => {
-      window.open(pdfUrl, "_blank");
-      setLoading("");
-    }, 500);
     console.log("Generando reporte...");
   };
 
