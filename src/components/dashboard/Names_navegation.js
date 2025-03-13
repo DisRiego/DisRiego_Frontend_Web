@@ -6,7 +6,13 @@ const Names_navegation = {
       },
     },
     "property": {
-      name: "Mis Predios",
+      name: "Gestión de predios",
+      submodules: {
+        "detail": "Detalles del predio #",
+      },
+    },
+    "properties": {
+      name: "Mis predios y lotes",
       submodules: {
         "detail": "Detalles del predio #",
       },
@@ -21,6 +27,18 @@ const Names_navegation = {
       name: "Mis Dispositivos",
       submodules: {
         "detail": "Detalles del lote #",
+      },  
+    },
+    "rol": {
+      name: "Gestión de roles",
+      submodules: {
+        "detail": "Detalles del rol #",
+      },  
+    },
+    "user": {
+      name: "Gestión de usuarios",
+      submodules: {
+        "detail": "Detalles del usuario #",
       },  
     },
   };

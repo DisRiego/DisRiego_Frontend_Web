@@ -1,6 +1,4 @@
-import Field_rol from "./form_fields/Field_rol";
-
-const Form = ({ title, onClose }) => {
+const Form_add_lot = ({ title, onClose }) => {
   return (
     <>
       <div className="modal is-active">
@@ -14,9 +12,7 @@ const Form = ({ title, onClose }) => {
               onClick={onClose}
             ></button>
           </header>
-          <section className="modal-card-body">
-            <Field_rol />
-          </section>
+          <section className="modal-card-body">{/* Inputs aquí */}</section>
           <footer className="modal-card-foot is-flex is-justify-content-center">
             <div className="buttons">
               <button className="button" onClick={onClose}>
@@ -31,4 +27,4 @@ const Form = ({ title, onClose }) => {
   );
 };
 
-export default Form;
+export default Form_add_lot;

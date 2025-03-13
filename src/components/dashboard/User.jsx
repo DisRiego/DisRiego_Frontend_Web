@@ -4,11 +4,15 @@ import Search from "./Search";
 import Filter from "./Filter";
 import Table from "./Table";
 import Pagination from "./Pagination";
-import Form from "./Form";
-import View_filter from "./View_filter";
+import Form_add_user from "./forms/adds/Form_add_user";
+import Filter_user from "./filters/Filter_user";
 import { autoTable } from "jspdf-autotable";
 import { jsPDF } from "jspdf";
 import Icon from "../../assets/icons/Disriego_title.png";
+import RobotoNormalFont from "../../assets/fonts/Roboto-Regular.ttf";
+import RobotoBoldFont from "../../assets/fonts/Roboto-Bold.ttf";
+import axios from "axios";
+import Message from "../Message";
 
 const User = () => {
   const [data, setData] = useState([]);
@@ -16,47 +20,56 @@ const User = () => {
   const [showFilter, setShowFilter] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
+  const itemsPerPage = 9;
+  const [loading, setLoading] = useState("");
+  const [loadingTable, setLoadingTable] = useState(false);
+  const [showMessage, setShowMessage] = useState(false);
+  const [titleMessage, setTitleMessage] = useState(false);
+  const [message, setMessage] = useState(false);
+  const [status, setStatus] = useState(false);
+  const [buttonDisabled, setButtonDisabled] = useState(true);
 
   const handleButtonClick = (buttonText) => {
-    if (buttonText === "Añadir rol") {
+    if (buttonText === "Añadir usuario") {
       setShowForm(true);
     }
 
     //Aqui es donde se debe implementar la funcionalidad del reporte
     if (buttonText === "Descargar reporte") {
+      setLoading("is-loading");
       generateUserReport();
-      console.log("Generando reporte...");
     }
   };
 
   const generateUserReport = () => {
-    const doc = new jsPDF();
+    const doc = new jsPDF("landscape");
+
+    // Add Roboto font to the document
+    doc.addFont(RobotoNormalFont, "Roboto", "normal");
+    doc.addFont(RobotoBoldFont, "Roboto", "bold");
 
     //colorear fondo
     doc.setFillColor(243, 242, 247); // Azul claro
-    doc.rect(0, 0, 210, 53, "F"); // colorear una parte de la pagina
+    doc.rect(0, 0, 300, 53, "F"); // colorear una parte de la pagina
     // agregar logo (usando base 64 directamente sobre la importacion)
-    doc.addImage(Icon, "PNG", 156, 10, 39, 11);
+    doc.addImage(Icon, "PNG", 246, 10, 39, 11);
 
     doc.setFontSize(17);
     doc.setFont("Roboto", "bold");
     doc.text("REPORTE DE USUARIOS", 12, 18);
-    doc.setFontSize(10);
-    doc.setTextColor(94, 100, 112);
-    doc.text(`${new Date().toLocaleString()}`, 12, 32);
-    doc.text(`[Nombre del usuario]`, 12, 44);
-    doc.text(`[Dirección de la empresa]`, 194, 27, { align: "right" });
-    doc.text(`[Ciudad, Dept. País]`, 194, 33, { align: "right" });
-    doc.text(`[Teléfono]`, 194, 39, { align: "right" });
-    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(11);
     doc.text(`Fecha de generación:`, 12, 27);
     doc.text(`Generado por:`, 12, 39);
-    doc.setFontSize(11);
     doc.text("Usuarios registrados actualmente", 12, 63);
-    doc.setFontSize(11);
     doc.setTextColor(94, 100, 112);
     doc.setFont("Roboto", "normal");
+    doc.setFontSize(10);
+    doc.text(`${new Date().toLocaleString()}`, 12, 32);
+    doc.text(`[Nombre del usuario]`, 12, 44);
+    doc.setFontSize(11);
+    doc.text(`[Dirección de la empresa]`, 285, 27, { align: "right" });
+    doc.text(`[Ciudad, Dept. País]`, 285, 33, { align: "right" });
+    doc.text(`[Teléfono]`, 285, 39, { align: "right" });
     doc.text(`Cantidad de usuarios: ${data.length}`, 12, 68);
 
     // Agregar tabla con autoTable
@@ -69,26 +82,28 @@ const User = () => {
           "Tipo de documento",
           "Numero de documento",
           "Correo Electronico",
-          "Telefono",
-          "Direccion",
-          "Roles",
+          "Número de Telefono",
+          "Rol",
           "Estado",
         ],
       ],
       body: data.map((user) => [
-        user.nombres + " " + user.apellidos,
-        user.tipo_documento,
-        user.num_documento,
-        "-",
-        "-",
-        "-",
-        user.roles,
-        user.estado,
+        toTitleCase(user.name) +
+          " " +
+          toTitleCase(user.first_last_name) +
+          "" +
+          toTitleCase(user.second_last_name),
+        toTitleCase(user.type_document_name),
+        user.document_number,
+        user.email,
+        user.phone,
+        user.roles.map((p) => toTitleCase(p.name)).join(", "),
+        toTitleCase(user.status_name),
       ]),
       theme: "grid",
       headStyles: {
         fillColor: [252, 252, 253],
-        textColor: [89, 89, 89],
+        textColor: [0, 0, 0],
         fontStyle: "bold",
         font: "Roboto",
         lineColor: [234, 236, 240],
@@ -109,10 +124,9 @@ const User = () => {
         4: { cellWidth: "auto" },
         5: { cellWidth: "auto" },
         6: { cellWidth: "auto" },
-        7: { cellWidth: "auto" },
       },
     });
-    doc.addImage(Icon, "PNG", 12, 280, 32, 9);
+    doc.addImage(Icon, "PNG", 12, 190, 32, 9);
     // Agregar numeración de páginas en el pie de página
     const pageCount = doc.internal.getNumberOfPages();
     for (let i = 1; i <= pageCount; i++) {
@@ -120,10 +134,27 @@ const User = () => {
       doc.setFontSize(10);
       const pageWidth = doc.internal.pageSize.getWidth();
       const pageHeight = doc.internal.pageSize.getHeight();
-      doc.text(`Página ${i}/${pageCount}`, pageWidth - 10, pageHeight - 10, { align: "right" });
+      doc.text(`Página ${i}/${pageCount}`, pageWidth - 10, pageHeight - 10, {
+        align: "right",
+      });
     }
 
-    doc.save("reporte_roles.pdf");
+    // Convertir el PDF a un Blob
+    const pdfBlob = doc.output("blob");
+
+    // Crear una URL del Blob
+    const pdfUrl = URL.createObjectURL(pdfBlob);
+
+    // Abrir el PDF en una nueva pestaña
+    setTimeout(() => {
+      window.open(pdfUrl, "_blank");
+      setLoading("");
+    }, 500);
+  };
+
+  const toTitleCase = (str) => {
+    if (typeof str !== "string") return str; // Evita errores con números u otros tipos
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
   };
 
   const handleFilterClick = () => {
@@ -150,56 +181,41 @@ const User = () => {
   };
 
   const columns = [
+    "ID",
     "Nombres",
     "Apellidos",
     "Tipo de documento",
     "Numero de documento",
-    "Fecha de expedición",
-    "Roles",
+    "Correo Electronico",
+    "Numero de telefono",
+    "Rol",
     "Estado",
     "Opciones",
   ];
 
   useEffect(() => {
-    setData([
-      {
-        id: 1,
-        nombres: "Sebastian",
-        apellidos: "Perdomo Cardozo",
-        tipo_documento: "C.C",
-        num_documento: 1010115909,
-        fecha_expedicion: "24-02-2020",
-        roles: "Administrador, Cliente",
-        // roles: [
-        //   { id: 1, nombre: "Administrador" },
-        //   { id: 2, nombre: "Cliente" },
-        // ],
-        estado: "activo",
-      },
-      {
-        id: 2,
-        nombres: "Deivy",
-        apellidos: "Mora",
-        tipo_documento: "C.C",
-        num_documento: 123456789,
-        fecha_expedicion: "15-06-2021",
-        roles: "Cliente",
-        // roles: [{ id: 1, nombre: "Administrador" }],
-        estado: "activo",
-      },
-      {
-        id: 3,
-        nombres: "Juan",
-        apellidos: "Rodriguez",
-        tipo_documento: "C.C",
-        num_documento: 123456789,
-        fecha_expedicion: "15-06-2021",
-        roles: "Cliente",
-        // roles: [{ id: 1, nombre: "Administrador" }],
-        estado: "activo",
-      },
-    ]);
+    fetchUsers();
   }, []);
+
+  const fetchUsers = async () => {
+    try {
+      setLoadingTable(true);
+      const response = await axios.get(
+        import.meta.env.VITE_URI_BACKEND +
+          import.meta.env.VITE_ROUTE_BACKEND_USERS
+      );
+      setData(response.data.data);
+      setButtonDisabled(false);
+    } catch (error) {
+      console.error("Error al obtener los usuarios:", error);
+    } finally {
+      setLoadingTable(false);
+    }
+  };
+
+  const updateData = async () => {
+    fetchUsers();
+  };
 
   const filteredData = data
     .filter((info) =>
@@ -209,20 +225,33 @@ const User = () => {
         .includes(searchTerm.toLowerCase())
     )
     .map((info) => ({
-      Nombres: info.nombres,
-      Apellidos: info.apellidos,
-      "Tipo de documento": info.tipo_documento,
-      "Numero de documento": info.num_documento,
-      "Fecha de expedición": info.fecha_expedicion,
-      Roles: info.roles,
-      Estado: info.estado,
+      ID: info.id,
+      Nombres: toTitleCase(info.name),
+      Apellidos:
+        (info.first_last_name ? toTitleCase(info.first_last_name) : "") +
+        (info.second_last_name ? " " + toTitleCase(info.second_last_name) : ""),
+      "Tipo de documento": toTitleCase(info.type_document_name),
+      "Numero de documento": info.document_number,
+      "Correo Electronico": info.email,
+      "Numero de telefono": info.phone,
+      Rol: info.roles.map((p) => toTitleCase(p.name)).join(", "),
+      Estado: toTitleCase(info.status_name),
     }));
+
+  useEffect(() => {
+    if (showMessage) {
+      const timer = setTimeout(() => {
+        setShowMessage(false);
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [showMessage]);
 
   const options = [
     { icon: "BiShow", name: "Ver detalles" },
     { icon: "BiEditAlt", name: "Editar" },
     { icon: "LuDownload", name: "Inhabilitar" },
-    { icon: "LuDownload", name: "Descargar" },
   ];
 
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -233,12 +262,22 @@ const User = () => {
 
   return (
     <>
-      <Head head_data={head_data} onButtonClick={handleButtonClick} />
+      <Head
+        head_data={head_data}
+        onButtonClick={handleButtonClick}
+        loading={loading}
+        buttonDisabled={buttonDisabled}
+      />
       <div className="container-search">
         <Search onSearch={setSearchTerm} />
         <Filter onFilterClick={handleFilterClick} />
       </div>
-      <Table columns={columns} data={paginatedData} options={options} />
+      <Table
+        columns={columns}
+        data={paginatedData}
+        options={options}
+        loadingTable={loadingTable}
+      />
       <Pagination
         totalItems={filteredData.length}
         itemsPerPage={itemsPerPage}
@@ -247,16 +286,32 @@ const User = () => {
       />
       {showForm && (
         <>
-          <Form title="Añadir Rol" onClose={() => setShowForm(false)} />
+          <Form_add_user
+            title="Añadir Usuario"
+            onClose={() => setShowForm(false)}
+            setShowMessage={setShowMessage}
+            setTitleMessage={setTitleMessage}
+            setMessage={setMessage}
+            setStatus={setStatus}
+            updateData={updateData}
+          />
         </>
       )}
       {showFilter && (
         <>
-          <View_filter
+          <Filter_user
             title="Filtros de rol"
             onClose={() => setShowFilter(false)}
           />
         </>
+      )}
+      {showMessage && (
+        <Message
+          titleMessage={titleMessage}
+          message={message}
+          status={status}
+          onClose={() => setShowMessage(false)}
+        />
       )}
     </>
   );

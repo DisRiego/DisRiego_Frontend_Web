@@ -58,6 +58,18 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
           <span className="icon">
             <TbMapSearch />
           </span>
+          {!isCollapsed && <span>Gestión de predios</span>}
+        </Link>
+        <Link
+          className={`navbar-item ${
+            selectedOption === "properties" ? "selected" : ""
+          }`}
+          onClick={() => handleOptionChange("properties")}
+          to="/dashboard/properties"
+        >
+          <span className="icon">
+            <TbMapSearch />
+          </span>
           {!isCollapsed && <span>Mis predios y lotes</span>}
         </Link>
         <Link
@@ -108,13 +120,13 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
           </span>
           {!isCollapsed && <span>Mi cuenta</span>}
         </Link>
-        <div className="separator"></div>
-        <button className="navbar-item">
+        <div className="separator separator-sidebar"></div>
+        <Link className="navbar-item" to="/login">
           <span className="icon">
             <RiLogoutBoxRLine />
           </span>
           {!isCollapsed && <span>Cerrar Sesión</span>}
-        </button>
+        </Link>
       </div>
     </>
   );

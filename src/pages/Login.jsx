@@ -12,6 +12,7 @@ const Login = () => {
   const [showButton, setShowButton] = useState(window.innerWidth >= 768);
   const navigate = useNavigate();
   const [loginError, setLoginError] = useState("");
+  const [loading, setLoading] = useState("");
 
   const [formData, setFormData] = useState({
     email: "",
@@ -29,6 +30,8 @@ const Login = () => {
       ...formData,
       [name]: value,
     });
+
+    setLoginError("");
 
     if (name === "email") {
       const isValid = validateEmail(value);
@@ -66,16 +69,19 @@ const Login = () => {
 
     if (errors.email === "" && errors.password === "") {
       try {
-        console.log(formData);
+        setLoading("is-loading");
         const response = await axios.post(
-          import.meta.env.VITE_URI_BACKEND_USER + "/login",
+          import.meta.env.VITE_URI_BACKEND +
+            import.meta.env.VITE_ROUTE_BACKEND_LOGIN,
           formData
         );
         navigate("/dashboard");
       } catch (error) {
+        setLoading("");
         setLoginError("El correo electrónico o la contraseña son incorrectos.");
       }
     } else {
+      setLoading("");
       setLoginError("El correo electrónico o la contraseña son inválidos.");
     }
   };
@@ -149,7 +155,9 @@ const Login = () => {
               )}
               <button
                 type="submit"
-                className="button is-fullwidth is-primary button-login"
+                className={
+                  "button is-fullwidth is-primary button-login " + loading
+                }
               >
                 Iniciar Sesión
               </button>

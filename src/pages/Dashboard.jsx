@@ -6,6 +6,7 @@ import Notification from "../components/dashboard/Notification";
 import Fault_report from "../components/dashboard/Fault_report";
 import Invoice_detail from "../components/dashboard/details/Invoice_detail";
 import Property from "../components/dashboard/Property";
+import Property_user from "../components/dashboard/Property_user";
 import Property_detail from "../components/dashboard/details/Property_detail";
 import Lot_detail from "../components/dashboard/details/Lot_detail";
 import Rol from "../components/dashboard/Rol";
@@ -49,7 +50,6 @@ const Dashboard = () => {
   };
 
   const renderSelectedComponent = () => {
-    console.log(id);
     switch (selectedOption) {
       case "notification":
         return <Notification />;
@@ -64,6 +64,10 @@ const Dashboard = () => {
       case "property":
         return <Property />;
       case `property/${id}`:
+        return <Property_detail />;
+      case "properties":
+        return <Property_user />;
+      case `properties/${id}`:
         return <Property_detail />;
       case `lot/${id}`:
         return <Lot_detail />;
