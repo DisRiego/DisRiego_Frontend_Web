@@ -85,6 +85,11 @@ const Property = () => {
           import.meta.env.VITE_ROUTE_BACKEND_PROPERTY
       );
       setData(response.data.data);
+
+      const sortedData = response.data.data.sort((a, b) => a.id - b.id);
+      console.log(sortedData);
+
+      setData(sortedData);
       setButtonDisabled(false);
     } catch (error) {
       console.error("Error al obtener los usuarios:", error);
