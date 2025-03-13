@@ -2,6 +2,10 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { SlOptionsVertical } from "react-icons/sl";
 import Confirm_add_rol from "./confirm_view/adds/Confirm_add_rol";
+import Form_edit_rol from "./forms/edits/Form_edit_rol";
+import Form_edit_user from "./forms/edits/Form_edit_user";
+import Form_edit_property from "./forms/edits/Form_edit_property";
+import Form_edit_property_user from "./forms/edits/Form_edit_property_user";
 import Icon from "../Icon";
 
 const OptionsButton = ({ onClick }) => (
@@ -17,14 +21,20 @@ const Table = ({ columns, data, options, loadingTable }) => {
   const [showConfirm, setShowConfirm] = useState(false);
   const [activeRow, setActiveRow] = useState(null);
   const menuRefs = useRef({});
-
+  const [showEditRol, setShowEditRol] = useState();
+  const [showEditUser, setShowEditUser] = useState();
+  const [showEditProperty, setShowEditProperty] = useState();
+  const [showEditPropertyUser, setShowEditPropertyUser] = useState();
+  const [idRow, setIdRow] = useState();
   const [dots, setDots] = useState("");
+
+  // Estado para ordenamiento
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
 
   useEffect(() => {
     const interval = setInterval(() => {
       setDots((prev) => (prev.length < 3 ? prev + "." : ""));
     }, 500);
-
     return () => clearInterval(interval);
   }, []);
 
@@ -51,6 +61,7 @@ const Table = ({ columns, data, options, loadingTable }) => {
   };
 
   const handleOption = async (option, row) => {
+    setIdRow(row.ID);
     if (option.name === "Ver detalles") {
       navigate(`${row.ID}`);
     }
@@ -58,7 +69,50 @@ const Table = ({ columns, data, options, loadingTable }) => {
       setConfirMessage(`¿Desea inhabilitar el rol "${row["Nombre del rol"]}"?`);
       setShowConfirm(true);
     }
+    if (id === "rol" && option.name === "Editar") {
+      setShowEditRol(true);
+    }
+    if (id === "user" && option.name === "Editar") {
+      setShowEditUser(true);
+    }
+    if (id === "property" && option.name === "Editar") {
+      setShowEditProperty(true);
+    }
+    if (id === "properties" && option.name === "Editar") {
+      setShowEditPropertyUser(true);
+    }
   };
+
+  // Función para manejar el ordenamiento al hacer clic en una columna
+  const handleSort = (column) => {
+    setSortConfig((prev) => {
+      if (prev.key === column) {
+        return {
+          key: column,
+          direction: prev.direction === "asc" ? "desc" : "asc",
+        };
+      }
+      return { key: column, direction: "asc" };
+    });
+  };
+
+  // Ordenar los datos según la columna y dirección seleccionadas
+  const sortedData = [...data].sort((a, b) => {
+    if (!sortConfig.key) return 0;
+
+    const aValue = a[sortConfig.key];
+    const bValue = b[sortConfig.key];
+
+    // Verifica si ambos valores son números
+    if (!isNaN(aValue) && !isNaN(bValue)) {
+      return sortConfig.direction === "asc" ? aValue - bValue : bValue - aValue;
+    }
+
+    // Si no son números, ordena como cadenas de texto
+    return sortConfig.direction === "asc"
+      ? String(aValue).localeCompare(String(bValue))
+      : String(bValue).localeCompare(String(aValue));
+  });
 
   return (
     <div className="table-container">
@@ -68,7 +122,18 @@ const Table = ({ columns, data, options, loadingTable }) => {
             {columns
               .filter((column) => column !== "ID")
               .map((column) => (
-                <th key={column}>{column}</th>
+                <th
+                  key={column}
+                  onClick={() => handleSort(column)}
+                  style={{ cursor: "pointer" }}
+                >
+                  {column}{" "}
+                  {sortConfig.key === column
+                    ? sortConfig.direction === "asc"
+                      ? "￪"
+                      : "￬"
+                    : ""}
+                </th>
               ))}
           </tr>
         </thead>
@@ -81,7 +146,7 @@ const Table = ({ columns, data, options, loadingTable }) => {
               </td>
             </tr>
           ) : (
-            data.map((row, rowIndex) => (
+            sortedData.map((row, rowIndex) => (
               <tr key={rowIndex}>
                 {columns
                   .filter((column) => column !== "ID")
@@ -161,6 +226,31 @@ const Table = ({ columns, data, options, loadingTable }) => {
           title="Filtros de rol"
           confirMessage={confirMessage}
           onClose={() => setShowConfirm(false)}
+        />
+      )}
+      {showEditRol && (
+        <Form_edit_rol
+          title="Editar usuario"
+          onClose={() => setShowEditRol(false)}
+          idRow={idRow}
+        />
+      )}
+      {showEditUser && (
+        <Form_edit_user
+          title="Editar usuario"
+          onClose={() => setShowEditUser(false)}
+        />
+      )}
+      {showEditProperty && (
+        <Form_edit_property
+          title="Editar predio"
+          onClose={() => setShowEditProperty(false)}
+        />
+      )}
+      {showEditPropertyUser && (
+        <Form_edit_property_user
+          title="Editar predio"
+          onClose={() => setShowEditPropertyUser(false)}
         />
       )}
     </div>

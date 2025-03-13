@@ -31,6 +31,8 @@ const Login = () => {
       [name]: value,
     });
 
+    setLoginError("");
+
     if (name === "email") {
       const isValid = validateEmail(value);
       setErrors({
@@ -69,7 +71,8 @@ const Login = () => {
       try {
         setLoading("is-loading");
         const response = await axios.post(
-          import.meta.env.VITE_URI_BACKEND + "/login",
+          import.meta.env.VITE_URI_BACKEND +
+            import.meta.env.VITE_ROUTE_BACKEND_LOGIN,
           formData
         );
         navigate("/dashboard");

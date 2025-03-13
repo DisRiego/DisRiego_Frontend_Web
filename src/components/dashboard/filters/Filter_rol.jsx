@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-const Filter_rol = ({ title, onClose }) => {
+const Filter_rol = ({ onClose, data }) => {
   const [permissions, setPermissions] = useState([]);
   const [status, setStatus] = useState([]);
   const [filters, setFilters] = useState({ permisos: {}, estados: {} });

@@ -21,16 +21,17 @@ const Confirm_add_rol = ({
         url: import.meta.env.VITE_URI_BACKEND + uriPost,
         data: formData,
       });
-      setTitleMessage("Rol creado exitosamente");
-      setMessage("El rol se ha creado correctamente.");
+      setTitleMessage("Usuario creado exitosamente");
+      setMessage("El usuario ha sido creado correctamente.");
       setStatus("is-true");
       setShowMessage(true);
       onClose();
       onSuccess();
       updateData();
     } catch (error) {
-      setTitleMessage("Error al crear el rol");
-      setMessage("No se pudo crear el rol. Por favor, inténtelo de nuevo.");
+      console.log(error);
+      setTitleMessage("Error al crear el usuario");
+      setMessage("No se pudo crear el usuario, por favor, inténtelo de nuevo.");
       setStatus("is-false");
       setShowMessage(true);
     }

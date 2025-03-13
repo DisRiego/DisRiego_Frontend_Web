@@ -1,6 +1,6 @@
 import Icon from "../Icon";
 
-const Head = ({ head_data, onButtonClick, loading }) => {
+const Head = ({ head_data, onButtonClick, loading, buttonDisabled }) => {
   const renderButtons = () => {
     if (!head_data.buttons || Object.keys(head_data.buttons).length === 0) {
       return null;
@@ -16,6 +16,7 @@ const Head = ({ head_data, onButtonClick, loading }) => {
           key={key}
           className={`button ${button.class} ${isLoading}`}
           onClick={() => onButtonClick(button.text)}
+          disabled={buttonDisabled}
         >
           <span className="icon">{IconComponent && <IconComponent />}</span>
           <span>{button.text}</span>

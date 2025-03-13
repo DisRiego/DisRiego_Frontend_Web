@@ -7,22 +7,22 @@ import {
 import axios from "axios";
 import { IoMdWarning } from "react-icons/io";
 
-const Form_add_rol = ({
+const Form_edit_rol = ({
   title,
   onClose,
   setShowMessage,
-  setTitleMessage,
   setMessage,
   setStatus,
-  updateData,
+  idRow,
 }) => {
+  const [data, setData] = useState();
   const [showConfirm, setShowConfirm] = useState(false);
   const [permissions, setPermissions] = useState([]);
   const [openCategories, setOpenCategories] = useState({});
   const [filters, setFilters] = useState({ permisos: {} });
   const [confirMessage, setConfirMessage] = useState();
   const [method, setMethod] = useState();
-  const [uriPost, setUriPost] = useState("");
+  const [uriPost, setUriPost] = useState();
   const [isLoading, setIsLoading] = useState(true);
 
   const [formData, setFormData] = useState({
@@ -38,21 +38,57 @@ const Form_add_rol = ({
   const [submitted, setSubmitted] = useState(false);
 
   useEffect(() => {
-    const fetchPermissions = async () => {
-      try {
-        const response = await axios.get(
-          import.meta.env.VITE_URI_BACKEND +
-            import.meta.env.VITE_ROUTE_BACKEND_ROL_PERMISSIONS
-        );
-        setPermissions(response.data);
-        setIsLoading(false);
-      } catch (error) {
-        console.error("Error al obtener los permisos:", error);
-      }
-    };
-
-    fetchPermissions();
+    fetchData();
   }, []);
+
+  const fetchData = async () => {
+    await fetchPermissions();
+    await fetchRol();
+    setIsLoading(false);
+  };
+
+  const fetchRol = async () => {
+    try {
+      const response = await axios.get(
+        import.meta.env.VITE_URI_BACKEND + "/roles/" + idRow
+      );
+
+      if (response.data.success && response.data.data.length > 0) {
+        const rolData = response.data.data[0]; // Acceder al primer objeto dentro de `data`
+
+        setData(rolData);
+
+        setFormData({
+          name: rolData.name || "",
+          description: rolData.description || "",
+          permissions: rolData.permissions?.map((p) => p.id) || [],
+        });
+
+        setFilters((prevFilters) => ({
+          ...prevFilters,
+          permisos: rolData.permissions.reduce((acc, permiso) => {
+            acc[permiso.id] = true;
+            return acc;
+          }, {}),
+        }));
+      } else {
+        console.error("El rol no fue encontrado");
+      }
+    } catch (error) {
+      console.log("Error al obtener el rol", error);
+    }
+  };
+
+  const fetchPermissions = async () => {
+    try {
+      const response = await axios.get(
+        import.meta.env.VITE_URI_BACKEND + "/roles/permissions/"
+      );
+      setPermissions(response.data);
+    } catch (error) {
+      console.error("Error al obtener los permisos:", error);
+    }
+  };
 
   const handleSaveClick = () => {
     setSubmitted(true);
@@ -71,7 +107,6 @@ const Form_add_rol = ({
     if (isNameValid && isDescriptionValid && hasSelectedPermissions) {
       setConfirMessage('¿Desea crear el rol "' + formData.name + '"?');
       setMethod("post");
-      setUriPost(import.meta.env.VITE_ROUTE_BACKEND_ROL);
       setShowConfirm(true);
     }
   };
@@ -176,7 +211,7 @@ const Form_add_rol = ({
               </div>
             </div>
             <div className="field">
-              <label className="label">Lista de permisos</label>
+              <label className="label">Permisos</label>
               {Object.keys(groupedPermissions).map((categoria) => (
                 <div key={categoria} className="accordion">
                   <div
@@ -201,20 +236,21 @@ const Form_add_rol = ({
                             name={permiso.id}
                             checked={filters.permisos[permiso.id] || false}
                             onChange={handlePermissionChange}
+                            disabled={isLoading}
                           />{" "}
                           {permiso.description}
                         </label>
                       </div>
                     ))}
                   </div>
-                  {submitted && errors.permissions && (
-                    <div className="is-flex is-flex-direction-row	is-justify-content-center is-align-items-center">
-                      <IoMdWarning className="icon login-error mr-3" />
-                      <p className="login-error is-6">{errors.permissions}</p>
-                    </div>
-                  )}
                 </div>
               ))}
+              {submitted && errors.permissions && (
+                <div className="is-flex is-flex-direction-row	is-justify-content-center is-align-items-center">
+                  <IoMdWarning className="icon login-error mr-3" />
+                  <p className="login-error is-6">{errors.permissions}</p>
+                </div>
+              )}
             </div>
           </section>
           <footer className="modal-card-foot is-flex is-justify-content-center">
@@ -239,15 +275,13 @@ const Form_add_rol = ({
           method={method}
           formData={formData}
           setShowMessage={setShowMessage}
-          setTitleMessage={setTitleMessage}
           setMessage={setMessage}
           setStatus={setStatus}
           updateData={updateData}
-          uriPost={uriPost}
         />
       )}
     </>
   );
 };
 
-export default Form_add_rol;
+export default Form_edit_rol;
