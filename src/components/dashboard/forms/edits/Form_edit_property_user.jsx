@@ -14,6 +14,31 @@ const Form_edit_property_user = ({ title, onClose }) => {
           </header>
           <section className="modal-card-body">
             {/* Aqui van los inputs */}
+            <div className="field">
+              <label className="label">Tipo de cultivo</label>
+              <div className="control">
+                <div className="select is-fullwidth">
+                  <select>
+                    <option value="">Seleccione una opción</option>
+                    <option value="cultivo1">Cultivo 1</option>
+                    <option value="cultivo2">Cultivo 2</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div className="field">
+              <label className="label">Intervalo de pago</label>
+              <div className="control">
+                <div className="select is-fullwidth">
+                  <select>
+                    <option value="">Seleccione una opción</option>
+                    <option value="mensual">Mensual</option>
+                    <option value="trimestral">Trimestral</option>
+                  </select>
+                </div>
+              </div>
+            </div>
           </section>
           <footer className="modal-card-foot is-flex is-justify-content-center">
             <div className="buttons">
