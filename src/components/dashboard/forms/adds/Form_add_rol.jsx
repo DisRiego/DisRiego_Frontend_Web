@@ -61,8 +61,8 @@ const Form_add_rol = ({
     const hasSelectedPermissions = formData.permissions.length > 0;
 
     setErrors({
-      name: isNameValid ? "" : "false",
-      description: isDescriptionValid ? "" : "false",
+      name: isNameValid ? "" : "false" && "Nombre inválido",
+      description: isDescriptionValid ? "" : "false" && "Descripción inválida",
       permissions: hasSelectedPermissions
         ? ""
         : "Debe seleccionar al menos un permiso",
@@ -155,6 +155,9 @@ const Form_add_rol = ({
                   disabled={isLoading}
                 />
               </div>
+              {submitted && errors.name && (
+                <p className="input-error">{errors.name}</p>
+              )}
             </div>
             <div className="field">
               <label className="label">Descripción</label>
@@ -174,6 +177,9 @@ const Form_add_rol = ({
                   disabled={isLoading}
                 />
               </div>
+              {submitted && errors.description && (
+                <p className="input-error">{errors.description}</p>
+              )}
             </div>
             <div className="field">
               <label className="label">Lista de permisos</label>
@@ -207,14 +213,14 @@ const Form_add_rol = ({
                       </div>
                     ))}
                   </div>
-                  {submitted && errors.permissions && (
-                    <div className="is-flex is-flex-direction-row	is-justify-content-center is-align-items-center">
-                      <IoMdWarning className="icon login-error mr-3" />
-                      <p className="login-error is-6">{errors.permissions}</p>
-                    </div>
-                  )}
                 </div>
               ))}
+              {submitted && errors.permissions && (
+                <div className="is-flex is-flex-direction-row	is-justify-content-center is-align-items-center">
+                  <IoMdWarning className="icon login-error mr-3" />
+                  <p className="login-error is-6">{errors.permissions}</p>
+                </div>
+              )}
             </div>
           </section>
           <footer className="modal-card-foot is-flex is-justify-content-center">
