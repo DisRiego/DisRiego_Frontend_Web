@@ -419,6 +419,10 @@ form > .button-login {
   overflow-y: auto;
 }
 
+.accordion-title {
+  color: var(--bulma-label-color);
+}
+
 .icon.open {
   transform: rotate(180deg);
 }
@@ -459,6 +463,7 @@ form > .button-login {
 .modal-card > .modal-card-body {
   padding-top: 0;
   padding-bottom: 0;
+  overflow: visible;
 }
 
 .control > .is-true {

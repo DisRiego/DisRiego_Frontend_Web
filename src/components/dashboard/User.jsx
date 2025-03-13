@@ -12,6 +12,7 @@ import Icon from "../../assets/icons/Disriego_title.png";
 import RobotoNormalFont from "../../assets/fonts/Roboto-Regular.ttf";
 import RobotoBoldFont from "../../assets/fonts/Roboto-Bold.ttf";
 import axios from "axios";
+import Message from "../Message";
 
 const User = () => {
   const [data, setData] = useState([]);
@@ -23,6 +24,7 @@ const User = () => {
   const [loading, setLoading] = useState("");
   const [loadingTable, setLoadingTable] = useState(false);
   const [showMessage, setShowMessage] = useState(false);
+  const [titleMessage, setTitleMessage] = useState(false);
   const [message, setMessage] = useState(false);
   const [status, setStatus] = useState(false);
   const [buttonDisabled, setButtonDisabled] = useState(true);
@@ -81,7 +83,6 @@ const User = () => {
           "Numero de documento",
           "Correo Electronico",
           "Número de Telefono",
-          "Direccion",
           "Rol",
           "Estado",
         ],
@@ -96,7 +97,6 @@ const User = () => {
         user.document_number,
         user.email,
         user.phone,
-        toTitleCase(user.address),
         user.roles.map((p) => toTitleCase(p.name)).join(", "),
         toTitleCase(user.status_name),
       ]),
@@ -124,7 +124,6 @@ const User = () => {
         4: { cellWidth: "auto" },
         5: { cellWidth: "auto" },
         6: { cellWidth: "auto" },
-        7: { cellWidth: "auto" },
       },
     });
     doc.addImage(Icon, "PNG", 12, 190, 32, 9);
@@ -189,7 +188,6 @@ const User = () => {
     "Numero de documento",
     "Correo Electronico",
     "Numero de telefono",
-    "Dirección",
     "Rol",
     "Estado",
     "Opciones",
@@ -216,7 +214,7 @@ const User = () => {
   };
 
   const updateData = async () => {
-    fetchRoles();
+    fetchUsers();
   };
 
   const filteredData = data
@@ -230,17 +228,25 @@ const User = () => {
       ID: info.id,
       Nombres: toTitleCase(info.name),
       Apellidos:
-        toTitleCase(info.first_last_name) +
-        " " +
-        toTitleCase(info.second_last_name),
+        (info.first_last_name ? toTitleCase(info.first_last_name) : "") +
+        (info.second_last_name ? " " + toTitleCase(info.second_last_name) : ""),
       "Tipo de documento": toTitleCase(info.type_document_name),
       "Numero de documento": info.document_number,
       "Correo Electronico": info.email,
       "Numero de telefono": info.phone,
-      Dirección: toTitleCase(info.address),
       Rol: info.roles.map((p) => toTitleCase(p.name)).join(", "),
       Estado: toTitleCase(info.status_name),
     }));
+
+  useEffect(() => {
+    if (showMessage) {
+      const timer = setTimeout(() => {
+        setShowMessage(false);
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [showMessage]);
 
   const options = [
     { icon: "BiShow", name: "Ver detalles" },
@@ -284,6 +290,7 @@ const User = () => {
             title="Añadir Usuario"
             onClose={() => setShowForm(false)}
             setShowMessage={setShowMessage}
+            setTitleMessage={setTitleMessage}
             setMessage={setMessage}
             setStatus={setStatus}
             updateData={updateData}
@@ -297,6 +304,14 @@ const User = () => {
             onClose={() => setShowFilter(false)}
           />
         </>
+      )}
+      {showMessage && (
+        <Message
+          titleMessage={titleMessage}
+          message={message}
+          status={status}
+          onClose={() => setShowMessage(false)}
+        />
       )}
     </>
   );

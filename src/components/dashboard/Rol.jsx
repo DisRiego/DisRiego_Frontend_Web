@@ -24,6 +24,7 @@ const Rol = () => {
   const [loading, setLoading] = useState("");
   const [loadingTable, setLoadingTable] = useState(false);
   const [showMessage, setShowMessage] = useState(false);
+  const [titleMessage, setTitleMessage] = useState(false);
   const [message, setMessage] = useState(false);
   const [status, setStatus] = useState(false);
   const [buttonDisabled, setButtonDisabled] = useState(true);
@@ -271,6 +272,7 @@ const Rol = () => {
             title="Añadir Rol"
             onClose={() => setShowForm(false)}
             setShowMessage={setShowMessage}
+            setTitleMessage={setTitleMessage}
             setMessage={setMessage}
             setStatus={setStatus}
             updateData={updateData}
@@ -287,6 +289,7 @@ const Rol = () => {
       )}
       {showMessage && (
         <Message
+          titleMessage={titleMessage}
           message={message}
           status={status}
           onClose={() => setShowMessage(false)}

@@ -7,6 +7,7 @@ import Table from "./Table";
 import Pagination from "./Pagination";
 import Form_add_property from "./forms/adds/Form_add_property";
 import Message from "../Message";
+import axios from "axios";
 
 const Property = () => {
   const [data, setData] = useState([]);
@@ -72,66 +73,27 @@ const Property = () => {
     "Opciones",
   ];
 
-  const fetchProperties = async () => {
-    const mockData = [
-      {
-        id: 1,
-        name: "Finca La Esperanza",
-        user_name: "1023456789",
-        inmobilario: "123-456789",
-        extension: "50 Ha",
-        latitud: "2.9273",
-        longitud: "-75.2819",
-        estado: "Activo",
-      },
-      {
-        id: 2,
-        name: "Hacienda El Roble",
-        user_name: "1122334455",
-        inmobilario: "234-567890",
-        extension: "120 Ha",
-        latitud: "2.9385",
-        longitud: "-75.2901",
-        estado: "Activo",
-      },
-      {
-        id: 3,
-        name: "Granja San Luis",
-        user_name: "9988776655",
-        inmobilario: "345-678901",
-        extension: "30 Ha",
-        latitud: "2.9156",
-        longitud: "-75.2753",
-        estado: "Inactivo",
-      },
-      {
-        id: 4,
-        name: "Predio Los Nogales",
-        user_name: "6677889900",
-        inmobilario: "456-789012",
-        extension: "75 Ha",
-        latitud: "2.9214",
-        longitud: "-75.2687",
-        estado: "Activo",
-      },
-      {
-        id: 5,
-        name: "Terreno Las Palmas",
-        user_name: "3344556677",
-        inmobilario: "567-890123",
-        extension: "95 Ha",
-        latitud: "2.9321",
-        longitud: "-75.2850",
-        estado: "Activo",
-      },
-    ];
-
-    setData(mockData);
-  };
-
   useEffect(() => {
     fetchProperties();
   }, []);
+
+  const fetchProperties = async () => {
+    try {
+      setLoadingTable(true);
+      const response = await axios.get(
+        import.meta.env.VITE_URI_BACKEND +
+          import.meta.env.VITE_ROUTE_BACKEND_PROPERTY
+      );
+      setData(response.data.data);
+      setButtonDisabled(false);
+    } catch (error) {
+      console.error("Error al obtener los usuarios:", error);
+    } finally {
+      setLoadingTable(false);
+    }
+  };
+
+  console.log(data);
 
   const filteredData = data
     .filter((info) =>
@@ -145,10 +107,10 @@ const Property = () => {
       "ID del predio": info.id,
       Nombre: info.name,
       "Número de documento del dueño": info.user_name,
-      "Folio de matricula inmobiliaria": info.inmobilario,
+      "Folio de matricula inmobiliaria": info.real_estate_registration_number,
       Extensión: info.extension,
-      Latitud: info.latitud,
-      Longitud: info.longitud,
+      Latitud: info.latitude,
+      Longitud: info.longitude,
       Estado: info.estado,
     }));
 

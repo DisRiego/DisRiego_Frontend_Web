@@ -1,9 +1,9 @@
-const Message = ({ onClose, status, message }) => {
+const Message = ({ onClose, status, titleMessage, message }) => {
   return (
     <>
       <article className="message">
         <div className={"message-header " + status}>
-          <p className="has-text-black">Prueba</p>
+          <p className="has-text-black">{titleMessage}</p>
           <button
             onClick={onClose}
             className="delete"

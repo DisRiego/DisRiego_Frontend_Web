@@ -11,6 +11,7 @@ const Form_add_rol = ({
   title,
   onClose,
   setShowMessage,
+  setTitleMessage,
   setMessage,
   setStatus,
   updateData,
@@ -175,7 +176,7 @@ const Form_add_rol = ({
               </div>
             </div>
             <div className="field">
-              <label className="label">Permisos</label>
+              <label className="label">Lista de permisos</label>
               {Object.keys(groupedPermissions).map((categoria) => (
                 <div key={categoria} className="accordion">
                   <div
@@ -206,14 +207,14 @@ const Form_add_rol = ({
                       </div>
                     ))}
                   </div>
+                  {submitted && errors.permissions && (
+                    <div className="is-flex is-flex-direction-row	is-justify-content-center is-align-items-center">
+                      <IoMdWarning className="icon login-error mr-3" />
+                      <p className="login-error is-6">{errors.permissions}</p>
+                    </div>
+                  )}
                 </div>
               ))}
-              {submitted && errors.permissions && (
-                <div className="is-flex is-flex-direction-row	is-justify-content-center is-align-items-center">
-                  <IoMdWarning className="icon login-error mr-3" />
-                  <p className="login-error is-6">{errors.permissions}</p>
-                </div>
-              )}
             </div>
           </section>
           <footer className="modal-card-foot is-flex is-justify-content-center">
@@ -238,6 +239,7 @@ const Form_add_rol = ({
           method={method}
           formData={formData}
           setShowMessage={setShowMessage}
+          setTitleMessage={setTitleMessage}
           setMessage={setMessage}
           setStatus={setStatus}
           updateData={updateData}

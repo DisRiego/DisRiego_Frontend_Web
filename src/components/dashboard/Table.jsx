@@ -62,7 +62,7 @@ const Table = ({ columns, data, options, loadingTable }) => {
   const handleOption = async (option, row) => {
     setIdRow(row.ID);
     if (option.name === "Ver detalles") {
-      navigate(`${idRow}`);
+      navigate(`${row.ID}`);
     }
     if (id === "rol" && option.name === "Inhabilitar") {
       setConfirMessage(`¿Desea inhabilitar el rol "${row["Nombre del rol"]}"?`);

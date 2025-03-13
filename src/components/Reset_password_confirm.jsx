@@ -144,7 +144,7 @@ const Reset_password_confirm = () => {
         );
 
         setLoading("");
-        setActionButton(() => () => setShowModal(false));
+        setActionButton(() => () => navigate("/login"));
         setShowModal(true);
       } else {
         setTitle("Error al cambiar la contraseña");

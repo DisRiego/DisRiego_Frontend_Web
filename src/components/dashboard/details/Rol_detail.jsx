@@ -1,5 +1,6 @@
 import { useParams } from "react-router-dom";
 import Head from "../Head";
+import { TbPointFilled } from "react-icons/tb";
 
 const Rol_detail = ({ role }) => {
   const { id } = useParams();
@@ -42,6 +43,7 @@ const Rol_detail = ({ role }) => {
               rolInfo.status === "Operativo" ? "is-success" : "is-danger"
             }`}
           >
+            <TbPointFilled />
             {rolInfo.status}
           </span>
         </div>
