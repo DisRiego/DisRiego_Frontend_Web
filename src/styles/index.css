@@ -577,3 +577,260 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .icon-password.is-false {
   color: #b8332c;
 }
+
+/*detalle de predio*/
+.container {
+  max-width: 1200px;
+  margin: auto;
+  padding: 20px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+  color: #888;
+}
+
+.header h1 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #ccc;
+}
+
+.btn {
+  padding: 10px 15px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+.btn.success {
+  background-color: #c2e96a;
+  font-weight: bold;
+  color: #444;
+}
+
+.btn.light {
+  border: 1px solid #444;
+  color: rgb(255, 255, 255);
+}
+
+.tabs-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Separa el texto y los botones */
+  margin-bottom: 1rem;
+}
+
+.tabs-container p {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #ccc;
+}
+
+.tabs-container .buttons {
+  display: flex;
+  gap: 0; /* Evita espacio entre botones */
+}
+
+.tabs-container .buttons button:first-child {
+  border-radius: 5px 0 0 5px; /* Solo redondea la izquierda */
+}
+
+.tabs-container .buttons button:last-child {
+  border-radius: 0 5px 5px 0; /* Solo redondea la derecha */
+}
+
+.tabs-container .buttons button {
+  background-color: #333;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  margin-right: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.tabs-container .buttons button.active {
+  background-color: #c2e96a;
+  font-weight: bold;
+  color: #444;
+}
+
+.metrics {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.metric-box {
+  background-color: #1e1e1e;
+  padding: 15px;
+  border-radius: 10px;
+  flex: 1;
+  text-align: center;
+}
+
+.metric-box .title {
+  font-size: 14px;
+  color: #ccc;
+}
+
+.metric-box .value {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.metric-box .warning {
+  color: #f4b400;
+}
+
+.metric-box .danger {
+  color: #ff5252;
+}
+
+.metric-box .info {
+  color: #29b6f6;
+}
+
+.metric-box .primary {
+  color: #64ffda;
+}
+
+.details {
+  display: flex;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.details-box {
+  padding: 15px;
+  border-radius: 10px;
+  flex: 1;
+}
+
+.details-box h2 {
+  font-size: 16px;
+  margin-bottom: 10px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #ccc;
+}
+
+.details-box table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.details-box th {
+  text-align: left;
+  padding: 5px;
+  color: #ccc;
+  font-size: 12px;
+}
+
+.details-box td {
+  padding: 5px;
+  color: white;
+  font-size: 12px;
+}
+
+.attachments {
+  margin-top: 20px;
+  color: white;
+}
+
+.attachment-list {
+  display: flex;
+  justify-content: space-between; /* Separa los elementos */
+  gap: 20px; /* Espacio entre ellos */
+  flex-wrap: wrap; /* Permite que se acomoden en pantallas pequeñas */
+  width: 100%;
+}
+
+.anexo-box {
+  background-color: transparent;
+  padding: 15px;
+  border-radius: 10px;
+  flex: 1; /* Hace que los elementos ocupen el mismo espacio */
+  min-width: 200px; /* Evita que se hagan demasiado pequeños */
+}
+
+.tabs ul {
+  display: flex;
+  list-style: none;
+  padding: 0;
+  margin-top: 20px;
+  border-bottom: 2px solid #333;
+}
+
+.tabs li {
+  margin-right: 10px;
+}
+
+.tabs a {
+  text-decoration: none;
+  padding: 10px 15px;
+  display: inline-block;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.tabs .active a {
+  background-color: transparent;
+  color: #c2e96a;
+}
+
+.table-container {
+  display: flex;
+  flex-direction: column; /* Asegura que los elementos estén en columna */
+  align-items: flex-start;
+  width: 100%;
+}
+
+.tabs-title {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 10px; /* Espaciado entre el título y las pestañas */
+  color: white;
+}
+
+.custom-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.custom-table th {
+  letter-spacing: 1px; /* Ajusta el espaciado entre letras */
+  padding: 5px; /* Agrega espacio interno en las celdas */
+  text-align: left; /* Asegura que el texto esté alineado correctamente */
+}
+
+.custom-table td {
+  padding: 10px;
+}
+
+.btn {
+  padding: 5px 10px;
+  margin: 2px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.btn.edit {
+  background-color: #4caf50;
+  color: white;
+}
+
+.btn.delete {
+  background-color: #f44336;
+  color: white;
+}
+
+/*detalle de predio*/
