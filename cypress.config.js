@@ -2,23 +2,24 @@ import { defineConfig } from "cypress";
 
 export default defineConfig({
   e2e: {
-    setupNodeEvents(on, config) {
-      // Para generar reportes con mochawesome
-      on('after:run', () => {
-        require('mochawesome-merge')()
-          .then((report) => {
-            const fs = require('fs');
-            fs.writeFileSync('cypress/results/report.json', JSON.stringify(report));
-          });
+    async setupNodeEvents(on, config) {
+      // Importamos dinámicamente los módulos
+      const mochawesomeMerge = await import("mochawesome-merge");
+      const fs = await import("fs");
+
+      on("after:run", async () => {
+        const report = await mochawesomeMerge.default();
+        fs.writeFileSync("cypress/results/report.json", JSON.stringify(report));
       });
+
       return config;
     },
-    reporter: 'mochawesome',  // Usamos mochawesome como el reporter
+    reporter: "mochawesome",
     reporterOptions: {
-      reportDir: 'cypress/results',  // El directorio donde se almacenarán los reportes
+      reportDir: "cypress/results",
       overwrite: true,
-      html: true,  // Genera un reporte en HTML
-      json: false,  // No Genera un reporte en formato JSON
+      html: true,
+      json: false,
     },
   },
 });
