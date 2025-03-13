@@ -3,6 +3,12 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Bar, Line } from 'react-chartjs-2';
 import '../../../styles/index.css';
 import Head from "../Head";
+import RobotoNormalFont from "../../../assets/fonts/Roboto-Regular.ttf";
+import RobotoBoldFont from "../../../assets/fonts/Roboto-Bold.ttf";
+import Icon from "../../../assets/icons/Disriego_title.png";
+import { format, subDays, subWeeks, subMonths, subYears } from 'date-fns';
+import { jsPDF } from "jspdf"; // Importa jsPDF
+import { autoTable } from "jspdf-autotable";// componentes de Chart.js usados en el componente
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -14,9 +20,6 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
-import { format, subDays, subWeeks, subMonths, subYears } from 'date-fns';
-
-// componentes de Chart.js usados en el componente
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -42,6 +45,155 @@ const Property_detail = () => {
       generateReport();
     }
   };
+  //Generar reporte de predio
+  const generateReport = () => {
+    const doc = new jsPDF();
+    // Datos del predio actual
+    const currentProperty = mockData.find(property => property.id === parseInt(id));
+    // Filtra los lotes que pertenecen al predio actual
+    const lotsForProperty = lotMockData.filter(lot => lot.property_id === parseInt(id));
+
+    // Add Roboto font to the document
+    doc.addFont(RobotoNormalFont, "Roboto", "normal");
+    doc.addFont(RobotoBoldFont, "Roboto", "bold");
+    //colorear fondo
+    doc.setFillColor(243, 242, 247);
+    doc.rect(0, 0, 210, 53, "F"); // colorear una parte de la pagina
+    // agregar logo (usando base 64 directamente sobre la importacion)
+    doc.addImage(Icon, "PNG", 156, 10, 39, 11);
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(17);
+    doc.setFont("Roboto", "bold");
+    doc.text("REPORTE PREDIAL", 12, 18);
+    doc.setFontSize(11);
+    doc.text(`Fecha de generación:`, 12, 27);
+    doc.text(`Generado por:`, 12, 39);
+    /*doc.setTextColor(94, 100, 112);*/
+    doc.text("Datos del dueño", 12, 63);
+    doc.text("Datos del predio", 12, 100);
+
+    doc.setTextColor(94, 100, 112);
+    doc.setFont("Roboto", "normal");
+    doc.setFontSize(10);
+    doc.text(`${new Date().toLocaleString()}`, 12, 32);
+    doc.text(`[Nombre del usuario]`, 12, 44);
+    doc.setFontSize(11);
+    doc.text(`[Dirección de la empresa]`, 194, 27, { align: "right" });
+    doc.text(`[Ciudad, Dept. País]`, 194, 33, { align: "right" });
+    doc.text(`[Teléfono]`, 194, 39, { align: "right" });
+    doc.setFontSize(10);
+    doc.text("Nombre completo", 12, 70);
+    doc.text("Número de documento", 110, 70);
+    doc.text("Dirección de correspondencia", 12, 82);
+    doc.text("Teléfono", 110, 82);
+    doc.text("[NOMBRE]", 12, 75);
+    doc.text(currentProperty?.user_name || "[No. documento]", 110, 75);
+    doc.text("[DIRECCION]", 12, 87);
+    doc.text("[TELEFONO]", 110, 87);
+
+    autoTable(doc, {
+        startY: 105,
+        margin: { left: 12, right: 12 },
+        head: [["ID", "Nombre del predio", "Folio matrícula inmobiliaria", "Extensión", "Latitud", "Longitud", "Número de lotes"]],
+        body: [[
+            currentProperty?.id || "",
+            currentProperty?.name || "",
+            currentProperty?.inmobilario || "",
+            currentProperty?.extension || "",
+            currentProperty?.latitud || "",
+            currentProperty?.longitud || "",
+            lotsForProperty.length
+        ]],
+        theme: 'grid',
+        headStyles: {
+            fillColor: [252, 252, 253],
+            textColor: [0, 0, 0],
+            fontStyle: 'bold',
+            lineWidth: 0.5,
+            lineColor: [234, 236, 240]
+        },
+        bodyStyles: {
+            textColor: [89, 89, 89],
+            fontSize: 9,
+            cellPadding: 4
+        },
+        styles: {
+            fontSize: 9,
+            font: 'Roboto',
+            lineColor: [226, 232, 240]
+        }
+    });
+    
+    // Lotes asociados al predio
+    const currentY = doc.lastAutoTable.finalY + 10;
+    
+    doc.setFontSize(11);
+    doc.setFont("Roboto", "bold");
+    doc.setTextColor(0, 0, 0);
+    doc.text(`Lotes Asociados al predio [${id}]`, 14, currentY);
+    
+    // Tabla de lotes asociados
+    autoTable(doc, {
+        startY: currentY + 5,
+        margin: { left: 12, right: 12 },
+        head: [["ID", "Nombre del lote", "Folio matrícula inmobiliaria", "Extensión", "Latitud", "Longitud", "Tipo de cultivo", "Intervalo de pago"]],
+        body: lotsForProperty.map(lot => [
+            lot.id,
+            lot.name,
+            lot.inmobilario,
+            lot.extension,
+            lot.latitud,
+            lot.longitud,
+            "[Tipo de cultivo]",
+            "[Intervalo de pago]"
+        ]),
+        theme: 'grid',
+        headStyles: {
+            fillColor: [252, 252, 253],
+            textColor: [0, 0, 0],
+            fontStyle: 'bold',
+            lineWidth: 0.1,
+            lineColor: [234, 236, 240]
+        },
+        bodyStyles: {
+            textColor: [89, 89, 89],
+            fontSize: 9,
+            cellPadding: 4
+        },
+        styles: {
+            fontSize: 9,
+            font: 'Roboto',
+            lineColor: [226, 232, 240]
+        }
+    });
+    //pie de pagina
+    doc.addImage(Icon, "PNG", 12, 280, 32, 9);
+    
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(10);
+
+      doc.setFont("Roboto", "normal"); // Set Roboto font for page numbers
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      doc.text(`Página ${i}/${pageCount}`, pageWidth - 10, pageHeight - 10, {
+        align: "right",
+      });
+    }
+
+    // Convertir el PDF a un Blob
+    const pdfBlob = doc.output("blob");
+
+    // Crear una URL del Blob
+    const pdfUrl = URL.createObjectURL(pdfBlob);
+
+    // Abrir el PDF en una nueva pestaña
+    setTimeout(() => {
+      window.open(pdfUrl, "_blank");
+      setLoading("");
+    }, 500);
+};
 
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('consumo'); // 'consumo' o 'produccion'
@@ -333,6 +485,112 @@ const Property_detail = () => {
           },
         },
       };
+      // Datos sinteticos de los lotes
+      const lotMockData = [
+        {
+            id: 101,
+            property_id: 1, // Lote perteneciente a "Finca La Esperanza"
+            name: "Lote A1",
+            inmobilario: "L-123",
+            extension: "10 Ha",
+            latitud: "2.9250",
+            longitud: "-75.2800",
+            estado: "Activo",
+        },
+        {
+            id: 102,
+            property_id: 2, // Otro lote para "Finca La Esperanza"
+            name: "Lote A2",
+            inmobilario: "L-124",
+            extension: "15 Ha",
+            latitud: "2.9260",
+            longitud: "-75.2790",
+            estado: "Activo",
+        },
+        {
+            id: 103,
+            property_id: 3, // Lote para "Hacienda El Roble"
+            name: "Lote hacienda el roble",
+            inmobilario: "R-456",
+            extension: "60 Ha",
+            latitud: "2.9350",
+            longitud: "-75.2850",
+            estado: "Activo",
+        },
+        {
+            id: 104,
+            property_id: 4, // Lote para "Predio Los Nogales"
+            name: "Lote N1",
+            inmobilario: "N-789",
+            extension: "25 Ha",
+            latitud: "2.9200",
+            longitud: "-75.2650",
+            estado: "Inactivo",
+        },
+        {
+          id: 105,
+          property_id: 3, // Lote para "Predio Los Nogales"
+          name: "Lote N1",
+          inmobilario: "N-789",
+          extension: "25 Ha",
+          latitud: "2.9200",
+          longitud: "-75.2650",
+          estado: "Inactivo",
+      },
+    ]
+    // Datos sinteticos de los predios
+    const mockData = [
+      {
+        id: 1,
+        name: "Finca La Esperanza",
+        user_name: "1023456789",
+        inmobilario: "123-456789",
+        extension: "50 Ha",
+        latitud: "2.9273",
+        longitud: "-75.2819",
+        estado: "Activo",
+      },
+      {
+        id: 2,
+        name: "Hacienda El Roble",
+        user_name: "1122334455",
+        inmobilario: "234-567890",
+        extension: "120 Ha",
+        latitud: "2.9385",
+        longitud: "-75.2901",
+        estado: "Activo",
+      },
+      {
+        id: 3,
+        name: "Granja San Luis",
+        user_name: "9988776655",
+        inmobilario: "345-678901",
+        extension: "30 Ha",
+        latitud: "2.9156",
+        longitud: "-75.2753",
+        estado: "Inactivo",
+      },
+      {
+        id: 4,
+        name: "Predio Los Nogales",
+        user_name: "6677889900",
+        inmobilario: "456-789012",
+        extension: "75 Ha",
+        latitud: "2.9214",
+        longitud: "-75.2687",
+        estado: "Activo",
+      },
+      {
+        id: 5,
+        name: "Terreno Las Palmas",
+        user_name: "3344556677",
+        inmobilario: "567-890123",
+        extension: "95 Ha",
+        latitud: "2.9321",
+        longitud: "-75.2850",
+        estado: "Activo",
+      },
+    ]
 
   return (
     <div className="property-detail-container">
