@@ -9,6 +9,9 @@ import { LuUserCog } from "react-icons/lu";
 import { LuUsersRound } from "react-icons/lu";
 
 const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
+  const handleSignUp = async (e) => {
+    localStorage.removeItem("token");
+  };
   return (
     <>
       <div className="sidebar-options">
@@ -121,7 +124,7 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
           {!isCollapsed && <span>Mi cuenta</span>}
         </Link>
         <div className="separator separator-sidebar"></div>
-        <Link className="navbar-item" to="/login">
+        <Link className="navbar-item" to="/login" onClick={handleSignUp}>
           <span className="icon">
             <RiLogoutBoxRLine />
           </span>

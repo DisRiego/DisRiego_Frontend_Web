@@ -75,6 +75,10 @@ const Login = () => {
             import.meta.env.VITE_ROUTE_BACKEND_LOGIN,
           formData
         );
+
+        const token = response.data.access_token;
+        localStorage.setItem("token", token);
+
         navigate("/dashboard");
       } catch (error) {
         setLoading("");
