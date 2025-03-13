@@ -577,3 +577,79 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .icon-password.is-false {
   color: #b8332c;
 }
+
+/*css de notificaciones*/
+/* Estilos generales */
+.notification-container {
+  background-color: transparent; /* Fondo transparente */
+  border-radius: 0; /* Bordes rectos */
+  box-shadow: none; /* Sin sombras */
+}
+
+/* Separador de fecha */
+.date-separator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 10px 0;
+  background-color: transparent;
+}
+
+.date-separator hr {
+  flex: 1;
+  border: none;
+  height: 0.5px;
+  background-color: #444;
+  margin: 0 10px;
+}
+
+.date-tag {
+  background-color: #333;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 5px;
+}
+
+/* Notificación */
+.notification-item {
+  background-color: transparent; /* Elimina el fondo */
+}
+
+/* Imagen del avatar */
+.notification-item .media-left img {
+  border-radius: 50%;
+  border: 2px solid #4caf50;
+}
+
+/* Estilos de los textos */
+.user-name {
+  font-weight: bold;
+  color: #4caf50;
+}
+
+.property-name {
+  font-weight: bold;
+  color: #ffa500;
+}
+
+.details {
+  font-size: 14px;
+  color: #bbb;
+}
+
+.notification-time {
+  font-size: 12px;
+  color: #888;
+}
+
+/* Espaciado para icono en el botón */
+.icon-spacing {
+  margin-right: 5px;
+}
+
+.tabs.is-boxed li.is-active a {
+  color: #c2e96a !important;
+  border-bottom-color: #00c853 !important;
+}
+
+/*css de notificaciones*/
