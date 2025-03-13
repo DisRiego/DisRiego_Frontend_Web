@@ -78,7 +78,8 @@ const Reset_password = () => {
             {
               to_name: "Nombre del destinatario",
               message:
-                "http://localhost:5173/login/resetpassword/" +
+                import.meta.env.VITE_URI_FRONTED +
+                import.meta.env.VITE_URI_FRONTED_LOGIN_UPDATE_RESETPASSWORD +
                 response.data.token,
               email: formData.email,
               phone: "Número de teléfono",
