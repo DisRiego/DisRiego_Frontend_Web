@@ -6,6 +6,7 @@ import Form_edit_rol from "./forms/edits/Form_edit_rol";
 import Form_edit_user from "./forms/edits/Form_edit_user";
 import Form_edit_property from "./forms/edits/Form_edit_property";
 import Form_edit_property_user from "./forms/edits/Form_edit_property_user";
+import Form_add_certificate from "./forms/adds/Form_add_certificate";
 import Icon from "../Icon";
 
 const OptionsButton = ({ onClick }) => (
@@ -25,6 +26,7 @@ const Table = ({ columns, data, options, loadingTable }) => {
   const [showEditUser, setShowEditUser] = useState();
   const [showEditProperty, setShowEditProperty] = useState();
   const [showEditPropertyUser, setShowEditPropertyUser] = useState();
+  const [showEditCertificate, setShowEditCertificate] = useState();
   const [idRow, setIdRow] = useState();
   const [dots, setDots] = useState("");
 
@@ -80,6 +82,9 @@ const Table = ({ columns, data, options, loadingTable }) => {
     }
     if (id === "properties" && option.name === "Editar") {
       setShowEditPropertyUser(true);
+    }
+    if (id === "company" && option.name === "Editar certificado") {
+      setShowEditCertificate(true);
     }
   };
 
@@ -251,6 +256,12 @@ const Table = ({ columns, data, options, loadingTable }) => {
         <Form_edit_property_user
           title="Editar predio"
           onClose={() => setShowEditPropertyUser(false)}
+        />
+      )}
+      {showEditCertificate && (
+        <Form_add_certificate
+          title="Editar certificado digital"
+          onClose={() => setShowEditCertificate(false)}
         />
       )}
     </div>

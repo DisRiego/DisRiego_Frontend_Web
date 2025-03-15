@@ -20,7 +20,6 @@ const Sidebar = ({ handleOptionChange, selectedOption }) => {
   };
 
   const decoded = jwtDecode(token);
-  console.log(decoded.name);
 
   return (
     <>
