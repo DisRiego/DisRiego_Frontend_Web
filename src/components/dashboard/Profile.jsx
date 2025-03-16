@@ -1,15 +1,20 @@
 import { useState } from "react";
 import Head from "./Head";
 import { FaCamera, FaEdit } from "react-icons/fa";
+import {
+  validatePhone,
+  validatePassword,
+  validateAddress,
+} from "../../hooks/useValidations.jsx";
 
 const Profile = () => {
   const head_data = {
     title: "Mi perfil",
     description: "En esta sección podrás visualizar y editar tu información personal",
   };
+
   const [isPersonalModalOpen, setIsPersonalModalOpen] = useState(false);
   const [isSecurityModalOpen, setIsSecurityModalOpen] = useState(false);
-
 
   const [user] = useState({
     name: "Nombre del usuario",
@@ -26,12 +31,65 @@ const Profile = () => {
   
   const [formData, setFormData] = useState({
     genero: "",
-    direccion: "",
-    telefono: "",
+    address: "",
+    phone: "",
+    password: "",
+    password1: "",
+    password2: "",
   });
+
+  const resetFormData = () => {
+    setFormData({
+      genero: "",
+      address: "",
+      phone: "",
+      password: "",
+      password1: "",
+      password2: "",
+    });
+    setErrors({});
+  };
+
+  const [errors, setErrors] = useState({});
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    let newErrors = {};
+
+    const validGeneros = ["Masculino", "Femenino", "Otro"];
+    if (!validGeneros.includes(formData.genero)) {
+      newErrors.genero = "Debe seleccionar un género válido.";
+    }
+
+    if (!validatePhone(formData.phone)) {
+      newErrors.phone = "Teléfono inválido";
+    }
+
+    if (!validateAddress(formData.address)) {
+      newErrors.address = "Direccion inválido";
+    }
+
+    if (!validatePassword(formData.password) || !validatePassword(formData.password1)) {
+      newErrors.password = "Debe tener 12 caracteres, mayúscula, minúscula, número y símbolo.";
+      newErrors.password1 = "Debe tener 12 caracteres, mayúscula, minúscula, número y símbolo.";
+    }
+    
+    if (formData.password1 !== formData.password2) {
+      newErrors.password2 = "Las contraseñas no coinciden";
+    }
+    
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+    setErrors({});
+
+    console.log("Formulario enviado con éxito", formData);
   };
 
   return (
@@ -90,6 +148,7 @@ const Profile = () => {
                       <option value="Otro">Otro</option>
                     </select>
                   </div>
+                  {errors.genero && <p className="help is-danger">{errors.genero}</p>}                  
                 </div>
               </div>
 
@@ -99,12 +158,13 @@ const Profile = () => {
                   <input
                     className="input"
                     type="text"
-                    name="direccion"
-                    value={formData.direccion}
+                    name="address"
+                    value={formData.address}
                     onChange={handleChange}
                     placeholder="Dirección"
                   />
                 </div>
+                {errors.address && <p className="help is-danger">{errors.address}</p>}
               </div>
 
               <div className="field">
@@ -113,21 +173,24 @@ const Profile = () => {
                   <input
                     className="input"
                     type="text"
-                    name="telefono"
-                    value={formData.telefono}
+                    name="phone"
+                    value={formData.phone}
                     onChange={handleChange}
                     placeholder="Teléfono"
                   />
                 </div>
+                {errors.phone && <p className="help is-danger">{errors.phone}</p>}
               </div>
             </section>
             <footer className="modal-card-foot is-flex is-justify-content-center">
-              <button className="button is-danger" onClick={() => setIsPersonalModalOpen(false)}>
-                Cancelar
+              <button className="button is-danger" 
+                  onClick={() => {
+                    resetFormData();
+                    setIsPersonalModalOpen(false);
+                  }}>
+                  Cancelar
               </button>
-              <button className="button confirm-button">
-                Confirmar
-              </button>
+              <button className="button confirm-button" onClick={handleSubmit}>Confirmar</button>
             </footer>
           </div>
         </div>
@@ -168,13 +231,14 @@ const Profile = () => {
               <div className="control">
                 <input
                   className="input"
-                  type="text"
+                  type="password"
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
                   placeholder="Contraseña Actual"
                 />
               </div>
+              {errors.password && <p className="help is-danger">{errors.password}</p>}
             </div>
 
             <div className="field">
@@ -182,13 +246,14 @@ const Profile = () => {
               <div className="control">
                 <input
                   className="input"
-                  type="text"
+                  type="password"
                   name="password1"
                   value={formData.password1}
                   onChange={handleChange}
                   placeholder="Contraseña Nueva"
                 />
               </div>
+              {errors.password1 && <p className="help is-danger">{errors.password1}</p>}
             </div>
 
             <div className="field">
@@ -196,18 +261,36 @@ const Profile = () => {
               <div className="control">
                 <input
                   className="input"
-                  type="text"
+                  type="password"
                   name="password2"
                   value={formData.password2}
                   onChange={handleChange}
                   placeholder="Confirmar Nueva Contraseña"
                 />
               </div>
+              {errors.password2 && <p className="help is-danger">{errors.password2}</p>}
+              <ul>
+                <li >
+                  🔹 Al menos 1 número
+                </li>
+                <li >
+                  🔹 Al menos 12 caracteres
+                </li>
+                <li >
+                  🔹 Mayúsculas y minúsculas
+                </li>
+              </ul>
             </div>
           </section>
           <footer className="modal-card-foot is-flex is-justify-content-center">
-            <button className="button is-danger" onClick={() => setIsSecurityModalOpen(false)}>Cancelar</button>
-            <button className="button confirm-button">Confirmar</button>
+          <button className="button is-danger" 
+              onClick={() => {
+                resetFormData();
+                setIsPersonalModalOpen(false);
+              }}>
+              Cancelar
+          </button>
+          <button className="button confirm-button" onClick={handleSubmit}>Confirmar</button>
           </footer>
         </div>
       </div>

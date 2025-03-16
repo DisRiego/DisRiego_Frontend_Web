@@ -8,6 +8,11 @@ export const validateEmail = (email) => {
   return emailRegex.test(email);
 };
 
+export const validateAddress = (address) => {
+  const regex = /^[a-zA-Z0-9\s,.\-#]+$/;
+  return regex.test(address);
+};
+
 export const validatePassword = (password) => {
   const minLength = 12;
 
