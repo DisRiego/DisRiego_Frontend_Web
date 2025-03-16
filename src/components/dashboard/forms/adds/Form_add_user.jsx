@@ -286,7 +286,7 @@ const Form_add_user = ({
                           </option>
                           {typeDocument.map((doc) => (
                             <option key={doc.id} value={doc.id}>
-                              {toTitleCase(doc.name)}
+                              {doc.name}
                             </option>
                           ))}
                         </select>

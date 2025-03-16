@@ -1,4 +1,5 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 import { MdOutlineWaterDrop } from "react-icons/md";
 import { FiUsers } from "react-icons/fi";
 import { HiOutlineBell } from "react-icons/hi";
@@ -10,9 +11,28 @@ import { LuUsersRound } from "react-icons/lu";
 import { AiOutlineHome } from "react-icons/ai";
 
 const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
+  const navigate = useNavigate();
+  const token = localStorage.getItem("token");
+
   const handleSignUp = async (e) => {
-    localStorage.removeItem("token");
+    try {
+      const response = await axios.post(
+        import.meta.env.VITE_URI_BACKEND +
+          import.meta.env.VITE_ROUTE_BACKEND_LOGOUT,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      localStorage.removeItem("token");
+      navigate("/login");
+    } catch (error) {
+      console.log(error.response.data);
+    }
   };
+
   return (
     <>
       <div className="sidebar-options">
@@ -137,7 +157,7 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
           {!isCollapsed && <span>Mi perfil</span>}
         </Link>
         <div className="separator separator-sidebar"></div>
-        <Link className="navbar-item" to="/login" onClick={handleSignUp}>
+        <Link className="navbar-item" onClick={handleSignUp}>
           <span className="icon">
             <RiLogoutBoxRLine />
           </span>

@@ -106,25 +106,6 @@ const Filter_user = ({ onClose }) => {
             </div>
 
             <div className="field mt-5">
-              <label className="label">Genero</label>
-              <div className="container-status">
-                {status.map((estado) => (
-                  <div className="control" key={estado.id}>
-                    <label className="checkbox">
-                      <input
-                        type="checkbox"
-                        name={estado.id}
-                        checked={filters.estados[estado.id] || false}
-                        onChange={handleStatusChange}
-                      />{" "}
-                      {estado.nombre}
-                    </label>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="field mt-5">
               <label className="label">Rol</label>
               <div className="container-status">
                 {status.map((estado) => (

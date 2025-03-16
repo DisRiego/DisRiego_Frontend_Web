@@ -3,6 +3,11 @@
   --bulma-title-size: 30px;
   --text-navegation-size: 14px;
   --pagination-current-color: hsl(0, 0%, 14%);
+  --bulma-column-gap: 0em;
+}
+
+#root {
+  gap: var(--bulma-column-gap);
 }
 
 span,
@@ -558,8 +563,8 @@ tbody > tr > .loader-cell {
 }
 
 input[type="date"]::-webkit-calendar-picker-indicator {
-  filter: brightness(0) saturate(100%) invert(17%) sepia(23%) saturate(498%)
-    hue-rotate(185deg) brightness(98%) contrast(84%);
+  filter: brightness(0) saturate(100%) invert(31%) sepia(10%) saturate(898%)
+    hue-rotate(185deg) brightness(95%) contrast(90%);
 }
 
 .input-error {
@@ -894,3 +899,52 @@ div > .tabs.is-boxed li.is-active a {
   background-color: gray;
 }
 /*detalle de predio*/
+
+/*select color icon*/
+.field .control > div.select::after {
+  border-color: hsla(
+    var(--bulma-text-h),
+    var(--bulma-text-s),
+    var(--bulma-text-strong-l),
+    0.3
+  );
+}
+
+.field .control > .select-padding > select {
+  height: 46.3px;
+}
+
+form > .columns.columns-pb {
+  margin-bottom: 0em;
+}
+
+.columns-fullheight {
+  height: 100%;
+}
+
+.column-fullheight {
+  height: 100%;
+}
+
+.container {
+  height: 98vh;
+  padding: 2em;
+}
+
+.columns > .column-p {
+  padding: 2em;
+}
+
+.button-p2 {
+  padding: 0em 2em;
+}
+
+.border {
+  bottom: 0;
+  height: 0.75em;
+  background-color: #c2e96a;
+}
+
+.image-active {
+  height: 300px;
+}

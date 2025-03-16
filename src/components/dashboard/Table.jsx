@@ -30,9 +30,6 @@ const Table = ({ columns, data, options, loadingTable }) => {
   const [idRow, setIdRow] = useState();
   const [dots, setDots] = useState("");
 
-  // Estado para ordenamiento
-  const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
-
   useEffect(() => {
     const interval = setInterval(() => {
       setDots((prev) => (prev.length < 3 ? prev + "." : ""));
@@ -88,37 +85,6 @@ const Table = ({ columns, data, options, loadingTable }) => {
     }
   };
 
-  // Función para manejar el ordenamiento al hacer clic en una columna
-  const handleSort = (column) => {
-    setSortConfig((prev) => {
-      if (prev.key === column) {
-        return {
-          key: column,
-          direction: prev.direction === "asc" ? "desc" : "asc",
-        };
-      }
-      return { key: column, direction: "asc" };
-    });
-  };
-
-  // Ordenar los datos según la columna y dirección seleccionadas
-  const sortedData = [...data].sort((a, b) => {
-    if (!sortConfig.key) return 0;
-
-    const aValue = a[sortConfig.key];
-    const bValue = b[sortConfig.key];
-
-    // Verifica si ambos valores son números
-    if (!isNaN(aValue) && !isNaN(bValue)) {
-      return sortConfig.direction === "asc" ? aValue - bValue : bValue - aValue;
-    }
-
-    // Si no son números, ordena como cadenas de texto
-    return sortConfig.direction === "asc"
-      ? String(aValue).localeCompare(String(bValue))
-      : String(bValue).localeCompare(String(aValue));
-  });
-
   return (
     <div className="table-container">
       <table className="table is-fullwidth is-striped is-hoverable">
@@ -127,18 +93,7 @@ const Table = ({ columns, data, options, loadingTable }) => {
             {columns
               .filter((column) => column !== "ID")
               .map((column) => (
-                <th
-                  key={column}
-                  onClick={() => handleSort(column)}
-                  style={{ cursor: "pointer" }}
-                >
-                  {column}{" "}
-                  {sortConfig.key === column
-                    ? sortConfig.direction === "asc"
-                      ? "￪"
-                      : "￬"
-                    : ""}
-                </th>
+                <th key={column}>{column}</th>
               ))}
           </tr>
         </thead>
@@ -151,7 +106,7 @@ const Table = ({ columns, data, options, loadingTable }) => {
               </td>
             </tr>
           ) : (
-            sortedData.map((row, rowIndex) => (
+            data.map((row, rowIndex) => (
               <tr key={rowIndex}>
                 {columns
                   .filter((column) => column !== "ID")
@@ -244,6 +199,7 @@ const Table = ({ columns, data, options, loadingTable }) => {
         <Form_edit_user
           title="Editar usuario"
           onClose={() => setShowEditUser(false)}
+          idRow={idRow}
         />
       )}
       {showEditProperty && (

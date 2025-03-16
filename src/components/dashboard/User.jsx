@@ -230,7 +230,7 @@ const User = () => {
       Apellidos:
         (info.first_last_name ? toTitleCase(info.first_last_name) : "") +
         (info.second_last_name ? " " + toTitleCase(info.second_last_name) : ""),
-      "Tipo de documento": toTitleCase(info.type_document_name),
+      "Tipo de documento": info.type_document_name,
       "Numero de documento": info.document_number,
       "Correo Electronico": info.email,
       "Numero de telefono": info.phone,
