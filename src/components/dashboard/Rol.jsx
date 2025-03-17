@@ -28,6 +28,10 @@ const Rol = () => {
   const [message, setMessage] = useState(false);
   const [status, setStatus] = useState(false);
   const [buttonDisabled, setButtonDisabled] = useState(true);
+  const [filteredData, setFilteredData] = useState([]);
+  const [backupData, setBackupData] = useState([]);
+  const [statusFilter, setStatusFilter] = useState(false);
+  const [filters, setFilters] = useState({ estados: {} });
 
   const handleButtonClick = (buttonText) => {
     if (buttonText === "Añadir rol") {
@@ -187,7 +191,11 @@ const Rol = () => {
         import.meta.env.VITE_URI_BACKEND +
           import.meta.env.VITE_ROUTE_BACKEND_ROL
       );
-      setData(response.data.data);
+      const sortedData = response.data.data.sort((a, b) =>
+        a.role_name.localeCompare(b.role_name)
+      );
+
+      setData(sortedData);
       setButtonDisabled(false);
     } catch (error) {
       console.error("Error al obtener los roles:", error);
@@ -214,26 +222,49 @@ const Rol = () => {
     }
   }, [showMessage]);
 
-  const filteredData = data
-    .filter((info) =>
-      Object.values(info)
-        .join(" ")
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase())
-    )
-    .map((info) => ({
-      ID: info.role_id,
-      "Nombre del rol": toTitleCase(info.role_name),
-      Descripción: toTitleCase(info.role_description),
-      "Cantidad de usuarios": info.quantity_users,
-      Permisos: info.permissions.map((p) => toTitleCase(p.name)).join(", "),
-      Estado: toTitleCase(info.status_name),
-    }));
+  useEffect(() => {
+    if (!statusFilter) {
+      const filtered = data
+        .filter((info) =>
+          Object.values(info)
+            .join(" ")
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase())
+        )
+        .map((info) => ({
+          ID: info.role_id,
+          "Nombre del rol": toTitleCase(info.role_name),
+          Descripción: toTitleCase(info.role_description),
+          "Cantidad de usuarios": info.quantity_users,
+          Permisos: info.permissions.map((p) => toTitleCase(p.name)).join(", "),
+          Estado: toTitleCase(info.status_name),
+        }));
+
+      setFilteredData(filtered);
+      setBackupData(filtered);
+    } else {
+      const selectedStates = Object.keys(filters.estados).filter(
+        (key) => filters.estados[key]
+      );
+
+      if (selectedStates.length > 0) {
+        const filteredByState = backupData.filter((info) =>
+          selectedStates.includes(info.Estado)
+        );
+        setFilteredData(filteredByState);
+      } else {
+        setFilteredData(backupData);
+      }
+
+      setStatusFilter(false);
+    }
+  }, [data, searchTerm, filters.estados]);
 
   const options = [
     { icon: "BiShow", name: "Ver detalles" },
     { icon: "BiEditAlt", name: "Editar" },
-    { icon: "LuDownload", name: "Inhabilitar" },
+    { icon: "MdOutlineCheckCircle", name: "Habilitar" },
+    { icon: "VscError", name: "Inhabilitar" },
   ];
 
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -259,6 +290,11 @@ const Rol = () => {
         data={paginatedData}
         options={options}
         loadingTable={loadingTable}
+        setShowMessage={setShowMessage}
+        setTitleMessage={setTitleMessage}
+        setMessage={setMessage}
+        setStatus={setStatus}
+        updateData={updateData}
       />
       <Pagination
         totalItems={filteredData.length}
@@ -282,8 +318,14 @@ const Rol = () => {
       {showFilter && (
         <>
           <Filter_rol
-            title="Filtros de rol"
             onClose={() => setShowFilter(false)}
+            data={data}
+            filteredData={filteredData}
+            setFilteredData={setFilteredData}
+            setStatusFilter={setStatusFilter}
+            filters={filters}
+            setFilters={setFilters}
+            backupData={backupData}
           />
         </>
       )}

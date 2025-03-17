@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import Confirm_add_rol from "../../confirm_view/adds/Confirm_add_rol";
+import Confirm_edit_rol from "../../confirm_view/edits/Confirm_edit_rol";
 import {
   validateText,
   validateTextArea,
@@ -10,10 +10,12 @@ import { IoMdWarning } from "react-icons/io";
 const Form_edit_rol = ({
   title,
   onClose,
+  idRow,
   setShowMessage,
+  setTitleMessage,
   setMessage,
   setStatus,
-  idRow,
+  updateData,
 }) => {
   const [data, setData] = useState();
   const [showConfirm, setShowConfirm] = useState(false);
@@ -54,7 +56,7 @@ const Form_edit_rol = ({
       );
 
       if (response.data.success && response.data.data.length > 0) {
-        const rolData = response.data.data[0]; // Acceder al primer objeto dentro de `data`
+        const rolData = response.data.data[0];
 
         setData(rolData);
 
@@ -78,6 +80,8 @@ const Form_edit_rol = ({
       console.log("Error al obtener el rol", error);
     }
   };
+
+  console.log(formData);
 
   const fetchPermissions = async () => {
     try {
@@ -105,8 +109,16 @@ const Form_edit_rol = ({
     });
 
     if (isNameValid && isDescriptionValid && hasSelectedPermissions) {
-      setConfirMessage('¿Desea crear el rol "' + formData.name + '"?');
+      setConfirMessage(
+        '¿Desea crear modificar el rol "' + formData.name + '"?'
+      );
       setMethod("post");
+      setUriPost(
+        import.meta.env.VITE_URI_BACKEND +
+          import.meta.env.VITE_ROUTE_BACKEND_ROL +
+          idRow +
+          "/edit"
+      );
       setShowConfirm(true);
     }
   };
@@ -238,7 +250,7 @@ const Form_edit_rol = ({
                             onChange={handlePermissionChange}
                             disabled={isLoading}
                           />{" "}
-                          {permiso.description}
+                          {permiso.name}
                         </label>
                       </div>
                     ))}
@@ -266,7 +278,7 @@ const Form_edit_rol = ({
         </div>
       </div>
       {showConfirm && (
-        <Confirm_add_rol
+        <Confirm_edit_rol
           onClose={() => {
             setShowConfirm(false);
           }}
@@ -275,9 +287,11 @@ const Form_edit_rol = ({
           method={method}
           formData={formData}
           setShowMessage={setShowMessage}
+          setTitleMessage={setTitleMessage}
           setMessage={setMessage}
           setStatus={setStatus}
           updateData={updateData}
+          uriPost={uriPost}
         />
       )}
     </>

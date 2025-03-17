@@ -7,6 +7,8 @@ import Form_edit_user from "./forms/edits/Form_edit_user";
 import Form_edit_property from "./forms/edits/Form_edit_property";
 import Form_edit_property_user from "./forms/edits/Form_edit_property_user";
 import Form_add_certificate from "./forms/adds/Form_add_certificate";
+import Disable_status_rol from "./Status/disable/Disable_status_rol";
+import Enable_status_rol from "./Status/enable/Enable_status_rol";
 import Icon from "../Icon";
 
 const OptionsButton = ({ onClick }) => (
@@ -15,7 +17,17 @@ const OptionsButton = ({ onClick }) => (
   </button>
 );
 
-const Table = ({ columns, data, options, loadingTable }) => {
+const Table = ({
+  columns,
+  data,
+  options,
+  loadingTable,
+  setShowMessage,
+  setTitleMessage,
+  setMessage,
+  setStatus,
+  updateData,
+}) => {
   const navigate = useNavigate();
   const { id } = useParams();
   const [confirMessage, setConfirMessage] = useState();
@@ -27,6 +39,8 @@ const Table = ({ columns, data, options, loadingTable }) => {
   const [showEditProperty, setShowEditProperty] = useState();
   const [showEditPropertyUser, setShowEditPropertyUser] = useState();
   const [showEditCertificate, setShowEditCertificate] = useState();
+  const [showDisableRol, setShowDisableRol] = useState(false);
+  const [showEnableRol, setShowEnableRol] = useState(false);
   const [idRow, setIdRow] = useState();
   const [dots, setDots] = useState("");
 
@@ -66,7 +80,11 @@ const Table = ({ columns, data, options, loadingTable }) => {
     }
     if (id === "rol" && option.name === "Inhabilitar") {
       setConfirMessage(`¿Desea inhabilitar el rol "${row["Nombre del rol"]}"?`);
-      setShowConfirm(true);
+      setShowDisableRol(true);
+    }
+    if (id === "rol" && option.name === "Habilitar") {
+      setConfirMessage(`¿Desea habilitar el rol "${row["Nombre del rol"]}"?`);
+      setShowEnableRol(true);
     }
     if (id === "rol" && option.name === "Editar") {
       setShowEditRol(true);
@@ -112,28 +130,34 @@ const Table = ({ columns, data, options, loadingTable }) => {
                   .filter((column) => column !== "ID")
                   .map((column, colIndex) => (
                     <td key={`${rowIndex}-${colIndex}`}>
-                      {column === "Permisos" && Array.isArray(row[column]) ? (
-                        row[column].length > 4 ? (
-                          <>
-                            {row[column].slice(0, 4).map((permiso, index) => (
-                              <span key={index}>
-                                {permiso.name}
-                                {index < 3 ? ", " : ""}
+                      {column === "Permisos" ? (
+                        (() => {
+                          const permisos = Array.isArray(row[column])
+                            ? row[column]
+                            : row[column].split(", ");
+
+                          return permisos.length > 4 ? (
+                            <>
+                              {permisos.slice(0, 4).map((permiso, index) => (
+                                <span key={index}>
+                                  {permiso}
+                                  {index < 3 ? ", " : ""}
+                                </span>
+                              ))}{" "}
+                              <span className="icon cont-table">
+                                {" "}
+                                +{permisos.length - 4}
                               </span>
-                            ))}
-                            <span className="icon cont-table">
-                              {" "}
-                              +{row[column].length - 4}
-                            </span>
-                          </>
-                        ) : (
-                          row[column].map((permiso, index) => (
-                            <span key={index}>
-                              {permiso.name}
-                              {index < row[column].length - 1 ? ", " : ""}
-                            </span>
-                          ))
-                        )
+                            </>
+                          ) : (
+                            permisos.map((permiso, index) => (
+                              <span key={index}>
+                                {permiso}
+                                {index < permisos.length - 1 ? ", " : ""}
+                              </span>
+                            ))
+                          );
+                        })()
                       ) : column === "Opciones" ? (
                         <div
                           className="is-relative"
@@ -148,25 +172,43 @@ const Table = ({ columns, data, options, loadingTable }) => {
                           {activeRow === rowIndex && (
                             <div className="menu-option">
                               <div className="box">
-                                {options.map((option, index) => {
-                                  const IconComponent = option.icon
-                                    ? Icon[option.icon]
-                                    : null;
-                                  return (
-                                    <button
-                                      key={index}
-                                      className="button is-fullwidth"
-                                      onClick={() => handleOption(option, row)}
-                                    >
-                                      {IconComponent && (
-                                        <span className="icon">
-                                          <IconComponent />
-                                        </span>
-                                      )}
-                                      <span>{option.name}</span>
-                                    </button>
-                                  );
-                                })}
+                                {options
+                                  .filter((option) => {
+                                    if (
+                                      option.name === "Habilitar" &&
+                                      row["Estado"] === "Activo"
+                                    ) {
+                                      return false;
+                                    }
+                                    if (
+                                      option.name === "Inhabilitar" &&
+                                      row["Estado"] !== "Activo"
+                                    ) {
+                                      return false;
+                                    }
+                                    return true;
+                                  })
+                                  .map((option, index) => {
+                                    const IconComponent = option.icon
+                                      ? Icon[option.icon]
+                                      : null;
+                                    return (
+                                      <button
+                                        key={index}
+                                        className="button is-fullwidth"
+                                        onClick={() =>
+                                          handleOption(option, row)
+                                        }
+                                      >
+                                        {IconComponent && (
+                                          <span className="icon">
+                                            <IconComponent />
+                                          </span>
+                                        )}
+                                        <span>{option.name}</span>
+                                      </button>
+                                    );
+                                  })}
                               </div>
                             </div>
                           )}
@@ -181,6 +223,7 @@ const Table = ({ columns, data, options, loadingTable }) => {
           )}
         </tbody>
       </table>
+      {/* Rol */}
       {showConfirm && (
         <Confirm_add_rol
           title="Filtros de rol"
@@ -193,8 +236,40 @@ const Table = ({ columns, data, options, loadingTable }) => {
           title="Editar usuario"
           onClose={() => setShowEditRol(false)}
           idRow={idRow}
+          setShowMessage={setShowMessage}
+          setTitleMessage={setTitleMessage}
+          setMessage={setMessage}
+          setStatus={setStatus}
+          updateData={updateData}
         />
       )}
+      {showDisableRol && (
+        <Disable_status_rol
+          onClose={() => setShowDisableRol(false)}
+          onSuccess={() => setShowDisableRol(false)}
+          idRow={idRow}
+          confirMessage={confirMessage}
+          setShowMessage={setShowMessage}
+          setTitleMessage={setTitleMessage}
+          setMessage={setMessage}
+          setStatus={setStatus}
+          updateData={updateData}
+        />
+      )}
+      {showEnableRol && (
+        <Enable_status_rol
+          onClose={() => setShowEnableRol(false)}
+          onSuccess={() => setShowEnableRol(false)}
+          idRow={idRow}
+          confirMessage={confirMessage}
+          setShowMessage={setShowMessage}
+          setTitleMessage={setTitleMessage}
+          setMessage={setMessage}
+          setStatus={setStatus}
+          updateData={updateData}
+        />
+      )}
+      {/* Usuarios */}
       {showEditUser && (
         <Form_edit_user
           title="Editar usuario"
