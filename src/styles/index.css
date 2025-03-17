@@ -893,50 +893,15 @@ div > .tabs.is-boxed li.is-active a {
 .dot-gray {
   background-color: gray;
 }
-/*detalle de predio*/
 
-/*perfil*/
-.profile-container {
-  max-width: 800px;
-  margin: auto;
+.rol-detail > .level {
+  flex-direction: row;
 }
 
-.profile-box {
-  border-radius: 8px;
-  padding: 20px;
-  box-shadow: none;
+.level > .title.margin-bottom {
+  margin-bottom: 0em;
 }
 
-.profile-image img {
-  border-radius: 50%;
-  border: 2px solid #ddd;
+.media-content > .content > .margin-bottom {
+  margin-bottom: 0em;
 }
-
-.profile-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.level {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.columns {
-  margin-top: 10px;
-}
-
-/*seguridad*/
-.modal-card-foot {
-  width: 100%; /* Asegura que ocupe todo el ancho */
-  display: flex;
-  justify-content: center; /* Centra los botones horizontalmente */
-  align-items: center;
-  gap: 15px; /* Espaciado entre botones */
-}
-
-
-/*seguridad*/
-/*perfil*/
