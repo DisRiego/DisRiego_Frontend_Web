@@ -12,28 +12,28 @@ const Company_certificate = () => {
     const mockData = [
       {
         id: 1,
-        serial_number: "CERT-001",
-        company_nit: "900123456-7",
-        generation_date: "2025-03-01",
-        expiration_date: "2026-03-01",
+        serial_number: "001",
+        company_nit: "9001234567",
+        generation_date: "03/01/2025",
+        expiration_date: "10/01/2026",
         attachment: "certificado_001.pdf",
         status: "Activo",
       },
       {
         id: 2,
-        serial_number: "CERT-002",
-        company_nit: "900123456-7",
-        generation_date: "2025-02-15",
-        expiration_date: "2026-02-15",
+        serial_number: "002",
+        company_nit: "9001234567",
+        generation_date: "03/01/2025",
+        expiration_date: "10/01/2026",
         attachment: "certificado_002.pdf",
         status: "Expirado",
       },
       {
         id: 3,
-        serial_number: "CERT-003",
-        company_nit: "900123456-7",
-        generation_date: "2025-01-10",
-        expiration_date: "2026-01-10",
+        serial_number: "003",
+        company_nit: "9001234567",
+        generation_date: "03/01/2025",
+        expiration_date: "10/01/2026",
         attachment: "certificado_003.pdf",
         status: "Activo",
       },
@@ -54,6 +54,7 @@ const Company_certificate = () => {
         .includes(searchTerm.toLowerCase())
     )
     .map((cert) => ({
+      ID: cert.id,
       "Numéro de serie": cert.serial_number,
       "Nit empresa": cert.company_nit,
       "Fecha de generación": cert.generation_date,

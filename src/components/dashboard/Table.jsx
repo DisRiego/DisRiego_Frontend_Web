@@ -7,6 +7,7 @@ import Form_edit_user from "./forms/edits/Form_edit_user";
 import Form_edit_property from "./forms/edits/Form_edit_property";
 import Form_edit_property_user from "./forms/edits/Form_edit_property_user";
 import Form_add_certificate from "./forms/adds/Form_add_certificate";
+import Form_edit_certificate from "./forms/edits/Form_edit_certificate";
 import Icon from "../Icon";
 
 const OptionsButton = ({ onClick }) => (
@@ -27,7 +28,9 @@ const Table = ({ columns, data, options, loadingTable }) => {
   const [showEditProperty, setShowEditProperty] = useState();
   const [showEditPropertyUser, setShowEditPropertyUser] = useState();
   const [showEditCertificate, setShowEditCertificate] = useState();
+  const [showAddCertificate, setShowAddCertificate] = useState();
   const [idRow, setIdRow] = useState();
+  const [selectedCertificate, setSelectedCertificate] = useState(null);
   const [dots, setDots] = useState("");
 
   // Estado para ordenamiento
@@ -84,7 +87,26 @@ const Table = ({ columns, data, options, loadingTable }) => {
       setShowEditPropertyUser(true);
     }
     if (id === "company" && option.name === "Editar certificado") {
+      // Función para convertir el formato de fecha de DD/MM/YYYY a YYYY-MM-DD
+      const convertDateFormat = (dateStr) => {
+        const [day, month, year] = dateStr.split('/');
+        return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+      };
+
+      // Mapear los datos al formato esperado por el formulario
+      const certificateData = {
+        id: row.ID,
+        serial_number: row["Numéro de serie"],
+        company_nit: row["Nit empresa"],
+        generation_date: convertDateFormat(row["Fecha de generación"]),
+        expiration_date: convertDateFormat(row["Fecha de expiración"]),
+        attachment: row.Adjunto
+      };
+      setSelectedCertificate(certificateData);
       setShowEditCertificate(true);
+    }
+    if (id === "company" && option.name === "Añadir certificado") {
+      setShowAddCertificate(true);
     }
   };
 
@@ -259,9 +281,16 @@ const Table = ({ columns, data, options, loadingTable }) => {
         />
       )}
       {showEditCertificate && (
-        <Form_add_certificate
+        <Form_edit_certificate
           title="Editar certificado digital"
           onClose={() => setShowEditCertificate(false)}
+          certificateData={selectedCertificate}
+        />
+      )}
+      {showAddCertificate && (
+        <Form_add_certificate
+          title="Añadir certificado digital"
+          onClose={() => setShowAddCertificate(false)}
         />
       )}
     </div>

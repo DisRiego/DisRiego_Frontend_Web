@@ -44,7 +44,7 @@ const Company = () => {
   };
 
   const updateData = async () => {
-    fetchRoles();
+    fetchCompany();
   };
 
   const headData = {
