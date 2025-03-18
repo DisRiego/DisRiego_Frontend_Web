@@ -8,11 +8,11 @@ import { RiLogoutBoxRLine } from "react-icons/ri";
 import { LuUserCog } from "react-icons/lu";
 import { LuUsersRound } from "react-icons/lu";
 
-// import { jwtDecode } from "jwt-decode"; // Se comenta la importación de jwtDecode
+import { jwtDecode } from "jwt-decode"; 
 
 const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
   const handleSignUp = async (e) => {
-    // localStorage.removeItem("token"); // Se comenta la eliminación del token del localStorage
+    localStorage.removeItem("token");
   };
 
   return (
