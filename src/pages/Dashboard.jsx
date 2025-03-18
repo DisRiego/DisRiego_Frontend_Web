@@ -13,8 +13,6 @@ import Rol from "../components/dashboard/Rol";
 import Rol_detail from "../components/dashboard/details/Rol_detail";
 import User from "../components/dashboard/User";
 import User_detail from "../components/dashboard/details/User_detail";
-import Company from "../components/dashboard/Company";
-import Profile from "../components/dashboard/Profile";
 
 const Dashboard = () => {
   const { id } = useParams();
@@ -77,10 +75,6 @@ const Dashboard = () => {
         return <Fault_report />;
       case `report/${id}`:
         return <Invoice_detail />;
-      case "company":
-        return <Company />;
-      case "profile":
-        return <Profile />;
     }
   };
 

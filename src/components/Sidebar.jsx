@@ -20,6 +20,7 @@ const Sidebar = ({ handleOptionChange, selectedOption }) => {
   };
 
   const decoded = jwtDecode(token);
+  console.log(decoded.name);
 
   return (
     <>
@@ -48,7 +49,8 @@ const Sidebar = ({ handleOptionChange, selectedOption }) => {
             <span className="icon">
               <FaUser />
             </span>
-            {!isCollapsed && <span>{decoded.name}</span>}
+            {!isCollapsed && <span>{decoded.name}</span>} 
+            {!isCollapsed && <span>Usuario</span>}
           </Link>
         </div>
         <button className="toggle-btn" onClick={toggleSidebar}>
