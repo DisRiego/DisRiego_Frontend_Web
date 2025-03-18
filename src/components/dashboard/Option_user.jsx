@@ -7,12 +7,14 @@ import { LuWallet } from "react-icons/lu";
 import { RiLogoutBoxRLine } from "react-icons/ri";
 import { LuUserCog } from "react-icons/lu";
 import { LuUsersRound } from "react-icons/lu";
-import { AiOutlineHome } from "react-icons/ai";
+
+// import { jwtDecode } from "jwt-decode"; // Se comenta la importación de jwtDecode
 
 const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
   const handleSignUp = async (e) => {
-    localStorage.removeItem("token");
+    // localStorage.removeItem("token"); // Se comenta la eliminación del token del localStorage
   };
+
   return (
     <>
       <div className="sidebar-options">
@@ -27,18 +29,6 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
             <HiOutlineBell />
           </span>
           {!isCollapsed && <span>Notificaciones</span>}
-        </Link>
-        <Link
-          className={`navbar-item ${
-            selectedOption === "company" ? "selected" : ""
-          }`}
-          onClick={() => handleOptionChange("company")}
-          to="/dashboard/company"
-        >
-          <span className="icon">
-            <AiOutlineHome />
-          </span>
-          {!isCollapsed && <span>Mi empresa</span>}
         </Link>
         <Link
           className={`navbar-item ${
@@ -134,7 +124,7 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
           <span className="icon">
             <FiUsers />
           </span>
-          {!isCollapsed && <span>Mi perfil</span>}
+          {!isCollapsed && <span>Mi cuenta</span>}
         </Link>
         <div className="separator separator-sidebar"></div>
         <Link className="navbar-item" to="/login" onClick={handleSignUp}>
