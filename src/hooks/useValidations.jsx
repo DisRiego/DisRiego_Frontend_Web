@@ -8,6 +8,12 @@ export const validateEmail = (email) => {
   return emailRegex.test(email);
 };
 
+export const validateAddress = (address) => {
+  const regex =
+    /^(Calle|Carrera|Avenida|Transversal|Diagonal)\s\d+\s*(#|n°)\s*\d+(-\d+)?$/i;
+  return regex.test(address);
+};
+
 export const validatePassword = (password) => {
   const minLength = 12;
 

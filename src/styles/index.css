@@ -474,6 +474,10 @@ form > .button-login {
   border-color: #b8332c;
 }
 
+.control > input.is-false {
+  border-color: #b8332c;
+}
+
 .modal-card > .modal-confirm {
   padding: 2em;
 }
@@ -893,6 +897,7 @@ div > .tabs.is-boxed li.is-active a {
 .dot-gray {
   background-color: gray;
 }
+
 /*detalle de predio*/
 /* Estilos para el área de arrastrar y soltar archivos */
 .file-drop-area {
@@ -1012,4 +1017,16 @@ div > .tabs.is-boxed li.is-active a {
   width: 18px;
   height: 18px;
   margin: 0;
+}
+
+.rol-detail > .level {
+  flex-direction: row;
+}
+
+.level > .title.margin-bottom {
+  margin-bottom: 0em;
+}
+
+.media-content > .content > .margin-bottom {
+  margin-bottom: 0em;
 }
