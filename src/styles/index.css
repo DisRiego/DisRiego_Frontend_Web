@@ -898,6 +898,127 @@ div > .tabs.is-boxed li.is-active a {
   background-color: gray;
 }
 
+/*detalle de predio*/
+/* Estilos para el área de arrastrar y soltar archivos */
+.file-drop-area {
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 5px; /* Reducido para que el error quede más cerca */
+  background-color: #f9f9f9;
+}
+
+.file-drop-area:hover {
+  border-color: #aaa;
+  background-color: #f3f3f3;
+}
+
+.file-drop-area.is-false {
+  border-color: #b8332c;
+  background-color: rgba(184, 51, 44, 0.05);
+}
+
+.file-drop-area.is-true {
+  border-color: #c2e96a;
+  background-color: rgba(194, 233, 106, 0.05);
+}
+
+.file-drop-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 100px;
+}
+
+.file-drop-content svg {
+  color: #666;
+  margin-bottom: 10px;
+}
+
+.file-drop-content p {
+  margin: 0;
+  color: #333;
+}
+
+.file-drop-content span {
+  font-size: 0.8rem;
+  color: #888;
+}
+
+.file-name {
+  font-weight: bold;
+  color: #333;
+}
+
+.file-size {
+  font-size: 0.8rem;
+  color: #666;
+  display: block;
+}
+
+/* Estilos mejorados para los mensajes de error del archivo */
+.file-error {
+  color: #b8332c;
+  margin-top: 5px;
+  font-size: 0.875rem;
+  font-weight: bold;
+  display: block;
+  text-align: left;
+  margin-bottom: 10px;
+}
+
+/* Estilos para el archivo seleccionado */
+.selected-file {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #f0f0f0;
+  border-radius: 6px;
+  padding: 10px 15px;
+}
+
+.file-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.file-info > div {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.remove-file-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #b8332c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  transition: background-color 0.3s;
+}
+
+.remove-file-btn:hover {
+  background-color: rgba(184, 51, 44, 0.1);
+}
+
+.remove-file-btn svg {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+}
+
 .rol-detail > .level {
   flex-direction: row;
 }

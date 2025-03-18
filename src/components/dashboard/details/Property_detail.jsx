@@ -51,6 +51,114 @@ const attachments = [
   },
 ];
 
+// Datos sinteticos de los lotes
+const lotMockData = [
+  {
+    id: 101,
+    property_id: 1, // Lote perteneciente a "Finca La Esperanza"
+    name: "Lote A1",
+    inmobilario: "L-123",
+    extension: "10 Ha",
+    latitud: "2.9250",
+    longitud: "-75.2800",
+    estado: "Activo",
+  },
+  {
+    id: 102,
+    property_id: 2, // Otro lote para "Finca La Esperanza"
+    name: "Lote A2",
+    inmobilario: "L-124",
+    extension: "15 Ha",
+    latitud: "2.9260",
+    longitud: "-75.2790",
+    estado: "Activo",
+  },
+  {
+    id: 103,
+    property_id: 3, // Lote para "Hacienda El Roble"
+    name: "Lote hacienda el roble",
+    inmobilario: "R-456",
+    extension: "60 Ha",
+    latitud: "2.9350",
+    longitud: "-75.2850",
+    estado: "Activo",
+  },
+  {
+    id: 104,
+    property_id: 4, // Lote para "Predio Los Nogales"
+    name: "Lote N1",
+    inmobilario: "N-789",
+    extension: "25 Ha",
+    latitud: "2.9200",
+    longitud: "-75.2650",
+    estado: "Inactivo",
+  },
+  {
+    id: 105,
+    property_id: 3, // Lote para "Predio Los Nogales"
+    name: "Lote N1",
+    inmobilario: "N-789",
+    extension: "25 Ha",
+    latitud: "2.9200",
+    longitud: "-75.2650",
+    estado: "Inactivo",
+  },
+];
+
+// Datos sinteticos de los predios
+const mockData = [
+  {
+    id: 1,
+    name: "Finca La Esperanza",
+    user_name: "1023456789",
+    inmobilario: "123-456789",
+    extension: "50 Ha",
+    latitud: "2.9273",
+    longitud: "-75.2819",
+    estado: "Activo",
+  },
+  {
+    id: 2,
+    name: "Hacienda El Roble",
+    user_name: "1122334455",
+    inmobilario: "234-567890",
+    extension: "120 Ha",
+    latitud: "2.9385",
+    longitud: "-75.2901",
+    estado: "Activo",
+  },
+  {
+    id: 3,
+    name: "Granja San Luis",
+    user_name: "9988776655",
+    inmobilario: "345-678901",
+    extension: "30 Ha",
+    latitud: "2.9156",
+    longitud: "-75.2753",
+    estado: "Inactivo",
+  },
+  {
+    id: 4,
+    name: "Predio Los Nogales",
+    user_name: "6677889900",
+    inmobilario: "456-789012",
+    extension: "75 Ha",
+    latitud: "2.9214",
+    longitud: "-75.2687",
+    estado: "Activo",
+  },
+  {
+    id: 5,
+    name: "Terreno Las Palmas",
+    user_name: "3344556677",
+    inmobilario: "567-890123",
+    extension: "95 Ha",
+    latitud: "2.9321",
+    longitud: "-75.2850",
+    estado: "Activo",
+  },
+];
+
 const PropertyDetail = () => {
   const { id } = useParams();
   const [loading, setLoading] = useState("");
@@ -567,112 +675,6 @@ const PropertyDetail = () => {
       },
     },
   };
-  // Datos sinteticos de los lotes
-  const lotMockData = [
-    {
-      id: 101,
-      property_id: 1, // Lote perteneciente a "Finca La Esperanza"
-      name: "Lote A1",
-      inmobilario: "L-123",
-      extension: "10 Ha",
-      latitud: "2.9250",
-      longitud: "-75.2800",
-      estado: "Activo",
-    },
-    {
-      id: 102,
-      property_id: 2, // Otro lote para "Finca La Esperanza"
-      name: "Lote A2",
-      inmobilario: "L-124",
-      extension: "15 Ha",
-      latitud: "2.9260",
-      longitud: "-75.2790",
-      estado: "Activo",
-    },
-    {
-      id: 103,
-      property_id: 3, // Lote para "Hacienda El Roble"
-      name: "Lote hacienda el roble",
-      inmobilario: "R-456",
-      extension: "60 Ha",
-      latitud: "2.9350",
-      longitud: "-75.2850",
-      estado: "Activo",
-    },
-    {
-      id: 104,
-      property_id: 4, // Lote para "Predio Los Nogales"
-      name: "Lote N1",
-      inmobilario: "N-789",
-      extension: "25 Ha",
-      latitud: "2.9200",
-      longitud: "-75.2650",
-      estado: "Inactivo",
-    },
-    {
-      id: 105,
-      property_id: 3, // Lote para "Predio Los Nogales"
-      name: "Lote N1",
-      inmobilario: "N-789",
-      extension: "25 Ha",
-      latitud: "2.9200",
-      longitud: "-75.2650",
-      estado: "Inactivo",
-    },
-  ];
-  // Datos sinteticos de los predios
-  const mockData = [
-    {
-      id: 1,
-      name: "Finca La Esperanza",
-      user_name: "1023456789",
-      inmobilario: "123-456789",
-      extension: "50 Ha",
-      latitud: "2.9273",
-      longitud: "-75.2819",
-      estado: "Activo",
-    },
-    {
-      id: 2,
-      name: "Hacienda El Roble",
-      user_name: "1122334455",
-      inmobilario: "234-567890",
-      extension: "120 Ha",
-      latitud: "2.9385",
-      longitud: "-75.2901",
-      estado: "Activo",
-    },
-    {
-      id: 3,
-      name: "Granja San Luis",
-      user_name: "9988776655",
-      inmobilario: "345-678901",
-      extension: "30 Ha",
-      latitud: "2.9156",
-      longitud: "-75.2753",
-      estado: "Inactivo",
-    },
-    {
-      id: 4,
-      name: "Predio Los Nogales",
-      user_name: "6677889900",
-      inmobilario: "456-789012",
-      extension: "75 Ha",
-      latitud: "2.9214",
-      longitud: "-75.2687",
-      estado: "Activo",
-    },
-    {
-      id: 5,
-      name: "Terreno Las Palmas",
-      user_name: "3344556677",
-      inmobilario: "567-890123",
-      extension: "95 Ha",
-      latitud: "2.9321",
-      longitud: "-75.2850",
-      estado: "Activo",
-    },
-  ];
 
   return (
     <div className="property-detail-container">
@@ -852,8 +854,17 @@ const PropertyDetail = () => {
 
 export default PropertyDetail;
 
-const DropdownButton = () => {
+const DropdownButton = ({ lotId }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
+  const { id: propertyId } = useParams();
+
+  const handleAction = (action) => {
+    setIsOpen(false);
+    if (action === "ver") {
+      navigate(`/dashboard/property/${propertyId}/lot/${lotId}`);
+    }
+  };
 
   return (
     <div className="dropdown">
@@ -865,49 +876,57 @@ const DropdownButton = () => {
       </button>
       {isOpen && (
         <div className="dropdown-menu">
-          <button className="dropdown-item">Ver</button>
-          <button className="dropdown-item">Editar</button>
-          <button className="dropdown-item">Inhabilitar</button>
+          <button className="dropdown-item" onClick={() => handleAction("ver")}>Ver</button>
+          <button className="dropdown-item" onClick={() => handleAction("editar")}>Editar</button>
+          <button className="dropdown-item" onClick={() => handleAction("inhabilitar")}>Inhabilitar</button>
         </div>
       )}
     </div>
   );
 };
 
-const LotesTable = () => (
-  <div className="table-container">
-    <table className="custom-table">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Nombre del lote</th>
-          <th>Folio matrícula inmobiliaria</th>
-          <th>Extensión (m²)</th>
-          <th>Latitud</th>
-          <th>Longitud</th>
-          <th>Tipo de cultivo</th>
-          <th>Intervalo de pago</th>
-          <th>Opciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>1</td>
-          <td>Lote 1</td>
-          <td>123-456</td>
-          <td>5000</td>
-          <td>2.3456</td>
-          <td>-75.6789</td>
-          <td>Maíz</td>
-          <td>Mensual</td>
-          <td>
-            <DropdownButton />
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-);
+const LotesTable = () => {
+  // Obtener el id del predio usando useParams
+  const { id } = useParams();
+  
+  // Filtrar los lotes que pertenecen al predio actual
+  const filteredLots = lotMockData.filter(lot => lot.property_id === parseInt(id));
+
+  return (
+    <div className="table-container">
+      <table className="custom-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nombre del lote</th>
+            <th>Folio matrícula inmobiliaria</th>
+            <th>Extensión</th>
+            <th>Latitud</th>
+            <th>Longitud</th>
+            <th>Estado</th>
+            <th>Opciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {filteredLots.map((lot) => (
+            <tr key={lot.id}>
+              <td>{lot.id}</td>
+              <td>{lot.name}</td>
+              <td>{lot.inmobilario}</td>
+              <td>{lot.extension}</td>
+              <td>{lot.latitud}</td>
+              <td>{lot.longitud}</td>
+              <td>{lot.estado}</td>
+              <td>
+                <DropdownButton lotId={lot.id} />
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+};
 
 const DetailsBox = ({ title, data }) => (
   <div className="details-box">
