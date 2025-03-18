@@ -37,6 +37,7 @@ function AppContent() {
           element={<Dashboard />}
         />
         <Route path="/dashboard/report/:id" element={<Dashboard />} />
+        <Route path="/dashboard/company/:id" element={<Dashboard />} />
       </Routes>
     </>
   );

@@ -904,7 +904,6 @@ div > .tabs.is-boxed li.is-active a {
 }
 
 /*detalle de predio*/
-<<<<<<< HEAD
 /* Estilos para el área de arrastrar y soltar archivos */
 .file-drop-area {
   border: 2px dashed #ccc;
@@ -914,12 +913,10 @@ div > .tabs.is-boxed li.is-active a {
   cursor: pointer;
   transition: all 0.3s ease;
   margin-bottom: 5px; /* Reducido para que el error quede más cerca */
-  background-color: #f9f9f9;
 }
 
 .file-drop-area:hover {
   border-color: #aaa;
-  background-color: #f3f3f3;
 }
 
 .file-drop-area.is-false {
@@ -942,23 +939,19 @@ div > .tabs.is-boxed li.is-active a {
 }
 
 .file-drop-content svg {
-  color: #666;
   margin-bottom: 10px;
 }
 
 .file-drop-content p {
   margin: 0;
-  color: #333;
 }
 
 .file-drop-content span {
   font-size: 0.8rem;
-  color: #888;
 }
 
 .file-name {
   font-weight: bold;
-  color: #333;
 }
 
 .file-size {
@@ -1029,6 +1022,10 @@ div > .tabs.is-boxed li.is-active a {
   flex-direction: row;
 }
 
+.column > .rol-detail {
+  margin-bottom: 0em;
+}
+
 .level > .title.margin-bottom {
   margin-bottom: 0em;
 }
@@ -1036,7 +1033,6 @@ div > .tabs.is-boxed li.is-active a {
 .media-content > .content > .margin-bottom {
   margin-bottom: 0em;
 }
-=======
 
 /*select color icon*/
 .field .control > div.select::after {
@@ -1089,7 +1085,11 @@ form > .columns.columns-pb {
 
 .loader-cell > .cont-loader {
   border: 4px solid rgba(0, 0, 0, 0.1);
-  border-top: 4px solid hsl(221, 14%, calc(24% + 0%));
+  border-top: 4px solid var(--bulma-text-strong);
+}
+
+.loader-cell > .loader-text {
+  color: var(--bulma-text-strong);
 }
 
 .color-hover:hover {
@@ -1099,4 +1099,19 @@ form > .columns.columns-pb {
 .is-light:hover {
   background-color: #c0eaff;
 }
->>>>>>> req_implementation_week_1_2
+
+.rol-detail > .tag {
+  width: 3em;
+  height: 3em;
+  border: 0px solid red;
+  border-radius: 50em;
+  margin-right: 1em;
+}
+
+form > .field > .error-file {
+  margin-bottom: 0em;
+}
+
+.modal-card-body > .field > .error-file {
+  margin-bottom: 0em;
+}

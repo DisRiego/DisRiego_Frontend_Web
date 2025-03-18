@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useState } from "react";
 import { FaUpload } from "react-icons/fa6";
+import { validateImage } from "../../../../hooks/useValidations";
 
 const Form_edit_profile_picture = ({ title, onClose, id }) => {
   const [file, setFile] = useState(null);
@@ -10,40 +11,18 @@ const Form_edit_profile_picture = ({ title, onClose, id }) => {
 
   const handleFileChange = (event) => {
     const selectedFile = event.target.files[0];
+    const validation = validateImage(selectedFile);
 
-    if (selectedFile) {
-      const allowedTypes = [
-        "image/png",
-        "image/jpeg",
-        "image/jpg",
-        "image/gif",
-      ];
-      const maxSize = 2 * 1024 * 1024; // 2MB
-
-      if (!allowedTypes.includes(selectedFile.type)) {
-        setFile(null);
-        setFileName("");
-        setError(
-          "Por favor, sube un archivo de imagen (PNG, JPG, JPEG o GIF)."
-        );
-        return;
-      }
-
-      if (selectedFile.size > maxSize) {
-        setFile(null);
-        setFileName("");
-        setError("La imagen no debe superar los 2 MB.");
-        return;
-      }
-
-      setFile(selectedFile);
-      setFileName(selectedFile.name);
-      setError("");
-    } else {
+    if (!validation.isValid) {
       setFile(null);
       setFileName("");
-      setError("");
+      setError(validation.error);
+      return;
     }
+
+    setFile(selectedFile);
+    setFileName(selectedFile.name);
+    setError("");
   };
 
   const handleUpload = async () => {
@@ -80,6 +59,8 @@ const Form_edit_profile_picture = ({ title, onClose, id }) => {
       setLoading(false);
     }
   };
+
+  console.log(file);
 
   return (
     <>
@@ -124,7 +105,7 @@ const Form_edit_profile_picture = ({ title, onClose, id }) => {
           </section>
           <footer className="modal-card-foot is-flex is-justify-content-center">
             <div className="buttons">
-              <button className="button is-danger" onClick={onClose}>
+              <button className="button" onClick={onClose}>
                 Cancelar
               </button>
               <button className="button color-hover" onClick={handleUpload}>

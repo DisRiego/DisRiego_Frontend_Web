@@ -8,7 +8,7 @@ import {
 } from "../../../../hooks/useValidations";
 import { FaUpload } from "react-icons/fa6";
 
-const Form_add_certificate = ({
+const Form_edit_company_certificate = ({
   title,
   onClose,
   setShowMessage,
@@ -283,4 +283,4 @@ const Form_add_certificate = ({
   );
 };
 
-export default Form_add_certificate;
+export default Form_edit_company_certificate;

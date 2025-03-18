@@ -43,6 +43,18 @@ export const validatePhone = (phone) => {
   return nameRegex.test(phone);
 };
 
+export const validateSerial = (serial) => {
+  const onlyNumbers = /^[0-9]+$/;
+  const onlyLetters = /^[a-zA-Z]+$/;
+  const alphanumeric = /^[a-zA-Z0-9]+$/;
+
+  return (
+    onlyNumbers.test(serial) ||
+    onlyLetters.test(serial) ||
+    alphanumeric.test(serial)
+  );
+};
+
 export const validateDate = (birthdate) => {
   const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -63,4 +75,51 @@ export const validateDate = (birthdate) => {
     date.getMonth() === month - 1 &&
     date.getDate() === day
   );
+};
+
+export const validateImage = (file) => {
+  if (!file)
+    return { isValid: false, error: "No se ha seleccionado un archivo" };
+
+  const allowedTypes = ["image/png", "image/jpeg", "image/jpg", "image/gif"];
+  const maxSize = 2 * 1024 * 1024; // 2 MB
+
+  if (!allowedTypes.includes(file.type)) {
+    return {
+      isValid: false,
+      error:
+        "Por favor, sube un archivo de imagen válido (PNG, JPG, JPEG o GIF)",
+    };
+  }
+
+  if (file.size > maxSize) {
+    return { isValid: false, error: "La imagen no debe superar los 2 MB" };
+  }
+
+  return { isValid: true, error: "" };
+};
+
+export const validateFile = (file) => {
+  if (!file) {
+    return { isValid: false, error: "No se ha seleccionado un archivo" };
+  }
+
+  const allowedTypes = ["application/pdf"];
+  const maxSize = 2 * 1024 * 1024; // 5 MB
+
+  if (!allowedTypes.includes(file.type)) {
+    return {
+      isValid: false,
+      error: "Por favor, sube un archivo válido (PDF)",
+    };
+  }
+
+  if (file.size > maxSize) {
+    return {
+      isValid: false,
+      error: "El archivo no debe superar los 5 MB.",
+    };
+  }
+
+  return { isValid: true, error: "" };
 };

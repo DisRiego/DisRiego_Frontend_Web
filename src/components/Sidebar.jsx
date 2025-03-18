@@ -20,10 +20,8 @@ const Sidebar = ({ handleOptionChange, selectedOption }) => {
     localStorage.setItem("sidebarState", JSON.stringify(newState));
   };
 
-<<<<<<< HEAD
   const decoded = jwtDecode(token);
   console.log(decoded.name);
-=======
   useEffect(() => {
     if (!token) {
       navigate("/login");
@@ -37,7 +35,6 @@ const Sidebar = ({ handleOptionChange, selectedOption }) => {
       }
     }
   }, [token, navigate]);
->>>>>>> req_implementation_week_1_2
 
   return (
     <>
@@ -66,7 +63,7 @@ const Sidebar = ({ handleOptionChange, selectedOption }) => {
             <span className="icon">
               <FaUser />
             </span>
-            {!isCollapsed && <span>{decoded.name}</span>} 
+            {!isCollapsed && <span>{decoded.name}</span>}
             {!isCollapsed && <span>Usuario</span>}
           </Link>
         </div>

@@ -8,8 +8,9 @@ import { LuWallet } from "react-icons/lu";
 import { RiLogoutBoxRLine } from "react-icons/ri";
 import { LuUserCog } from "react-icons/lu";
 import { LuUsersRound } from "react-icons/lu";
-
-import { jwtDecode } from "jwt-decode"; 
+import { IoHomeOutline } from "react-icons/io5";
+import { CgProfile } from "react-icons/cg";
+import { jwtDecode } from "jwt-decode";
 
 const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
   const navigate = useNavigate();
@@ -30,7 +31,10 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
       localStorage.removeItem("token");
       navigate("/login");
     } catch (error) {
-      console.log(error.response.data);
+      if (error.response.status === 400) {
+        localStorage.removeItem("token");
+        navigate("/login");
+      }
     }
   };
 
@@ -48,6 +52,18 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
             <HiOutlineBell />
           </span>
           {!isCollapsed && <span>Notificaciones</span>}
+        </Link>
+        <Link
+          className={`navbar-item ${
+            selectedOption === "company" ? "selected" : ""
+          }`}
+          onClick={() => handleOptionChange("company")}
+          to="/dashboard/company"
+        >
+          <span className="icon">
+            <IoHomeOutline />
+          </span>
+          {!isCollapsed && <span>Mi empresa</span>}
         </Link>
         <Link
           className={`navbar-item ${
@@ -141,7 +157,7 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
           to="/dashboard/profile"
         >
           <span className="icon">
-            <FiUsers />
+            <CgProfile />
           </span>
           {!isCollapsed && <span>Mi cuenta</span>}
         </Link>

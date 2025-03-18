@@ -6,7 +6,7 @@ import Form_edit_rol from "./forms/edits/Form_edit_rol";
 import Form_edit_user from "./forms/edits/Form_edit_user";
 import Form_edit_property from "./forms/edits/Form_edit_property";
 import Form_edit_property_user from "./forms/edits/Form_edit_property_user";
-import Form_add_certificate from "./forms/adds/Form_add_certificate";
+import Form_edit_company_certificate from "./forms/edits/Form_edit_company_certificate";
 import Disable_status_rol from "./Status/disable/Disable_status_rol";
 import Enable_status_rol from "./Status/enable/Enable_status_rol";
 import Icon from "../Icon";
@@ -291,7 +291,7 @@ const Table = ({
         />
       )}
       {showEditCertificate && (
-        <Form_add_certificate
+        <Form_edit_company_certificate
           title="Editar certificado digital"
           onClose={() => setShowEditCertificate(false)}
         />

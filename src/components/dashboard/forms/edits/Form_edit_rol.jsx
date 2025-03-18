@@ -101,8 +101,8 @@ const Form_edit_rol = ({
     const hasSelectedPermissions = formData.permissions.length > 0;
 
     setErrors({
-      name: isNameValid ? "" : "false",
-      description: isDescriptionValid ? "" : "false",
+      name: isNameValid ? "" : "false" && "Nombre inválido",
+      description: isDescriptionValid ? "" : "false" && "Descripción inválida",
       permissions: hasSelectedPermissions
         ? ""
         : "Debe seleccionar al menos un permiso",
@@ -202,6 +202,9 @@ const Form_edit_rol = ({
                   disabled={isLoading}
                 />
               </div>
+              {submitted && errors.name && (
+                <p className="input-error">{errors.name}</p>
+              )}
             </div>
             <div className="field">
               <label className="label">Descripción</label>
@@ -221,6 +224,9 @@ const Form_edit_rol = ({
                   disabled={isLoading}
                 />
               </div>
+              {submitted && errors.description && (
+                <p className="input-error">{errors.description}</p>
+              )}
             </div>
             <div className="field">
               <label className="label">Permisos</label>

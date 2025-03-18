@@ -42,24 +42,24 @@ const Company_certificate = () => {
         id: 4,
         serial_number: "004",
         company_nit: "9001234567",
-        generation_date: "05/01/2025", 
+        generation_date: "05/01/2025",
         expiration_date: "12/01/2026",
         attachment: "certificado_004.pdf",
         status: "Activo",
       },
       {
         id: 5,
-        serial_number: "005", 
+        serial_number: "005",
         company_nit: "9001234567",
         generation_date: "07/01/2025",
-        expiration_date: "14/01/2026", 
+        expiration_date: "14/01/2026",
         attachment: "certificado_005.pdf",
         status: "Expirado",
       },
       {
         id: 6,
         serial_number: "006",
-        company_nit: "9001234567", 
+        company_nit: "9001234567",
         generation_date: "09/01/2025",
         expiration_date: "16/01/2026",
         attachment: "certificado_006.pdf",
@@ -71,7 +71,7 @@ const Company_certificate = () => {
         company_nit: "9001234567",
         generation_date: "11/01/2025",
         expiration_date: "18/01/2026",
-        attachment: "certificado_007.pdf", 
+        attachment: "certificado_007.pdf",
         status: "Activo",
       },
       {
@@ -128,7 +128,6 @@ const Company_certificate = () => {
         attachment: "certificado_013.pdf",
         status: "Activo",
       },
-      
     ];
 
     setData(mockData);
@@ -166,8 +165,9 @@ const Company_certificate = () => {
   ];
 
   const options = [
-    { icon: "BiEditAlt", name: "Editar certificado" },
-    { icon: "MdDisabledVisible", name: "Inhabilitar certificado" },
+    { icon: "BiEditAlt", name: "Editar" },
+    { icon: "MdOutlineCheckCircle", name: "Habilitar" },
+    { icon: "MdDisabledVisible", name: "Inhabilitar" },
   ];
 
   const startIndex = (currentPage - 1) * itemsPerPage;

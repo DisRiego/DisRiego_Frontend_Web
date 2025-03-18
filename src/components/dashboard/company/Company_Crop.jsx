@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
-import ModalEditarCultivo from "./forms/edits/Form_edit_crop";
+import Form_edit_crop from "../forms/edits/Form_edit_crop";
 
 const CultivosTable = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -19,19 +19,7 @@ const CultivosTable = () => {
   };
 
   return (
-    <div className="container mt-5">
-      {/* Tabs de navegación */}
-      <div className="tabs is-boxed">
-        <ul>
-          <li><a>Datos de la empresa</a></li>
-          <li><a>Certificados digitales</a></li>
-          <li className="is-active"><a>Tipo de cultivos</a></li>
-          <li><a>Intervalo de pagos</a></li>
-          <li><a>Establecer tarifas</a></li>
-        </ul>
-      </div>
-
-      {/* Tabla de Cultivos */}
+    <>
       <div className="box">
         <table className="table is-fullwidth is-hoverable is-striped">
           <thead>
@@ -51,7 +39,10 @@ const CultivosTable = () => {
                 <td className="has-text-grey">{cultivo.tiempo}</td>
                 <td className="has-text-grey">{cultivo.intervalo}</td>
                 <td>
-                  <button className="button is-small is-info" onClick={() => abrirModal(cultivo)}>
+                  <button
+                    className="button is-small is-info"
+                    onClick={() => abrirModal(cultivo)}
+                  >
                     <FaEdit /> Editar
                   </button>
                   <button className="button is-small is-danger ml-3">
@@ -65,21 +56,35 @@ const CultivosTable = () => {
       </div>
 
       {/* Paginación */}
-      <nav className="pagination is-centered" role="navigation" aria-label="pagination">
+      <nav
+        className="pagination is-centered"
+        role="navigation"
+        aria-label="pagination"
+      >
         <button className="button is-light">← Atrás</button>
         <ul className="pagination-list">
-          <li><a className="pagination-link is-current">1</a></li>
-          <li><a className="pagination-link">2</a></li>
-          <li><a className="pagination-link">3</a></li>
-          <li><span className="pagination-ellipsis">&hellip;</span></li>
-          <li><a className="pagination-link">10</a></li>
+          <li>
+            <a className="pagination-link is-current">1</a>
+          </li>
+          <li>
+            <a className="pagination-link">2</a>
+          </li>
+          <li>
+            <a className="pagination-link">3</a>
+          </li>
+          <li>
+            <span className="pagination-ellipsis">&hellip;</span>
+          </li>
+          <li>
+            <a className="pagination-link">10</a>
+          </li>
         </ul>
         <button className="button is-light">Siguiente →</button>
       </nav>
 
       {/* Modal para editar cultivo */}
       {isModalOpen && (
-        <ModalEditarCultivo
+        <Form_edit_crop
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           cultivoData={cultivoSeleccionado}
@@ -89,7 +94,7 @@ const CultivosTable = () => {
           }}
         />
       )}
-    </div>
+    </>
   );
 };
 

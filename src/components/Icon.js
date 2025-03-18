@@ -4,6 +4,8 @@ import { IoPrintSharp } from "react-icons/io5";
 import { FaPlus } from "react-icons/fa6";
 import { BiShow, BiEditAlt  } from "react-icons/bi";
 import { MdDisabledVisible } from "react-icons/md";
+import { MdOutlineCheckCircle } from "react-icons/md";
+import { VscError } from "react-icons/vsc";
 
 const Icon = {
   MdDownloadDone,
@@ -12,7 +14,9 @@ const Icon = {
   LuDownload,
   BiShow,
   BiEditAlt,
-  MdDisabledVisible
+  MdDisabledVisible,
+  MdOutlineCheckCircle,
+  VscError
 };
 
 export default Icon;

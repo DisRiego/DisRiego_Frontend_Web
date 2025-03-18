@@ -326,7 +326,7 @@ const Form_edit_profile_data = ({ title, onClose }) => {
           </section>
           <footer className="modal-card-foot is-flex is-justify-content-center">
             <div className="buttons">
-              <button className="button is-danger" onClick={onClose}>
+              <button className="button" onClick={onClose}>
                 Cancelar
               </button>
               <button className="button color-hover" onClick={handleSubmit}>

@@ -19,12 +19,21 @@ const Profile = () => {
   const decoded = jwtDecode(token);
   const id = decoded.id;
   const [formData, setFormData] = useState({});
+  const [isLoading, setIsLoading] = useState(true);
+  const [dots, setDots] = useState("");
 
   const head_data = {
     title: "Mi perfil",
     description:
       "En esta sección podrás visualizar y editar tu información personal",
   };
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setDots((prev) => (prev.length < 3 ? prev + "." : ""));
+    }, 500);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     getUser();
@@ -40,6 +49,8 @@ const Profile = () => {
       setFormData(response.data.data[0]);
     } catch (error) {
       console.error("Error al obtener los permisos:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -57,121 +68,130 @@ const Profile = () => {
   return (
     <>
       <Head head_data={head_data} />
-      <div className="">
-        {/* Sección del perfil */}
-        <div className=" profile-box rol-detail">
-          <div className="media is-align-items-center">
-            <div className="media-left">
-              <figure className="image is-64x64 profile-image">
-                <img
-                  src="https://cdn-icons-png.flaticon.com/512/3135/3135768.png"
-                  alt="Perfil"
-                  className="is-rounded"
-                />
-              </figure>
-            </div>
-            <div className="media-content">
-              <div className="content">
-                <h2 className="title is-5 margin-bottom">
-                  <strong>
-                    {formData.name} {formData.first_last_name}{" "}
-                    {formData.second_last_name || ""}
-                  </strong>
-                </h2>
+      {isLoading ? (
+        <div className="rol-detail">
+          <div className="loader-cell">
+            <div className="loader cont-loader"></div>
+            <p className="loader-text">Cargando información{dots}</p>
+          </div>
+        </div>
+      ) : (
+        <div className="">
+          {/* Sección del perfil */}
+          <div className="rol-detail">
+            <div className="media is-align-items-center">
+              <div className="media-left">
+                <figure className="image is-64x64 profile-image">
+                  <img
+                    src="https://cdn-icons-png.flaticon.com/512/3135/3135768.png"
+                    alt="Perfil"
+                    className="is-rounded"
+                  />
+                </figure>
+              </div>
+              <div className="media-content">
+                <div className="content">
+                  <h2 className="title is-5 margin-bottom">
+                    <strong>
+                      {formData.name} {formData.first_last_name}{" "}
+                      {formData.second_last_name || ""}
+                    </strong>
+                  </h2>
+                </div>
+              </div>
+              <div className="level">
+                <button
+                  className="button"
+                  onClick={() => setShowFormPicture(true)}
+                >
+                  <FaEdit className="mr-2" /> Editar
+                </button>
               </div>
             </div>
+          </div>
+
+          {/* Información Personal */}
+          <div className="rol-detail">
             <div className="level">
+              <h3 className="title is-5 margin-bottom">Información personal</h3>
+              <button className="button" onClick={() => setShowFormData(true)}>
+                <FaEdit className="mr-2" /> Editar
+              </button>
+            </div>
+            <div className="columns">
+              <div className="column">
+                <strong>Tipo de documento</strong>
+                <br />
+                {formData.type_document_name}
+              </div>
+              <div className="column">
+                <strong>Número de documento</strong>
+                <br />
+                {formData.document_number}
+              </div>
+            </div>
+            <div className="columns">
+              <div className="column">
+                <strong>Fecha de nacimiento</strong>
+                <br />
+                []
+              </div>
+              <div className="column">
+                <strong>Fecha de expedición</strong>
+                <br />
+                []
+              </div>
+            </div>
+            <div className="columns">
+              <div className="column">
+                <strong>Genero</strong>
+                <br />
+                {formData.gender_name}
+              </div>
+              <div className="column">
+                <strong>Teléfono</strong>
+                <br />
+                {formData.phone}
+              </div>
+            </div>
+            <div className="columns">
+              <div className="column">
+                <strong>País, Departamento, Ciudad</strong>
+                <br />
+                []
+              </div>
+              <div className="column">
+                <strong>Dirección de correspondencia</strong>
+                <br />
+                {toTitleCase(formData.address)}
+              </div>
+            </div>
+          </div>
+
+          {/* Cuenta y Seguridad */}
+          <div className="rol-detail">
+            <div className="level">
+              <h3 className="title is-5 margin-bottom">Cuenta y contraseña</h3>
               <button
                 className="button"
-                onClick={() => setShowFormPicture(true)}
+                onClick={() => setShowFormPassword(true)}
               >
                 <FaEdit className="mr-2" /> Editar
               </button>
             </div>
-          </div>
-        </div>
-
-        {/* Información Personal */}
-        <div className="rol-detail">
-          <div className="level">
-            <h3 className="title is-5 margin-bottom">Información personal</h3>
-            <button className="button" onClick={() => setShowFormData(true)}>
-              <FaEdit className="mr-2" /> Editar
-            </button>
-          </div>
-          <div className="columns">
-            <div className="column">
-              <strong>Tipo de documento</strong>
-              <br />
-              {formData.type_document_name}
-            </div>
-            <div className="column">
-              <strong>Número de documento</strong>
-              <br />
-              {formData.document_number}
-            </div>
-          </div>
-          <div className="columns">
-            <div className="column">
-              <strong>Fecha de nacimiento</strong>
-              <br />
-              []
-            </div>
-            <div className="column">
-              <strong>Fecha de expedición</strong>
-              <br />
-              []
-            </div>
-          </div>
-          <div className="columns">
-            <div className="column">
-              <strong>Genero</strong>
-              <br />
-              {formData.gender_name}
-            </div>
-            <div className="column">
-              <strong>Teléfono</strong>
-              <br />
-              {formData.phone}
-            </div>
-          </div>
-          <div className="columns">
-            <div className="column">
-              <strong>País, Departamento, Ciudad</strong>
-              <br />
-              []
-            </div>
-            <div className="column">
-              <strong>Dirección de correspondencia</strong>
-              <br />
-              {toTitleCase(formData.address)}
+            <div className="columns">
+              <div className="column">
+                <h3>Correo Electrónico</h3>
+                <span>{formData.email}</span>
+              </div>
+              <div className="column">
+                <strong>Contraseña</strong>
+                <p>************</p>
+              </div>
             </div>
           </div>
         </div>
-
-        {/* Cuenta y Seguridad */}
-        <div className="rol-detail">
-          <div className="level">
-            <h3 className="title is-5 margin-bottom">Cuenta y contraseña</h3>
-            <button
-              className="button"
-              onClick={() => setShowFormPassword(true)}
-            >
-              <FaEdit className="mr-2" /> Editar
-            </button>
-          </div>
-          <div className="columns">
-            <div className="column">
-              <h3>Correo Electrónico</h3>
-              <span>{formData.email}</span>
-            </div>
-            <div className="column">
-              <strong>Contraseña</strong>
-              <p>************</p>
-            </div>
-          </div>
-        </div>
-      </div>
+      )}
       {showFormPicture && (
         <>
           <Form_edit_profile_picture

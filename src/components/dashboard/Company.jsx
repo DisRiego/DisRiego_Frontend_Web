@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import Head from "./Head";
-import Company_date from "./company/Company_date";
+import Company_data from "./company/Company_data";
 import Company_certificate from "./company/Company_certificate";
 import Company_crop from "./company/Company_crop";
 import Company_payment_interval from "./company/Company_payment_interval";
@@ -8,6 +9,8 @@ import Company_rates from "./company/Company_rates";
 import Form_add_certificate from "./forms/adds/Form_add_certificate";
 
 const Company = () => {
+  const { id } = useParams();
+  const [selectedOption, setSelectedOption] = useState(id);
   const [data, setData] = useState(null);
   const [activeTab, setActiveTab] = useState("company");
   const [showForm, setShowForm] = useState(false);
@@ -16,6 +19,7 @@ const Company = () => {
   const [message, setMessage] = useState(false);
   const [status, setStatus] = useState(false);
 
+  console.log(id);
   const handleButtonClick = (buttonText) => {
     if (buttonText === "Añadir certificado") {
       setShowForm(true);
@@ -104,7 +108,7 @@ const Company = () => {
   const renderContent = () => {
     switch (activeTab) {
       case "company":
-        return <Company_date />;
+        return <Company_data />;
       case "certificate":
         return <Company_certificate />;
       case "crop":
@@ -121,7 +125,6 @@ const Company = () => {
   return (
     <>
       <Head head_data={headData[activeTab]} onButtonClick={handleButtonClick} />
-
       <div className="tabs is-boxed">
         <ul>
           {["company", "certificate", "crop", "payment_interval", "rate"].map(
@@ -139,7 +142,6 @@ const Company = () => {
           )}
         </ul>
       </div>
-
       <div>{renderContent()}</div>
       {showForm && (
         <>
