@@ -105,7 +105,7 @@ const Rol_detail = () => {
                         key={idx}
                       >
                         <ul>
-                          <li>- {permiso}</li>
+                          <li>{permiso}</li>
                         </ul>
                       </div>
                     ))}

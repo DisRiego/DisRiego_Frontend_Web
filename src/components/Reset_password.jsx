@@ -149,7 +149,7 @@ const Reset_password = () => {
                 <div className="control">
                   <input
                     name="email"
-                    type="email"
+                    type="text"
                     className="input input-padding"
                     placeholder="Email"
                     onChange={handleChange}

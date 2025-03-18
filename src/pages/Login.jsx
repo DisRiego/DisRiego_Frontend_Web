@@ -79,7 +79,7 @@ const Login = () => {
         const token = response.data.access_token;
         localStorage.setItem("token", token);
 
-        navigate("/dashboard");
+        navigate("/dashboard/profile");
       } catch (error) {
         setLoading("");
         setLoginError("El correo electrónico o la contraseña son incorrectos.");
