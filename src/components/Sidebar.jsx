@@ -1,11 +1,12 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { FaUser, FaChevronRight, FaChevronLeft } from "react-icons/fa";
 import Option_user from "./dashboard/Option_user";
 import Icon from "../assets/icons/DisRiego.svg";
 import { jwtDecode } from "jwt-decode";
 
 const Sidebar = ({ handleOptionChange, selectedOption }) => {
+  const navigate = useNavigate();
   const token = localStorage.getItem("token");
   const storedSidebarState = localStorage.getItem("sidebarState");
   const initialState = storedSidebarState
@@ -19,8 +20,24 @@ const Sidebar = ({ handleOptionChange, selectedOption }) => {
     localStorage.setItem("sidebarState", JSON.stringify(newState));
   };
 
+<<<<<<< HEAD
   const decoded = jwtDecode(token);
   console.log(decoded.name);
+=======
+  useEffect(() => {
+    if (!token) {
+      navigate("/login");
+    } else {
+      try {
+        const decoded = jwtDecode(token);
+        console.log(decoded);
+      } catch (error) {
+        localStorage.removeItem("token");
+        navigate("/login");
+      }
+    }
+  }, [token, navigate]);
+>>>>>>> req_implementation_week_1_2
 
   return (
     <>

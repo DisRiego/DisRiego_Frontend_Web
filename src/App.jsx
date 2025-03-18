@@ -9,7 +9,7 @@ import Dashboard from "./pages/Dashboard";
 import Signup from "./pages/Signup";
 import Reset_password from "./components/Reset_password";
 import Reset_password_confirm from "./components/Reset_password_confirm";
-import Confirm_email from "./components/Confirm_email";
+import Account_activation from "./pages/Account_activation";
 
 function AppContent() {
   return (
@@ -22,8 +22,8 @@ function AppContent() {
           path="/login/resetpassword/:id"
           element={<Reset_password_confirm />}
         />
-        <Route path="/confirmemail" element={<Confirm_email />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/signup/:id" element={<Account_activation />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/dashboard/:id" element={<Dashboard />} />
         <Route path="/dashboard/rol/:id" element={<Dashboard />} />

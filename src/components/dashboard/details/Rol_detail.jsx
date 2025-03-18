@@ -1,99 +1,122 @@
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import axios from "axios";
 import Head from "../Head";
 import { TbPointFilled } from "react-icons/tb";
 
-const Rol_detail = ({ role }) => {
+const Rol_detail = () => {
   const { id } = useParams();
+  const [data, setData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [dots, setDots] = useState("");
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setDots((prev) => (prev.length < 3 ? prev + "." : ""));
+    }, 500);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    getRol();
+  }, []);
+
+  const getRol = async () => {
+    try {
+      const response = await axios.get(
+        import.meta.env.VITE_URI_BACKEND +
+          import.meta.env.VITE_ROUTE_BACKEND_ROL +
+          id
+      );
+      setData(response.data.data[0]);
+    } catch (error) {
+      console.log("Error al obtener rol:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const head_data = {
     title: "Ver Detalles del Rol #" + id,
     description:
-      "En esta sección, puedes viosualizar la información del rol seleccionado.",
+      "En esta sección, puedes visualizar la información del rol seleccionado.",
   };
 
-  const roleData = {
-    id: 101,
-    name: "Administrador",
-    description: "Tiene acceso total a la plataforma.",
-    status: "Operativo",
-    permisos: [
-      {
-        nombre: "gestión de usuarios",
-        permisos: ["Crear usuario", "Editar usuario", "Eliminar usuario"],
-      },
-      {
-        nombre: "gestión de roles",
-        permisos: ["Crear rol", "Editar rol", "Asignar permisos"],
-      },
-    ],
-  };
-
-  const rolInfo = role || roleData;
+  // Agrupar permisos por categoría
+  const permisosPorCategoria = data?.permissions?.reduce((acc, permiso) => {
+    if (!acc[permiso.category]) {
+      acc[permiso.category] = [];
+    }
+    acc[permiso.category].push(permiso.name);
+    return acc;
+  }, {});
 
   return (
-    <div className="">
+    <div>
       <Head className="mb-3" head_data={head_data} />
 
-      {/* Información del rol */}
-      <div className="rol-detail ">
-        <div className="is-flex is-justify-content-space-between is-align-items-center">
-          <h3 className="title is-6">Estado actual</h3>
-          <span
-            className={`button detail-status ${
-              rolInfo.status === "Operativo" ? "is-success" : "is-danger"
-            }`}
-          >
-            <TbPointFilled />
-            {rolInfo.status}
-          </span>
-        </div>
-        <div className="columns">
-          <div className="column">
-            <h3 className="title is-6 mb-2">Nombre del rol</h3>
-            <p>{rolInfo.name}</p>
-          </div>
-          <div className="column">
-            <h3 className="title is-6 mb-2">Descripción</h3>
-            <p>{rolInfo.description}</p>
+      {isLoading ? (
+        <div className="rol-detail">
+          <div className="loader-cell">
+            <div className="loader cont-loader"></div>
+            <p className="loader-text">Cargando información{dots}</p>
           </div>
         </div>
-      </div>
-
-      {/* Permisos */}
-      {rolInfo.permisos && rolInfo.permisos.length > 0 ? (
-        rolInfo.permisos.map((modulo, index) => {
-          // Crear un array de tres columnas vacías
-          const columnas = [[], [], []];
-
-          // Distribuir los permisos en las tres columnas de manera intercalada
-          modulo.permisos.forEach((permiso, i) => {
-            columnas[i % 3].push(permiso);
-          });
-
-          return (
-            <div key={index} className="rol-detail">
-              <h3 className="title is-6">
-                Permisos{" "}
-                <span className="has-text-grey-light">
-                  (Módulo {modulo.nombre})
-                </span>
-              </h3>
-              <div className="columns">
-                {columnas.map((columna, colIndex) => (
-                  <div className="column pt-0" key={colIndex}>
-                    <ul>
-                      {columna.map((permiso, idx) => (
-                        <li key={idx}>*{permiso}</li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
+      ) : (
+        <>
+          {/* Información del rol */}
+          <div className="rol-detail">
+            <div className="is-flex is-justify-content-space-between is-align-items-center">
+              <h3 className="title is-6">Estado actual</h3>
+              <span
+                className={`button detail-status ${
+                  data?.status === 1 ? "is-success" : "is-danger"
+                }`}
+              >
+                <TbPointFilled />
+                {data?.status === 1 ? "Operativo" : "Inactivo"}
+              </span>
+            </div>
+            <div className="columns">
+              <div className="column">
+                <h3 className="title is-6 mb-2">Nombre del rol</h3>
+                <p>{data?.name}</p>
+              </div>
+              <div className="column">
+                <h3 className="title is-6 mb-2">Descripción</h3>
+                <p>{data?.description}</p>
               </div>
             </div>
-          );
-        })
-      ) : (
-        <p>No hay permisos asignados.</p>
+          </div>
+
+          {/* Permisos */}
+          {permisosPorCategoria &&
+          Object.keys(permisosPorCategoria).length > 0 ? (
+            Object.entries(permisosPorCategoria).map(
+              ([categoria, permisos], index) => (
+                <div key={index} className="rol-detail">
+                  <h3 className="title is-6">
+                    Permisos del Módulo de {categoria}
+                  </h3>
+                  <div className="columns is-multiline">
+                    {permisos.map((permiso, idx) => (
+                      <div
+                        className="column is-one-quarter-desktop is-half-tablet is-full-mobile pt-0"
+                        key={idx}
+                      >
+                        <ul>
+                          <li>{permiso}</li>
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )
+            )
+          ) : (
+            <p>No hay permisos asignados.</p>
+          )}
+        </>
       )}
     </div>
   );

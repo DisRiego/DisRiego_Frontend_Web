@@ -3,6 +3,11 @@
   --bulma-title-size: 30px;
   --text-navegation-size: 14px;
   --pagination-current-color: hsl(0, 0%, 14%);
+  --bulma-column-gap: 0em;
+}
+
+#root {
+  gap: var(--bulma-column-gap);
 }
 
 span,
@@ -375,7 +380,7 @@ form > .button-login {
 .view-filter {
   display: flex;
   flex-direction: column;
-  width: 25em;
+  width: 22em;
   height: 100vh;
   padding: 3em;
   position: fixed;
@@ -433,9 +438,9 @@ form > .button-login {
 
 .icon.cont-table {
   border: 2px solid var(--bulma-border);
-  padding: 0px 10px 0px 10px;
+  padding: 0em 1em 0em 1em;
   border-radius: 10px;
-  margin-left: 0.5em;
+  /* margin-left: 0.5em; */
 }
 
 /*css de filtro roles*/
@@ -562,8 +567,8 @@ tbody > tr > .loader-cell {
 }
 
 input[type="date"]::-webkit-calendar-picker-indicator {
-  filter: brightness(0) saturate(100%) invert(17%) sepia(23%) saturate(498%)
-    hue-rotate(185deg) brightness(98%) contrast(84%);
+  filter: brightness(0) saturate(100%) invert(31%) sepia(10%) saturate(898%)
+    hue-rotate(185deg) brightness(95%) contrast(90%);
 }
 
 .input-error {
@@ -899,6 +904,7 @@ div > .tabs.is-boxed li.is-active a {
 }
 
 /*detalle de predio*/
+<<<<<<< HEAD
 /* Estilos para el área de arrastrar y soltar archivos */
 .file-drop-area {
   border: 2px dashed #ccc;
@@ -1030,3 +1036,67 @@ div > .tabs.is-boxed li.is-active a {
 .media-content > .content > .margin-bottom {
   margin-bottom: 0em;
 }
+=======
+
+/*select color icon*/
+.field .control > div.select::after {
+  border-color: hsla(
+    var(--bulma-text-h),
+    var(--bulma-text-s),
+    var(--bulma-text-strong-l),
+    0.3
+  );
+}
+
+.field .control > .select-padding > select {
+  height: 46.3px;
+}
+
+form > .columns.columns-pb {
+  margin-bottom: 0em;
+}
+
+.columns-fullheight {
+  height: 100%;
+}
+
+.column-fullheight {
+  height: 100%;
+}
+
+.container {
+  height: 98vh;
+  padding: 2em;
+}
+
+.columns > .column-p {
+  padding: 2em;
+}
+
+.button-p2 {
+  padding: 0em 2em;
+}
+
+.border {
+  bottom: 0;
+  height: 0.75em;
+  background-color: #c2e96a;
+}
+
+.image-active {
+  height: 300px;
+}
+
+.loader-cell > .cont-loader {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-top: 4px solid hsl(221, 14%, calc(24% + 0%));
+}
+
+.color-hover:hover {
+  background-color: #e2ff9e;
+}
+
+.is-light:hover {
+  background-color: #c0eaff;
+}
+>>>>>>> req_implementation_week_1_2
