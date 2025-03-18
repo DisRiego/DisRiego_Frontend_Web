@@ -9,7 +9,8 @@ export const validateEmail = (email) => {
 };
 
 export const validateAddress = (address) => {
-  const regex = /^[a-zA-Z0-9\s,.\-#]+$/;
+  const regex =
+    /^(Calle|Carrera|Avenida|Transversal|Diagonal)\s\d+\s*(#|n°)\s*\d+(-\d+)?$/i;
   return regex.test(address);
 };
 

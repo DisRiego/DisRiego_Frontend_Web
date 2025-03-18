@@ -1,11 +1,6 @@
 import { useEffect, useState } from "react";
 import Head from "./Head";
-import { FaCamera, FaEdit } from "react-icons/fa";
-import {
-  validatePhone,
-  validatePassword,
-  validateAddress,
-} from "../../hooks/useValidations.jsx";
+import { FaEdit } from "react-icons/fa";
 import Form_edit_profile_picture from "./forms/edits/Form_edit_profile_picture.jsx";
 import Form_edit_profile_data from "./forms/edits/Form_edit_profile_data.jsx";
 import Form_edit_profile_password from "./forms/edits/Form_edit_profile_password.jsx";

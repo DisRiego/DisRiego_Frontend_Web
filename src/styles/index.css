@@ -474,6 +474,10 @@ form > .button-login {
   border-color: #b8332c;
 }
 
+.control > input.is-false {
+  border-color: #b8332c;
+}
+
 .modal-card > .modal-confirm {
   padding: 2em;
 }

@@ -58,9 +58,9 @@ const Form_edit_profile_password = ({ title, onClose, id }) => {
     const isConfirmPasswordValid = validatePassword(formData.confirm_password);
 
     let newErrors = {
-      old_password: isOldPasswordValid ? "" : "false" && "Contraseña inválida",
-      new_password: isNewPasswordValid ? "" : "false",
-      confirm_password: isConfirmPasswordValid ? "" : "false",
+      old_password: isOldPasswordValid ? "" : "Contraseña inválida",
+      new_password: isNewPasswordValid ? "" : "Contraseña inválida",
+      confirm_password: isConfirmPasswordValid ? "" : "Contraseña inválida",
     };
 
     if (
@@ -73,36 +73,37 @@ const Form_edit_profile_password = ({ title, onClose, id }) => {
       setLoginError(
         "La nueva contraseña no cumple con los requisitos de seguridad."
       );
+      newErrors.new_password =
+        "La nueva contraseña no cumple con los requisitos.";
+      setErrors(newErrors);
       return;
     }
 
     if (formData.new_password !== formData.confirm_password) {
       setLoginError("Las contraseñas no coinciden.");
-
-      newErrors.new_password = "false";
-      newErrors.confirm_password = "false";
+      newErrors.new_password = "Las contraseñas no coinciden.";
+      newErrors.confirm_password = "Las contraseñas no coinciden.";
     }
 
     setErrors(newErrors);
 
-    if (Object.values(newErrors).some((error) => error === "false")) {
+    // Espera un ciclo para que el estado se actualice
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    if (Object.values(newErrors).some((error) => error !== "")) {
       return;
     }
 
+    // Llamar API después de validar errores
     // try {
-    //   const response = await axios.post(
-    //     import.meta.env.VITE_URI_BACKEND +
-    //       import.meta.env.VITE_ROUTE_BACKEND_USERS +
-    //       id +
-    //       import.meta.env.VITE_ROUTE_BACKEND_USERS_CHANGE_PASSWORD,
-    //     formData
-    //   );
+    //   const response = await axios.post(...);
     //   console.log(response);
     // } catch (error) {
     //   console.log(error);
     // }
   };
 
+  // console.log(formData);
   console.log(errors);
 
   return (
@@ -124,11 +125,7 @@ const Form_edit_profile_password = ({ title, onClose, id }) => {
               <div className="control">
                 <input
                   className={`input ${
-                    submitted
-                      ? formData.old_password && !errors.old_password
-                        ? "is-true"
-                        : "is-false"
-                      : ""
+                    submitted && (errors.old_password ? "is-false" : "is-true")
                   }`}
                   type="password"
                   name="old_password"
@@ -146,11 +143,7 @@ const Form_edit_profile_password = ({ title, onClose, id }) => {
               <div className="control">
                 <input
                   className={`input ${
-                    submitted
-                      ? formData.new_password && !errors.new_password
-                        ? "is-true"
-                        : "is-false"
-                      : ""
+                    submitted && (errors.new_password ? "is-false" : "is-true")
                   }`}
                   type="password"
                   name="new_password"
@@ -164,11 +157,8 @@ const Form_edit_profile_password = ({ title, onClose, id }) => {
               <div className="control">
                 <input
                   className={`input ${
-                    submitted
-                      ? formData.confirm_password && !errors.confirm_password
-                        ? "is-true"
-                        : "is-false"
-                      : ""
+                    submitted &&
+                    (errors.confirm_password ? "is-false" : "is-true")
                   }`}
                   type="password"
                   name="confirm_password"
