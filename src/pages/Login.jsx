@@ -7,6 +7,7 @@ import IconOutlook from "../img/icon/iconOutlook.svg";
 import { IoMdWarning } from "react-icons/io";
 import { IoArrowBack } from "react-icons/io5";
 import { validateEmail, validatePassword } from "../hooks/useValidations.jsx";
+import { jwtDecode } from "jwt-decode";
 
 const Login = () => {
   const [showButton, setShowButton] = useState(window.innerWidth >= 768);
@@ -78,9 +79,16 @@ const Login = () => {
 
         const token = response.data.access_token;
         localStorage.setItem("token", token);
+        const decode = jwtDecode(token);
+        console.log(decode);
 
-        navigate("/dashboard/profile");
+        if (decode.first_login_complete === false) {
+          navigate("/login/update-info");
+        } else {
+          navigate("/dashboard/profile");
+        }
       } catch (error) {
+        console.log(error);
         setLoading("");
         setLoginError("El correo electrónico o la contraseña son incorrectos.");
       }

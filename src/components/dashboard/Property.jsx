@@ -340,7 +340,6 @@ const Property = () => {
       console.log(sortedData);
 
       setData(sortedData);
-      setButtonDisabled(false);
     } catch (error) {
       console.error("Error al obtener los usuarios:", error);
     } finally {

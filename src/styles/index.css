@@ -1119,3 +1119,7 @@ form > .field > .error-file {
 .icon-company {
   cursor: pointer;
 }
+
+.icon-signup {
+  transform: rotate(90deg);
+}

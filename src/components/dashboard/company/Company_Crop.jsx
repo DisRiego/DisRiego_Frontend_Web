@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import Form_edit_crop from "../forms/edits/Form_edit_crop";
 
-const CultivosTable = () => {
+const Company_crop = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [cultivoSeleccionado, setCultivoSeleccionado] = useState(null);
 
@@ -98,4 +98,4 @@ const CultivosTable = () => {
   );
 };
 
-export default CultivosTable;
+export default Company_crop;
