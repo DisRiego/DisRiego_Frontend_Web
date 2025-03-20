@@ -10,6 +10,7 @@ import Signup from "./pages/Signup";
 import Reset_password from "./components/Reset_password";
 import Reset_password_confirm from "./components/Reset_password_confirm";
 import Account_activation from "./pages/Account_activation";
+import Company from "./components/dashboard/Company";
 
 function AppContent() {
   return (

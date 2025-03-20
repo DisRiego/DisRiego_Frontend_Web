@@ -21,14 +21,13 @@ const Sidebar = ({ handleOptionChange, selectedOption }) => {
   };
 
   const decoded = jwtDecode(token);
-  console.log(decoded.name);
   useEffect(() => {
     if (!token) {
       navigate("/login");
     } else {
       try {
         const decoded = jwtDecode(token);
-        console.log(decoded);
+        console.log(decoded.rol[0]);
       } catch (error) {
         localStorage.removeItem("token");
         navigate("/login");
@@ -64,7 +63,6 @@ const Sidebar = ({ handleOptionChange, selectedOption }) => {
               <FaUser />
             </span>
             {!isCollapsed && <span>{decoded.name}</span>}
-            {!isCollapsed && <span>Usuario</span>}
           </Link>
         </div>
         <button className="toggle-btn" onClick={toggleSidebar}>

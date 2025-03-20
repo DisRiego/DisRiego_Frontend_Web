@@ -7,6 +7,8 @@ import {
   validateText,
   validateTextArea,
   validateLastName,
+  validateBirthdate,
+  validateIssuanceDate,
 } from "../../../../hooks/useValidations";
 import { IoMdWarning } from "react-icons/io";
 
@@ -22,7 +24,8 @@ const Form_add_user = ({
   const [showConfirm, setShowConfirm] = useState(false);
   const [typeDocument, setTypeDocument] = useState([]);
   const [roles, setRoles] = useState([]);
-  const dateInputRef = useRef(null);
+  const birthDateInputRef = useRef(null);
+  const dateIssuanceInputRef = useRef(null);
   const [confirMessage, setConfirMessage] = useState();
   const [method, setMethod] = useState();
   const [uriPost, setUriPost] = useState();
@@ -35,7 +38,9 @@ const Form_add_user = ({
     second_last_name: "",
     document_type: "",
     document_number: "",
+    birhdate: "",
     date_issuance_document: "",
+    gender: "",
     role_id: [],
   });
 
@@ -45,8 +50,10 @@ const Form_add_user = ({
     second_last_name: "",
     document_type: "",
     document_number: "",
+    birhdate: "",
     date_issuance_document: "",
-    role_id: "",
+    gender: "",
+    role_id: [],
   });
 
   const [submitted, setSubmitted] = useState(false);
@@ -88,8 +95,16 @@ const Form_add_user = ({
     const isSecondLastValid = validateLastName(formData.second_last_name);
     const isDocumentTypeValid = validatePhone(formData.document_type);
     const isDocumentNumberValid = validatePhone(formData.document_number);
-    const isDateIssuanceValid = validateDate(formData.date_issuance_document);
+    const isBirhdateValid = validateBirthdate(formData.birhdate);
+    const isDateIssuanceValid = validateIssuanceDate(
+      formData.date_issuance_document,
+      formData.birhdate
+    );
     const isRolValid = formData.role_id.length > 0;
+
+    const birthDate = new Date(formData.birhdate);
+    const issuanceDate = new Date(formData.date_issuance_document);
+    const isDateValid = isDateIssuanceValid && issuanceDate >= birthDate;
 
     setErrors({
       first_name: isNameValid ? "" : "false" && "Nombre o nombres inválidos",
@@ -105,7 +120,10 @@ const Form_add_user = ({
       document_number: isDocumentNumberValid
         ? ""
         : "false" && "Número de documento inválido",
-      date_issuance_document: isDateIssuanceValid
+      birhdate: isBirhdateValid
+        ? ""
+        : "false" && "Fecha de nacimiento inválida",
+      date_issuance_document: isDateValid
         ? ""
         : "false" && "Fecha de expedición inválida",
       role_id: isRolValid ? "" : "Debe seleccionar al menos un rol.",
@@ -155,9 +173,15 @@ const Form_add_user = ({
     setIsRolesOpen(!isRolesOpen);
   };
 
-  const handleDateFocus = () => {
-    if (dateInputRef.current) {
-      dateInputRef.current.showPicker();
+  const handleBirthDateFocus = () => {
+    if (birthDateInputRef.current) {
+      birthDateInputRef.current.showPicker();
+    }
+  };
+
+  const handleDateIssuanceFocus = () => {
+    if (dateIssuanceInputRef.current) {
+      dateIssuanceInputRef.current.showPicker();
     }
   };
 
@@ -328,10 +352,41 @@ const Form_add_user = ({
                 </div>
                 <div className="column">
                   <div className="field">
+                    <label className="label">Fecha de nacimiento</label>
+                    <div className="control">
+                      <input
+                        ref={birthDateInputRef}
+                        className={`input ${
+                          submitted
+                            ? errors.birhdate
+                              ? "is-false"
+                              : "is-true"
+                            : ""
+                        }`}
+                        type="date"
+                        name="birhdate"
+                        placeholder="Ingrese la fecha de nacimiento"
+                        value={formData.birhdate}
+                        onChange={handleChange}
+                        onFocus={handleBirthDateFocus}
+                        disabled={isLoading}
+                      />
+                    </div>
+                    {submitted && errors.birhdate && (
+                      <p className="input-error">{errors.birhdate}</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="container-input">
+              <div className="columns">
+                <div className="column">
+                  <div className="field">
                     <label className="label">Fecha de expedición</label>
                     <div className="control">
                       <input
-                        ref={dateInputRef}
+                        ref={dateIssuanceInputRef}
                         className={`input ${
                           submitted
                             ? errors.date_issuance_document
@@ -344,7 +399,7 @@ const Form_add_user = ({
                         placeholder="Ingrese la fecha de expedición"
                         value={formData.date_issuance_document}
                         onChange={handleChange}
-                        onFocus={handleDateFocus}
+                        onFocus={handleDateIssuanceFocus}
                         disabled={isLoading}
                       />
                     </div>
@@ -353,6 +408,41 @@ const Form_add_user = ({
                         {errors.date_issuance_document}
                       </p>
                     )}
+                  </div>
+                </div>
+                <div className="column">
+                  <div className="field">
+                    <label className="label">Genero</label>
+                    <div className="control">
+                      <div
+                        className={`select ${
+                          submitted
+                            ? errors.gender
+                              ? "is-false"
+                              : "is-true"
+                            : ""
+                        }`}
+                      >
+                        <select
+                          name="document_type"
+                          value={formData.gender}
+                          onChange={handleChange}
+                          disabled={isLoading}
+                        >
+                          <option value="" disabled>
+                            Seleccione un tipo de documento
+                          </option>
+                          {typeDocument.map((doc) => (
+                            <option key={doc.id} value={doc.id}>
+                              {doc.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      {submitted && errors.gender && (
+                        <p className="input-error">{errors.gender}</p>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>

@@ -2,11 +2,29 @@ import { useEffect, useState } from "react";
 import { MdError } from "react-icons/md";
 import { IoMdWarning } from "react-icons/io";
 import { validatePassword } from "../../../../hooks/useValidations";
+import Confirm_profile from "../../confirm_view/Confirm_profile";
 import axios from "axios";
 
-const Form_edit_profile_password = ({ title, onClose, id }) => {
+const Form_edit_profile_password = ({
+  title,
+  onClose,
+  setShowMessage,
+  setTitleMessage,
+  setMessage,
+  setStatus,
+  updateData,
+  id,
+  loading,
+  setLoading,
+}) => {
+  const [showConfirm, setShowConfirm] = useState();
   const [loginError, setLoginError] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [confirMessage, setConfirMessage] = useState();
+  const [method, setMethod] = useState();
+  const [uriPost, setUriPost] = useState();
+  const [isLoading, setIsLoading] = useState(true);
+  const [typeForm, setTypeForm] = useState(true);
 
   const [formData, setFormData] = useState({
     old_password: "",
@@ -48,8 +66,6 @@ const Form_edit_profile_password = ({ title, onClose, id }) => {
     }
   };
 
-  console.log(errors);
-
   const handleSubmit = async () => {
     setSubmitted(true);
 
@@ -87,24 +103,23 @@ const Form_edit_profile_password = ({ title, onClose, id }) => {
 
     setErrors(newErrors);
 
-    // Espera un ciclo para que el estado se actualice
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     if (Object.values(newErrors).some((error) => error !== "")) {
       return;
     }
 
-    // Llamar API después de validar errores
-    // try {
-    //   const response = await axios.post(...);
-    //   console.log(response);
-    // } catch (error) {
-    //   console.log(error);
-    // }
+    setConfirMessage(`¿Desea cambiar tu contraseña?`);
+    setMethod("post");
+    setUriPost(
+      import.meta.env.VITE_URI_BACKEND +
+        import.meta.env.VITE_ROUTE_BACKEND_USERS +
+        id +
+        import.meta.env.VITE_ROUTE_BACKEND_USERS_CHANGE_PASSWORD
+    );
+    setTypeForm("update_password");
+    setShowConfirm(true);
   };
-
-  // console.log(formData);
-  console.log(errors);
 
   return (
     <>
@@ -251,6 +266,26 @@ const Form_edit_profile_password = ({ title, onClose, id }) => {
           </footer>
         </div>
       </div>
+      {showConfirm && (
+        <Confirm_profile
+          onClose={() => {
+            setShowConfirm(false);
+          }}
+          onSuccess={onClose}
+          confirMessage={confirMessage}
+          method={method}
+          formData={formData}
+          setShowMessage={setShowMessage}
+          setTitleMessage={setTitleMessage}
+          setMessage={setMessage}
+          setStatus={setStatus}
+          updateData={updateData}
+          uriPost={uriPost}
+          typeForm={typeForm}
+          loading={loading}
+          setLoading={setLoading}
+        />
+      )}
     </>
   );
 };

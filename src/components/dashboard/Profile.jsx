@@ -4,6 +4,7 @@ import { FaEdit } from "react-icons/fa";
 import Form_edit_profile_picture from "./forms/edits/Form_edit_profile_picture.jsx";
 import Form_edit_profile_data from "./forms/edits/Form_edit_profile_data.jsx";
 import Form_edit_profile_password from "./forms/edits/Form_edit_profile_password.jsx";
+import Message from "../Message.jsx";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 
@@ -21,12 +22,23 @@ const Profile = () => {
   const [formData, setFormData] = useState({});
   const [isLoading, setIsLoading] = useState(true);
   const [dots, setDots] = useState("");
+  const [loading, setLoading] = useState("");
 
   const head_data = {
     title: "Mi perfil",
     description:
       "En esta sección podrás visualizar y editar tu información personal",
   };
+
+  useEffect(() => {
+    if (showMessage) {
+      const timer = setTimeout(() => {
+        setShowMessage(false);
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [showMessage]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -53,8 +65,6 @@ const Profile = () => {
       setIsLoading(false);
     }
   };
-
-  console.log(formData);
 
   const updateData = async () => {
     fetchProfile();
@@ -230,9 +240,19 @@ const Profile = () => {
             setMessage={setMessage}
             setStatus={setStatus}
             updateData={updateData}
-            id={id}
+            id={formData.id}
+            loading={loading}
+            setLoading={setLoading}
           />
         </>
+      )}
+      {showMessage && (
+        <Message
+          titleMessage={titleMessage}
+          message={message}
+          status={status}
+          onClose={() => setShowMessage(false)}
+        />
       )}
     </>
   );

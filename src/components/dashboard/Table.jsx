@@ -1,14 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { SlOptionsVertical } from "react-icons/sl";
-import Confirm_add_rol from "./confirm_view/adds/Confirm_add_rol";
-import Form_edit_rol from "./forms/edits/Form_edit_rol";
 import Form_edit_user from "./forms/edits/Form_edit_user";
 import Form_edit_property from "./forms/edits/Form_edit_property";
 import Form_edit_property_user from "./forms/edits/Form_edit_property_user";
 import Form_edit_company_certificate from "./forms/edits/Form_edit_company_certificate";
-import Disable_status_rol from "./Status/disable/Disable_status_rol";
-import Enable_status_rol from "./Status/enable/Enable_status_rol";
+import Change_status_rol from "./Status/Change_status_rol";
+import Form_rol from "./forms/adds/Form_rol";
 import Icon from "../Icon";
 
 const OptionsButton = ({ onClick }) => (
@@ -27,20 +25,23 @@ const Table = ({
   setMessage,
   setStatus,
   updateData,
+  setId,
+  title,
+  setTitle,
+  loading,
+  setLoading,
+  setShowChangeStatus,
+  setConfirMessage,
+  setTypeForm,
 }) => {
   const navigate = useNavigate();
   const { id } = useParams();
-  const [confirMessage, setConfirMessage] = useState();
-  const [showConfirm, setShowConfirm] = useState(false);
   const [activeRow, setActiveRow] = useState(null);
   const menuRefs = useRef({});
-  const [showEditRol, setShowEditRol] = useState();
   const [showEditUser, setShowEditUser] = useState();
   const [showEditProperty, setShowEditProperty] = useState();
   const [showEditPropertyUser, setShowEditPropertyUser] = useState();
   const [showEditCertificate, setShowEditCertificate] = useState();
-  const [showDisableRol, setShowDisableRol] = useState(false);
-  const [showEnableRol, setShowEnableRol] = useState(false);
   const [idRow, setIdRow] = useState();
   const [selectedCertificate, setSelectedCertificate] = useState(null);
   const [dots, setDots] = useState("");
@@ -76,18 +77,23 @@ const Table = ({
 
   const handleOption = async (option, row) => {
     setIdRow(row.ID);
+    // setId(row.ID);
     if (option.name === "Ver detalles") {
+      console.log("Entro tabla id");
       navigate(`${row.ID}`);
     }
     if (id === "rol" && option.name === "Inhabilitar") {
       setConfirMessage(`¿Desea inhabilitar el rol "${row["Nombre del rol"]}"?`);
-      setShowDisableRol(true);
+      setTypeForm("inhabilitar");
+      setShowChangeStatus(true);
     }
     if (id === "rol" && option.name === "Habilitar") {
       setConfirMessage(`¿Desea habilitar el rol "${row["Nombre del rol"]}"?`);
-      setShowEnableRol(true);
+      setTypeForm("habilitar");
+      setShowChangeStatus(true);
     }
     if (id === "rol" && option.name === "Editar") {
+      setTitle("Editar rol");
       setShowEditRol(true);
     }
     if (id === "user" && option.name === "Editar") {
@@ -99,7 +105,7 @@ const Table = ({
     if (id === "properties" && option.name === "Editar") {
       setShowEditPropertyUser(true);
     }
-    if (id === "company" && option.name === "Editar certificado") {
+    if (id === "certificate" && option.name === "Editar") {
       setShowEditCertificate(true);
     }
   };
@@ -224,52 +230,6 @@ const Table = ({
           )}
         </tbody>
       </table>
-      {/* Rol */}
-      {showConfirm && (
-        <Confirm_add_rol
-          title="Filtros de rol"
-          confirMessage={confirMessage}
-          onClose={() => setShowConfirm(false)}
-        />
-      )}
-      {showEditRol && (
-        <Form_edit_rol
-          title="Editar usuario"
-          onClose={() => setShowEditRol(false)}
-          idRow={idRow}
-          setShowMessage={setShowMessage}
-          setTitleMessage={setTitleMessage}
-          setMessage={setMessage}
-          setStatus={setStatus}
-          updateData={updateData}
-        />
-      )}
-      {showDisableRol && (
-        <Disable_status_rol
-          onClose={() => setShowDisableRol(false)}
-          onSuccess={() => setShowDisableRol(false)}
-          idRow={idRow}
-          confirMessage={confirMessage}
-          setShowMessage={setShowMessage}
-          setTitleMessage={setTitleMessage}
-          setMessage={setMessage}
-          setStatus={setStatus}
-          updateData={updateData}
-        />
-      )}
-      {showEnableRol && (
-        <Enable_status_rol
-          onClose={() => setShowEnableRol(false)}
-          onSuccess={() => setShowEnableRol(false)}
-          idRow={idRow}
-          confirMessage={confirMessage}
-          setShowMessage={setShowMessage}
-          setTitleMessage={setTitleMessage}
-          setMessage={setMessage}
-          setStatus={setStatus}
-          updateData={updateData}
-        />
-      )}
       {/* Usuarios */}
       {showEditUser && (
         <Form_edit_user

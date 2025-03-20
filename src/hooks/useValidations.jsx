@@ -55,6 +55,60 @@ export const validateSerial = (serial) => {
   );
 };
 
+export const validateBirthdate = (birthdate) => {
+  const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+
+  if (!dateRegex.test(birthdate)) {
+    return false;
+  }
+
+  const [year, month, day] = birthdate.split("-").map(Number);
+  const inputDate = new Date(year, month - 1, day);
+  const today = new Date();
+
+  // Ajustar para comparar solo la fecha (sin la hora)
+  today.setHours(0, 0, 0, 0);
+
+  if (year < 1900 || inputDate > today) {
+    return false;
+  }
+
+  return (
+    inputDate.getFullYear() === year &&
+    inputDate.getMonth() === month - 1 &&
+    inputDate.getDate() === day
+  );
+};
+
+export const validateIssuanceDate = (issuanceDate, birthdate) => {
+  const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+
+  if (!dateRegex.test(issuanceDate) || !dateRegex.test(birthdate)) {
+    return false;
+  }
+
+  const [issueYear, issueMonth, issueDay] = issuanceDate.split("-").map(Number);
+  const [birthYear, birthMonth, birthDay] = birthdate.split("-").map(Number);
+
+  const issuance = new Date(issueYear, issueMonth - 1, issueDay);
+  const birth = new Date(birthYear, birthMonth - 1, birthDay);
+  const today = new Date();
+
+  // Ajustar la fecha actual para comparar solo la fecha (sin hora)
+  today.setHours(0, 0, 0, 0);
+
+  // La fecha de expedición no puede ser futura y no puede ser menor que la fecha de nacimiento
+  if (issuance > today || issuance < birth) {
+    return false;
+  }
+
+  return (
+    issuance.getFullYear() === issueYear &&
+    issuance.getMonth() === issueMonth - 1 &&
+    issuance.getDate() === issueDay
+  );
+};
+
 export const validateDate = (birthdate) => {
   const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
 

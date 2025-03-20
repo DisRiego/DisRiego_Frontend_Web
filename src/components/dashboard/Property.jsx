@@ -58,9 +58,6 @@ const Property = () => {
       setLoading("is-loading");
       generatePropertyReport();
       generateLotReport();
-      
-      
-      
     }
   };
   //generacion de pdf consolidado de predios
@@ -239,7 +236,7 @@ const Property = () => {
         lot.Latitude,
         lot.Longitude,
         lot["Tipo de cultivo"],
-        lot["Intervalo de pago"]
+        lot["Intervalo de pago"],
       ]),
       theme: "grid",
       headStyles: {
@@ -319,7 +316,7 @@ const Property = () => {
     "Nombre",
     "Número de documento del dueño",
     "Folio de matricula inmobiliaria",
-    "Extensión",
+    "Extensión (m²)",
     "Latitud",
     "Longitud",
     "Estado",
@@ -335,8 +332,7 @@ const Property = () => {
       setLoadingTable(true);
       const response = await axios.get(
         import.meta.env.VITE_URI_BACKEND +
-          import.meta.env.VITE_ROUTE_BACKEND_PROPERTY,
-        import.meta.env.VITE_ROUTE_BACKEND_LOT
+          import.meta.env.VITE_ROUTE_BACKEND_PROPERTY
       );
       setData(response.data.data);
 
@@ -367,7 +363,7 @@ const Property = () => {
       Nombre: info.name,
       "Número de documento del dueño": info.user_name,
       "Folio de matricula inmobiliaria": info.real_estate_registration_number,
-      Extensión: info.extension,
+      "Extensión (m²)": info.extension,
       Latitud: info.latitude,
       Longitud: info.longitude,
       Estado: info.estado,

@@ -4,7 +4,9 @@ import Search from "./Search";
 import Filter from "./Filter";
 import Table from "./Table";
 import Pagination from "./Pagination";
-import Form_add_rol from "./forms/adds/Form_add_rol";
+import Form_rol from "./forms/adds/Form_rol";
+import Confirm_rol from "./confirm_view/adds/Confirm_rol";
+import Change_status_rol from "./Status/Change_status_rol";
 import Filter_rol from "./filters/Filter_rol";
 import { jsPDF } from "jspdf";
 import Icon from "../../assets/icons/Disriego_title.png";
@@ -17,11 +19,15 @@ import Message from "../Message";
 const Rol = () => {
   const [data, setData] = useState([]);
   const [showForm, setShowForm] = useState(false);
+  const [showEdit, setShowEdit] = useState();
+  const [showChangeStatus, setShowChangeStatus] = useState(false);
   const [showFilter, setShowFilter] = useState(false);
+  const [confirMessage, setConfirMessage] = useState();
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 9;
+  const itemsPerPage = 10;
   const [loading, setLoading] = useState("");
+  const [loadingReport, setLoadingReport] = useState("");
   const [loadingTable, setLoadingTable] = useState(false);
   const [showMessage, setShowMessage] = useState(false);
   const [titleMessage, setTitleMessage] = useState(false);
@@ -32,14 +38,19 @@ const Rol = () => {
   const [backupData, setBackupData] = useState([]);
   const [statusFilter, setStatusFilter] = useState(false);
   const [filters, setFilters] = useState({ estados: {} });
+  const [title, setTitle] = useState();
+  const [id, setId] = useState(null);
+  const [typeForm, setTypeForm] = useState();
 
   const handleButtonClick = (buttonText) => {
     if (buttonText === "Añadir rol") {
+      setTitle("Añadir rol");
+      setId(null);
       setShowForm(true);
     }
 
     if (buttonText === "Descargar reporte") {
-      setLoading("is-loading");
+      setLoadingReport("is-loading");
       generateReport();
     }
   };
@@ -144,7 +155,7 @@ const Rol = () => {
     // Abrir el PDF en una nueva pestaña
     setTimeout(() => {
       window.open(pdfUrl, "_blank");
-      setLoading("");
+      setLoadingReport("");
     }, 500);
   };
 
@@ -278,7 +289,7 @@ const Rol = () => {
       <Head
         head_data={head_data}
         onButtonClick={handleButtonClick}
-        loading={loading}
+        loading={loadingReport}
         buttonDisabled={buttonDisabled}
       />
       <div className="container-search">
@@ -295,6 +306,15 @@ const Rol = () => {
         setMessage={setMessage}
         setStatus={setStatus}
         updateData={updateData}
+        setId={setId}
+        title={title}
+        setTitle={setTitle}
+        loading={loading}
+        setLoading={setLoading}
+        setShowEdit={setShowEdit}
+        setShowChangeStatus={setShowChangeStatus}
+        setConfirMessage={setConfirMessage}
+        setTypeForm={setTypeForm}
       />
       <Pagination
         totalItems={filteredData.length}
@@ -304,16 +324,49 @@ const Rol = () => {
       />
       {showForm && (
         <>
-          <Form_add_rol
-            title="Añadir Rol"
+          <Form_rol
+            title={title}
             onClose={() => setShowForm(false)}
             setShowMessage={setShowMessage}
             setTitleMessage={setTitleMessage}
             setMessage={setMessage}
             setStatus={setStatus}
             updateData={updateData}
+            id={id}
+            loading={loading}
+            setLoading={setLoading}
           />
         </>
+      )}
+      {showEdit && (
+        <Form_rol
+          title={title}
+          onClose={() => setShowEditRol(false)}
+          setShowMessage={setShowMessage}
+          setTitleMessage={setTitleMessage}
+          setMessage={setMessage}
+          setStatus={setStatus}
+          updateData={updateData}
+          id={id}
+          loading={loading}
+          setLoading={setLoading}
+        />
+      )}
+      {showChangeStatus && (
+        <Change_status_rol
+          onClose={() => setShowChangeStatus(false)}
+          onSuccess={() => setShowChangeStatus(false)}
+          id={id}
+          confirMessage={confirMessage}
+          setShowMessage={setShowMessage}
+          setTitleMessage={setTitleMessage}
+          setMessage={setMessage}
+          setStatus={setStatus}
+          updateData={updateData}
+          typeForm={typeForm}
+          loading={loading}
+          setLoading={setLoading}
+        />
       )}
       {showFilter && (
         <>

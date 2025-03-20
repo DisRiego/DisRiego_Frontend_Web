@@ -1115,3 +1115,7 @@ form > .field > .error-file {
 .modal-card-body > .field > .error-file {
   margin-bottom: 0em;
 }
+
+.icon-company {
+  cursor: pointer;
+}

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
 import { FaUpload } from "react-icons/fa6";
 import {
   validateImage,
@@ -6,8 +6,9 @@ import {
   validatePhone,
   validateText,
 } from "../../../../hooks/useValidations";
+import axios from "axios";
 
-const Form_edit_company_data = ({ title, onClose }) => {
+const Form_edit_company_data = ({ title, onClose, data }) => {
   const [file, setFile] = useState(null);
   const [fileName, setFileName] = useState("");
   const [hasSubmitted, setHasSubmitted] = useState(false);
@@ -16,8 +17,24 @@ const Form_edit_company_data = ({ title, onClose }) => {
     name: "",
     nit: "",
     digital_certificate: "",
-    icon_company: null,
+    icon_company: "",
   });
+
+  useEffect(() => {
+    getCompany();
+  }, []);
+
+  console.log(formData);
+
+  const getCompany = () => {
+    setFormData({
+      name: data.name,
+      nit: data.nit,
+      digital_certificate: 1,
+      icon_company: data.logo,
+    });
+  };
+
   const [errors, setErrors] = useState({});
 
   const handleChange = (e) => {
@@ -43,14 +60,13 @@ const Form_edit_company_data = ({ title, onClose }) => {
     setFile(selectedFile);
     setFileName(selectedFile.name);
     setErrors((prev) => ({ ...prev, icon_company: "" }));
-    setFormData((prev) => ({ ...prev, icon_company: selectedFile }));
   };
 
-  const handleSubmit = (e) => {
-    setHasSubmitted(true);
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    let newErrors = {};
+    setHasSubmitted(true);
 
+    let newErrors = {};
     if (!validateText(formData.name)) newErrors.name = "Nombre inválido.";
     if (!validatePhone(formData.nit)) newErrors.nit = "NIT inválido.";
     if (!formData.digital_certificate)
@@ -60,11 +76,42 @@ const Form_edit_company_data = ({ title, onClose }) => {
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length === 0) {
-      console.log("Formulario enviado", formData);
-    }
-  };
+      const data = new FormData();
+      data.append("name", formData.name);
+      data.append("nit", formData.nit);
+      data.append("digital_certificate_id", formData.digital_certificate);
 
-  console.log(errors);
+      if (file) {
+        data.append("logo", file);
+      }
+
+      try {
+        const response = await axios.patch(
+          import.meta.env.VITE_URI_BACKEND +
+            import.meta.env.VITE_ROUTE_BACKEND_COMPANY_EDIT_BASIC,
+          data,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+
+        console.log("Respuesta del servidor:", response.data);
+      } catch (error) {
+        console.error("Error al enviar el formulario:", error);
+      }
+    }
+
+    // setConfirMessage(`¿Desea cambiar la información basica de la empresa?`);
+    // setMethod("post");
+    // setUriPost(
+    //   import.meta.env.VITE_URI_BACKEND +
+    //     import.meta.env.VITE_ROUTE_BACKEND_COMPANY_EDIT_BASIC
+    // );
+    // setTypeForm("update_basic");
+    // setShowConfirm(true);
+  };
 
   return (
     <div className="modal is-active">
@@ -133,8 +180,8 @@ const Form_edit_company_data = ({ title, onClose }) => {
                     <option value="" disabled>
                       Seleccione una opción
                     </option>
-                    <option value="cert1">Certificado 1</option>
-                    <option value="cert2">Certificado 2</option>
+                    <option value="1">Certificado 1</option>
+                    <option value="2">Certificado 2</option>
                   </select>
                 </div>
               </div>
@@ -157,6 +204,7 @@ const Form_edit_company_data = ({ title, onClose }) => {
                     accept="image/png, image/jpeg, image/jpg, image/gif"
                     onChange={handleFileChange}
                   />
+
                   <span className="file-cta">
                     <span className="file-icon">
                       <FaUpload />

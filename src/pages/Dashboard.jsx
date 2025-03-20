@@ -75,7 +75,8 @@ const Dashboard = () => {
         return <Lot_detail />;
       case "report":
         return <Fault_report />;
-      case `company`:
+      case "company":
+      case `company/${id}`:
         return <Company />;
       case `profile`:
         return <Profile />;

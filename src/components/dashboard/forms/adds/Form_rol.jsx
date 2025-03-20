@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import Confirm_add_rol from "../../confirm_view/adds/Confirm_add_rol";
+import Confirm_rol from "../../confirm_view/adds/Confirm_rol";
 import {
   validateText,
   validateTextArea,
@@ -15,7 +15,11 @@ const Form_add_rol = ({
   setMessage,
   setStatus,
   updateData,
+  id,
+  loading,
+  setLoading,
 }) => {
+  const [data, setData] = useState();
   const [showConfirm, setShowConfirm] = useState(false);
   const [permissions, setPermissions] = useState([]);
   const [openCategories, setOpenCategories] = useState({});
@@ -24,6 +28,7 @@ const Form_add_rol = ({
   const [method, setMethod] = useState();
   const [uriPost, setUriPost] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [typeForm, setTypeForm] = useState(true);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -38,21 +43,57 @@ const Form_add_rol = ({
   const [submitted, setSubmitted] = useState(false);
 
   useEffect(() => {
-    const fetchPermissions = async () => {
-      try {
-        const response = await axios.get(
-          import.meta.env.VITE_URI_BACKEND +
-            import.meta.env.VITE_ROUTE_BACKEND_ROL_PERMISSIONS
-        );
-        setPermissions(response.data);
-        setIsLoading(false);
-      } catch (error) {
-        console.error("Error al obtener los permisos:", error);
-      }
-    };
-
     fetchPermissions();
-  }, []);
+
+    if (id != null) {
+      fetchRol();
+    }
+  }, [id]);
+
+  const fetchPermissions = async () => {
+    try {
+      const response = await axios.get(
+        import.meta.env.VITE_URI_BACKEND +
+          import.meta.env.VITE_ROUTE_BACKEND_ROL_PERMISSIONS
+      );
+      setPermissions(response.data);
+      setIsLoading(false);
+    } catch (error) {
+      console.error("Error al obtener los permisos:", error);
+    }
+  };
+
+  const fetchRol = async () => {
+    try {
+      const response = await axios.get(
+        import.meta.env.VITE_URI_BACKEND + "/roles/" + id
+      );
+
+      if (response.data.success && response.data.data.length > 0) {
+        const rolData = response.data.data[0];
+
+        setData(rolData);
+
+        setFormData({
+          name: rolData.name || "",
+          description: rolData.description || "",
+          permissions: rolData.permissions?.map((p) => p.id) || [],
+        });
+
+        setFilters((prevFilters) => ({
+          ...prevFilters,
+          permisos: rolData.permissions.reduce((acc, permiso) => {
+            acc[permiso.id] = true;
+            return acc;
+          }, {}),
+        }));
+      } else {
+        console.error("El rol no fue encontrado");
+      }
+    } catch (error) {
+      console.log("Error al obtener el rol", error);
+    }
+  };
 
   const handleSaveClick = () => {
     setSubmitted(true);
@@ -69,10 +110,27 @@ const Form_add_rol = ({
     });
 
     if (isNameValid && isDescriptionValid && hasSelectedPermissions) {
-      setConfirMessage('¿Desea crear el rol "' + formData.name + '"?');
-      setMethod("post");
-      setUriPost(import.meta.env.VITE_ROUTE_BACKEND_ROL);
-      setShowConfirm(true);
+      if (id != null) {
+        setConfirMessage('¿Desea crear el editar "' + formData.name + '"?');
+        setMethod("post");
+        setUriPost(
+          import.meta.env.VITE_URI_BACKEND +
+            import.meta.env.VITE_ROUTE_BACKEND_ROL +
+            id +
+            import.meta.env.VITE_ROUTE_BACKEND_ROL_EDIT
+        );
+        setTypeForm("edit");
+        setShowConfirm(true);
+      } else {
+        setConfirMessage('¿Desea crear el rol "' + formData.name + '"?');
+        setMethod("post");
+        setUriPost(
+          import.meta.env.VITE_URI_BACKEND +
+            import.meta.env.VITE_ROUTE_BACKEND_ROL
+        );
+        setTypeForm("create");
+        setShowConfirm(true);
+      }
     }
   };
 
@@ -236,7 +294,7 @@ const Form_add_rol = ({
         </div>
       </div>
       {showConfirm && (
-        <Confirm_add_rol
+        <Confirm_rol
           onClose={() => {
             setShowConfirm(false);
           }}
@@ -250,6 +308,9 @@ const Form_add_rol = ({
           setStatus={setStatus}
           updateData={updateData}
           uriPost={uriPost}
+          typeForm={typeForm}
+          loading={loading}
+          setLoading={setLoading}
         />
       )}
     </>

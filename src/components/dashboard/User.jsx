@@ -20,7 +20,7 @@ const User = () => {
   const [showFilter, setShowFilter] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 9;
+  const itemsPerPage = 10;
   const [loading, setLoading] = useState("");
   const [loadingTable, setLoadingTable] = useState(false);
   const [showMessage, setShowMessage] = useState(false);
@@ -28,6 +28,10 @@ const User = () => {
   const [message, setMessage] = useState(false);
   const [status, setStatus] = useState(false);
   const [buttonDisabled, setButtonDisabled] = useState(true);
+  const [filteredData, setFilteredData] = useState([]);
+  const [backupData, setBackupData] = useState([]);
+  const [statusFilter, setStatusFilter] = useState(false);
+  const [filters, setFilters] = useState({ estados: {} });
 
   const handleButtonClick = (buttonText) => {
     if (buttonText === "Añadir usuario") {
@@ -180,6 +184,8 @@ const User = () => {
     },
   };
 
+  console.log(data);
+
   const columns = [
     "ID",
     "Nombres",
@@ -217,26 +223,50 @@ const User = () => {
     fetchUsers();
   };
 
-  const filteredData = data
-    .filter((info) =>
-      Object.values(info)
-        .join(" ")
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase())
-    )
-    .map((info) => ({
-      ID: info.id,
-      Nombres: toTitleCase(info.name),
-      Apellidos:
-        (info.first_last_name ? toTitleCase(info.first_last_name) : "") +
-        (info.second_last_name ? " " + toTitleCase(info.second_last_name) : ""),
-      "Tipo de documento": info.type_document_name,
-      "Numero de documento": info.document_number,
-      "Correo Electronico": info.email,
-      "Numero de telefono": info.phone,
-      Rol: info.roles.map((p) => toTitleCase(p.name)).join(", "),
-      Estado: toTitleCase(info.status_name),
-    }));
+  useEffect(() => {
+    if (!statusFilter) {
+      const filtered = data
+        .filter((info) =>
+          Object.values(info)
+            .join(" ")
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase())
+        )
+        .map((info) => ({
+          ID: info.id,
+          Nombres: toTitleCase(info.name),
+          Apellidos:
+            (info.first_last_name ? toTitleCase(info.first_last_name) : "") +
+            (info.second_last_name
+              ? " " + toTitleCase(info.second_last_name)
+              : ""),
+          "Tipo de documento": info.type_document_name,
+          "Numero de documento": info.document_number,
+          "Correo Electronico": info.email,
+          "Numero de telefono": info.phone,
+          Rol: info.roles.map((p) => toTitleCase(p.name)).join(", "),
+          Estado: toTitleCase(info.status_name),
+        }));
+
+      setFilteredData(filtered);
+      setBackupData(filtered);
+    } else {
+      const selectedStates = Object.keys(filters.estados).filter(
+        (key) => filters.estados[key]
+      );
+
+      if (selectedStates.length > 0) {
+        const filteredByState = backupData.filter((info) =>
+          selectedStates.includes(info.Estado)
+        );
+        setFilteredData(filteredByState);
+      } else {
+        setFilteredData(backupData);
+      }
+
+      setStatusFilter(false);
+    }
+  }, [data, searchTerm, filters.estados]);
 
   useEffect(() => {
     if (showMessage) {
@@ -300,8 +330,14 @@ const User = () => {
       {showFilter && (
         <>
           <Filter_user
-            title="Filtros de rol"
             onClose={() => setShowFilter(false)}
+            data={data}
+            filteredData={filteredData}
+            setFilteredData={setFilteredData}
+            setStatusFilter={setStatusFilter}
+            filters={filters}
+            setFilters={setFilters}
+            backupData={backupData}
           />
         </>
       )}

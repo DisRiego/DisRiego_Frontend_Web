@@ -38,22 +38,108 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
     }
   };
 
+  const decoded = jwtDecode(token);
+  const permisosUsuario = decoded.rol[0].permisos.map(
+    (permiso) => permiso.name
+  );
+
+  const opcionesMenu = [
+    {
+      permiso: [
+        "Editar Datos Empresa",
+        "Adicionar Certificado",
+        "Editar Certificado",
+        "Crear Tipo Cultivo",
+        "Editar Tipo Cultivo",
+        "Inhabilitar Tipo Cultivo",
+        "Crear Intervalo Pago",
+        "Editar Intervalo Pago",
+        "Inhabilitar Intervalo Pago",
+      ],
+      path: "/dashboard/company",
+      selectoption: "company",
+      icon: <IoHomeOutline />,
+      label: "Gestión de empresa",
+    },
+    {
+      permiso: ["Crear Rol", "Editar Rol", "Inhabilitar Rol", "Habilitar Rol"],
+      path: "/dashboard/rol",
+      selectoption: "rol",
+      icon: <LuUserCog />,
+      label: "Gestión de roles",
+    },
+    {
+      permiso: [
+        "Crear Usuario",
+        "Editar Usuario",
+        "Inhabilitar Usuario",
+        "Habilitar Usuario",
+      ],
+      path: "/dashboard/user",
+      selectoption: "user",
+      icon: <LuUsersRound />,
+      label: "Gestión de usuarios",
+    },
+    {
+      permiso: [
+        "Crear Predio",
+        "Editar Predio",
+        "Inhabilitar Predio",
+        "Habilitar Predio",
+      ],
+      path: "/dashboard/property",
+      selectoption: "property",
+      icon: <TbMapSearch />,
+      label: "Gestión de predios",
+    },
+    {
+      permiso: "Mis predios y lotes",
+      path: "/dashboard/properties",
+      selectoption: "properties",
+      icon: <TbMapSearch />,
+      label: "Mis predios y lotes",
+    },
+  ];
+
+  const opcionesFiltradas = opcionesMenu.filter((opcion) =>
+    Array.isArray(opcion.permiso)
+      ? opcion.permiso.some((permiso) => permisosUsuario.includes(permiso))
+      : permisosUsuario.includes(opcion.permiso)
+  );
+
   return (
     <>
       <div className="sidebar-options">
-        <Link
-          className={`navbar-item ${
-            selectedOption === "notification" ? "selected" : ""
-          }`}
-          onClick={() => handleOptionChange("notification")}
-          to="/dashboard/notification"
-        >
-          <span className="icon">
-            <HiOutlineBell />
-          </span>
-          {!isCollapsed && <span>Notificaciones</span>}
-        </Link>
-        <Link
+        <div className="sidebar-options">
+          <Link
+            className={`navbar-item ${
+              selectedOption === "notification" ? "selected" : ""
+            }`}
+            onClick={() => handleOptionChange("notification")}
+            to="/dashboard/notification"
+          >
+            <span className="icon">
+              <HiOutlineBell />
+            </span>
+            {!isCollapsed && <span>Notificaciones</span>}
+          </Link>
+
+          {opcionesFiltradas.map((opcion, index) => (
+            <Link
+              key={index}
+              className={`navbar-item ${
+                selectedOption === opcion.selectoption ? "selected" : ""
+              }`}
+              onClick={() => handleOptionChange(opcion.selectoption)}
+              to={opcion.path}
+            >
+              {console.log(opcion.path)}
+              <span className="icon">{opcion.icon}</span>
+              {!isCollapsed && <span>{opcion.label}</span>}
+            </Link>
+          ))}
+        </div>
+        {/*<Link
           className={`navbar-item ${
             selectedOption === "company" ? "selected" : ""
           }`}
@@ -63,7 +149,7 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
           <span className="icon">
             <IoHomeOutline />
           </span>
-          {!isCollapsed && <span>Mi empresa</span>}
+          {!isCollapsed && <span>Gestión de empresa</span>}
         </Link>
         <Link
           className={`navbar-item ${
@@ -112,8 +198,8 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
             <TbMapSearch />
           </span>
           {!isCollapsed && <span>Mis predios y lotes</span>}
-        </Link>
-        <Link
+        </Link> */}
+        {/* <Link
           className={`navbar-item ${
             selectedOption === "consumption" ? "selected" : ""
           }`}
@@ -148,7 +234,7 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
             <TbReport />
           </span>
           {!isCollapsed && <span>Mis reportes de fallos</span>}
-        </Link>
+        </Link> */}
         <Link
           className={`navbar-item ${
             selectedOption === "profile" ? "selected" : ""
