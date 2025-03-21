@@ -8,6 +8,7 @@ import Reset_password from "./components/Reset_password";
 import Reset_password_confirm from "./components/Reset_password_confirm";
 import Account_activation from "./pages/Account_activation";
 import Update_info from "./pages/Update_info";
+import ProtectedRoute from "./ProtectedRoute";
 
 function AppContent() {
   return (
@@ -23,7 +24,26 @@ function AppContent() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/signup/:id" element={<Account_activation />} />
         <Route path="/login/update-info" element={<Update_info />} />
-        <Route path="/dashboard" element={<Dashboard />} />
+
+        <Route element={<ProtectedRoute />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/dashboard/:id" element={<Dashboard />} />
+          <Route path="/dashboard/rol/:id" element={<Dashboard />} />
+          <Route path="/dashboard/user/:id" element={<Dashboard />} />
+          <Route path="/dashboard/property/:id" element={<Dashboard />} />
+          <Route
+            path="/dashboard/property/:id/lot/:id"
+            element={<Dashboard />}
+          />
+          <Route path="/dashboard/properties/:id" element={<Dashboard />} />
+          <Route
+            path="/dashboard/properties/:id/lots/:id"
+            element={<Dashboard />}
+          />
+          <Route path="/dashboard/report/:id" element={<Dashboard />} />
+          <Route path="/dashboard/company/:id" element={<Dashboard />} />
+        </Route>
+        {/* <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/dashboard/:id" element={<Dashboard />} />
         <Route path="/dashboard/rol/:id" element={<Dashboard />} />
         <Route path="/dashboard/user/:id" element={<Dashboard />} />
@@ -35,7 +55,7 @@ function AppContent() {
           element={<Dashboard />}
         />
         <Route path="/dashboard/report/:id" element={<Dashboard />} />
-        <Route path="/dashboard/company/:id" element={<Dashboard />} />
+        <Route path="/dashboard/company/:id" element={<Dashboard />} /> */}
       </Routes>
     </>
   );

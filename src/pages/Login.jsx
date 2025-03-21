@@ -8,6 +8,7 @@ import { IoMdWarning } from "react-icons/io";
 import { IoArrowBack } from "react-icons/io5";
 import { validateEmail, validatePassword } from "../hooks/useValidations.jsx";
 import { jwtDecode } from "jwt-decode";
+import { useGoogleLogin } from "@react-oauth/google";
 
 const Login = () => {
   const [showButton, setShowButton] = useState(window.innerWidth >= 768);
@@ -98,6 +99,27 @@ const Login = () => {
     }
   };
 
+  const login = useGoogleLogin({
+    onSuccess: async (response) => {
+      try {
+        const res = await axios.get(
+          "https://www.googleapis.com/oauth2/v3/userinfo",
+          {
+            headers: {
+              Authorization: `Bearer ${response.access_token}`,
+            },
+          }
+        );
+        console.log(res);
+      } catch (error) {
+        console.error("Error obteniendo datos del usuario de Google:", error);
+      }
+    },
+    onError: () => {
+      console.error("Error al iniciar sesión con Google");
+    },
+  });
+
   return (
     <div className="container-login">
       {showButton && (
@@ -115,7 +137,7 @@ const Login = () => {
 
             <div className="field">
               <div className="buttons">
-                <button className="button is-fullwidth">
+                <button className="button is-fullwidth" onClick={login}>
                   <span className="icon">
                     <img src={IconGoogle} alt="Icono Club" />
                   </span>

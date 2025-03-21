@@ -24,7 +24,6 @@ const Update_info = () => {
     } else {
       setToken(storedToken);
       const decode = jwtDecode(storedToken);
-      console.log(decode);
     }
   }, [navigate]);
 
@@ -51,8 +50,6 @@ const Update_info = () => {
       localStorage.removeItem("token");
       navigate("/login");
     } catch (error) {
-      console.error("Error al cerrar sesión:", error);
-
       localStorage.removeItem("token");
       navigate("/login");
     }

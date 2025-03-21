@@ -269,6 +269,14 @@ p.title + p {
   background-color: #c2e96a;
 }
 
+form > .is-primary.button-login[disabled] {
+  background-color: #c2e96a;
+}
+
+.cont-activation > .button.color-hover[disabled] {
+  background-color: #c2e96a;
+}
+
 .container-login > .background-image {
   margin-top: 0;
 }
@@ -1122,4 +1130,8 @@ form > .field > .error-file {
 
 .icon-signup {
   transform: rotate(90deg);
+}
+
+.column.column-validation {
+  padding-bottom: 0.5em;
 }

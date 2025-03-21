@@ -188,7 +188,7 @@ const Form_update_info = ({
   const handleSubmit = async () => {
     setHasSubmitted(true);
     if (validateForm()) {
-      setConfirMessage(`¿¿Desea actualizar su información??`);
+      setConfirMessage(`¿Desea actualizar su información?`);
       setMethod("post");
       setUriPost(
         import.meta.env.VITE_URI_BACKEND +

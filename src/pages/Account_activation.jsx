@@ -1,10 +1,59 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import axios from "axios";
 import Icon_dis from "../assets/icons/DisRiego.svg";
 import Img_dis from "../img/dis_img.svg";
 import { MdArrowOutward } from "react-icons/md";
+import Modal from "../components/Modal";
 
 const Account_activation = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState();
+  const [isDisable, setIsDisable] = useState(true);
+  const [isActive, setIsActive] = useState(true);
+  const [showModal, setShowModal] = useState(false);
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [actionButton, setActionButton] = useState("");
+
+  useEffect(() => {
+    handleActivation();
+  }, []);
+
+  const handleActivation = async () => {
+    try {
+      setIsLoading("is-loading");
+      const response = await axios.get(
+        import.meta.env.VITE_URI_BACKEND +
+          import.meta.env.VITE_ROUTE_BACKEND_SIGNUP_ACTIVATION +
+          id
+      );
+      console.log(response.data);
+
+      if (response.data.success === false) {
+        setTitle("Error al activar cuenta");
+        setDescription(
+          "Ocurrió un problema al activar tu cuenta. Por favor, inténtalo de nuevo más tarde o vuelve a generar el correo de activación iniciando sesión."
+        );
+        setActionButton(() => () => navigate("/login"));
+        setShowModal(true);
+      } else {
+        setTitle("Cuenta activada exitosamente");
+        setDescription(
+          " Tu cuenta ha sido activada. Ahora puedes iniciar sesión y acceder a la plataforma."
+        );
+        setIsActive(false);
+        setActionButton(() => () => setShowModal(false));
+        setShowModal(true);
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+      setIsDisable(false);
+    }
+  };
   return (
     <>
       <div className="container is-flex is-justify-content-center is-align-items-center">
@@ -12,13 +61,25 @@ const Account_activation = () => {
           <div className="column is-12-mobile is-6-tablet is-6-desktop is-flex is-flex-direction-column is-justify-content-center is-align-items-center">
             <div className="cont-activation">
               <h1 className="title">¡Bienvenidos a DisRiego!</h1>
-              <p>
-                Tu cuenta ha sido activada exitosamente. Ahora puedes iniciar
-                sesión y comenzar a disfrutar de todos nuestros servicios.
-              </p>
+              {!isActive ? (
+                <p>
+                  Tu cuenta ha sido activada exitosamente. Ahora puedes iniciar
+                  sesión y comenzar a disfrutar de todos nuestros servicios.
+                </p>
+              ) : (
+                <p>
+                  En estos momentos estamos activando tu cuenta. Este proceso
+                  tomará solo unos segundos, por favor espera mientras finaliza
+                  la configuración.
+                </p>
+              )}
               <Link
-                className="button color-hover mt-5 button-padding"
+                className={
+                  "button is-primary color-hover mt-5 button-padding " +
+                  isLoading
+                }
                 to="/login"
+                disabled={isDisable}
               >
                 <div className="mr-2">Iniciar sesión</div>
                 <MdArrowOutward />
@@ -36,6 +97,13 @@ const Account_activation = () => {
         </div>
       </div>
       <div className="border"></div>
+      {showModal && (
+        <Modal
+          title={title}
+          description={description}
+          actionButton={actionButton}
+        />
+      )}
     </>
   );
 };

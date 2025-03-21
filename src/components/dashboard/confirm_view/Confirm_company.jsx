@@ -40,55 +40,74 @@ const Confirm_company = ({
         onSuccess();
         updateData();
       } else {
-        if (typeForm === "update_contact") {
+        if (typeForm === "update_basic") {
           setTitleMessage("Actualización exitosa");
-          setMessage(
-            "La información de contacto se ha actualizado correctamente."
-          );
+          setMessage("La información se ha actualizado correctamente.");
           setStatus("is-true");
           setShowMessage(true);
           onClose();
           onSuccess();
           updateData();
         } else {
-          if (typeForm === "update_location_profile") {
+          if (typeForm === "update_contact") {
             setTitleMessage("Actualización exitosa");
             setMessage(
-              "La ubicación de la empresa se ha actualizado correctamente."
+              "La información de contacto se ha actualizado correctamente."
             );
             setStatus("is-true");
             setShowMessage(true);
             onClose();
             onSuccess();
             updateData();
+          } else {
+            if (typeForm === "update_location_profile") {
+              setTitleMessage("Actualización exitosa");
+              setMessage(
+                "La ubicación de la empresa se ha actualizado correctamente."
+              );
+              setStatus("is-true");
+              setShowMessage(true);
+              onClose();
+              onSuccess();
+              updateData();
+            }
           }
         }
       }
     } catch (error) {
       console.log(error);
-      if (typeForm === "update_logo_profile") {
+      if (typeForm === "update_basic") {
         setTitleMessage("Error al actualizar");
         setMessage(
-          "No se pudo actualizar el logo de la empresa. Por favor, inténtelo de nuevo."
+          "No se pudo actualizar la información de la empresa. Por favor, inténtelo de nuevo."
         );
         setStatus("is-false");
         setShowMessage(true);
       } else {
-        if (typeForm === "update_contact") {
+        if (typeForm === "update_logo_profile") {
           setTitleMessage("Error al actualizar");
           setMessage(
-            "No se pudo actualizar la información de contacto. Por favor, inténtelo de nuevo."
+            "No se pudo actualizar el logo de la empresa. Por favor, inténtelo de nuevo."
           );
           setStatus("is-false");
           setShowMessage(true);
         } else {
-          if (typeForm === "update_location_profile") {
+          if (typeForm === "update_contact") {
             setTitleMessage("Error al actualizar");
             setMessage(
-              "No se pudo actualizar la ubicación de la empresa. Por favor, inténtelo de nuevo."
+              "No se pudo actualizar la información de contacto. Por favor, inténtelo de nuevo."
             );
             setStatus("is-false");
             setShowMessage(true);
+          } else {
+            if (typeForm === "update_location_profile") {
+              setTitleMessage("Error al actualizar");
+              setMessage(
+                "No se pudo actualizar la ubicación de la empresa. Por favor, inténtelo de nuevo."
+              );
+              setStatus("is-false");
+              setShowMessage(true);
+            }
           }
         }
       }
