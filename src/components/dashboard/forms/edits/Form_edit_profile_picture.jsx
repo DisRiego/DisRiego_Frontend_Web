@@ -2,12 +2,30 @@ import axios from "axios";
 import { useState } from "react";
 import { FaUpload } from "react-icons/fa6";
 import { validateImage } from "../../../../hooks/useValidations";
+import Confirm_profile from "../../confirm_view/Confirm_profile";
 
-const Form_edit_profile_picture = ({ title, onClose, id }) => {
+const Form_edit_profile_picture = ({
+  title,
+  onClose,
+  id,
+  setShowMessage,
+  setTitleMessage,
+  setMessage,
+  setStatus,
+  loading,
+  setLoading,
+  updateData,
+  token,
+}) => {
   const [file, setFile] = useState(null);
   const [fileName, setFileName] = useState("");
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [confirMessage, setConfirMessage] = useState();
+  const [method, setMethod] = useState();
+  const [uriPost, setUriPost] = useState("");
+  const [typeForm, setTypeForm] = useState("");
+  const [newData, setNewData] = useState(null);
 
   const handleFileChange = (event) => {
     const selectedFile = event.target.files[0];
@@ -34,33 +52,19 @@ const Form_edit_profile_picture = ({ title, onClose, id }) => {
     setLoading(true);
 
     const formData = new FormData();
-    formData.append("file", file);
-    formData.append("id", id);
+    formData.append("profile_picture", file);
+    setNewData(formData);
 
-    try {
-      console.log(formData);
-      const response = await axios.post(
-        "https://tu-servidor.com/upload",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-
-      console.log("Respuesta del servidor:", response.data);
-      alert("Imagen subida con éxito.");
-      onClose();
-    } catch (error) {
-      console.error("Error al subir el archivo:", error);
-      setError("Error al subir la imagen. Inténtalo de nuevo.");
-    } finally {
-      setLoading(false);
-    }
+    setConfirMessage("¿Desea actualizar su foto de perfil?");
+    setMethod("put");
+    setUriPost(
+      import.meta.env.VITE_URI_BACKEND +
+        import.meta.env.VITE_ROUTE_BACKEND_USERS_CHANGE_PICTURE +
+        id
+    );
+    setTypeForm("update_picture");
+    setShowConfirm(true);
   };
-
-  console.log(file);
 
   return (
     <>
@@ -115,6 +119,27 @@ const Form_edit_profile_picture = ({ title, onClose, id }) => {
           </footer>
         </div>
       </div>
+      {showConfirm && (
+        <Confirm_profile
+          onClose={() => {
+            setShowConfirm(false);
+          }}
+          onSuccess={onClose}
+          confirMessage={confirMessage}
+          method={method}
+          formData={newData}
+          setShowMessage={setShowMessage}
+          setTitleMessage={setTitleMessage}
+          setMessage={setMessage}
+          setStatus={setStatus}
+          updateData={updateData}
+          uriPost={uriPost}
+          typeForm={typeForm}
+          loading={loading}
+          setLoading={setLoading}
+          token={token}
+        />
+      )}
     </>
   );
 };

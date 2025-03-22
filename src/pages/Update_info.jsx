@@ -61,7 +61,7 @@ const Update_info = () => {
         <div className="columns is-multiline is-flex is-justify-content-center columns-fullheight">
           <div className="column is-12-mobile is-6-tablet is-6-desktop is-flex is-flex-direction-column is-justify-content-center is-align-items-center">
             <div className="cont-activation">
-              <h1 className="title">¡Bienvenidos a DisRiego!</h1>
+              <h1 className="title">¡Bienvenid@ a DisRiego!</h1>
               <p>
                 Antes de ingresar a la plataforma, necesitas actualizar tu
                 información personal.

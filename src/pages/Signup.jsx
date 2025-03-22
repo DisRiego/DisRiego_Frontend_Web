@@ -221,7 +221,7 @@ const Signup = () => {
           import.meta.env.VITE_ROUTE_BACKEND_SIGNUP_COMPLETE,
         formData
       );
-      console.log(response);
+      console.log("Response: " + response.data.token);
 
       if (response.data.success == true) {
         emailjs
@@ -233,7 +233,7 @@ const Signup = () => {
               message:
                 import.meta.env.VITE_URI_FRONTED +
                 import.meta.env.VITE_ROUTE_FRONTEND_SIGNUP_ACTIVATION +
-                formData.token,
+                response.data.token,
               email: formData.email,
               phone: "Número de teléfono",
               address: "Dirección",
@@ -272,7 +272,7 @@ const Signup = () => {
         setShowModal(true);
       }
     } catch (error) {
-      console.log(error);
+      console.log("Error: " + error);
       setLoading("");
       setTitle("Error al registrar usuario");
       setDescription(
@@ -295,7 +295,7 @@ const Signup = () => {
     setIsValidated(false);
   };
 
-  console.log(formData);
+  //console.log(formData);
 
   return (
     <>

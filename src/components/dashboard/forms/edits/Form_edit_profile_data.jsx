@@ -6,7 +6,7 @@ import {
   validateText,
 } from "../../../../hooks/useValidations";
 
-const Form_edit_profile_data = ({ title, onClose }) => {
+const Form_edit_profile_data = ({ title, onClose, data }) => {
   const api_key = import.meta.env.VITE_API_KEY;
   const [countries, setCountries] = useState([]);
   const [states, setStates] = useState([]);
@@ -30,6 +30,18 @@ const Form_edit_profile_data = ({ title, onClose }) => {
     phone_code: "",
     phone: "",
   });
+
+  useEffect(() => {
+    setIsLoading(true);
+    if (data) {
+      setFormData({
+        country: data.country || "",
+        state: data.state || "",
+        city: data.city || "",
+        address: data.address || "",
+      });
+    }
+  }, [data]);
 
   useEffect(() => {
     axios
@@ -125,8 +137,6 @@ const Form_edit_profile_data = ({ title, onClose }) => {
       console.log("Formulario válido, enviando datos...");
     }
   };
-
-  console.log(formData);
 
   return (
     <>

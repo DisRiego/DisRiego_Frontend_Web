@@ -24,6 +24,13 @@ const Profile = () => {
   const [dots, setDots] = useState("");
   const [loading, setLoading] = useState("");
 
+  const api_key = import.meta.env.VITE_API_KEY;
+  const [locationNames, setLocationNames] = useState({
+    country: "",
+    state: "",
+    city: "",
+  });
+
   const head_data = {
     title: "Mi perfil",
     description:
@@ -59,15 +66,62 @@ const Profile = () => {
           id
       );
       setFormData(response.data.data[0]);
+      fetchLocationNames(
+        response.data.data[0].country,
+        response.data.data[0].department,
+        response.data.data[0].city
+      );
     } catch (error) {
       console.error("Error al obtener los permisos:", error);
-    } finally {
-      setIsLoading(false);
     }
   };
 
   const updateData = async () => {
-    fetchProfile();
+    setIsLoading(true);
+    getUser();
+  };
+
+  const fetchLocationNames = async (countryCode, stateCode, cityId) => {
+    try {
+      const BASE_URL = "https://api.countrystatecity.in/v1";
+
+      const countryRes = await axios.get(
+        `${BASE_URL}/countries/${countryCode}`,
+        {
+          headers: { "X-CSCAPI-KEY": api_key },
+        }
+      );
+
+      const stateRes = await axios.get(
+        `${BASE_URL}/countries/${countryCode}/states/${stateCode}`,
+        {
+          headers: { "X-CSCAPI-KEY": api_key },
+        }
+      );
+
+      const cityRes = await axios.get(
+        `${BASE_URL}/countries/${countryCode}/states/${stateCode}/cities`,
+        {
+          headers: { "X-CSCAPI-KEY": api_key },
+        }
+      );
+
+      const cityName =
+        cityRes.data.find((city) => city.id === parseInt(cityId))?.name ||
+        "Desconocido";
+
+      setLocationNames({
+        country: countryRes.data.name,
+        state: stateRes.data.name,
+        city: cityName,
+      });
+
+      setIsLoading(false);
+    } catch (error) {
+      console.error("Error al obtener nombres de ubicación:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const toTitleCase = (str) => {
@@ -168,7 +222,9 @@ const Profile = () => {
               <div className="column">
                 <strong>País, Departamento, Ciudad</strong>
                 <br />
-                []
+                {locationNames.country || formData.country},{" "}
+                {locationNames.state || formData.department},{" "}
+                {locationNames.city || formData.city}
               </div>
               <div className="column">
                 <strong>Dirección de correspondencia</strong>
@@ -213,6 +269,9 @@ const Profile = () => {
             setStatus={setStatus}
             updateData={updateData}
             id={id}
+            loading={loading}
+            setLoading={setLoading}
+            token={token}
           />
         </>
       )}
@@ -221,12 +280,12 @@ const Profile = () => {
           <Form_edit_profile_data
             title="Editar mi información personal"
             onClose={() => setShowFormData(false)}
+            data={formData}
             setShowMessage={setShowMessage}
             setTitleMessage={setTitleMessage}
             setMessage={setMessage}
             setStatus={setStatus}
             updateData={updateData}
-            id={id}
           />
         </>
       )}

@@ -16,6 +16,7 @@ const Confirm_profile = ({
   typeForm,
   loading,
   setLoading,
+  token,
 }) => {
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -27,6 +28,9 @@ const Confirm_profile = ({
         method: method,
         url: uriPost,
         data: formData,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
       if (typeForm === "update_password") {
         setTitleMessage("Actualización exitosa");
@@ -36,6 +40,16 @@ const Confirm_profile = ({
         onClose();
         onSuccess();
         updateData();
+      } else {
+        if (typeForm === "update_picture") {
+          setTitleMessage("Actualización exitosa");
+          setMessage("La foto de perfil se ha actualizado correctamente.");
+          setStatus("is-true");
+          setShowMessage(true);
+          onClose();
+          onSuccess();
+          updateData();
+        }
       }
     } catch (error) {
       console.log(error);
@@ -46,6 +60,15 @@ const Confirm_profile = ({
         );
         setStatus("is-false");
         setShowMessage(true);
+      } else {
+        if (typeForm === "update_picture") {
+          setTitleMessage("Error al actualizar");
+          setMessage(
+            "No se pudo actualizar la foto de perfil. Por favor, inténtelo de nuevo."
+          );
+          setStatus("is-false");
+          setShowMessage(true);
+        }
       }
     } finally {
       setLoading("");
