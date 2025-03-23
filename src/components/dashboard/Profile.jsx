@@ -285,7 +285,11 @@ const Profile = () => {
             setTitleMessage={setTitleMessage}
             setMessage={setMessage}
             setStatus={setStatus}
-            updateData={updateData}
+            pdateData={updateData}
+            id={id}
+            loading={loading}
+            setLoading={setLoading}
+            token={token}
           />
         </>
       )}

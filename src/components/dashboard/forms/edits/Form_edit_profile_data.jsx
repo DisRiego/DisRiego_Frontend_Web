@@ -5,14 +5,33 @@ import {
   validatePhone,
   validateText,
 } from "../../../../hooks/useValidations";
+import Confirm_profile from "../../confirm_view/Confirm_profile";
 
-const Form_edit_profile_data = ({ title, onClose, data }) => {
+const Form_edit_profile_data = ({
+  title,
+  onClose,
+  data,
+  id,
+  setShowMessage,
+  setTitleMessage,
+  setMessage,
+  setStatus,
+  loading,
+  setLoading,
+  updateData,
+  token,
+}) => {
   const api_key = import.meta.env.VITE_API_KEY;
   const [countries, setCountries] = useState([]);
   const [states, setStates] = useState([]);
   const [cities, setCities] = useState([]);
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const [disabled, setDisabled] = useState(true);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [confirMessage, setConfirMessage] = useState();
+  const [method, setMethod] = useState();
+  const [uriPost, setUriPost] = useState("");
+  const [typeForm, setTypeForm] = useState("");
 
   const [formData, setFormData] = useState({
     country: "",
@@ -140,8 +159,15 @@ const Form_edit_profile_data = ({ title, onClose, data }) => {
   const handleSubmit = () => {
     setHasSubmitted(true);
     if (validateForm()) {
-      console.log(formData);
-      console.log("Formulario válido, enviando datos...");
+      setConfirMessage("¿Desea actualizar su foto de perfil?");
+      setMethod("put");
+      setUriPost(
+        import.meta.env.VITE_URI_BACKEND +
+          import.meta.env.VITE_ROUTE_BACKEND_USERS_CHANGE_PICTURE +
+          id
+      );
+      setTypeForm("update_picture");
+      setShowConfirm(true);
     }
   };
 
@@ -356,6 +382,27 @@ const Form_edit_profile_data = ({ title, onClose, data }) => {
           </footer>
         </div>
       </div>
+      {showConfirm && (
+        <Confirm_profile
+          onClose={() => {
+            setShowConfirm(false);
+          }}
+          onSuccess={onClose}
+          confirMessage={confirMessage}
+          method={method}
+          formData={formData}
+          setShowMessage={setShowMessage}
+          setTitleMessage={setTitleMessage}
+          setMessage={setMessage}
+          setStatus={setStatus}
+          updateData={updateData}
+          uriPost={uriPost}
+          typeForm={typeForm}
+          loading={loading}
+          setLoading={setLoading}
+          token={token}
+        />
+      )}
     </>
   );
 };

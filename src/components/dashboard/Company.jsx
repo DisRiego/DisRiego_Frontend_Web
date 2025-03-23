@@ -5,7 +5,6 @@ import Company_certificate from "./company/Company_certificate";
 import Company_crop from "./company/Company_crop";
 import Company_payment_interval from "./company/Company_payment_interval";
 import Company_rates from "./company/Company_rates";
-import Form_add_certificate from "./forms/adds/Form_add_certificate";
 import Message from "../Message";
 
 const Company = () => {
