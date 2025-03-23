@@ -183,15 +183,13 @@ const Signup = () => {
           }));
           setLoginError("");
           setIsValidated(true);
-        } else {
-          setLoginError(
-            "El usuario ingresado no es válido o ya se encuentra registrado."
-          );
         }
         setLoading("");
       } catch (error) {
         setLoading("");
-        console.error(error);
+        setLoginError(
+          "El usuario ingresado no es válido o ya se encuentra registrado."
+        );
       }
     }
   };
@@ -221,7 +219,6 @@ const Signup = () => {
           import.meta.env.VITE_ROUTE_BACKEND_SIGNUP_COMPLETE,
         formData
       );
-      console.log("Response: " + response.data.token);
 
       if (response.data.success == true) {
         emailjs
@@ -262,17 +259,9 @@ const Signup = () => {
               setShowModal(true);
             }
           );
-      } else {
-        setLoading("");
-        setTitle("Error al registrar usuario");
-        setDescription(
-          "Ocurrió un problema durante el registro. Por favor, verifica tu información e inténtalo de nuevo. Si el problema persiste, contacta a soporte."
-        );
-        setActionButton(() => () => setShowModal(false));
-        setShowModal(true);
       }
     } catch (error) {
-      console.log("Error: " + error);
+      console.log(error);
       setLoading("");
       setTitle("Error al registrar usuario");
       setDescription(

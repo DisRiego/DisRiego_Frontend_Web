@@ -111,7 +111,7 @@ const Form_add_rol = ({
 
     if (isNameValid && isDescriptionValid && hasSelectedPermissions) {
       if (id != null) {
-        setConfirMessage('¿Desea crear el editar "' + formData.name + '"?');
+        setConfirMessage('¿Desea editar el rol "' + formData.name + '"?');
         setMethod("post");
         setUriPost(
           import.meta.env.VITE_URI_BACKEND +

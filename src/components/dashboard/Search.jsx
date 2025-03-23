@@ -1,6 +1,6 @@
 import { IoSearch } from "react-icons/io5";
 
-const Search = ({ onSearch }) => {
+const Search = ({ onSearch, buttonDisabled }) => {
   const handleInputChange = (event) => {
     onSearch(event.target.value);
   };
@@ -15,6 +15,7 @@ const Search = ({ onSearch }) => {
         type="text"
         placeholder="Buscar..."
         onChange={handleInputChange}
+        disabled={buttonDisabled}
       />
     </div>
   );

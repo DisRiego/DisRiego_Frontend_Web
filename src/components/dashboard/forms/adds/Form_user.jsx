@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
+import { useParams } from "react-router-dom";
 import axios from "axios";
-import Confirm_add_user from "../../confirm_view/adds/Confirm_add_user";
+import Confirm_user from "../../confirm_view/adds/Confirm_user";
 import {
   validateDate,
   validatePhone,
@@ -12,7 +13,7 @@ import {
 } from "../../../../hooks/useValidations";
 import { IoMdWarning } from "react-icons/io";
 
-const Form_add_user = ({
+const Form_user = ({
   title,
   onClose,
   setShowMessage,
@@ -20,10 +21,18 @@ const Form_add_user = ({
   setMessage,
   setStatus,
   updateData,
+  id,
+  loading,
+  setLoading,
+  token,
+  typeForm,
+  setTypeForm,
 }) => {
   const [showConfirm, setShowConfirm] = useState(false);
   const [typeDocument, setTypeDocument] = useState([]);
   const [roles, setRoles] = useState([]);
+  const [user, setUser] = useState({});
+  const [gender, setGender] = useState([]);
   const birthDateInputRef = useRef(null);
   const dateIssuanceInputRef = useRef(null);
   const [confirMessage, setConfirMessage] = useState();
@@ -33,27 +42,27 @@ const Form_add_user = ({
   const [isRolesOpen, setIsRolesOpen] = useState(false);
 
   const [formData, setFormData] = useState({
-    first_name: "",
+    name: "",
     first_last_name: "",
     second_last_name: "",
-    document_type: "",
+    type_document_id: "",
     document_number: "",
-    birhdate: "",
+    birthday: "",
     date_issuance_document: "",
-    gender: "",
-    role_id: [],
+    gender_id: "",
+    roles: [],
   });
 
   const [errors, setErrors] = useState({
-    first_name: "",
+    name: "",
     first_last_name: "",
     second_last_name: "",
-    document_type: "",
+    type_document_id: "",
     document_number: "",
-    birhdate: "",
+    birthday: "",
     date_issuance_document: "",
-    gender: "",
-    role_id: [],
+    gender_id: "",
+    roles: [],
   });
 
   const [submitted, setSubmitted] = useState(false);
@@ -61,7 +70,11 @@ const Form_add_user = ({
   useEffect(() => {
     fetchTypeDocument();
     fetchRoles();
-  }, []);
+    fetchGenders();
+    if (id != null) {
+      getUser();
+    }
+  }, [id]);
 
   const fetchTypeDocument = async () => {
     try {
@@ -75,6 +88,49 @@ const Form_add_user = ({
     }
   };
 
+  const getUser = async () => {
+    try {
+      const response = await axios.get(
+        import.meta.env.VITE_URI_BACKEND +
+          import.meta.env.VITE_ROUTE_BACKEND_USERS +
+          id
+      );
+
+      const userData = response.data.data[0];
+
+      setUser(userData);
+
+      setFormData({
+        name: userData.name,
+        first_last_name: userData.first_last_name,
+        second_last_name: userData.second_last_name,
+        type_document_id: userData.type_document_id,
+        document_number: userData.document_number.toString(),
+        birthday: userData.birthday.slice(0, 10),
+        date_issuance_document: userData.date_issuance_document.slice(0, 10),
+        gender_id: userData.gender_id,
+        roles: userData.roles.map((role) => role.id),
+      });
+
+      setIsLoading(false);
+    } catch (error) {
+      console.error("Error al obtener el usuario:", error);
+    }
+  };
+
+  const fetchGenders = async () => {
+    try {
+      const response = await axios.get(
+        import.meta.env.VITE_URI_BACKEND +
+          import.meta.env.VITE_ROUTE_BACKEND_USERS_GENDER
+      );
+      setGender(response.data.data);
+      setIsLoading(false);
+    } catch (error) {
+      console.error("Error al obtener los generos:", error);
+    }
+  };
+
   const fetchRoles = async () => {
     try {
       const response = await axios.get(
@@ -85,65 +141,6 @@ const Form_add_user = ({
       setIsLoading(false);
     } catch (error) {
       console.error("Error al obtener los permisos:", error);
-    }
-  };
-
-  const handleSaveClick = () => {
-    setSubmitted(true);
-    const isNameValid = validateTextArea(formData.first_name);
-    const isFirstLastValid = validateLastName(formData.first_last_name);
-    const isSecondLastValid = validateLastName(formData.second_last_name);
-    const isDocumentTypeValid = validatePhone(formData.document_type);
-    const isDocumentNumberValid = validatePhone(formData.document_number);
-    const isBirhdateValid = validateBirthdate(formData.birhdate);
-    const isDateIssuanceValid = validateIssuanceDate(
-      formData.date_issuance_document,
-      formData.birhdate
-    );
-    const isRolValid = formData.role_id.length > 0;
-
-    const birthDate = new Date(formData.birhdate);
-    const issuanceDate = new Date(formData.date_issuance_document);
-    const isDateValid = isDateIssuanceValid && issuanceDate >= birthDate;
-
-    setErrors({
-      first_name: isNameValid ? "" : "false" && "Nombre o nombres inválidos",
-      first_last_name: isFirstLastValid
-        ? ""
-        : "false" && "Primer apellido inválido",
-      second_last_name: isSecondLastValid
-        ? ""
-        : "false" && "Segundo  apellido inválido",
-      document_type: isDocumentTypeValid
-        ? ""
-        : "Debe seleccionar un tipo de documento",
-      document_number: isDocumentNumberValid
-        ? ""
-        : "false" && "Número de documento inválido",
-      birhdate: isBirhdateValid
-        ? ""
-        : "false" && "Fecha de nacimiento inválida",
-      date_issuance_document: isDateValid
-        ? ""
-        : "false" && "Fecha de expedición inválida",
-      role_id: isRolValid ? "" : "Debe seleccionar al menos un rol.",
-    });
-
-    if (
-      isNameValid &&
-      isFirstLastValid &&
-      isSecondLastValid &&
-      isDocumentTypeValid &&
-      isDocumentNumberValid &&
-      isDateIssuanceValid &&
-      isRolValid
-    ) {
-      setConfirMessage(
-        '¿Desea crear el usuario "' + formData.first_name + '"?'
-      );
-      setMethod("post");
-      setUriPost(import.meta.env.VITE_ROUTE_BACKEND_CREATE_USERS);
-      setShowConfirm(true);
     }
   };
 
@@ -162,10 +159,10 @@ const Form_add_user = ({
 
     setFormData((prevFormData) => {
       const updatedRoles = checked
-        ? [...prevFormData.role_id, roleId] // Agregar si está marcado
-        : prevFormData.role_id.filter((role) => role !== roleId); // Eliminar si se desmarca
+        ? [...prevFormData.roles, roleId] // Agregar si está marcado
+        : prevFormData.roles.filter((role) => role !== roleId); // Eliminar si se desmarca
 
-      return { ...prevFormData, role_id: updatedRoles };
+      return { ...prevFormData, roles: updatedRoles };
     });
   };
 
@@ -188,6 +185,82 @@ const Form_add_user = ({
   const toTitleCase = (str) => {
     if (typeof str !== "string") return str;
     return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  };
+
+  const handleSaveClick = () => {
+    setSubmitted(true);
+    const isNameValid = validateTextArea(formData.name);
+    const isFirstLastValid = validateLastName(formData.first_last_name);
+    const isSecondLastValid = validateLastName(formData.second_last_name);
+    const isDocumentTypeValid = validatePhone(formData.type_document_id);
+    const isDocumentNumberValid = validatePhone(formData.document_number);
+    const isBirhdateValid = validateBirthdate(formData.birthday);
+    const isDateIssuanceValid = validateIssuanceDate(
+      formData.date_issuance_document,
+      formData.birthday
+    );
+    const isGenderValid = validatePhone(formData.gender_id);
+    const isRolValid = formData.roles.length > 0;
+
+    const birthDate = new Date(formData.birthday);
+    const issuanceDate = new Date(formData.date_issuance_document);
+    const isDateValid = isDateIssuanceValid && issuanceDate >= birthDate;
+
+    setErrors({
+      name: isNameValid ? "" : "false" && "Nombre o nombres inválidos",
+      first_last_name: isFirstLastValid
+        ? ""
+        : "false" && "Primer apellido inválido",
+      second_last_name: isSecondLastValid
+        ? ""
+        : "false" && "Segundo  apellido inválido",
+      type_document_id: isDocumentTypeValid
+        ? ""
+        : "Debe seleccionar un tipo de documento",
+      document_number: isDocumentNumberValid
+        ? ""
+        : "false" && "Número de documento inválido",
+      birthday: isBirhdateValid
+        ? ""
+        : "false" && "Fecha de nacimiento inválida",
+      date_issuance_document: isDateValid
+        ? ""
+        : "false" && "Fecha de expedición inválida",
+      gender_id: isGenderValid ? "" : "Genero inválido",
+      roles: isRolValid ? "" : "Debe seleccionar al menos un rol.",
+    });
+
+    if (
+      isNameValid &&
+      isFirstLastValid &&
+      isSecondLastValid &&
+      isDocumentTypeValid &&
+      isDocumentNumberValid &&
+      isDateIssuanceValid &&
+      isGenderValid &&
+      isRolValid
+    ) {
+      if (id != null) {
+        setConfirMessage("¿Desea editar el usuario?");
+        setMethod("put");
+        setUriPost(
+          import.meta.env.VITE_URI_BACKEND +
+            import.meta.env.VITE_ROUTE_BACKEND_EDIT_USERS +
+            id
+        );
+        setTypeForm("edit");
+        setShowConfirm(true);
+      } else {
+        setConfirMessage('¿Desea crear el usuario "' + formData.name + '"?');
+        setMethod("post");
+        setUriPost(
+          import.meta.env.VITE_URI_BACKEND +
+            import.meta.env.VITE_ROUTE_BACKEND_CREATE_USERS
+        );
+        setTypeForm("create");
+        setShowConfirm(true);
+      }
+    }
   };
 
   console.log(formData);
@@ -213,22 +286,18 @@ const Form_add_user = ({
                   <div className="control">
                     <input
                       className={`input ${
-                        submitted
-                          ? errors.first_name
-                            ? "is-false"
-                            : "is-true"
-                          : ""
+                        submitted ? (errors.name ? "is-false" : "is-true") : ""
                       }`}
                       type="text"
-                      name="first_name"
+                      name="name"
                       placeholder="Ingrese el nombre o nombres"
-                      value={formData.first_name}
+                      value={formData.name}
                       onChange={handleChange}
                       disabled={isLoading}
                     />
                   </div>
-                  {submitted && errors.first_name && (
-                    <p className="input-error">{errors.first_name}</p>
+                  {submitted && errors.name && (
+                    <p className="input-error">{errors.name}</p>
                   )}
                 </div>
               </div>
@@ -293,20 +362,20 @@ const Form_add_user = ({
                       <div
                         className={`select ${
                           submitted
-                            ? errors.document_type
+                            ? errors.type_document_id
                               ? "is-false"
                               : "is-true"
                             : ""
                         }`}
                       >
                         <select
-                          name="document_type"
-                          value={formData.document_type}
+                          name="type_document_id"
+                          value={formData.type_document_id}
                           onChange={handleChange}
                           disabled={isLoading}
                         >
                           <option value="" disabled>
-                            Seleccione un tipo de documento
+                            Seleccione una opción
                           </option>
                           {typeDocument.map((doc) => (
                             <option key={doc.id} value={doc.id}>
@@ -315,8 +384,8 @@ const Form_add_user = ({
                           ))}
                         </select>
                       </div>
-                      {submitted && errors.document_type && (
-                        <p className="input-error">{errors.document_type}</p>
+                      {submitted && errors.type_document_id && (
+                        <p className="input-error">{errors.type_document_id}</p>
                       )}
                     </div>
                   </div>
@@ -327,7 +396,7 @@ const Form_add_user = ({
               <div className="columns">
                 <div className="column">
                   <div className="field">
-                    <label className="label">N° Documento</label>
+                    <label className="label">Número de documento</label>
                     <div className="control">
                       <input
                         className={`input ${
@@ -358,22 +427,22 @@ const Form_add_user = ({
                         ref={birthDateInputRef}
                         className={`input ${
                           submitted
-                            ? errors.birhdate
+                            ? errors.birthday
                               ? "is-false"
                               : "is-true"
                             : ""
                         }`}
                         type="date"
-                        name="birhdate"
+                        name="birthday"
                         placeholder="Ingrese la fecha de nacimiento"
-                        value={formData.birhdate}
+                        value={formData.birthday}
                         onChange={handleChange}
                         onFocus={handleBirthDateFocus}
                         disabled={isLoading}
                       />
                     </div>
-                    {submitted && errors.birhdate && (
-                      <p className="input-error">{errors.birhdate}</p>
+                    {submitted && errors.birthday && (
+                      <p className="input-error">{errors.birthday}</p>
                     )}
                   </div>
                 </div>
@@ -417,22 +486,22 @@ const Form_add_user = ({
                       <div
                         className={`select ${
                           submitted
-                            ? errors.gender
+                            ? errors.gender_id
                               ? "is-false"
                               : "is-true"
                             : ""
                         }`}
                       >
                         <select
-                          name="document_type"
-                          value={formData.gender}
+                          name="gender_id"
+                          value={formData.gender_id}
                           onChange={handleChange}
                           disabled={isLoading}
                         >
                           <option value="" disabled>
-                            Seleccione un tipo de documento
+                            Seleccione una opción
                           </option>
-                          {typeDocument.map((doc) => (
+                          {gender.map((doc) => (
                             <option key={doc.id} value={doc.id}>
                               {doc.name}
                             </option>
@@ -470,9 +539,7 @@ const Form_add_user = ({
                               <input
                                 type="checkbox"
                                 value={role.role_id}
-                                checked={formData.role_id.includes(
-                                  role.role_id
-                                )}
+                                checked={formData.roles.includes(role.role_id)}
                                 onChange={handleRoleChange}
                               />{" "}
                               {toTitleCase(role.role_name)}
@@ -481,10 +548,10 @@ const Form_add_user = ({
                         ))}
                       </div>
                     </div>
-                    {submitted && errors.role_id && (
+                    {submitted && errors.roles && (
                       <div className="is-flex is-flex-direction-row	is-justify-content-center is-align-items-center">
                         <IoMdWarning className="icon login-error mr-2" />
-                        <p className="input-error">{errors.role_id}</p>
+                        <p className="input-error">{errors.roles}</p>
                       </div>
                     )}
                   </div>
@@ -505,7 +572,7 @@ const Form_add_user = ({
         </div>
       </div>
       {showConfirm && (
-        <Confirm_add_user
+        <Confirm_user
           onClose={() => {
             setShowConfirm(false);
           }}
@@ -519,10 +586,15 @@ const Form_add_user = ({
           setStatus={setStatus}
           updateData={updateData}
           uriPost={uriPost}
+          token={token}
+          loading={loading}
+          setLoading={setLoading}
+          typeForm={typeForm}
+          setTypeForm={setTypeForm}
         />
       )}
     </>
   );
 };
 
-export default Form_add_user;
+export default Form_user;

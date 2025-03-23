@@ -1,75 +1,51 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import axios from "axios";
 
-const Change_status_rol = ({
-  onClose,
-  onSuccess,
-  id,
+const Confirm_property = ({
   confirMessage,
+  onClose,
+  method,
+  formData,
   setShowMessage,
   setTitleMessage,
   setMessage,
   setStatus,
+  onSuccess,
   updateData,
+  uriPost,
   typeForm,
   loading,
   setLoading,
 }) => {
-  const [formData, setFormData] = useState({});
   const [isProcessing, setIsProcessing] = useState(false);
-  // console.log(typeForm);
-  // console.log(id);
-
-  useEffect(() => {
-    setFormData({
-      rol_id: id,
-      new_status: typeForm === "habilitar" ? 1 : 2,
-    });
-  }, [typeForm, id]);
 
   const handleConfirm = async () => {
     try {
       setLoading("is-loading");
       setIsProcessing(true);
-      const response = await axios.post(
-        import.meta.env.VITE_URI_BACKEND +
-          import.meta.env.VITE_ROUTE_BACKEND_ROL_CHANGE_STATUS,
-        formData
-      );
-      console.log(response);
-
-      if (typeForm === "habilitar") {
-        setTitleMessage("Habilitación exitosa");
-        setMessage("Se ha habilitado el rol correctamente.");
+      const response = await axios({
+        method: method,
+        url: uriPost,
+        data: formData,
+      });
+      if (typeForm === "create_property") {
+        setTitleMessage("Predio creado exitosamente");
+        setMessage("El predio se ha creado correctamente.");
         setStatus("is-true");
         setShowMessage(true);
-      } else {
-        setTitleMessage("Inhabilitación exitosa");
-        setMessage("Se ha inhabilitado el rol correctamente.");
-        setStatus("is-true");
-        setShowMessage(true);
+        onClose();
+        onSuccess();
+        updateData();
       }
-
-      onClose();
-      onSuccess();
-      updateData();
     } catch (error) {
-      console.log(error);
-      if (typeForm === "habilitar") {
-        setTitleMessage("Habilitación fallida");
+      if (typeForm === "create_property") {
+        setTitleMessage("Error al crear el predio");
         setMessage(
-          "No se pudo habilitar el rol. Por favor, inténtelo de nuevo."
+          "No se pudo crear el predio. Por favor, inténtelo de nuevo."
         );
         setStatus("is-false");
-      } else {
-        setTitleMessage("Inhabilitación fallida");
-        setMessage(
-          "No se pudo inhabilitar el rol. Por favor, inténtelo de nuevo."
-        );
-        setStatus("is-false");
+        setShowMessage(true);
       }
-
-      setShowMessage(true);
     } finally {
       setLoading("");
       setIsProcessing(false);
@@ -114,4 +90,4 @@ const Change_status_rol = ({
   );
 };
 
-export default Change_status_rol;
+export default Confirm_property;

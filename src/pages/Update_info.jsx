@@ -29,6 +29,7 @@ const Update_info = () => {
 
   const handleSignUp = async () => {
     try {
+      setLoading("is-loading");
       const storedToken = localStorage.getItem("token");
 
       if (!storedToken) {
@@ -75,10 +76,10 @@ const Update_info = () => {
                   <MdArrowOutward />
                 </Link>
                 <Link
-                  className="button is-light mt-5 button-padding"
+                  className={"button is-light mt-5 button-padding " + loading}
                   onClick={handleSignUp}
                 >
-                  <div className="mr-2">Cerrar Sesión</div>
+                  <div className={"mr-2 "}>Cerrar Sesión</div>
                   <MdArrowOutward className="icon-signup" />
                 </Link>
               </div>

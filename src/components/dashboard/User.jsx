@@ -4,7 +4,7 @@ import Search from "./Search";
 import Filter from "./Filter";
 import Table from "./Table";
 import Pagination from "./Pagination";
-import Form_add_user from "./forms/adds/Form_add_user";
+import Form_user from "./forms/adds/Form_user";
 import Filter_user from "./filters/Filter_user";
 import { autoTable } from "jspdf-autotable";
 import { jsPDF } from "jspdf";
@@ -17,7 +17,10 @@ import Message from "../Message";
 const User = () => {
   const [data, setData] = useState([]);
   const [showForm, setShowForm] = useState(false);
+  const [showEdit, setShowEdit] = useState();
+  const [showChangeStatus, setShowChangeStatus] = useState(false);
   const [showFilter, setShowFilter] = useState(false);
+  const [confirMessage, setConfirMessage] = useState();
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -32,6 +35,10 @@ const User = () => {
   const [backupData, setBackupData] = useState([]);
   const [statusFilter, setStatusFilter] = useState(false);
   const [filters, setFilters] = useState({ estados: {} });
+  const [id, setId] = useState(null);
+  const [title, setTitle] = useState();
+  const [typeForm, setTypeForm] = useState();
+  const token = localStorage.getItem("token");
 
   const handleButtonClick = (buttonText) => {
     if (buttonText === "Añadir usuario") {
@@ -184,8 +191,6 @@ const User = () => {
     },
   };
 
-  console.log(data);
-
   const columns = [
     "ID",
     "Nombres",
@@ -210,7 +215,12 @@ const User = () => {
         import.meta.env.VITE_URI_BACKEND +
           import.meta.env.VITE_ROUTE_BACKEND_USERS
       );
-      setData(response.data.data);
+      const sortedData = response.data.data.sort((a, b) =>
+        a.name.localeCompare(b.name)
+      );
+
+      setData(sortedData);
+
       setButtonDisabled(false);
     } catch (error) {
       console.error("Error al obtener los usuarios:", error);
@@ -307,6 +317,12 @@ const User = () => {
         data={paginatedData}
         options={options}
         loadingTable={loadingTable}
+        setId={setId}
+        setTitle={setTitle}
+        setShowEdit={setShowEdit}
+        setShowChangeStatus={setShowChangeStatus}
+        setConfirMessage={setConfirMessage}
+        setTypeForm={setTypeForm}
       />
       <Pagination
         totalItems={filteredData.length}
@@ -316,7 +332,7 @@ const User = () => {
       />
       {showForm && (
         <>
-          <Form_add_user
+          <Form_user
             title="Añadir Usuario"
             onClose={() => setShowForm(false)}
             setShowMessage={setShowMessage}
@@ -324,8 +340,30 @@ const User = () => {
             setMessage={setMessage}
             setStatus={setStatus}
             updateData={updateData}
+            token={token}
+            loading={loading}
+            setLoading={setLoading}
+            typeForm={typeForm}
+            setTypeForm={setTypeForm}
           />
         </>
+      )}
+      {showEdit && (
+        <Form_user
+          title={title}
+          onClose={() => setShowEdit(false)}
+          setShowMessage={setShowMessage}
+          setTitleMessage={setTitleMessage}
+          setMessage={setMessage}
+          setStatus={setStatus}
+          updateData={updateData}
+          id={id}
+          loading={loading}
+          setLoading={setLoading}
+          token={token}
+          typeForm={typeForm}
+          setTypeForm={setTypeForm}
+        />
       )}
       {showFilter && (
         <>

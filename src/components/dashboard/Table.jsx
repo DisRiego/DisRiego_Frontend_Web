@@ -1,13 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { SlOptionsVertical } from "react-icons/sl";
-import Form_edit_user from "./forms/edits/Form_edit_user";
 import Form_edit_property from "./forms/edits/Form_edit_property";
 import Form_edit_property_user from "./forms/edits/Form_edit_property_user";
 import Form_edit_company_certificate from "./forms/edits/Form_edit_company_certificate";
-import Change_status_rol from "./Status/Change_status_rol";
-import Form_rol from "./forms/adds/Form_rol";
 import Icon from "../Icon";
+import { TbPointFilled } from "react-icons/tb";
 
 const OptionsButton = ({ onClick }) => (
   <button className="button is-small button-option" onClick={onClick}>
@@ -20,16 +18,9 @@ const Table = ({
   data,
   options,
   loadingTable,
-  setShowMessage,
-  setTitleMessage,
-  setMessage,
-  setStatus,
-  updateData,
   setId,
-  title,
   setTitle,
-  loading,
-  setLoading,
+  setShowEdit,
   setShowChangeStatus,
   setConfirMessage,
   setTypeForm,
@@ -38,12 +29,10 @@ const Table = ({
   const { id } = useParams();
   const [activeRow, setActiveRow] = useState(null);
   const menuRefs = useRef({});
-  const [showEditUser, setShowEditUser] = useState();
   const [showEditProperty, setShowEditProperty] = useState();
   const [showEditPropertyUser, setShowEditPropertyUser] = useState();
   const [showEditCertificate, setShowEditCertificate] = useState();
   const [idRow, setIdRow] = useState();
-  const [selectedCertificate, setSelectedCertificate] = useState(null);
   const [dots, setDots] = useState("");
 
   useEffect(() => {
@@ -76,8 +65,8 @@ const Table = ({
   };
 
   const handleOption = async (option, row) => {
-    setIdRow(row.ID);
-    // setId(row.ID);
+    // setIdRow(row.ID);
+    setId(row.ID);
     if (option.name === "Ver detalles") {
       console.log("Entro tabla id");
       navigate(`${row.ID}`);
@@ -94,10 +83,11 @@ const Table = ({
     }
     if (id === "rol" && option.name === "Editar") {
       setTitle("Editar rol");
-      setShowEditRol(true);
+      setShowEdit(true);
     }
     if (id === "user" && option.name === "Editar") {
-      setShowEditUser(true);
+      setTitle("Editar usuario");
+      setShowEdit(true);
     }
     if (id === "property" && option.name === "Editar") {
       setShowEditProperty(true);
@@ -220,6 +210,22 @@ const Table = ({
                             </div>
                           )}
                         </div>
+                      ) : column === "Estado" ? (
+                        <td
+                          key={`${rowIndex}-${colIndex}`}
+                          className={`status-${row[column]
+                            .toLowerCase()
+                            .replace(/\s+/g, "-")}`}
+                        >
+                          <button
+                            className={`button status-${row[column]
+                              .toLowerCase()
+                              .replace(/\s+/g, "-")}`}
+                          >
+                            <TbPointFilled className="mr-1" />
+                            <p className="mr-1">{row[column]}</p>
+                          </button>
+                        </td>
                       ) : (
                         row[column] || "-"
                       )}
@@ -230,14 +236,6 @@ const Table = ({
           )}
         </tbody>
       </table>
-      {/* Usuarios */}
-      {showEditUser && (
-        <Form_edit_user
-          title="Editar usuario"
-          onClose={() => setShowEditUser(false)}
-          idRow={idRow}
-        />
-      )}
       {showEditProperty && (
         <Form_edit_property
           title="Editar predio"

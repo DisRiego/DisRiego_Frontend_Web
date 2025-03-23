@@ -39,6 +39,7 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
   };
 
   const decoded = jwtDecode(token);
+  console.log(decoded);
   const permisosUsuario = decoded.rol[0].permisos.map(
     (permiso) => permiso.name
   );
@@ -133,7 +134,6 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
               onClick={() => handleOptionChange(opcion.selectoption)}
               to={opcion.path}
             >
-              {console.log(opcion.path)}
               <span className="icon">{opcion.icon}</span>
               {!isCollapsed && <span>{opcion.label}</span>}
             </Link>

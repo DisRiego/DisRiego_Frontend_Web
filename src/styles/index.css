@@ -269,12 +269,15 @@ p.title + p {
   background-color: #c2e96a;
 }
 
-form > .is-primary.button-login[disabled] {
+form > .is-primary.button-login[disabled],
+.buttons .is-primary.button-login[disabled] {
   background-color: #c2e96a;
 }
 
-.cont-activation > .button.color-hover[disabled] {
+.cont-activation > .button.color-hover[disabled],
+.container-button > .button.color-hover[disabled] {
   background-color: #c2e96a;
+  color: black;
 }
 
 .container-login > .background-image {
@@ -1134,4 +1137,114 @@ form > .field > .error-file {
 
 .column.column-validation {
   padding-bottom: 0.5em;
+}
+
+.field > .control > .button-search {
+  height: 39.99px;
+}
+
+.modal-card > .modal-card-body > .columns-mb {
+  margin-bottom: 0em;
+}
+
+td > td.status-activo,
+td > td.status-inactivo,
+td > td.status-creado,
+td > td.status-pendiente {
+  padding: 0em;
+  border-bottom: none;
+}
+
+.button.status-activo {
+  width: 140px;
+  pointer-events: none;
+  cursor: text;
+  user-select: text;
+  background-color: #ecfdf3;
+  color: #027a48;
+  border-radius: 2em;
+}
+
+.button.status-inactivo {
+  width: 140px;
+  pointer-events: none;
+  cursor: text;
+  user-select: text;
+  background-color: #f3f2f7;
+  color: black;
+  border-radius: 2em;
+}
+
+.button.status-pendiente {
+  width: 140px;
+  pointer-events: none;
+  cursor: text;
+  user-select: text;
+  background-color: #fff7e2;
+  color: #9f7700;
+  border-radius: 2em;
+}
+
+.button.status-suspendido {
+  width: 140px;
+  pointer-events: none;
+  cursor: text;
+  user-select: text;
+  background-color: #ffc6c3;
+  color: #b42c24;
+  border-radius: 2em;
+}
+
+@media (prefers-color-scheme: dark) {
+  .button.status-activo {
+    background-color: transparent;
+    color: #b3ff9e;
+    border-color: #b3ff9e;
+    opacity: 0.8;
+  }
+
+  .button.status-inactivo {
+    background-color: transparent;
+    color: #f3f2f7;
+    border-color: #f3f2f7;
+    opacity: 0.8;
+  }
+
+  .button.status-pendiente {
+    background-color: transparent;
+    color: #ffc100;
+    border-color: #ffc100;
+    opacity: 0.8;
+  }
+
+  .button.status-suspendido {
+    background-color: transparent;
+    color: #ff7e77;
+    border-color: #ff7e77;
+    opacity: 0.8;
+  }
+
+  .button.detail-status.status-1 {
+    color: #b3ff9e;
+    border-color: #b3ff9e;
+    opacity: 0.7;
+  }
+
+  .button.detail-status.status-2 {
+    color: #f3f2f7;
+    border-color: #f3f2f7;
+    opacity: 0.7;
+  }
+
+  .button.detail-status.status-3 {
+    color: #ffc100;
+    border-color: #ffc100;
+    opacity: 0.7;
+  }
+
+  .button.detail-status.status-4 {
+    color: #ff7e77;
+    border-color: #ff7e77;
+    opacity: 0.7;
+  }
 }

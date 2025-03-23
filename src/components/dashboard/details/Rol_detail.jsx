@@ -68,11 +68,7 @@ const Rol_detail = () => {
           <div className="rol-detail">
             <div className="is-flex is-justify-content-space-between is-align-items-center">
               <h3 className="title is-6">Estado actual</h3>
-              <span
-                className={`button detail-status ${
-                  data?.status === 1 ? "is-success" : "is-danger"
-                }`}
-              >
+              <span className={`button detail-status status-${data.status}`}>
                 <TbPointFilled />
                 {data?.status === 1 ? "Operativo" : "Inactivo"}
               </span>

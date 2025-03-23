@@ -293,24 +293,20 @@ const Rol = () => {
         buttonDisabled={buttonDisabled}
       />
       <div className="container-search">
-        <Search onSearch={setSearchTerm} />
-        <Filter onFilterClick={handleFilterClick} data={data} />
+        <Search onSearch={setSearchTerm} buttonDisabled={buttonDisabled} />
+        <Filter
+          onFilterClick={handleFilterClick}
+          data={data}
+          buttonDisabled={buttonDisabled}
+        />
       </div>
       <Table
         columns={columns}
         data={paginatedData}
         options={options}
         loadingTable={loadingTable}
-        setShowMessage={setShowMessage}
-        setTitleMessage={setTitleMessage}
-        setMessage={setMessage}
-        setStatus={setStatus}
-        updateData={updateData}
         setId={setId}
-        title={title}
         setTitle={setTitle}
-        loading={loading}
-        setLoading={setLoading}
         setShowEdit={setShowEdit}
         setShowChangeStatus={setShowChangeStatus}
         setConfirMessage={setConfirMessage}
@@ -341,7 +337,7 @@ const Rol = () => {
       {showEdit && (
         <Form_rol
           title={title}
-          onClose={() => setShowEditRol(false)}
+          onClose={() => setShowEdit(false)}
           setShowMessage={setShowMessage}
           setTitleMessage={setTitleMessage}
           setMessage={setMessage}

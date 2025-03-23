@@ -46,8 +46,11 @@ const Property = () => {
   const [loading, setLoading] = useState("");
   const [loadingTable, setLoadingTable] = useState(false);
   const [showMessage, setShowMessage] = useState(false);
+  const [titleMessage, setTitleMessage] = useState(false);
   const [message, setMessage] = useState(false);
   const [status, setStatus] = useState(false);
+  // const [id, setId] = useState(null);
+  const [buttonDisabled, setButtonDisabled] = useState(true);
 
   const handleButtonClick = (buttonText) => {
     if (buttonText === "Añadir predio") {
@@ -57,7 +60,7 @@ const Property = () => {
     if (buttonText === "Descargar reporte") {
       setLoading("is-loading");
       generatePropertyReport();
-      generateLotReport();
+      // generateLotReport();
     }
   };
   //generacion de pdf consolidado de predios
@@ -337,9 +340,11 @@ const Property = () => {
       setData(response.data.data);
 
       const sortedData = response.data.data.sort((a, b) => a.id - b.id);
+
       console.log(sortedData);
 
       setData(sortedData);
+      setButtonDisabled(false);
     } catch (error) {
       console.error("Error al obtener los usuarios:", error);
     } finally {
@@ -347,7 +352,24 @@ const Property = () => {
     }
   };
 
-  console.log(data);
+  const updateData = async () => {
+    fetchProperties();
+  };
+
+  useEffect(() => {
+    if (showMessage) {
+      const timer = setTimeout(() => {
+        setShowMessage(false);
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [showMessage]);
+
+  const toTitleCase = (str) => {
+    if (typeof str !== "string") return str;
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  };
 
   const filteredData = data
     .filter((info) =>
@@ -359,8 +381,8 @@ const Property = () => {
     .map((info) => ({
       ID: info.id,
       "ID del predio": info.id,
-      Nombre: info.name,
-      "Número de documento del dueño": info.user_name,
+      Nombre: toTitleCase(info.name),
+      "Número de documento del dueño": info.owner_document_number,
       "Folio de matricula inmobiliaria": info.real_estate_registration_number,
       "Extensión (m²)": info.extension,
       Latitud: info.latitude,
@@ -380,16 +402,22 @@ const Property = () => {
     startIndex + itemsPerPage
   );
 
+  console.log(data);
+
   return (
     <>
       <Head
         head_data={head_data}
         onButtonClick={handleButtonClick}
         loading={loading}
+        buttonDisabled={buttonDisabled}
       />
       <div className="container-search">
-        <Search onSearch={setSearchTerm} />
-        <Filter onFilterClick={handleFilterClick} />
+        <Search onSearch={setSearchTerm} buttonDisabled={buttonDisabled} />
+        <Filter
+          onFilterClick={handleFilterClick}
+          buttonDisabled={buttonDisabled}
+        />
       </div>
       <Table
         columns={columns}
@@ -409,10 +437,23 @@ const Property = () => {
             title="Añadir predio"
             onClose={() => setShowForm(false)}
             setShowMessage={setShowMessage}
+            setTitleMessage={setTitleMessage}
             setMessage={setMessage}
             setStatus={setStatus}
+            updateData={updateData}
+            // id={id}
+            loading={loading}
+            setLoading={setLoading}
           />
         </>
+      )}
+      {showMessage && (
+        <Message
+          titleMessage={titleMessage}
+          message={message}
+          status={status}
+          onClose={() => setShowMessage(false)}
+        />
       )}
     </>
   );
