@@ -28,6 +28,7 @@ const Confirm_property = ({
         url: uriPost,
         data: formData,
       });
+      console.log(response);
       if (typeForm === "create_property") {
         setTitleMessage("Predio creado exitosamente");
         setMessage("El predio se ha creado correctamente.");
@@ -38,6 +39,7 @@ const Confirm_property = ({
         updateData();
       }
     } catch (error) {
+      console.log(error);
       if (typeForm === "create_property") {
         setTitleMessage("Error al crear el predio");
         setMessage(

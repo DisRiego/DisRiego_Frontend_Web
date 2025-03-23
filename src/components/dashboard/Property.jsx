@@ -387,13 +387,14 @@ const Property = () => {
       "Extensión (m²)": info.extension,
       Latitud: info.latitude,
       Longitud: info.longitude,
-      Estado: info.estado,
+      Estado: info.state_name,
     }));
 
   const options = [
     { icon: "BiShow", name: "Ver detalles" },
     { icon: "BiEditAlt", name: "Editar" },
-    { icon: "LuDownload", name: "Inhabilitar" },
+    { icon: "MdOutlineCheckCircle", name: "Habilitar" },
+    { icon: "VscError", name: "Inhabilitar" },
   ];
 
   const startIndex = (currentPage - 1) * itemsPerPage;

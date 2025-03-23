@@ -12,34 +12,38 @@ const Form_edit_profile_data = ({ title, onClose, data }) => {
   const [states, setStates] = useState([]);
   const [cities, setCities] = useState([]);
   const [hasSubmitted, setHasSubmitted] = useState(false);
+  const [disabled, setDisabled] = useState(true);
 
   const [formData, setFormData] = useState({
     country: "",
-    state: "",
-    city_id: "",
+    department: "",
+    city: "",
     address: "",
-    phone_code: "",
+    // phone_code: "",
     phone: "",
   });
 
   const [errors, setErrors] = useState({
     country: "",
-    state: "",
-    city_id: "",
+    department: "",
+    city: "",
     address: "",
-    phone_code: "",
+    // phone_code: "",
     phone: "",
   });
 
   useEffect(() => {
-    setIsLoading(true);
+    console.log(data);
     if (data) {
       setFormData({
         country: data.country || "",
-        state: data.state || "",
+        department: data.department || "",
         city: data.city || "",
         address: data.address || "",
+        phone: data.phone || "",
       });
+      setDisabled(false);
+      console.log(disabled);
     }
   }, [data]);
 
@@ -78,10 +82,10 @@ const Form_edit_profile_data = ({ title, onClose, data }) => {
   }, [formData.country]);
 
   useEffect(() => {
-    if (formData.country && formData.state) {
+    if (formData.country && formData.department) {
       axios
         .get(
-          `https://api.countrystatecity.in/v1/countries/${formData.country}/states/${formData.state}/cities`,
+          `https://api.countrystatecity.in/v1/countries/${formData.country}/states/${formData.department}/cities`,
           {
             headers: { "X-CSCAPI-KEY": api_key },
           }
@@ -98,7 +102,7 @@ const Form_edit_profile_data = ({ title, onClose, data }) => {
     } else {
       setCities([]);
     }
-  }, [formData.country, formData.state]);
+  }, [formData.country, formData.department]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -109,22 +113,24 @@ const Form_edit_profile_data = ({ title, onClose, data }) => {
       setFormData((prevData) => ({
         ...prevData,
         country: value,
-        state: "",
-        city_id: "",
-        phone_code: selectedCountry ? selectedCountry.phonecode : "",
+        department: "",
+        city: "",
+        // phone_code: selectedCountry ? selectedCountry.phonecode : "",
       }));
-    } else if (name === "state") {
-      setFormData((prevData) => ({ ...prevData, state: value, city_id: "" }));
+    } else if (name === "department") {
+      setFormData((prevData) => ({ ...prevData, department: value, city: "" }));
     }
   };
 
   const validateForm = () => {
     const newErrors = {
       country: !formData.country ? "Debe seleccionar un país" : "",
-      state: !formData.state ? "Debe seleccionar un departamento" : "",
-      city_id: !formData.city_id ? "Debe seleccionar una ciudad" : "",
+      department: !formData.department
+        ? "Debe seleccionar un departamento"
+        : "",
+      city: !formData.city ? "Debe seleccionar una ciudad" : "",
       address: !validateAddress(formData.address) ? "Dirección inválida" : "",
-      phone_code: !validatePhone(formData.phone_code) ? "Sin extensión" : "",
+      // phone_code: !validatePhone(formData.phone_code) ? "Sin extensión" : "",
       phone: !validatePhone(formData.phone) ? "Número de celular inválido" : "",
     };
     setErrors(newErrors);
@@ -134,6 +140,7 @@ const Form_edit_profile_data = ({ title, onClose, data }) => {
   const handleSubmit = () => {
     setHasSubmitted(true);
     if (validateForm()) {
+      console.log(formData);
       console.log("Formulario válido, enviando datos...");
     }
   };
@@ -160,7 +167,7 @@ const Form_edit_profile_data = ({ title, onClose, data }) => {
                     <div
                       className={`select ${
                         hasSubmitted
-                          ? errors.city_id
+                          ? errors.country
                             ? "is-false"
                             : "is-true"
                           : ""
@@ -171,6 +178,7 @@ const Form_edit_profile_data = ({ title, onClose, data }) => {
                         className={`select`}
                         value={formData.country}
                         onChange={handleChange}
+                        disabled={disabled}
                       >
                         <option value="" disabled>
                           Seleccione un país
@@ -195,17 +203,17 @@ const Form_edit_profile_data = ({ title, onClose, data }) => {
                     <div
                       className={`select ${
                         hasSubmitted
-                          ? errors.city_id
+                          ? errors.department
                             ? "is-false"
                             : "is-true"
                           : ""
                       }`}
                     >
                       <select
-                        name="state"
-                        value={formData.state}
+                        name="department"
+                        value={formData.department}
                         onChange={handleChange}
-                        disabled={!formData.country}
+                        disabled={disabled}
                       >
                         <option value="">Seleccione un departamento</option>
                         {states.map((state) => (
@@ -216,8 +224,8 @@ const Form_edit_profile_data = ({ title, onClose, data }) => {
                       </select>
                     </div>
                   </div>
-                  {hasSubmitted && errors.state && (
-                    <p className="input-error">{errors.state}</p>
+                  {hasSubmitted && errors.department && (
+                    <p className="input-error">{errors.department}</p>
                   )}
                 </div>
               </div>
@@ -230,17 +238,17 @@ const Form_edit_profile_data = ({ title, onClose, data }) => {
                     <div
                       className={`select ${
                         hasSubmitted
-                          ? errors.city_id
+                          ? errors.city
                             ? "is-false"
                             : "is-true"
                           : ""
                       }`}
                     >
                       <select
-                        name="city_id"
-                        value={formData.city_id}
+                        name="city"
+                        value={formData.city}
                         onChange={handleChange}
-                        disabled={!formData.state}
+                        disabled={disabled}
                       >
                         <option value="">Seleccione una ciudad</option>
                         {cities.map((city) => (
@@ -251,8 +259,8 @@ const Form_edit_profile_data = ({ title, onClose, data }) => {
                       </select>
                     </div>
                   </div>
-                  {hasSubmitted && errors.city_id && (
-                    <p className="input-error">{errors.city_id}</p>
+                  {hasSubmitted && errors.city && (
+                    <p className="input-error">{errors.city}</p>
                   )}
                 </div>
               </div>
@@ -273,6 +281,7 @@ const Form_edit_profile_data = ({ title, onClose, data }) => {
                       placeholder="Ingresa tu dirección de residencia"
                       value={formData.address}
                       onChange={handleChange}
+                      disabled={disabled}
                     />
                   </div>
                   {hasSubmitted && errors.address && (
@@ -282,7 +291,7 @@ const Form_edit_profile_data = ({ title, onClose, data }) => {
               </div>
             </div>
             <div className="columns">
-              <div className="column is-one-fifth">
+              {/* <div className="column is-one-fifth">
                 <div className="field">
                   <label className="label">Extensión</label>
                   <div className="control">
@@ -307,7 +316,7 @@ const Form_edit_profile_data = ({ title, onClose, data }) => {
                     <p className="input-error">{errors.phone_code}</p>
                   )}
                 </div>
-              </div>
+              </div> */}
               <div className="column">
                 <div className="field">
                   <label className="label">Número de celular</label>
@@ -325,6 +334,7 @@ const Form_edit_profile_data = ({ title, onClose, data }) => {
                       placeholder="Ingresa tu número de celular"
                       value={formData.phone}
                       onChange={handleChange}
+                      disabled={disabled}
                     />
                   </div>
                   {hasSubmitted && errors.phone && (
