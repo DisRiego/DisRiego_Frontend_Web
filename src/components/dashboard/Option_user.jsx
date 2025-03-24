@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { MdOutlineWaterDrop } from "react-icons/md";
@@ -14,7 +15,34 @@ import { jwtDecode } from "jwt-decode";
 
 const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
   const navigate = useNavigate();
-  const token = localStorage.getItem("token");
+  const [token, setToken] = useState("");
+  const [permissionsUser, setPermissionsUser] = useState([]);
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    if (!storedToken) {
+      navigate("/login");
+      return;
+    }
+
+    setToken(storedToken);
+
+    try {
+      const decoded = jwtDecode(storedToken);
+      console.log(decoded);
+      const permisos = decoded.rol?.[0]?.permisos?.map((p) => p.name) || [];
+      setPermissionsUser(permisos);
+
+      if (permisos.length === 0) {
+        localStorage.removeItem("token");
+        navigate("/login");
+      }
+    } catch (error) {
+      console.error("Error al decodificar el token:", error);
+      localStorage.removeItem("token");
+      navigate("/login");
+    }
+  }, [navigate]);
 
   const handleSignUp = async (e) => {
     try {
@@ -38,15 +66,9 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
     }
   };
 
-  const decoded = jwtDecode(token);
-  console.log(decoded);
-  const permisosUsuario = decoded.rol[0].permisos.map(
-    (permiso) => permiso.name
-  );
-
-  const opcionesMenu = [
+  const optionsMenu = [
     {
-      permiso: [
+      permission: [
         "Editar Datos Empresa",
         "Adicionar Certificado",
         "Editar Certificado",
@@ -63,14 +85,19 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
       label: "Gestión de empresa",
     },
     {
-      permiso: ["Crear Rol", "Editar Rol", "Inhabilitar Rol", "Habilitar Rol"],
+      permission: [
+        "Crear Rol",
+        "Editar Rol",
+        "Inhabilitar Rol",
+        "Habilitar Rol",
+      ],
       path: "/dashboard/rol",
       selectoption: "rol",
       icon: <LuUserCog />,
       label: "Gestión de roles",
     },
     {
-      permiso: [
+      permission: [
         "Crear Usuario",
         "Editar Usuario",
         "Inhabilitar Usuario",
@@ -82,7 +109,7 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
       label: "Gestión de usuarios",
     },
     {
-      permiso: [
+      permission: [
         "Crear Predio",
         "Editar Predio",
         "Inhabilitar Predio",
@@ -94,7 +121,7 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
       label: "Gestión de predios",
     },
     {
-      permiso: "Mis predios y lotes",
+      permission: "Mis predios y lotes",
       path: "/dashboard/properties",
       selectoption: "properties",
       icon: <TbMapSearch />,
@@ -102,10 +129,13 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
     },
   ];
 
-  const opcionesFiltradas = opcionesMenu.filter((opcion) =>
-    Array.isArray(opcion.permiso)
-      ? opcion.permiso.some((permiso) => permisosUsuario.includes(permiso))
-      : permisosUsuario.includes(opcion.permiso)
+  const optionsFiltered = optionsMenu.filter((option) =>
+    Array.isArray(option.permission)
+      ? permissionsUser?.length > 0 &&
+        option.permission.some((permission) =>
+          permissionsUser.includes(permission)
+        )
+      : permissionsUser?.includes(option.permission)
   );
 
   return (
@@ -125,17 +155,17 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
             {!isCollapsed && <span>Notificaciones</span>}
           </Link>
 
-          {opcionesFiltradas.map((opcion, index) => (
+          {optionsFiltered.map((option, index) => (
             <Link
               key={index}
               className={`navbar-item ${
-                selectedOption === opcion.selectoption ? "selected" : ""
+                selectedOption === option.selectoption ? "selected" : ""
               }`}
-              onClick={() => handleOptionChange(opcion.selectoption)}
-              to={opcion.path}
+              onClick={() => handleOptionChange(option.selectoption)}
+              to={option.path}
             >
-              <span className="icon">{opcion.icon}</span>
-              {!isCollapsed && <span>{opcion.label}</span>}
+              <span className="icon">{option.icon}</span>
+              {!isCollapsed && <span>{option.label}</span>}
             </Link>
           ))}
         </div>

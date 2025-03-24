@@ -87,7 +87,6 @@ const Login = () => {
         const token = response.data.access_token;
         localStorage.setItem("token", token);
         const decode = jwtDecode(token);
-        console.log(decode);
 
         if (decode.first_login_complete === false) {
           navigate("/login/update-info");
@@ -95,7 +94,6 @@ const Login = () => {
           navigate("/dashboard/profile");
         }
       } catch (error) {
-        console.log(error);
         if (
           error.status === 401 &&
           error.response.data.detail.status === "false"
@@ -279,7 +277,7 @@ const Login = () => {
                 <Link to="/login/resetpassword"> Restablécela aquí.</Link>
               </div>
               <div className="has-text-centered">
-                <span>¿No tienes cuenta? </span>
+                <span>¿No has activado tu cuenta? </span>
                 <Link to="/signup">Haz clic aquí.</Link>
               </div>
             </div>

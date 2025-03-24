@@ -13,6 +13,7 @@ import RobotoNormalFont from "../../assets/fonts/Roboto-Regular.ttf";
 import RobotoBoldFont from "../../assets/fonts/Roboto-Bold.ttf";
 import axios from "axios";
 import Message from "../Message";
+import Change_status_user from "./Status/Change_status_user";
 
 const User = () => {
   const [data, setData] = useState([]);
@@ -34,7 +35,12 @@ const User = () => {
   const [filteredData, setFilteredData] = useState([]);
   const [backupData, setBackupData] = useState([]);
   const [statusFilter, setStatusFilter] = useState(false);
-  const [filters, setFilters] = useState({ estados: {} });
+  const [filters, setFilters] = useState({
+    estados: {},
+    roles: {},
+    tiposDocumento: {},
+  });
+
   const [id, setId] = useState(null);
   const [title, setTitle] = useState();
   const [typeForm, setTypeForm] = useState();
@@ -291,7 +297,8 @@ const User = () => {
   const options = [
     { icon: "BiShow", name: "Ver detalles" },
     { icon: "BiEditAlt", name: "Editar" },
-    { icon: "LuDownload", name: "Inhabilitar" },
+    { icon: "MdOutlineCheckCircle", name: "Habilitar" },
+    { icon: "VscError", name: "Inhabilitar" },
   ];
 
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -300,17 +307,22 @@ const User = () => {
     startIndex + itemsPerPage
   );
 
+  console.log(filteredData);
+
   return (
     <>
       <Head
         head_data={head_data}
         onButtonClick={handleButtonClick}
         loading={loading}
-        buttonDisabled={buttonDisabled}
+        // buttonDisabled={buttonDisabled}
       />
       <div className="container-search">
-        <Search onSearch={setSearchTerm} />
-        <Filter onFilterClick={handleFilterClick} />
+        <Search onSearch={setSearchTerm} buttonDisabled={buttonDisabled} />
+        <Filter
+          onFilterClick={handleFilterClick}
+          buttonDisabled={buttonDisabled}
+        />
       </div>
       <Table
         columns={columns}
@@ -363,6 +375,22 @@ const User = () => {
           token={token}
           typeForm={typeForm}
           setTypeForm={setTypeForm}
+        />
+      )}
+      {showChangeStatus && (
+        <Change_status_user
+          onClose={() => setShowChangeStatus(false)}
+          onSuccess={() => setShowChangeStatus(false)}
+          id={id}
+          confirMessage={confirMessage}
+          setShowMessage={setShowMessage}
+          setTitleMessage={setTitleMessage}
+          setMessage={setMessage}
+          setStatus={setStatus}
+          updateData={updateData}
+          typeForm={typeForm}
+          loading={loading}
+          setLoading={setLoading}
         />
       )}
       {showFilter && (

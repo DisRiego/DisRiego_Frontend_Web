@@ -10,7 +10,7 @@ export const validateEmail = (email) => {
 
 export const validateAddress = (address) => {
   const regex =
-    /^(Calle|Carrera|Avenida|Transversal|Diagonal)\s\d+\s*(#|n°)\s*\d+(-\d+)?$/i;
+    /^(Calle|Carrera|Avenida|Transversal|Diagonal)\s\d+[a-zA-Z]?\s*(?:[a-zA-Z])?\s*(?:sur|norte|oriente|occidente)?\s*(?:#|n°)?\s*\d+(-\d+)?$/i;
   return regex.test(address);
 };
 

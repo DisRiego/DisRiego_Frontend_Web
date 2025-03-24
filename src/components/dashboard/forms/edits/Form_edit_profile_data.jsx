@@ -163,10 +163,10 @@ const Form_edit_profile_data = ({
       setMethod("put");
       setUriPost(
         import.meta.env.VITE_URI_BACKEND +
-          import.meta.env.VITE_ROUTE_BACKEND_USERS_CHANGE_PICTURE +
+          import.meta.env.VITE_ROUTE_BACKEND_USERS_EDIT +
           id
       );
-      setTypeForm("update_picture");
+      setTypeForm("update_data");
       setShowConfirm(true);
     }
   };

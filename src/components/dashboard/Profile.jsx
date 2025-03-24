@@ -186,36 +186,38 @@ const Profile = () => {
               <div className="column">
                 <strong>Tipo de documento</strong>
                 <br />
-                {formData.type_document_name}
+                {formData.type_document_name || "[]"}
               </div>
               <div className="column">
                 <strong>Número de documento</strong>
                 <br />
-                {formData.document_number}
+                {formData.document_number || "[]"}
               </div>
             </div>
             <div className="columns">
               <div className="column">
                 <strong>Fecha de nacimiento</strong>
                 <br />
-                []
+                {formData.birthday ? formData.birthday.slice(0, 10) : "[]"}
               </div>
               <div className="column">
                 <strong>Fecha de expedición</strong>
                 <br />
-                []
+                {formData.date_issuance_document
+                  ? formData.date_issuance_document.slice(0, 10)
+                  : "[]"}
               </div>
             </div>
             <div className="columns">
               <div className="column">
                 <strong>Genero</strong>
                 <br />
-                {formData.gender_name}
+                {formData.gender_name || "[]"}
               </div>
               <div className="column">
                 <strong>Teléfono</strong>
                 <br />
-                {formData.phone}
+                {formData.phone || "[]"}
               </div>
             </div>
             <div className="columns">
@@ -229,7 +231,7 @@ const Profile = () => {
               <div className="column">
                 <strong>Dirección de correspondencia</strong>
                 <br />
-                {toTitleCase(formData.address)}
+                {toTitleCase(formData.address || "[]")}
               </div>
             </div>
           </div>
@@ -248,7 +250,7 @@ const Profile = () => {
             <div className="columns">
               <div className="column">
                 <h3>Correo Electrónico</h3>
-                <span>{formData.email}</span>
+                <span>{formData.email || "[]"}</span>
               </div>
               <div className="column">
                 <strong>Contraseña</strong>
@@ -285,7 +287,7 @@ const Profile = () => {
             setTitleMessage={setTitleMessage}
             setMessage={setMessage}
             setStatus={setStatus}
-            pdateData={updateData}
+            updateData={updateData}
             id={id}
             loading={loading}
             setLoading={setLoading}

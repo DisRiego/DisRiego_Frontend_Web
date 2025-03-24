@@ -71,6 +71,12 @@ const Table = ({
       console.log("Entro tabla id");
       navigate(`${row.ID}`);
     }
+
+    // Funciones de Rol
+    if (id === "rol" && option.name === "Editar") {
+      setTitle("Editar rol");
+      setShowEdit(true);
+    }
     if (id === "rol" && option.name === "Inhabilitar") {
       setConfirMessage(`¿Desea inhabilitar el rol "${row["Nombre del rol"]}"?`);
       setTypeForm("inhabilitar");
@@ -81,14 +87,23 @@ const Table = ({
       setTypeForm("habilitar");
       setShowChangeStatus(true);
     }
-    if (id === "rol" && option.name === "Editar") {
-      setTitle("Editar rol");
-      setShowEdit(true);
-    }
+
+    // Funciones de usuario
     if (id === "user" && option.name === "Editar") {
       setTitle("Editar usuario");
       setShowEdit(true);
     }
+    if (id === "user" && option.name === "Inhabilitar") {
+      setConfirMessage(`¿Desea inhabilitar el usuario "${row["Nombres"]}"?`);
+      setTypeForm("inhabilitar");
+      setShowChangeStatus(true);
+    }
+    if (id === "user" && option.name === "Habilitar") {
+      setConfirMessage(`¿Desea habilitar el usuario "${row["Nombres"]}"?`);
+      setTypeForm("habilitar");
+      setShowChangeStatus(true);
+    }
+
     if (id === "property" && option.name === "Editar") {
       setShowEditProperty(true);
     }
@@ -171,6 +186,13 @@ const Table = ({
                               <div className="box">
                                 {options
                                   .filter((option) => {
+                                    console.log(option);
+                                    if (
+                                      option.name === "Habilitar" &&
+                                      row["Estado"] === "Pendiente"
+                                    ) {
+                                      return false;
+                                    }
                                     if (
                                       option.name === "Habilitar" &&
                                       row["Estado"] === "Activo"

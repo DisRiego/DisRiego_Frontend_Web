@@ -49,6 +49,16 @@ const Confirm_profile = ({
           onClose();
           onSuccess();
           updateData();
+        } else {
+          if (typeForm === "update_data") {
+            setTitleMessage("Actualización exitosa");
+            setMessage("La información ha sido actualizada correctamente.");
+            setStatus("is-true");
+            setShowMessage(true);
+            onClose();
+            onSuccess();
+            updateData();
+          }
         }
       }
     } catch (error) {
@@ -68,6 +78,15 @@ const Confirm_profile = ({
           );
           setStatus("is-false");
           setShowMessage(true);
+        } else {
+          if (typeForm === "update_data") {
+            setTitleMessage("Error al actualizar");
+            setMessage(
+              "No se pudo actualizar la información. Por favor, inténtelo de nuevo."
+            );
+            setStatus("is-false");
+            setShowMessage(true);
+          }
         }
       }
     } finally {
