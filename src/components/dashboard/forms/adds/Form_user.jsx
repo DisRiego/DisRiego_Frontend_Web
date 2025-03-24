@@ -101,15 +101,25 @@ const Form_user = ({
       setUser(userData);
 
       setFormData({
-        name: userData.name,
-        first_last_name: userData.first_last_name,
-        second_last_name: userData.second_last_name,
-        type_document_id: userData.type_document_id,
-        document_number: userData.document_number.toString(),
-        birthday: userData.birthday.slice(0, 10),
-        date_issuance_document: userData.date_issuance_document.slice(0, 10),
-        gender_id: userData.gender_id,
-        roles: userData.roles.map((role) => role.id),
+        name: userData.name ? userData.name : "",
+        first_last_name: userData.first_last_name
+          ? userData.first_last_name
+          : "",
+        second_last_name: userData.second_last_name
+          ? userData.second_last_name
+          : "",
+        type_document_id: userData.type_document_id
+          ? userData.type_document_id
+          : "",
+        document_number: userData.document_number
+          ? userData.document_number.toString()
+          : "",
+        birthday: userData.birthday ? userData.birthday.slice(0, 10) : "",
+        date_issuance_document: userData.date_issuance_document
+          ? userData.date_issuance_document.slice(0, 10)
+          : "",
+        gender_id: userData.gender_id ? userData.gender_id : "",
+        roles: userData.roles ? userData.roles.map((role) => role.id) : [],
       });
 
       setIsLoading(false);
