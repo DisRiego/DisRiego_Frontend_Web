@@ -51,6 +51,7 @@ const Property = () => {
   const [status, setStatus] = useState(false);
   // const [id, setId] = useState(null);
   const [buttonDisabled, setButtonDisabled] = useState(true);
+  const [id, setId] = useState(null);
 
   const handleButtonClick = (buttonText) => {
     if (buttonText === "Añadir predio") {
@@ -425,6 +426,7 @@ const Property = () => {
         data={paginatedData}
         options={options}
         loadingTable={loadingTable}
+        setId={setId}
       />
       <Pagination
         totalItems={filteredData.length}
