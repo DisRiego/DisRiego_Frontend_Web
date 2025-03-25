@@ -1,8 +1,13 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import axios from "axios";
 import { Bar, Line } from "react-chartjs-2";
 import "../../../styles/index.css";
 import Head from "../Head";
+import Table from "../Table";
+import Pagination from "../Pagination";
+import Lot from "../Lot";
+import Iot_by_property from "../Iot_by_property";
 import RobotoNormalFont from "../../../assets/fonts/Roboto-Regular.ttf";
 import RobotoBoldFont from "../../../assets/fonts/Roboto-Bold.ttf";
 import Icon from "../../../assets/icons/Disriego_title.png";
@@ -30,140 +35,39 @@ ChartJS.register(
   Tooltip,
   Legend
 );
+import { IoDocument } from "react-icons/io5";
 
-const metrics = [
-  {
-    title: "Consumo promedio de energía",
-    value: "155 kWh",
-    className: "warning",
-  },
-  { title: "Consumo actual de energía", value: "132 kWh", className: "danger" },
-  { title: "Consumo promedio de agua", value: "245 m³", className: "info" },
-  { title: "Consumo actual de agua", value: "265 m³", className: "primary" },
-];
-
-const attachments = [
-  { name: "Escritura pública", file: "EscrituraPublica.pdf", size: "5.7MB" },
-  {
-    name: "Certificado de tradición y libertad (CTL)",
-    file: "CTL.pdf",
-    size: "5.7MB",
-  },
-];
-
-// Datos sinteticos de los lotes
-const lotMockData = [
-  {
-    id: 101,
-    property_id: 1, // Lote perteneciente a "Finca La Esperanza"
-    name: "Lote A1",
-    inmobilario: "L-123",
-    extension: "10 Ha",
-    latitud: "2.9250",
-    longitud: "-75.2800",
-    estado: "Activo",
-  },
-  {
-    id: 102,
-    property_id: 2, // Otro lote para "Finca La Esperanza"
-    name: "Lote A2",
-    inmobilario: "L-124",
-    extension: "15 Ha",
-    latitud: "2.9260",
-    longitud: "-75.2790",
-    estado: "Activo",
-  },
-  {
-    id: 103,
-    property_id: 3, // Lote para "Hacienda El Roble"
-    name: "Lote hacienda el roble",
-    inmobilario: "R-456",
-    extension: "60 Ha",
-    latitud: "2.9350",
-    longitud: "-75.2850",
-    estado: "Activo",
-  },
-  {
-    id: 104,
-    property_id: 4, // Lote para "Predio Los Nogales"
-    name: "Lote N1",
-    inmobilario: "N-789",
-    extension: "25 Ha",
-    latitud: "2.9200",
-    longitud: "-75.2650",
-    estado: "Inactivo",
-  },
-  {
-    id: 105,
-    property_id: 3, // Lote para "Predio Los Nogales"
-    name: "Lote N1",
-    inmobilario: "N-789",
-    extension: "25 Ha",
-    latitud: "2.9200",
-    longitud: "-75.2650",
-    estado: "Inactivo",
-  },
-];
-
-// Datos sinteticos de los predios
-const mockData = [
-  {
-    id: 1,
-    name: "Finca La Esperanza",
-    user_name: "1023456789",
-    inmobilario: "123-456789",
-    extension: "50 Ha",
-    latitud: "2.9273",
-    longitud: "-75.2819",
-    estado: "Activo",
-  },
-  {
-    id: 2,
-    name: "Hacienda El Roble",
-    user_name: "1122334455",
-    inmobilario: "234-567890",
-    extension: "120 Ha",
-    latitud: "2.9385",
-    longitud: "-75.2901",
-    estado: "Activo",
-  },
-  {
-    id: 3,
-    name: "Granja San Luis",
-    user_name: "9988776655",
-    inmobilario: "345-678901",
-    extension: "30 Ha",
-    latitud: "2.9156",
-    longitud: "-75.2753",
-    estado: "Inactivo",
-  },
-  {
-    id: 4,
-    name: "Predio Los Nogales",
-    user_name: "6677889900",
-    inmobilario: "456-789012",
-    extension: "75 Ha",
-    latitud: "2.9214",
-    longitud: "-75.2687",
-    estado: "Activo",
-  },
-  {
-    id: 5,
-    name: "Terreno Las Palmas",
-    user_name: "3344556677",
-    inmobilario: "567-890123",
-    extension: "95 Ha",
-    latitud: "2.9321",
-    longitud: "-75.2850",
-    estado: "Activo",
-  },
-];
-
-const PropertyDetail = () => {
+const Property_detail = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const [data, setData] = useState(null);
   const [loading, setLoading] = useState("");
+  const [dots, setDots] = useState("");
   const [showForm, setShowForm] = useState(false);
-  const [tableTab, setTableTab] = useState("lotes");
+  const [activeTab, setActiveTab] = useState("consumo");
+  const [activePeriod, setActivePeriod] = useState("mes");
+  const [activePeriodRight, setActivePeriodRight] = useState("año");
+  const [dataLots, setDataLots] = useState([]);
+  const [loadingTable, setLoadingTable] = useState(false);
+  const [activeOption, setActiveOption] = useState("lot");
+
+  const head_data = {
+    title: "Detalles del predio #" + id,
+    description:
+      "En esta sección podrás visualizar información detallada sobre el predio.",
+    buttons: {
+      button1: {
+        icon: "FaPlus",
+        class: "color-hover",
+        text: "Añadir lote",
+      },
+      button2: {
+        icon: "LuDownload",
+        class: "",
+        text: "Descargar reporte",
+      },
+    },
+  };
 
   const handleButtonClick = (buttonText) => {
     if (buttonText === "Añadir lote") {
@@ -179,13 +83,13 @@ const PropertyDetail = () => {
   const generateReport = () => {
     const doc = new jsPDF();
     // Datos del predio actual
-    const currentProperty = mockData.find(
-      (property) => property.id === parseInt(id)
-    );
-    // Filtra los lotes que pertenecen al predio actual
-    const lotsForProperty = lotMockData.filter(
-      (lot) => lot.property_id === parseInt(id)
-    );
+    // const currentProperty = mockData.find(
+    //   (property) => property.id === parseInt(id)
+    // );
+    // // Filtra los lotes que pertenecen al predio actual
+    // const lotsForProperty = lotMockData.filter(
+    //   (lot) => lot.property_id === parseInt(id)
+    // );
 
     // Add Roboto font to the document
     doc.addFont(RobotoNormalFont, "Roboto", "normal");
@@ -352,14 +256,24 @@ const PropertyDetail = () => {
     }, 500);
   };
 
-  const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("consumo"); // 'consumo' o 'produccion'
-  const [activePeriod, setActivePeriod] = useState("mes"); // 'dia', 'semana', 'mes', 'año'
-  const [activePeriodRight, setActivePeriodRight] = useState("año"); // Para el gráfico de la derecha
+  // useEffect(() => {
+  //   getProperty();
+  // }, []);
 
-  const handleOnClick = async () => {
-    navigate("lot/1");
-  };
+  // const getProperty = async () => {
+  //   try {
+  //     const response = await axios.get(
+  //       import.meta.env.VITE_URI_BACKEND +
+  //         import.meta.env.VITE_ROUTE_BACKEND_PROPERTY +
+  //         id
+  //     );
+  //     setData(response.data.data[0]);
+  //   } catch (error) {
+  //     console.log("Error al obtener rol:", error);
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
 
   // Función para generar etiquetas de fecha según el período seleccionado
   const generateDateLabels = (period) => {
@@ -628,19 +542,19 @@ const PropertyDetail = () => {
           {
             title: "Consumo promedio de agua",
             valueUptakeWater: "245 m³",
-            bgColor: "rgba(91,147,255,0.15)",
+            bgColor: "rgb(231, 239, 255)",
           },
           {
             title: "Consumo actual de agua",
             valueUptakeWater: "265 m³",
-            bgColor: "rgba(91,147,255,0.15)",
+            bgColor: "rgb(231, 239, 255)",
           },
         ]
       : [
           {
             title: "Energía almacenada (Baterías)",
             valueStorageEnergy: "155 kWh",
-            bgColor: "rgba(239,249,217,1)",
+            bgColor: "#eff9d9",
           },
           {
             title: "Autonomía restante (Baterías)",
@@ -650,79 +564,125 @@ const PropertyDetail = () => {
           {
             title: "Producción mensual de energía",
             valueProductionEnergy: "155 kWh",
-            bgColor: "rgba(229,135,127, 0.4)",
+            bgColor: "#ffd9d5",
           },
           {
             title: "Producción actual de energía",
             valueProductionEnergy: "132 kWh",
-            bgColor: "rgba(229,135,127, 0.4)",
+            bgColor: "#ffd9d5",
           },
         ];
-  const head_data = {
-    title: "Detalles del predio #" + id,
-    description:
-      "En esta sección podrás visualizar información detallada sobre el predio.",
-    buttons: {
-      button1: {
-        icon: "FaPlus",
-        class: "color-hover",
-        text: "Añadir lote",
-      },
-      button2: {
-        icon: "LuDownload",
-        class: "",
-        text: "Descargar reporte",
-      },
+
+  const head_lot_data = {
+    lot: {
+      title: "Información de lotes",
+      description:
+        "En esta sección podrás visualizar los lotes que componen el predio.",
+    },
+    iot: {
+      title: "Información de dispositivos IoT",
+      description:
+        "En esta sección podrás visualizar todos los dispositivos IoT instalados en el predio.",
     },
   };
 
+  useEffect(() => {
+    fetchLots();
+  }, []);
+
+  const fetchLots = async () => {
+    try {
+      setLoadingTable(true);
+      const response = await axios.get(
+        import.meta.env.VITE_URI_BACKEND +
+          import.meta.env.VITE_ROUTE_BACKEND_PROPERTY +
+          id +
+          import.meta.env.VITE_ROUTE_BACKEND_LOTS
+      );
+      setDataLots(response.data.data);
+
+      const sortedData = response.data.data.sort((a, b) =>
+        a.name.localeCompare(b.name)
+      );
+      // const sortedData = response.data.data.sort((a, b) => a.name - b.name);
+
+      console.log(sortedData);
+
+      setDataLots(sortedData);
+      // setButtonDisabled(false);
+    } catch (error) {
+      console.error("Error al obtener los usuarios:", error);
+    } finally {
+      setLoadingTable(false);
+    }
+  };
+
+  const handleTabChange = (tab) => setActiveOption(tab);
+
+  const renderContent = () => {
+    switch (activeOption) {
+      case "lot":
+        return <Lot dataLots={dataLots} id={id} loadingTable={loadingTable} />;
+      case "iot":
+        return <Iot_by_property />;
+      default:
+        return null;
+    }
+  };
+
   return (
-    <div className="property-detail-container">
+    <>
       <Head
         head_data={head_data}
         onButtonClick={handleButtonClick}
         loading={loading}
       />
-      <div className="box">
-        <div className="is-flex is-justify-content-space-between is-align-items-center mb-4">
-          <h2 className="title is-5 mb-0">Visualiza las gráficas</h2>
-          <div className="tabs is-toggle is-small">
-            <ul>
-              <li className={activeTab === "consumo" ? "is-active" : ""}>
-                <a onClick={() => setActiveTab("consumo")}>
-                  <span>Consumo</span>
-                </a>
-              </li>
-              <li className={activeTab === "produccion" ? "is-active" : ""}>
-                <a onClick={() => setActiveTab("produccion")}>
-                  <span>Producción</span>
-                </a>
-              </li>
-            </ul>
+
+      <div className="is-flex is-justify-content-space-between is-align-items-center mb-4">
+        <h2 className="title is-5 mb-0">Visualiza las gráficas</h2>
+        <div className="tabs is-toggle is-small">
+          <div className="buttons is-justify-content-flex-end">
+            <button
+              className={`button ${
+                activeTab === "consumo" ? "color-hover" : ""
+              }`}
+              onClick={() => setActiveTab("consumo")}
+            >
+              Consumo
+            </button>
+            <div
+              className={`button ${
+                activeTab === "produccion" ? "color-hover" : ""
+              }`}
+              onClick={() => setActiveTab("produccion")}
+            >
+              Producción
+            </div>
           </div>
         </div>
-
+      </div>
+      <div className="rol-detail">
         {/* Tarjetas de resumen */}
         <div className="columns is-multiline mb-5">
           {summaryCards.map((card, index) => (
-            <div className="column is-3" key={index}>
+            <div className="column" key={index}>
               <div
                 className="box p-4"
                 style={{ backgroundColor: card.bgColor, height: "100%" }}
               >
-                <p className="is-size-7 has-text-weight-bold mb-2">
+                <p className="has-text-weight-bold has-text-black mb-2">
                   {card.title}
                 </p>
-                <p className="is-size-4 has-text-weight-bold uptake-value-energy">
+                <p className="is-size-4 has-text-weight-bold energy-consumption">
                   {card.valueUptakeEnergy}
                 </p>
-                <p className="is-size-4 has-text-weight-bold uptake-value-water">
+                <p className="is-size-4 has-text-weight-bold water-consumption">
                   {card.valueUptakeWater}
                 </p>
-                <p className="is-size-4 has-text-weight-bold storage-value-energy">
+                <p className="is-size-4 has-text-weight-bold battery-production">
                   {card.valueStorageEnergy}
                 </p>
-                <p className="is-size-4 has-text-weight-bold production-value-energy">
+                <p className="is-size-4 has-text-weight-bold energy-production">
                   {card.valueProductionEnergy}
                 </p>
               </div>
@@ -732,13 +692,13 @@ const PropertyDetail = () => {
 
         {/* Pestañas para tiempo: día, semana, mes, año */}
         <div className="columns">
-          <div className="column is-6">
+          <div className="column">
             <div className="is-flex is-justify-content-space-between is-align-items-center mb-2">
               <h3 className="subtitle is-6 mb-2">
                 Niveles de {activeTab === "consumo" ? "consumo" : "producción"}
               </h3>
-              <div className="tabs is-small tabs-period left">
-                <ul>
+              <div className="tabs is-flex">
+                <ul className="mt-0">
                   <li className={activePeriod === "dia" ? "is-active" : ""}>
                     <a onClick={() => setActivePeriod("dia")}>Día</a>
                   </li>
@@ -761,13 +721,13 @@ const PropertyDetail = () => {
               />
             </div>
           </div>
-          <div className="column is-6">
+          <div className="column">
             <div className="is-flex is-justify-content-space-between is-align-items-center mb-2">
               <h3 className="subtitle is-6 mb-2">
                 Niveles de {activeTab === "consumo" ? "consumo" : "producción"}
               </h3>
-              <div className="tabs is-small tabs-period right">
-                <ul>
+              <div className="tabs tabs-period right">
+                <ul className="mt-0">
                   <li
                     className={activePeriodRight === "dia" ? "is-active" : ""}
                   >
@@ -803,152 +763,105 @@ const PropertyDetail = () => {
         </div>
       </div>
 
-      <div className="details">
-        <DetailsBox
-          title="Detalles del usuario"
-          data={{
-            "Nombre del cliente": "[Nombre del cliente]",
-            "Tipo de documento": "[Tipo de documento]",
-            "Número de documento": "[Número de documento]",
-            "Fecha de expedición": "[Fecha de expedición]",
-          }}
-        />
-
-        <DetailsBox
-          title="Nombre del predio"
-          data={{
-            "Folio de matricula inmobiliaria": "[Matricula inmobiliaria]",
-            "Extensión del predio": "[Extensión m²]",
-            Longitud: "[Longitud]",
-            Latitud: "[Latitud]",
-          }}
-        />
-      </div>
-
-      <div className="attachments">
-        <h2>Ver anexos del predio</h2>
-        <div className="attachment-list">
-          {attachments.map((attachment, index) => (
-            <AnexoBox key={index} attachment={attachment} />
-          ))}
+      <div className="property-detail mt-4">
+        <div className="columns is-multiline">
+          <div className="column rol-detail">
+            <div className="level">
+              <h3 className="title is-6 margin-bottom">Detalles del usuario</h3>
+            </div>
+            <div className="columns is-multiline is-mobile">
+              <div className="column is-half column-p0">
+                <strong> Nombre del cliente</strong>
+              </div>
+              <div className="column is-half column-p0">[]</div>
+            </div>
+            <div className="columns is-multiline is-mobile">
+              <div className="column is-half column-p0">
+                <strong> Tipo de documento</strong>
+              </div>
+              <div className="column column-p0">[]</div>
+            </div>
+            <div className="columns is-multiline is-mobile">
+              <div className="column is-half column-p0">
+                <strong> Número de documento</strong>
+              </div>
+              <div className="column column-p0">[]</div>
+            </div>
+            <div className="columns is-multiline is-mobile">
+              <div className="column is-half">
+                <strong> Número de telefono</strong>
+              </div>
+              <div className="column column">[]</div>
+            </div>
+          </div>
+          <div className="mr-2 ml-2"></div>
+          <div className="column rol-detail">
+            <div className="level">
+              <h3 className="title is-6 margin-bottom">Detalles del usuario</h3>
+            </div>
+            <div className="columns is-multiline is-mobile">
+              <div className="column is-half column-p0">
+                <strong>Folio de matricula inmobilaria</strong>
+              </div>
+              <div className="column is-half column-p0">[]</div>
+            </div>
+            <div className="columns is-multiline is-mobile">
+              <div className="column is-half column-p0">
+                <strong>Extensión del predio</strong>
+              </div>
+              <div className="column column-p0">[]</div>
+            </div>
+            <div className="columns is-multiline is-mobile">
+              <div className="column is-half column-p0">
+                <strong>Longitud</strong>
+              </div>
+              <div className="column column-p0">[]</div>
+            </div>
+            <div className="columns is-multiline is-mobile">
+              <div className="column is-half">
+                <strong>Latitud</strong>
+              </div>
+              <div className="column column">[]</div>
+            </div>
+          </div>
         </div>
       </div>
-
-      <div className="tabs">
-        <ul>
-          <li className={tableTab === "lotes" ? "active" : ""}>
-            <a onClick={() => setTableTab("lotes")}>Lotes vinculados</a>
-          </li>
-          <li className={tableTab === "energia" ? "active" : ""}>
-            <a onClick={() => setTableTab("energia")}>
-              Dispositivos de energía
-            </a>
-          </li>
-        </ul>
-      </div>
-
-      {tableTab === "lotes" ? <LotesTable /> : <EnergiaTable />}
-    </div>
-  );
-};
-
-export default PropertyDetail;
-
-const DropdownButton = ({ lotId }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const navigate = useNavigate();
-  const { id: propertyId } = useParams();
-
-  const handleAction = (action) => {
-    setIsOpen(false);
-    if (action === "ver") {
-      navigate(`/dashboard/property/${propertyId}/lot/${lotId}`);
-    }
-  };
-
-  return (
-    <div className="dropdown">
-      <button
-        className="btn dropdown-toggle"
-        onClick={() => setIsOpen(!isOpen)}
-      >
-        ...
-      </button>
-      {isOpen && (
-        <div className="dropdown-menu">
-          <button className="dropdown-item" onClick={() => handleAction("ver")}>Ver</button>
-          <button className="dropdown-item" onClick={() => handleAction("editar")}>Editar</button>
-          <button className="dropdown-item" onClick={() => handleAction("inhabilitar")}>Inhabilitar</button>
+      <div className="rol-detail mb-5">
+        <h3 className="title is-6 margin-bottom">Ver anexos del predio</h3>
+        <div className="columns">
+          <div className="column is-flex is-align-items-center">
+            <IoDocument className="mr-2" />
+            <span>[]</span>
+          </div>
+          <div className="column is-flex is-align-items-center">
+            <IoDocument className="mr-2" />
+            <span>[]</span>
+          </div>
         </div>
-      )}
-    </div>
+      </div>
+      {/* <Head head_data={head_lot_data} onButtonClick={handleButtonClick} /> */}
+      <Head
+        head_data={head_lot_data[activeOption]}
+        onButtonClick={handleButtonClick}
+        loading={loading}
+      />
+      <>
+        <div className="tabs is-boxed">
+          <ul>
+            {["lot", "iot"].map((tab) => (
+              <li key={tab} className={activeOption === tab ? "is-active" : ""}>
+                <a onClick={() => handleTabChange(tab)}>
+                  {tab === "lot" && "Lotes Vinculados"}
+                  {tab === "iot" && "Dispositivos de energía"}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div>{renderContent()}</div>
+      </>
+    </>
   );
 };
 
-const LotesTable = () => {
-  // Obtener el id del predio usando useParams
-  const { id } = useParams();
-  
-  // Filtrar los lotes que pertenecen al predio actual
-  const filteredLots = lotMockData.filter(lot => lot.property_id === parseInt(id));
-
-  return (
-    <div className="table-container">
-      <table className="custom-table">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Nombre del lote</th>
-            <th>Folio matrícula inmobiliaria</th>
-            <th>Extensión</th>
-            <th>Latitud</th>
-            <th>Longitud</th>
-            <th>Estado</th>
-            <th>Opciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredLots.map((lot) => (
-            <tr key={lot.id}>
-              <td>{lot.id}</td>
-              <td>{lot.name}</td>
-              <td>{lot.inmobilario}</td>
-              <td>{lot.extension}</td>
-              <td>{lot.latitud}</td>
-              <td>{lot.longitud}</td>
-              <td>{lot.estado}</td>
-              <td>
-                <DropdownButton lotId={lot.id} />
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-};
-
-const DetailsBox = ({ title, data }) => (
-  <div className="details-box">
-    <h2>{title}</h2>
-    <table>
-      <tbody>
-        {Object.entries(data).map(([key, value], index) => (
-          <tr key={index}>
-            <th>{key}</th>
-            <td>{value}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  </div>
-);
-
-const AnexoBox = ({ attachment }) => (
-  <div className="anexo-box">
-    <strong>{attachment.name}</strong>
-    <p>
-      {attachment.file} - {attachment.size}
-    </p>
-  </div>
-);
+export default Property_detail;

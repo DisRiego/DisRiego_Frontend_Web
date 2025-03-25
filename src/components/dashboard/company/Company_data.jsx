@@ -7,6 +7,7 @@ import Form_edit_palette from "../forms/edits/Form_edit_palette";
 import axios from "axios";
 import { FaEdit } from "react-icons/fa";
 import { FaPlus } from "react-icons/fa6";
+import { data } from "react-router-dom";
 
 const Company_data = ({
   setShowMessage,
@@ -104,6 +105,8 @@ const Company_data = ({
     setIsLoading(true);
     fetchCompany();
   };
+
+  console.log(formData);
 
   return (
     <>

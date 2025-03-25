@@ -1248,3 +1248,27 @@ td > td.status-pendiente {
     opacity: 0.7;
   }
 }
+
+.energy-consumption {
+  color: #bc9110;
+}
+
+.water-consumption {
+  color: #5b93ff;
+}
+
+.battery-production {
+  color: #418b60;
+}
+
+.energy-production {
+  color: #b55d4b;
+}
+
+.property-detail {
+  padding: 0.8em;
+}
+
+.columns > .column-p0 {
+  padding-bottom: 0px;
+}

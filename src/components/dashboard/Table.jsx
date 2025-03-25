@@ -24,6 +24,7 @@ const Table = ({
   setShowChangeStatus,
   setConfirMessage,
   setTypeForm,
+  parentComponent,
 }) => {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -67,9 +68,15 @@ const Table = ({
   const handleOption = async (option, row) => {
     // setIdRow(row.ID);
     setId(row.ID);
-    if (option.name === "Ver detalles") {
+
+    if (option.name === "Ver detalles" && parentComponent === "lot") {
       console.log("Entro tabla id");
-      navigate(`${row.ID}`);
+      navigate(`lot/${row.ID}`);
+    } else {
+      if (option.name === "Ver detalles") {
+        console.log("Entro tabla id");
+        navigate(`${row.ID}`);
+      }
     }
 
     // Funciones de Rol

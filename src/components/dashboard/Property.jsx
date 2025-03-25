@@ -6,6 +6,7 @@ import Filter from "./Filter";
 import Table from "./Table";
 import Pagination from "./Pagination";
 import Form_add_property from "./forms/adds/Form_add_property";
+import Filter_property from "./filters/Filter_property";
 import Message from "../Message";
 import axios from "axios";
 import RobotoNormalFont from "../../assets/fonts/Roboto-Regular.ttf";
@@ -49,9 +50,12 @@ const Property = () => {
   const [titleMessage, setTitleMessage] = useState(false);
   const [message, setMessage] = useState(false);
   const [status, setStatus] = useState(false);
-  // const [id, setId] = useState(null);
   const [buttonDisabled, setButtonDisabled] = useState(true);
   const [id, setId] = useState(null);
+  const [filteredData, setFilteredData] = useState([]);
+  const [backupData, setBackupData] = useState([]);
+  const [filters, setFilters] = useState({ estados: {} });
+  const [statusFilter, setStatusFilter] = useState(false);
 
   const handleButtonClick = (buttonText) => {
     if (buttonText === "Añadir predio") {
@@ -316,7 +320,7 @@ const Property = () => {
 
   const columns = [
     "ID",
-    "ID del predio",
+    // "ID del predio",
     "Nombre",
     "Número de documento del dueño",
     "Folio de matricula inmobiliaria",
@@ -340,7 +344,10 @@ const Property = () => {
       );
       setData(response.data.data);
 
-      const sortedData = response.data.data.sort((a, b) => a.id - b.id);
+      const sortedData = response.data.data.sort((a, b) =>
+        a.name.localeCompare(b.name)
+      );
+      // const sortedData = response.data.data.sort((a, b) => a.name - b.name);
 
       console.log(sortedData);
 
@@ -372,24 +379,47 @@ const Property = () => {
     return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
   };
 
-  const filteredData = data
-    .filter((info) =>
-      Object.values(info)
-        .join(" ")
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase())
-    )
-    .map((info) => ({
-      ID: info.id,
-      "ID del predio": info.id,
-      Nombre: toTitleCase(info.name),
-      "Número de documento del dueño": info.owner_document_number,
-      "Folio de matricula inmobiliaria": info.real_estate_registration_number,
-      "Extensión (m²)": info.extension,
-      Latitud: info.latitude,
-      Longitud: info.longitude,
-      Estado: info.state_name,
-    }));
+  useEffect(() => {
+    if (!statusFilter) {
+      const filtered = data
+        .filter((info) =>
+          Object.values(info)
+            .join(" ")
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase())
+        )
+        .map((info) => ({
+          ID: info.id,
+          // "ID del predio": info.id,
+          Nombre: toTitleCase(info.name),
+          "Número de documento del dueño": info.owner_document_number,
+          "Folio de matricula inmobiliaria":
+            info.real_estate_registration_number,
+          "Extensión (m²)": info.extension,
+          Latitud: info.latitude,
+          Longitud: info.longitude,
+          Estado: info.state_name,
+        }));
+
+      setFilteredData(filtered);
+      setBackupData(filtered);
+    } else {
+      const selectedStates = Object.keys(filters.estados).filter(
+        (key) => filters.estados[key]
+      );
+
+      if (selectedStates.length > 0) {
+        const filteredByState = backupData.filter((info) =>
+          selectedStates.includes(info.Estado)
+        );
+        setFilteredData(filteredByState);
+      } else {
+        setFilteredData(backupData);
+      }
+
+      setStatusFilter(false);
+    }
+  }, [data, searchTerm, filters.estados]);
 
   const options = [
     { icon: "BiShow", name: "Ver detalles" },
@@ -447,6 +477,20 @@ const Property = () => {
             // id={id}
             loading={loading}
             setLoading={setLoading}
+          />
+        </>
+      )}
+      {showFilter && (
+        <>
+          <Filter_property
+            onClose={() => setShowFilter(false)}
+            data={data}
+            filteredData={filteredData}
+            setFilteredData={setFilteredData}
+            setStatusFilter={setStatusFilter}
+            filters={filters}
+            setFilters={setFilters}
+            backupData={backupData}
           />
         </>
       )}

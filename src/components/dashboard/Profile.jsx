@@ -81,6 +81,8 @@ const Profile = () => {
     getUser();
   };
 
+  console.log(formData);
+
   const fetchLocationNames = async (countryCode, stateCode, cityId) => {
     try {
       const BASE_URL = "https://api.countrystatecity.in/v1";
@@ -147,7 +149,10 @@ const Profile = () => {
               <div className="media-left">
                 <figure className="image is-64x64 profile-image">
                   <img
-                    src="https://cdn-icons-png.flaticon.com/512/3135/3135768.png"
+                    src={
+                      formData.profile_picture ||
+                      "https://cdn-icons-png.flaticon.com/512/3135/3135768.png"
+                    }
                     alt="Perfil"
                     className="is-rounded"
                   />
