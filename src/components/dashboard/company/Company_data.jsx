@@ -127,7 +127,10 @@ const Company_data = ({
                   onClick={() => setShowModalPicture(true)}
                 >
                   <img
-                    src="https://cdn-icons-png.flaticon.com/512/3135/3135768.png"
+                    src={
+                      formData.logo ||
+                      "https://cdn-icons-png.flaticon.com/512/3135/3135768.png"
+                    }
                     alt="Perfil"
                     className="is-rounded"
                   />

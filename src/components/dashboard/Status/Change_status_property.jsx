@@ -1,73 +1,80 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 
-const Confirm_property = ({
-  confirMessage,
+const Change_status_property = ({
   onClose,
-  method,
-  formData,
+  onSuccess,
+  id,
+  confirMessage,
   setShowMessage,
   setTitleMessage,
   setMessage,
   setStatus,
-  onSuccess,
   updateData,
-  uriPost,
   typeForm,
   loading,
   setLoading,
 }) => {
+  const [formData, setFormData] = useState({});
   const [isProcessing, setIsProcessing] = useState(false);
+  // console.log(typeForm);
+  // console.log(id);
+
+  useEffect(() => {
+    setFormData({
+      new_state: typeForm === "habilitar" ? true : false,
+    });
+  }, [typeForm]);
 
   const handleConfirm = async () => {
     try {
       setLoading("is-loading");
       setIsProcessing(true);
-      const response = await axios({
-        method: method,
-        url: uriPost,
-        data: formData,
-      });
-      console.log(response);
-      if (typeForm === "create_property") {
-        setTitleMessage("Predio creado exitosamente");
-        setMessage("El predio se ha creado correctamente.");
+      const response = await axios.put(
+        import.meta.env.VITE_URI_BACKEND +
+          import.meta.env.VITE_ROUTE_BACKEND_PROPERTY +
+          id +
+          import.meta.env.VITE_ROUTE_BACKEND_PROPERTY_CHANGE_STATUS,
+        formData,
+        {
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+        }
+      );
+
+      if (typeForm === "habilitar") {
+        setTitleMessage("Habilitación exitosa");
+        setMessage("Se ha habilitado el predio correctamente.");
         setStatus("is-true");
         setShowMessage(true);
-        onClose();
-        onSuccess();
-        updateData();
+      } else {
+        setTitleMessage("Inhabilitación exitosa");
+        setMessage("Se ha inhabilitado el predio correctamente.");
+        setStatus("is-true");
+        setShowMessage(true);
       }
-      {
-        if (typeForm === "edit_property") {
-          setTitleMessage("Predio actualizado exitosamente");
-          setMessage("El predio ha sido actualizado correctamente.");
-          setStatus("is-true");
-          setShowMessage(true);
-          onClose();
-          onSuccess();
-          updateData();
-        }
-      }
+
+      onClose();
+      onSuccess();
+      updateData();
     } catch (error) {
       console.log(error);
-      if (typeForm === "create_property") {
-        setTitleMessage("Error al crear el predio");
+      if (typeForm === "habilitar") {
+        setTitleMessage("Habilitación fallida");
         setMessage(
-          "No se pudo crear el predio. Por favor, inténtelo de nuevo."
+          "No se pudo habilitar el predio. Por favor, inténtelo de nuevo."
         );
         setStatus("is-false");
-        setShowMessage(true);
       } else {
-        if (typeForm === "edit_property") {
-          setTitleMessage("Error al actualizar el predio");
-          setMessage(
-            "No se pudo actualizar el predio. Por favor, inténtelo de nuevo."
-          );
-          setStatus("is-false");
-          setShowMessage(true);
-        }
+        setTitleMessage("Inhabilitación fallida");
+        setMessage(
+          "No se pudo inhabilitar el predio. Por favor, inténtelo de nuevo."
+        );
+        setStatus("is-false");
       }
+
+      setShowMessage(true);
     } finally {
       setLoading("");
       setIsProcessing(false);
@@ -112,4 +119,4 @@ const Confirm_property = ({
   );
 };
 
-export default Confirm_property;
+export default Change_status_property;

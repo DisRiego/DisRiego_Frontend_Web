@@ -30,9 +30,6 @@ const Table = ({
   const { id } = useParams();
   const [activeRow, setActiveRow] = useState(null);
   const menuRefs = useRef({});
-  const [showEditProperty, setShowEditProperty] = useState();
-  const [showEditPropertyUser, setShowEditPropertyUser] = useState();
-  const [showEditCertificate, setShowEditCertificate] = useState();
   const [idRow, setIdRow] = useState();
   const [dots, setDots] = useState("");
 
@@ -68,9 +65,9 @@ const Table = ({
   const handleOption = async (option, row) => {
     // setIdRow(row.ID);
     setId(row.ID);
+    console.log(row.ID);
 
     if (option.name === "Ver detalles" && parentComponent === "lot") {
-      console.log("Entro tabla id");
       navigate(`lot/${row.ID}`);
     } else {
       if (option.name === "Ver detalles") {
@@ -111,14 +108,42 @@ const Table = ({
       setShowChangeStatus(true);
     }
 
+    //Predios
     if (id === "property" && option.name === "Editar") {
-      setShowEditProperty(true);
+      setTitle("Editar predio");
+      setShowEdit(true);
     }
-    if (id === "properties" && option.name === "Editar") {
-      setShowEditPropertyUser(true);
+    if (id === "property" && option.name === "Inhabilitar") {
+      setConfirMessage(`¿Desea inhabilitar el predio "${row["Nombre"]}"?`);
+      setTypeForm("inhabilitar");
+      setShowChangeStatus(true);
     }
-    if (id === "certificate" && option.name === "Editar") {
-      setShowEditCertificate(true);
+    if (id === "property" && option.name === "Habilitar") {
+      setConfirMessage(`¿Desea habilitar el predio "${row["Nombre"]}"?`);
+      setTypeForm("habilitar");
+      setShowChangeStatus(true);
+    }
+
+    //Lotes
+    if (parentComponent === "lot" && option.name === "Editar") {
+      // console.log(row.ID);
+      setTitle("Editar usuario");
+      setShowEdit(true);
+    }
+
+    if (parentComponent === "lot" && option.name === "Inhabilitar") {
+      setConfirMessage(
+        `¿Desea inhabilitar el predio "${row["Nombre del lote"]}"?`
+      );
+      setTypeForm("inhabilitar");
+      setShowChangeStatus(true);
+    }
+    if (parentComponent === "lot" && option.name === "Habilitar") {
+      setConfirMessage(
+        `¿Desea habilitar el predio "${row["Nombre del lote"]}"?`
+      );
+      setTypeForm("habilitar");
+      setShowChangeStatus(true);
     }
   };
 
@@ -193,7 +218,12 @@ const Table = ({
                               <div className="box">
                                 {options
                                   .filter((option) => {
-                                    console.log(option);
+                                    if (
+                                      option.name === "Habilitar" &&
+                                      row["Estado"] === "Mantenimiento"
+                                    ) {
+                                      return false;
+                                    }
                                     if (
                                       option.name === "Habilitar" &&
                                       row["Estado"] === "Pendiente"
@@ -265,24 +295,6 @@ const Table = ({
           )}
         </tbody>
       </table>
-      {showEditProperty && (
-        <Form_edit_property
-          title="Editar predio"
-          onClose={() => setShowEditProperty(false)}
-        />
-      )}
-      {showEditPropertyUser && (
-        <Form_edit_property_user
-          title="Editar predio"
-          onClose={() => setShowEditPropertyUser(false)}
-        />
-      )}
-      {showEditCertificate && (
-        <Form_edit_company_certificate
-          title="Editar certificado digital"
-          onClose={() => setShowEditCertificate(false)}
-        />
-      )}
     </div>
   );
 };

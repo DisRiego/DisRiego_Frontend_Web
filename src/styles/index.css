@@ -1150,13 +1150,14 @@ form > .field > .error-file {
 td > td.status-activo,
 td > td.status-inactivo,
 td > td.status-creado,
-td > td.status-pendiente {
+td > td.status-pendiente,
+td > td.status-mantenimiento {
   padding: 0em;
   border-bottom: none;
 }
 
 .button.status-activo {
-  width: 140px;
+  width: 100%;
   pointer-events: none;
   cursor: text;
   user-select: text;
@@ -1166,7 +1167,7 @@ td > td.status-pendiente {
 }
 
 .button.status-inactivo {
-  width: 140px;
+  width: 100%;
   pointer-events: none;
   cursor: text;
   user-select: text;
@@ -1175,8 +1176,9 @@ td > td.status-pendiente {
   border-radius: 2em;
 }
 
-.button.status-pendiente {
-  width: 140px;
+.button.status-pendiente,
+.button.status-mantenimiento {
+  width: 100%;
   pointer-events: none;
   cursor: text;
   user-select: text;
@@ -1186,7 +1188,7 @@ td > td.status-pendiente {
 }
 
 .button.status-suspendido {
-  width: 140px;
+  width: 100%;
   pointer-events: none;
   cursor: text;
   user-select: text;
@@ -1210,7 +1212,8 @@ td > td.status-pendiente {
     opacity: 0.8;
   }
 
-  .button.status-pendiente {
+  .button.status-pendiente,
+  .button.status-mantenimiento {
     background-color: transparent;
     color: #ffc100;
     border-color: #ffc100;

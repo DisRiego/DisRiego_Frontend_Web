@@ -11,7 +11,7 @@ import { FaSearch } from "react-icons/fa";
 import { IoMdWarning } from "react-icons/io";
 import { FaUpload } from "react-icons/fa6";
 
-const Form_add_property = ({
+const Form_property = ({
   title,
   onClose,
   setShowMessage,
@@ -19,7 +19,7 @@ const Form_add_property = ({
   setMessage,
   setStatus,
   updateData,
-  // id,
+  id,
   loading,
   setLoading,
 }) => {
@@ -41,6 +41,7 @@ const Form_add_property = ({
   const [isLoading, setIsLoading] = useState(true);
   const [typeForm, setTypeForm] = useState(true);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [dataProperty, setDataProperty] = useState({});
 
   const [formUser, setFormUser] = useState({
     document_type: "",
@@ -88,6 +89,40 @@ const Form_add_property = ({
       console.error("Error al obtener los permisos:", error);
     }
   };
+
+  useEffect(() => {
+    if (id != null) {
+      fetchProperty();
+      setShowForm(true);
+      setDisabled(false);
+    }
+  }, [id]);
+
+  const fetchProperty = async () => {
+    try {
+      const response = await axios.get(
+        import.meta.env.VITE_URI_BACKEND +
+          import.meta.env.VITE_ROUTE_BACKEND_PROPERTY +
+          id
+      );
+      const propertyData = response.data.data;
+      setDataProperty(propertyData);
+
+      setFormData({
+        user_id: propertyData?.owner_id || "",
+        name: propertyData?.name || "",
+        longitude: propertyData?.longitude || "",
+        latitude: propertyData?.latitude || "",
+        extension: propertyData?.extension || "",
+        real_estate_registration_number:
+          propertyData?.real_estate_registration_number || "",
+      });
+    } catch (error) {
+      console.log("Error al obtener el predio:", error);
+    }
+  };
+
+  console.log(formData);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -214,8 +249,9 @@ const Form_add_property = ({
         : "Número de folio inválido",
     });
 
-    if (!file) setErrorFile("Debes seleccionar un archivo válido.");
-    if (!fileCtl) setErrorFileCtl("Debes seleccionar un archivo válido.");
+    if (!file && !id) setErrorFile("Debes seleccionar un archivo válido.");
+    if (!fileCtl && !id)
+      setErrorFileCtl("Debes seleccionar un archivo válido.");
 
     if (
       isNameValid &&
@@ -223,8 +259,7 @@ const Form_add_property = ({
       isLatitudeValid &&
       isExtensionValid &&
       isRealStateValid &&
-      file &&
-      fileCtl
+      (id || (file && fileCtl))
     ) {
       const formArchive = new FormData();
       formArchive.append("user_id", formData.user_id);
@@ -236,20 +271,38 @@ const Form_add_property = ({
         "real_estate_registration_number",
         formData.real_estate_registration_number
       );
-      formArchive.append("freedom_tradition_certificate", file);
-      formArchive.append("public_deed", fileCtl);
+
+      if (file) {
+        formArchive.append("freedom_tradition_certificate", file);
+      }
+      if (fileCtl) {
+        formArchive.append("public_deed", fileCtl);
+      }
 
       setNewData(formArchive);
 
-      setConfirMessage(`¿Desea crear el predio "${formData.name}"?`);
-      setMethod("post");
-      setUriPost(
-        import.meta.env.VITE_URI_BACKEND +
-          import.meta.env.VITE_ROUTE_BACKEND_PROPERTY,
-        newData
-      );
-      setTypeForm("create_property");
-      setShowConfirm(true);
+      if (id != null) {
+        setConfirMessage(`¿Desea actualizar el predio?`);
+        setMethod("put");
+        setUriPost(
+          import.meta.env.VITE_URI_BACKEND +
+            import.meta.env.VITE_ROUTE_BACKEND_PROPERTY +
+            id,
+          newData
+        );
+        setTypeForm("edit_property");
+        setShowConfirm(true);
+      } else {
+        setConfirMessage(`¿Desea crear el predio "${formData.name}"?`);
+        setMethod("post");
+        setUriPost(
+          import.meta.env.VITE_URI_BACKEND +
+            import.meta.env.VITE_ROUTE_BACKEND_PROPERTY,
+          newData
+        );
+        setTypeForm("create_property");
+        setShowConfirm(true);
+      }
     }
   };
 
@@ -268,84 +321,90 @@ const Form_add_property = ({
           </header>
           <section className="modal-card-body">
             {/* Inputs aquí */}
-            <div className="columns columns-mb">
-              <div className="column">
-                <div className="field">
-                  <label className="label">Tipo de documento</label>
-                  <div className="control">
-                    <div
-                      className={`select ${
-                        submittedUser
-                          ? errorsUser.document_type
-                            ? "is-false"
+            {id == null && (
+              <div className="columns columns-mb">
+                <div className="column">
+                  <div className="field">
+                    <label className="label">Tipo de documento</label>
+                    <div className="control">
+                      <div
+                        className={`select ${
+                          submittedUser
+                            ? errorsUser.document_type
+                              ? "is-false"
+                              : ""
                             : ""
-                          : ""
-                      }`}
-                    >
-                      <select
-                        className={`select`}
-                        name="document_type"
-                        value={formUser.document_type}
-                        onChange={handleChange}
-                        // disabled={isLoading}
+                        }`}
                       >
-                        <option value="" disabled>
-                          Seleccione una opción
-                        </option>
-                        {typeDocument.map((doc) => (
-                          <option key={doc.id} value={doc.id}>
-                            {doc.name}
+                        <select
+                          className={`select`}
+                          name="document_type"
+                          value={formUser.document_type}
+                          onChange={handleChange}
+                          // disabled={isLoading}
+                        >
+                          <option value="" disabled>
+                            Seleccione una opción
                           </option>
-                        ))}
-                      </select>
+                          {typeDocument.map((doc) => (
+                            <option key={doc.id} value={doc.id}>
+                              {doc.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      {submittedUser && errorsUser.document_type && (
+                        <p className="input-error">
+                          {errorsUser.document_type}
+                        </p>
+                      )}
                     </div>
-                    {submittedUser && errorsUser.document_type && (
-                      <p className="input-error">{errorsUser.document_type}</p>
+                  </div>
+                </div>
+                <div className="column">
+                  <div className="control">
+                    <label className="label">Número de documento</label>
+                    <div className="field has-addons mb-0">
+                      <div className="control is-expanded">
+                        <input
+                          className={`input ${
+                            submittedUser
+                              ? errorsUser.document_number
+                                ? "is-false"
+                                : ""
+                              : ""
+                          }`}
+                          name="document_number"
+                          type="number"
+                          value={formUser.document_number}
+                          onChange={handleChange}
+                          // disabled={isLoading}
+                        />
+                      </div>
+                      <div className="control">
+                        <button
+                          className={`button button-search ${
+                            submittedUser
+                              ? errorsUser.document_number
+                                ? "is-false"
+                                : ""
+                              : ""
+                          }`}
+                          onClick={handleValidate}
+                        >
+                          <FaSearch className="" />
+                        </button>
+                      </div>
+                    </div>
+                    {submittedUser && errorsUser.document_number && (
+                      <p className="input-error">
+                        {errorsUser.document_number}
+                      </p>
                     )}
                   </div>
                 </div>
               </div>
-              <div className="column">
-                <div className="control">
-                  <label className="label">Número de documento</label>
-                  <div className="field has-addons mb-0">
-                    <div className="control is-expanded">
-                      <input
-                        className={`input ${
-                          submittedUser
-                            ? errorsUser.document_number
-                              ? "is-false"
-                              : ""
-                            : ""
-                        }`}
-                        name="document_number"
-                        type="number"
-                        value={formUser.document_number}
-                        onChange={handleChange}
-                        // disabled={isLoading}
-                      />
-                    </div>
-                    <div className="control">
-                      <button
-                        className={`button button-search ${
-                          submittedUser
-                            ? errorsUser.document_number
-                              ? "is-false"
-                              : ""
-                            : ""
-                        }`}
-                        onClick={handleValidate}
-                      >
-                        <FaSearch className="" />
-                      </button>
-                    </div>
-                  </div>
-                  {submittedUser && errorsUser.document_number && (
-                    <p className="input-error">{errorsUser.document_number}</p>
-                  )}
-                </div>
-              </div>
-            </div>
+            )}
             {userValidate != "" && (
               <div className="is-flex is-flex-direction-row	is-justify-content-center is-align-items-center">
                 <IoMdWarning className="icon login-error mr-2" />
@@ -354,23 +413,25 @@ const Form_add_property = ({
             )}
             {showForm && (
               <>
-                <div className="columns columns-mb">
-                  <div className="column">
-                    <div className="field">
-                      <label className="label">Nombre del Usuario</label>
-                      <div className="control">
-                        <input
-                          className="input"
-                          type="text"
-                          disabled
-                          value={`${nameUser.name || ""} ${
-                            nameUser.first_lastname || ""
-                          } ${nameUser.second_lastname || ""}`.trim()}
-                        />
+                {id == null && (
+                  <div className="columns columns-mb">
+                    <div className="column">
+                      <div className="field">
+                        <label className="label">Nombre del Usuario</label>
+                        <div className="control">
+                          <input
+                            className="input"
+                            type="text"
+                            disabled
+                            value={`${nameUser.name || ""} ${
+                              nameUser.first_lastname || ""
+                            } ${nameUser.second_lastname || ""}`.trim()}
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
+                )}
                 <div className="columns columns-mb">
                   <div className="column">
                     <div className="field">
@@ -383,6 +444,7 @@ const Form_add_property = ({
                           type="text"
                           name="name"
                           onChange={handleChangeProperty}
+                          value={formData.name}
                         />
                       </div>
                       {submitted && errors.name && (
@@ -409,6 +471,7 @@ const Form_add_property = ({
                           type="text"
                           name="real_estate_registration_number"
                           onChange={handleChangeProperty}
+                          value={formData.real_estate_registration_number}
                         />
                       </div>
                       {submitted && errors.real_estate_registration_number && (
@@ -433,6 +496,7 @@ const Form_add_property = ({
                           type="number"
                           name="extension"
                           onChange={handleChangeProperty}
+                          value={formData.extension}
                         />
                       </div>
                       {submitted && errors.extension && (
@@ -453,6 +517,7 @@ const Form_add_property = ({
                           type="text"
                           name="latitude"
                           onChange={handleChangeProperty}
+                          value={formData.latitude}
                         />
                       </div>
                       {submitted && errors.latitude && (
@@ -475,6 +540,7 @@ const Form_add_property = ({
                           type="text"
                           name="longitude"
                           onChange={handleChangeProperty}
+                          value={formData.longitude}
                         />
                       </div>
                       {submitted && errors.longitude && (
@@ -592,4 +658,4 @@ const Form_add_property = ({
   );
 };
 
-export default Form_add_property;
+export default Form_property;

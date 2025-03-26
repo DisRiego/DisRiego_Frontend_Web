@@ -15,6 +15,7 @@ const Form_edit_company_picture = ({
   setLoading,
   updateData,
 }) => {
+  const id = data.id;
   const [file, setFile] = useState(null);
   const [fileName, setFileName] = useState("");
   const [showConfirm, setShowConfirm] = useState(false);
@@ -25,9 +26,6 @@ const Form_edit_company_picture = ({
   const [newData, setNewData] = useState(null);
 
   const [formData, setFormData] = useState({
-    name: "",
-    nit: "",
-    digital_certificate: "",
     icon_company: null,
   });
 
@@ -37,10 +35,7 @@ const Form_edit_company_picture = ({
 
   const getCompany = () => {
     setFormData({
-      name: data.name,
-      nit: data.nit,
-      digital_certificate: 1,
-      icon_company: null,
+      icon_company: data.logo,
     });
   };
 
@@ -81,23 +76,17 @@ const Form_edit_company_picture = ({
 
     if (Object.keys(newErrors).length === 0) {
       const formDataToSend = new FormData();
-      formDataToSend.append("name", formData.name);
-      formDataToSend.append("nit", formData.nit);
-      formDataToSend.append(
-        "digital_certificate_id",
-        formData.digital_certificate
-      );
 
       if (file) {
         formDataToSend.append("logo", file);
       }
       setNewData(formDataToSend);
 
-      setConfirMessage('¿Desea actualizar el logo de "' + formData.name + '"?');
+      setConfirMessage('¿Desea actualizar el logo de "' + data.name + '"?');
       setMethod("patch");
       setUriPost(
         import.meta.env.VITE_URI_BACKEND +
-          import.meta.env.VITE_ROUTE_BACKEND_COMPANY_EDIT_BASIC
+          import.meta.env.VITE_ROUTE_BACKEND_COMPANY_EDIT_LOGO
       );
       setTypeForm("update_logo_profile");
       setShowConfirm(true);

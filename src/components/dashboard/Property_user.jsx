@@ -5,7 +5,7 @@ import Search from "./Search";
 import Filter from "./Filter";
 import Table from "./Table";
 import Pagination from "./Pagination";
-import Form_add_property from "./forms/adds/Form_add_property";
+import Form_property from "./forms/adds/Form_property";
 import Message from "../Message";
 import axios from "axios";
 import RobotoNormalFont from "../../assets/fonts/Roboto-Regular.ttf";

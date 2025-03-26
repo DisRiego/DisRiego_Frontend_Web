@@ -4,10 +4,11 @@ import axios from "axios";
 import { Bar, Line } from "react-chartjs-2";
 import "../../../styles/index.css";
 import Head from "../Head";
-import Table from "../Table";
-import Pagination from "../Pagination";
 import Lot from "../Lot";
+import Form_lot from "../forms/adds/Form_lot";
+import Message from "../../Message";
 import Iot_by_property from "../Iot_by_property";
+import Change_status_lot from "../Status/Change_status_lot";
 import RobotoNormalFont from "../../../assets/fonts/Roboto-Regular.ttf";
 import RobotoBoldFont from "../../../assets/fonts/Roboto-Bold.ttf";
 import Icon from "../../../assets/icons/Disriego_title.png";
@@ -39,17 +40,30 @@ import { IoDocument } from "react-icons/io5";
 
 const Property_detail = () => {
   const { id } = useParams();
+  const [idUser, setIdUser] = useState(null);
+  const [idRow, setIdRow] = useState(null);
   const navigate = useNavigate();
-  const [data, setData] = useState(null);
+  const [data, setData] = useState("");
+  const [dataUser, setDataUser] = useState("");
+  const [dataLots, setDataLots] = useState([]);
   const [loading, setLoading] = useState("");
   const [dots, setDots] = useState("");
   const [showForm, setShowForm] = useState(false);
+  const [showEdit, setShowEdit] = useState();
   const [activeTab, setActiveTab] = useState("consumo");
   const [activePeriod, setActivePeriod] = useState("mes");
   const [activePeriodRight, setActivePeriodRight] = useState("año");
-  const [dataLots, setDataLots] = useState([]);
   const [loadingTable, setLoadingTable] = useState(false);
   const [activeOption, setActiveOption] = useState("lot");
+  const [isLoading, setIsLoading] = useState(true);
+  const [showMessage, setShowMessage] = useState(false);
+  const [titleMessage, setTitleMessage] = useState(false);
+  const [message, setMessage] = useState(false);
+  const [status, setStatus] = useState(false);
+  const [showChangeStatus, setShowChangeStatus] = useState(false);
+  const [title, setTitle] = useState();
+  const [confirMessage, setConfirMessage] = useState();
+  const [typeForm, setTypeForm] = useState();
 
   const head_data = {
     title: "Detalles del predio #" + id,
@@ -255,25 +269,6 @@ const Property_detail = () => {
       setLoading("");
     }, 500);
   };
-
-  // useEffect(() => {
-  //   getProperty();
-  // }, []);
-
-  // const getProperty = async () => {
-  //   try {
-  //     const response = await axios.get(
-  //       import.meta.env.VITE_URI_BACKEND +
-  //         import.meta.env.VITE_ROUTE_BACKEND_PROPERTY +
-  //         id
-  //     );
-  //     setData(response.data.data[0]);
-  //   } catch (error) {
-  //     console.log("Error al obtener rol:", error);
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
 
   // Función para generar etiquetas de fecha según el período seleccionado
   const generateDateLabels = (period) => {
@@ -573,6 +568,13 @@ const Property_detail = () => {
           },
         ];
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setDots((prev) => (prev.length < 3 ? prev + "." : ""));
+    }, 500);
+    return () => clearInterval(interval);
+  }, []);
+
   const head_lot_data = {
     lot: {
       title: "Información de lotes",
@@ -587,8 +589,60 @@ const Property_detail = () => {
   };
 
   useEffect(() => {
+    if (showMessage) {
+      const timer = setTimeout(() => {
+        setShowMessage(false);
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [showMessage]);
+
+  useEffect(() => {
+    fetchProperty();
     fetchLots();
   }, []);
+
+  const fetchProperty = async () => {
+    try {
+      // setLoadingTable(true);
+      const response = await axios.get(
+        import.meta.env.VITE_URI_BACKEND +
+          import.meta.env.VITE_ROUTE_BACKEND_PROPERTY +
+          id
+      );
+      setData(response.data.data);
+      setIdUser(response.data.data.owner_id);
+      // setButtonDisabled(false);
+    } catch (error) {
+      console.error("Error al obtener los usuarios:", error);
+    } finally {
+      // setLoadingTable(false);
+    }
+  };
+
+  useEffect(() => {
+    if (idUser) {
+      fetchUser();
+    }
+  }, [idUser]);
+
+  const fetchUser = async () => {
+    try {
+      // setLoadingTable(true);
+      const response = await axios.get(
+        import.meta.env.VITE_URI_BACKEND +
+          import.meta.env.VITE_ROUTE_BACKEND_USERS +
+          idUser
+      );
+      setDataUser(response.data.data[0]);
+      // setButtonDisabled(false);
+    } catch (error) {
+      console.error("Error al obtener los usuarios:", error);
+    } finally {
+      // setLoadingTable(false);
+    }
+  };
 
   const fetchLots = async () => {
     try {
@@ -606,15 +660,18 @@ const Property_detail = () => {
       );
       // const sortedData = response.data.data.sort((a, b) => a.name - b.name);
 
-      console.log(sortedData);
-
       setDataLots(sortedData);
       // setButtonDisabled(false);
     } catch (error) {
-      console.error("Error al obtener los usuarios:", error);
+      console.error("Error al obtener los lotes:", error);
     } finally {
+      setIsLoading(false);
       setLoadingTable(false);
     }
+  };
+
+  const updateData = async () => {
+    fetchLots();
   };
 
   const handleTabChange = (tab) => setActiveOption(tab);
@@ -622,7 +679,19 @@ const Property_detail = () => {
   const renderContent = () => {
     switch (activeOption) {
       case "lot":
-        return <Lot dataLots={dataLots} id={id} loadingTable={loadingTable} />;
+        return (
+          <Lot
+            id={id}
+            dataLots={dataLots}
+            loadingTable={loadingTable}
+            setIdRow={setIdRow}
+            setTitle={setTitle}
+            setShowEdit={setShowEdit}
+            setShowChangeStatus={setShowChangeStatus}
+            setConfirMessage={setConfirMessage}
+            setTypeForm={setTypeForm}
+          />
+        );
       case "iot":
         return <Iot_by_property />;
       default:
@@ -637,229 +706,370 @@ const Property_detail = () => {
         onButtonClick={handleButtonClick}
         loading={loading}
       />
+      {isLoading ? (
+        <div className="rol-detail">
+          <div className="loader-cell">
+            <div className="loader cont-loader"></div>
+            <p className="loader-text">Cargando información{dots}</p>
+          </div>
+        </div>
+      ) : (
+        <>
+          <div className="is-flex is-justify-content-space-between is-align-items-center mb-4">
+            <h2 className="title is-5 mb-0">Visualiza las gráficas</h2>
+            <div className="tabs is-toggle is-small">
+              <div className="buttons is-justify-content-flex-end">
+                <button
+                  className={`button ${
+                    activeTab === "consumo" ? "color-hover" : ""
+                  }`}
+                  onClick={() => setActiveTab("consumo")}
+                >
+                  Consumo
+                </button>
+                <div
+                  className={`button ${
+                    activeTab === "produccion" ? "color-hover" : ""
+                  }`}
+                  onClick={() => setActiveTab("produccion")}
+                >
+                  Producción
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="rol-detail">
+            {/* Tarjetas de resumen */}
+            <div className="columns is-multiline mb-5">
+              {summaryCards.map((card, index) => (
+                <div className="column" key={index}>
+                  <div
+                    className="box p-4"
+                    style={{ backgroundColor: card.bgColor, height: "100%" }}
+                  >
+                    <p className="has-text-weight-bold has-text-black mb-2">
+                      {card.title}
+                    </p>
+                    <p className="is-size-4 has-text-weight-bold energy-consumption">
+                      {card.valueUptakeEnergy}
+                    </p>
+                    <p className="is-size-4 has-text-weight-bold water-consumption">
+                      {card.valueUptakeWater}
+                    </p>
+                    <p className="is-size-4 has-text-weight-bold battery-production">
+                      {card.valueStorageEnergy}
+                    </p>
+                    <p className="is-size-4 has-text-weight-bold energy-production">
+                      {card.valueProductionEnergy}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
 
-      <div className="is-flex is-justify-content-space-between is-align-items-center mb-4">
-        <h2 className="title is-5 mb-0">Visualiza las gráficas</h2>
-        <div className="tabs is-toggle is-small">
-          <div className="buttons is-justify-content-flex-end">
-            <button
-              className={`button ${
-                activeTab === "consumo" ? "color-hover" : ""
-              }`}
-              onClick={() => setActiveTab("consumo")}
-            >
-              Consumo
-            </button>
-            <div
-              className={`button ${
-                activeTab === "produccion" ? "color-hover" : ""
-              }`}
-              onClick={() => setActiveTab("produccion")}
-            >
-              Producción
-            </div>
-          </div>
-        </div>
-      </div>
-      <div className="rol-detail">
-        {/* Tarjetas de resumen */}
-        <div className="columns is-multiline mb-5">
-          {summaryCards.map((card, index) => (
-            <div className="column" key={index}>
-              <div
-                className="box p-4"
-                style={{ backgroundColor: card.bgColor, height: "100%" }}
-              >
-                <p className="has-text-weight-bold has-text-black mb-2">
-                  {card.title}
-                </p>
-                <p className="is-size-4 has-text-weight-bold energy-consumption">
-                  {card.valueUptakeEnergy}
-                </p>
-                <p className="is-size-4 has-text-weight-bold water-consumption">
-                  {card.valueUptakeWater}
-                </p>
-                <p className="is-size-4 has-text-weight-bold battery-production">
-                  {card.valueStorageEnergy}
-                </p>
-                <p className="is-size-4 has-text-weight-bold energy-production">
-                  {card.valueProductionEnergy}
-                </p>
+            {/* Pestañas para tiempo: día, semana, mes, año */}
+            <div className="columns">
+              <div className="column">
+                <div className="is-flex is-justify-content-space-between is-align-items-center mb-2">
+                  <h3 className="subtitle is-6 mb-2">
+                    Niveles de{" "}
+                    {activeTab === "consumo" ? "consumo" : "producción"}
+                  </h3>
+                  <div className="tabs is-flex">
+                    <ul className="mt-0">
+                      <li className={activePeriod === "dia" ? "is-active" : ""}>
+                        <a onClick={() => setActivePeriod("dia")}>Día</a>
+                      </li>
+                      <li
+                        className={activePeriod === "semana" ? "is-active" : ""}
+                      >
+                        <a onClick={() => setActivePeriod("semana")}>Semana</a>
+                      </li>
+                      <li className={activePeriod === "mes" ? "is-active" : ""}>
+                        <a onClick={() => setActivePeriod("mes")}>Mes</a>
+                      </li>
+                      <li className={activePeriod === "año" ? "is-active" : ""}>
+                        <a onClick={() => setActivePeriod("año")}>Año</a>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+                <div style={{ height: "250px" }}>
+                  <Line
+                    data={getChartData(activeTab, activePeriod)}
+                    options={getLineOptions(activePeriod)}
+                  />
+                </div>
+              </div>
+              <div className="column">
+                <div className="is-flex is-justify-content-space-between is-align-items-center mb-2">
+                  <h3 className="subtitle is-6 mb-2">
+                    Niveles de{" "}
+                    {activeTab === "consumo" ? "consumo" : "producción"}
+                  </h3>
+                  <div className="tabs tabs-period right">
+                    <ul className="mt-0">
+                      <li
+                        className={
+                          activePeriodRight === "dia" ? "is-active" : ""
+                        }
+                      >
+                        <a onClick={() => setActivePeriodRight("dia")}>Día</a>
+                      </li>
+                      <li
+                        className={
+                          activePeriodRight === "semana" ? "is-active" : ""
+                        }
+                      >
+                        <a onClick={() => setActivePeriodRight("semana")}>
+                          Semana
+                        </a>
+                      </li>
+                      <li
+                        className={
+                          activePeriodRight === "mes" ? "is-active" : ""
+                        }
+                      >
+                        <a onClick={() => setActivePeriodRight("mes")}>Mes</a>
+                      </li>
+                      <li
+                        className={
+                          activePeriodRight === "año" ? "is-active" : ""
+                        }
+                      >
+                        <a onClick={() => setActivePeriodRight("año")}>Año</a>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+                <div style={{ height: "250px" }}>
+                  <Bar
+                    data={getBarChartData(activeTab, activePeriodRight)}
+                    options={getBarOptions(activePeriodRight)}
+                  />
+                </div>
               </div>
             </div>
-          ))}
-        </div>
+          </div>
 
-        {/* Pestañas para tiempo: día, semana, mes, año */}
-        <div className="columns">
-          <div className="column">
-            <div className="is-flex is-justify-content-space-between is-align-items-center mb-2">
-              <h3 className="subtitle is-6 mb-2">
-                Niveles de {activeTab === "consumo" ? "consumo" : "producción"}
-              </h3>
-              <div className="tabs is-flex">
-                <ul className="mt-0">
-                  <li className={activePeriod === "dia" ? "is-active" : ""}>
-                    <a onClick={() => setActivePeriod("dia")}>Día</a>
-                  </li>
-                  <li className={activePeriod === "semana" ? "is-active" : ""}>
-                    <a onClick={() => setActivePeriod("semana")}>Semana</a>
-                  </li>
-                  <li className={activePeriod === "mes" ? "is-active" : ""}>
-                    <a onClick={() => setActivePeriod("mes")}>Mes</a>
-                  </li>
-                  <li className={activePeriod === "año" ? "is-active" : ""}>
-                    <a onClick={() => setActivePeriod("año")}>Año</a>
-                  </li>
-                </ul>
+          <div className="property-detail mt-4">
+            <div className="columns is-multiline">
+              <div className="column rol-detail">
+                <div className="level">
+                  <h3 className="title is-6 margin-bottom">
+                    Detalles del usuario
+                  </h3>
+                </div>
+                <div className="columns is-multiline is-mobile">
+                  <div className="column is-half column-p0">
+                    <strong> Nombre del cliente</strong>
+                  </div>
+                  <div className="column is-half column-p0">
+                    {dataUser.name || ""} {dataUser.first_last_name || ""}{" "}
+                    {dataUser.second_last_name || ""}
+                  </div>
+                </div>
+                <div className="columns is-multiline is-mobile">
+                  <div className="column is-half column-p0">
+                    <strong> Número de documento</strong>
+                  </div>
+                  <div className="column column-p0">
+                    {dataUser.type_document_name || "[]"}
+                    {". "}
+                    {dataUser.document_number || "[]"}
+                  </div>
+                </div>
+                <div className="columns is-multiline is-mobile">
+                  <div className="column is-half column-p0">
+                    <strong> Correo electrónico</strong>
+                  </div>
+                  <div className="column is-half column-p0">
+                    {dataUser.email || ""}
+                  </div>
+                </div>
+                <div className="columns is-multiline is-mobile">
+                  <div className="column is-half column-p0">
+                    <strong> Número de telefono</strong>
+                  </div>
+                  <div className="column column-p0">
+                    {dataUser.phone || "[]"}
+                  </div>
+                </div>
+                <div className="columns is-multiline is-mobile">
+                  <div className="column is-half">
+                    <strong> Estado</strong>
+                  </div>
+                  <div className="column column">
+                    {dataUser.status_name || "[]"}
+                  </div>
+                </div>
+              </div>
+              <div className="mr-2 ml-2"></div>
+              <div className="column rol-detail">
+                <div className="level">
+                  <h3 className="title is-6 margin-bottom">
+                    Detalles del predio
+                  </h3>
+                </div>
+                <div className="columns is-multiline is-mobile">
+                  <div className="column is-half column-p0">
+                    <strong>Nombre</strong>
+                  </div>
+                  <div className="column is-half column-p0">
+                    {data.name || "[]"}
+                  </div>
+                </div>
+                <div className="columns is-multiline is-mobile">
+                  <div className="column is-half column-p0">
+                    <strong>Folio de matricula inmobilaria</strong>
+                  </div>
+                  <div className="column is-half column-p0">
+                    {data.real_estate_registration_number || "[]"}
+                  </div>
+                </div>
+                <div className="columns is-multiline is-mobile">
+                  <div className="column is-half column-p0">
+                    <strong>Extensión del predio</strong>
+                  </div>
+                  <div className="column column-p0">
+                    {data.extension || "[]"}
+                  </div>
+                </div>
+                <div className="columns is-multiline is-mobile">
+                  <div className="column is-half column-p0">
+                    <strong>Longitud</strong>
+                  </div>
+                  <div className="column column-p0">
+                    {data.longitude || "[]"}
+                  </div>
+                </div>
+                <div className="columns is-multiline is-mobile">
+                  <div className="column is-half">
+                    <strong>Latitud</strong>
+                  </div>
+                  <div className="column column">{data.latitude || "[]"}</div>
+                </div>
               </div>
             </div>
-            <div style={{ height: "250px" }}>
-              <Line
-                data={getChartData(activeTab, activePeriod)}
-                options={getLineOptions(activePeriod)}
-              />
-            </div>
           </div>
-          <div className="column">
-            <div className="is-flex is-justify-content-space-between is-align-items-center mb-2">
-              <h3 className="subtitle is-6 mb-2">
-                Niveles de {activeTab === "consumo" ? "consumo" : "producción"}
-              </h3>
-              <div className="tabs tabs-period right">
-                <ul className="mt-0">
-                  <li
-                    className={activePeriodRight === "dia" ? "is-active" : ""}
-                  >
-                    <a onClick={() => setActivePeriodRight("dia")}>Día</a>
-                  </li>
-                  <li
-                    className={
-                      activePeriodRight === "semana" ? "is-active" : ""
-                    }
-                  >
-                    <a onClick={() => setActivePeriodRight("semana")}>Semana</a>
-                  </li>
-                  <li
-                    className={activePeriodRight === "mes" ? "is-active" : ""}
-                  >
-                    <a onClick={() => setActivePeriodRight("mes")}>Mes</a>
-                  </li>
-                  <li
-                    className={activePeriodRight === "año" ? "is-active" : ""}
-                  >
-                    <a onClick={() => setActivePeriodRight("año")}>Año</a>
-                  </li>
-                </ul>
+          <div className="rol-detail mb-5">
+            <h3 className="title is-6 margin-bottom">Ver anexos del predio</h3>
+            <div className="columns">
+              <div className="column">
+                <p>Escritura pública</p>
+                <div className="is-flex is-align-items-center">
+                  <IoDocument className="mr-2" />
+                  {data.public_deed ? (
+                    <a href={data.public_deed} target="_blank">
+                      escritura_publica.pdf
+                    </a>
+                  ) : (
+                    <span className="text-muted">Archivo no disponible</span>
+                  )}
+                </div>
               </div>
-            </div>
-            <div style={{ height: "250px" }}>
-              <Bar
-                data={getBarChartData(activeTab, activePeriodRight)}
-                options={getBarOptions(activePeriodRight)}
-              />
-            </div>
-          </div>
-        </div>
-      </div>
 
-      <div className="property-detail mt-4">
-        <div className="columns is-multiline">
-          <div className="column rol-detail">
-            <div className="level">
-              <h3 className="title is-6 margin-bottom">Detalles del usuario</h3>
-            </div>
-            <div className="columns is-multiline is-mobile">
-              <div className="column is-half column-p0">
-                <strong> Nombre del cliente</strong>
+              <div className="column">
+                <p>Certificado de tradición y libertad (CTL)</p>
+                <div className="is-flex is-align-items-center">
+                  <IoDocument className="mr-2" />
+                  {data.freedom_tradition_certificate ? (
+                    <a
+                      href={data.freedom_tradition_certificate}
+                      target="_blank"
+                    >
+                      ctl.pdf
+                    </a>
+                  ) : (
+                    <span className="text-muted">Archivo no disponible</span>
+                  )}
+                </div>
               </div>
-              <div className="column is-half column-p0">[]</div>
-            </div>
-            <div className="columns is-multiline is-mobile">
-              <div className="column is-half column-p0">
-                <strong> Tipo de documento</strong>
-              </div>
-              <div className="column column-p0">[]</div>
-            </div>
-            <div className="columns is-multiline is-mobile">
-              <div className="column is-half column-p0">
-                <strong> Número de documento</strong>
-              </div>
-              <div className="column column-p0">[]</div>
-            </div>
-            <div className="columns is-multiline is-mobile">
-              <div className="column is-half">
-                <strong> Número de telefono</strong>
-              </div>
-              <div className="column column">[]</div>
             </div>
           </div>
-          <div className="mr-2 ml-2"></div>
-          <div className="column rol-detail">
-            <div className="level">
-              <h3 className="title is-6 margin-bottom">Detalles del usuario</h3>
+          {/* <Head head_data={head_lot_data} onButtonClick={handleButtonClick} /> */}
+          <div className="rol-detail">
+            <Head
+              head_data={head_lot_data[activeOption]}
+              onButtonClick={handleButtonClick}
+              loading={loading}
+            />
+            <div className="tabs is-boxed">
+              <ul className="mt-0">
+                {["lot", "iot"].map((tab) => (
+                  <li
+                    key={tab}
+                    className={activeOption === tab ? "is-active" : ""}
+                  >
+                    <a onClick={() => handleTabChange(tab)}>
+                      {tab === "lot" && "Lotes Vinculados"}
+                      {tab === "iot" && "Dispositivos de energía"}
+                    </a>
+                  </li>
+                ))}
+              </ul>
             </div>
-            <div className="columns is-multiline is-mobile">
-              <div className="column is-half column-p0">
-                <strong>Folio de matricula inmobilaria</strong>
-              </div>
-              <div className="column is-half column-p0">[]</div>
-            </div>
-            <div className="columns is-multiline is-mobile">
-              <div className="column is-half column-p0">
-                <strong>Extensión del predio</strong>
-              </div>
-              <div className="column column-p0">[]</div>
-            </div>
-            <div className="columns is-multiline is-mobile">
-              <div className="column is-half column-p0">
-                <strong>Longitud</strong>
-              </div>
-              <div className="column column-p0">[]</div>
-            </div>
-            <div className="columns is-multiline is-mobile">
-              <div className="column is-half">
-                <strong>Latitud</strong>
-              </div>
-              <div className="column column">[]</div>
-            </div>
+            <div>{renderContent()}</div>
           </div>
-        </div>
-      </div>
-      <div className="rol-detail mb-5">
-        <h3 className="title is-6 margin-bottom">Ver anexos del predio</h3>
-        <div className="columns">
-          <div className="column is-flex is-align-items-center">
-            <IoDocument className="mr-2" />
-            <span>[]</span>
-          </div>
-          <div className="column is-flex is-align-items-center">
-            <IoDocument className="mr-2" />
-            <span>[]</span>
-          </div>
-        </div>
-      </div>
-      {/* <Head head_data={head_lot_data} onButtonClick={handleButtonClick} /> */}
-      <Head
-        head_data={head_lot_data[activeOption]}
-        onButtonClick={handleButtonClick}
-        loading={loading}
-      />
-      <>
-        <div className="tabs is-boxed">
-          <ul>
-            {["lot", "iot"].map((tab) => (
-              <li key={tab} className={activeOption === tab ? "is-active" : ""}>
-                <a onClick={() => handleTabChange(tab)}>
-                  {tab === "lot" && "Lotes Vinculados"}
-                  {tab === "iot" && "Dispositivos de energía"}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
-        <div>{renderContent()}</div>
-      </>
+        </>
+      )}
+      {showForm && (
+        <>
+          <Form_lot
+            title="Añadir lote"
+            onClose={() => setShowForm(false)}
+            setShowMessage={setShowMessage}
+            setTitleMessage={setTitleMessage}
+            setMessage={setMessage}
+            setStatus={setStatus}
+            updateData={updateData}
+            id={id}
+            loading={isLoading}
+            setLoading={setIsLoading}
+          />
+        </>
+      )}
+      {showEdit && (
+        <>
+          <Form_lot
+            title="Editar lote"
+            onClose={() => setShowEdit(false)}
+            setShowMessage={setShowMessage}
+            setTitleMessage={setTitleMessage}
+            setMessage={setMessage}
+            setStatus={setStatus}
+            updateData={updateData}
+            id={id}
+            idRow={idRow}
+            loading={isLoading}
+            setLoading={setIsLoading}
+          />
+        </>
+      )}
+      {showChangeStatus && (
+        <Change_status_lot
+          onClose={() => setShowChangeStatus(false)}
+          onSuccess={() => setShowChangeStatus(false)}
+          id={idRow}
+          confirMessage={confirMessage}
+          setShowMessage={setShowMessage}
+          setTitleMessage={setTitleMessage}
+          setMessage={setMessage}
+          setStatus={setStatus}
+          updateData={updateData}
+          typeForm={typeForm}
+          loading={loading}
+          setLoading={setLoading}
+        />
+      )}
+      {showMessage && (
+        <Message
+          titleMessage={titleMessage}
+          message={message}
+          status={status}
+          onClose={() => setShowMessage(false)}
+        />
+      )}
     </>
   );
 };

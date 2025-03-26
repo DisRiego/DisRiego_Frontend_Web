@@ -1,7 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 
-const Confirm_property = ({
+const Confirm_lot = ({
   confirMessage,
   onClose,
   method,
@@ -27,21 +27,23 @@ const Confirm_property = ({
         method: method,
         url: uriPost,
         data: formData,
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
       });
       console.log(response);
-      if (typeForm === "create_property") {
-        setTitleMessage("Predio creado exitosamente");
-        setMessage("El predio se ha creado correctamente.");
+      if (typeForm === "create_lot") {
+        setTitleMessage("Lote creado exitosamente");
+        setMessage("El lote se ha creado correctamente.");
         setStatus("is-true");
         setShowMessage(true);
         onClose();
         onSuccess();
         updateData();
-      }
-      {
-        if (typeForm === "edit_property") {
-          setTitleMessage("Predio actualizado exitosamente");
-          setMessage("El predio ha sido actualizado correctamente.");
+      } else {
+        if (typeForm === "edit_lot") {
+          setTitleMessage("Lote actualizado exitosamente");
+          setMessage("El lote ha sido actualizado correctamente.");
           setStatus("is-true");
           setShowMessage(true);
           onClose();
@@ -51,18 +53,16 @@ const Confirm_property = ({
       }
     } catch (error) {
       console.log(error);
-      if (typeForm === "create_property") {
-        setTitleMessage("Error al crear el predio");
-        setMessage(
-          "No se pudo crear el predio. Por favor, inténtelo de nuevo."
-        );
+      if (typeForm === "create_lot") {
+        setTitleMessage("Error al crear el lote");
+        setMessage("No se pudo crear el lote. Por favor, inténtelo de nuevo.");
         setStatus("is-false");
         setShowMessage(true);
       } else {
-        if (typeForm === "edit_property") {
-          setTitleMessage("Error al actualizar el predio");
+        if (typeForm === "edit_lot") {
+          setTitleMessage("Error al actualizar el lote");
           setMessage(
-            "No se pudo actualizar el predio. Por favor, inténtelo de nuevo."
+            "No se pudo actualizar el lote. Por favor, inténtelo de nuevo."
           );
           setStatus("is-false");
           setShowMessage(true);
@@ -112,4 +112,4 @@ const Confirm_property = ({
   );
 };
 
-export default Confirm_property;
+export default Confirm_lot;

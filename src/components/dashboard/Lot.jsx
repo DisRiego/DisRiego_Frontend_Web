@@ -3,12 +3,20 @@ import axios from "axios";
 import Pagination from "./Pagination";
 import Table from "./Table";
 
-const Lot = ({ id, dataLots, loadingTable }) => {
-  console.log("Entro Lot");
-  const [idRow, setIdRow] = useState(null);
+const Lot = ({
+  id,
+  dataLots,
+  loadingTable,
+  setIdRow,
+  setTitle,
+  setShowEdit,
+  setShowChangeStatus,
+  setConfirMessage,
+  setTypeForm,
+}) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 9;
+  const itemsPerPage = 5;
   const [buttonDisabled, setButtonDisabled] = useState(true);
   const [filteredData, setFilteredData] = useState([]);
   const [backupData, setBackupData] = useState([]);
@@ -20,7 +28,6 @@ const Lot = ({ id, dataLots, loadingTable }) => {
     "ID",
     // "ID del lote",
     "Nombre del lote",
-    "Número de documento del dueño",
     "Folio de matricula inmobiliaria",
     "Extensión (m²)",
     "Latitud",
@@ -53,15 +60,14 @@ const Lot = ({ id, dataLots, loadingTable }) => {
           ID: info.id,
           // "ID del predio": info.id,
           "Nombre del lote": toTitleCase(info.name) || "",
-          "Número de documento del dueño": info.owner_document_number || "",
           "Folio de matricula inmobiliaria":
             info.real_estate_registration_number || "",
           "Extensión (m²)": info.extension || "",
           Latitud: info.latitude || "",
           Longitud: info.longitude || "",
-          "Tipo de cultivo": info.type_crop_id || "",
-          "Intervalo de pago": info.payment_interval || "",
-          Estado: info.state_name || "",
+          "Tipo de cultivo": info.nombre_tipo_cultivo || "",
+          "Intervalo de pago": info.nombre_intervalo_pago || "",
+          Estado: info.nombre_estado || "",
         }));
 
       setFilteredData(filtered);
@@ -97,7 +103,6 @@ const Lot = ({ id, dataLots, loadingTable }) => {
     startIndex + itemsPerPage
   );
 
-  console.log(dataLots);
   return (
     <>
       <Table
@@ -106,11 +111,11 @@ const Lot = ({ id, dataLots, loadingTable }) => {
         options={options}
         loadingTable={loadingTable}
         setId={setIdRow}
-        // setTitle={setTitle}
-        // setShowEdit={setShowEdit}
-        // setShowChangeStatus={setShowChangeStatus}
-        // setConfirMessage={setConfirMessage}
-        // setTypeForm={setTypeForm}
+        setTitle={setTitle}
+        setShowEdit={setShowEdit}
+        setShowChangeStatus={setShowChangeStatus}
+        setConfirMessage={setConfirMessage}
+        setTypeForm={setTypeForm}
         parentComponent={parentComponent}
       />
       <Pagination

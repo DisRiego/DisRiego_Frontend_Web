@@ -5,8 +5,9 @@ import Search from "./Search";
 import Filter from "./Filter";
 import Table from "./Table";
 import Pagination from "./Pagination";
-import Form_add_property from "./forms/adds/Form_add_property";
+import Form_property from "./forms/adds/Form_property";
 import Filter_property from "./filters/Filter_property";
+import Change_status_property from "./Status/Change_status_property";
 import Message from "../Message";
 import axios from "axios";
 import RobotoNormalFont from "../../assets/fonts/Roboto-Regular.ttf";
@@ -40,6 +41,8 @@ ChartJS.register(
 const Property = () => {
   const [data, setData] = useState([]);
   const [showForm, setShowForm] = useState(false);
+  const [showEdit, setShowEdit] = useState();
+  const [showChangeStatus, setShowChangeStatus] = useState(false);
   const [showFilter, setShowFilter] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -52,6 +55,9 @@ const Property = () => {
   const [status, setStatus] = useState(false);
   const [buttonDisabled, setButtonDisabled] = useState(true);
   const [id, setId] = useState(null);
+  const [title, setTitle] = useState();
+  const [confirMessage, setConfirMessage] = useState();
+  const [typeForm, setTypeForm] = useState();
   const [filteredData, setFilteredData] = useState([]);
   const [backupData, setBackupData] = useState([]);
   const [filters, setFilters] = useState({ estados: {} });
@@ -121,7 +127,7 @@ const Property = () => {
         ],
       ],
       body: filteredData.map((property) => [
-        property["ID del predio"],
+        property.ID,
         property.Nombre,
         property["Número de documento del dueño"],
         property["Folio de matricula inmobiliaria"],
@@ -349,8 +355,6 @@ const Property = () => {
       );
       // const sortedData = response.data.data.sort((a, b) => a.name - b.name);
 
-      console.log(sortedData);
-
       setData(sortedData);
       setButtonDisabled(false);
     } catch (error) {
@@ -434,8 +438,6 @@ const Property = () => {
     startIndex + itemsPerPage
   );
 
-  console.log(data);
-
   return (
     <>
       <Head
@@ -457,6 +459,11 @@ const Property = () => {
         options={options}
         loadingTable={loadingTable}
         setId={setId}
+        setTitle={setTitle}
+        setShowEdit={setShowEdit}
+        setShowChangeStatus={setShowChangeStatus}
+        setConfirMessage={setConfirMessage}
+        setTypeForm={setTypeForm}
       />
       <Pagination
         totalItems={filteredData.length}
@@ -466,7 +473,7 @@ const Property = () => {
       />
       {showForm && (
         <>
-          <Form_add_property
+          <Form_property
             title="Añadir predio"
             onClose={() => setShowForm(false)}
             setShowMessage={setShowMessage}
@@ -479,6 +486,38 @@ const Property = () => {
             setLoading={setLoading}
           />
         </>
+      )}
+      {showEdit && (
+        <>
+          <Form_property
+            title="Editar predio"
+            onClose={() => setShowEdit(false)}
+            setShowMessage={setShowMessage}
+            setTitleMessage={setTitleMessage}
+            setMessage={setMessage}
+            setStatus={setStatus}
+            updateData={updateData}
+            id={id}
+            loading={loading}
+            setLoading={setLoading}
+          />
+        </>
+      )}
+      {showChangeStatus && (
+        <Change_status_property
+          onClose={() => setShowChangeStatus(false)}
+          onSuccess={() => setShowChangeStatus(false)}
+          id={id}
+          confirMessage={confirMessage}
+          setShowMessage={setShowMessage}
+          setTitleMessage={setTitleMessage}
+          setMessage={setMessage}
+          setStatus={setStatus}
+          updateData={updateData}
+          typeForm={typeForm}
+          loading={loading}
+          setLoading={setLoading}
+        />
       )}
       {showFilter && (
         <>

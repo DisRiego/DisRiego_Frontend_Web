@@ -1,13 +1,17 @@
-import React, { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { Line, Bar } from "react-chartjs-2";
-import { format, subDays, subWeeks, subMonths, subYears } from "date-fns";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import axios from "axios";
+import { Bar, Line } from "react-chartjs-2";
+import "../../../styles/index.css";
 import Head from "../Head";
-import { jsPDF } from "jspdf";
-import { autoTable } from "jspdf-autotable";
+import Table from "../Table";
+import Pagination from "../Pagination";
 import RobotoNormalFont from "../../../assets/fonts/Roboto-Regular.ttf";
 import RobotoBoldFont from "../../../assets/fonts/Roboto-Bold.ttf";
 import Icon from "../../../assets/icons/Disriego_title.png";
+import { format, subDays, subWeeks, subMonths, subYears } from "date-fns";
+import { jsPDF } from "jspdf"; // Importa jsPDF
+import { autoTable } from "jspdf-autotable"; // componentes de Chart.js usados en el componente
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -19,7 +23,6 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -30,177 +33,245 @@ ChartJS.register(
   Tooltip,
   Legend
 );
+import { IoDocument } from "react-icons/io5";
 
-// Datos sinteticos de los lotes
-const lotMockData = [
-  {
-    id: 101,
-    property_id: 1, // Lote perteneciente a "Finca La Esperanza"
-    name: "Lote A1",
-    inmobilario: "L-123",
-    extension: "10 Ha",
-    latitud: "2.9250",
-    longitud: "-75.2800",
-    estado: "Activo",
-    cultivoTipo: "Maíz",
-    intervaloPago: "Mensual",
-    fechaCosecha: "2025-06-15"
-  },
-  {
-    id: 102,
-    property_id: 2, // Otro lote para "Finca La Esperanza"
-    name: "Lote A2",
-    inmobilario: "L-124",
-    extension: "15 Ha",
-    latitud: "2.9260",
-    longitud: "-75.2790",
-    estado: "Activo",
-    cultivoTipo: "Café",
-    intervaloPago: "Trimestral",
-    fechaCosecha: "2025-10-20"
-  },
-  {
-    id: 103,
-    property_id: 3, // Lote para "Hacienda El Roble"
-    name: "Lote hacienda el roble",
-    inmobilario: "R-456",
-    extension: "60 Ha",
-    latitud: "2.9350",
-    longitud: "-75.2850",
-    estado: "Activo",
-    cultivoTipo: "Arroz",
-    intervaloPago: "Semestral",
-    fechaCosecha: "2025-08-10"
-  },
-  {
-    id: 104,
-    property_id: 4, // Lote para "Predio Los Nogales"
-    name: "Lote N1",
-    inmobilario: "N-789",
-    extension: "25 Ha",
-    latitud: "2.9200",
-    longitud: "-75.2650",
-    estado: "Inactivo",
-    cultivoTipo: "Frutas",
-    intervaloPago: "Mensual",
-    fechaCosecha: "2025-05-30"
-  },
-  {
-    id: 105,
-    property_id: 3, // Lote para "Predio Los Nogales"
-    name: "Lote N2",
-    inmobilario: "N-790",
-    extension: "25 Ha",
-    latitud: "2.9200",
-    longitud: "-75.2650",
-    estado: "Inactivo",
-    cultivoTipo: "Cítricos",
-    intervaloPago: "Trimestral",
-    fechaCosecha: "2025-07-25"
-  },
-];
-
-// Datos sinteticos de los predios
-const mockData = [
-  {
-    id: 1,
-    name: "Finca La Esperanza",
-    user_name: "1023456789",
-    inmobilario: "123-456789",
-    extension: "50 Ha",
-    latitud: "2.9273",
-    longitud: "-75.2819",
-    estado: "Activo",
-  },
-  {
-    id: 2,
-    name: "Hacienda El Roble",
-    user_name: "1122334455",
-    inmobilario: "234-567890",
-    extension: "120 Ha",
-    latitud: "2.9385",
-    longitud: "-75.2901",
-    estado: "Activo",
-  },
-  {
-    id: 3,
-    name: "Granja San Luis",
-    user_name: "9988776655",
-    inmobilario: "345-678901",
-    extension: "30 Ha",
-    latitud: "2.9156",
-    longitud: "-75.2753",
-    estado: "Inactivo",
-  },
-  {
-    id: 4,
-    name: "Predio Los Nogales",
-    user_name: "6677889900",
-    inmobilario: "456-789012",
-    extension: "75 Ha",
-    latitud: "2.9214",
-    longitud: "-75.2687",
-    estado: "Activo",
-  },
-  {
-    id: 5,
-    name: "Terreno Las Palmas",
-    user_name: "3344556677",
-    inmobilario: "567-890123",
-    extension: "95 Ha",
-    latitud: "2.9321",
-    longitud: "-75.2850",
-    estado: "Activo",
-  },
-];
-
-const LotDetail = () => {
+const Lot_detail = () => {
   const { id } = useParams();
+  const [IdProperty, setIdProperty] = useState(null);
+  const [idRow, setIdRow] = useState(null);
   const navigate = useNavigate();
+  const [data, setData] = useState("");
+  const [dataProperty, setDataProperty] = useState("");
+  const [dataLots, setDataLots] = useState([]);
   const [loading, setLoading] = useState("");
+  const [dots, setDots] = useState("");
+  const [showForm, setShowForm] = useState(false);
+  const [showEdit, setShowEdit] = useState();
   const [activeTab, setActiveTab] = useState("consumo");
   const [activePeriod, setActivePeriod] = useState("mes");
   const [activePeriodRight, setActivePeriodRight] = useState("año");
-  const [tableTab, setTableTab] = useState("dispositivos");
-  
-  // Obtener datos del lote actual
-  const currentLot = lotMockData.find(lot => lot.id === parseInt(id)) || {
-    id: parseInt(id) || 101,
-    name: "Lote A1",
-    inmobilario: "L-123",
-    extension: "10 Ha",
-    latitud: "2.9250",
-    longitud: "-75.2800",
-    estado: "Activo",
-    property_id: 1,
-    cultivoTipo: "Maíz",
-    intervaloPago: "Mensual",
-    fechaCosecha: "2025-06-15"
-  };
-  
-  // Obtener datos del predio vinculado
-  const linkedProperty = mockData.find(property => property.id === currentLot.property_id) || {
-    id: 1,
-    name: "Finca La Esperanza",
-    user_name: "1023456789",
-    inmobilario: "123-456789",
-    extension: "50 Ha",
-    latitud: "2.9273",
-    longitud: "-75.2819",
-    estado: "Activo",
-  };
-  
-  // Datos simulados de dispositivos
-  const devices = [
-    { id: "DEV-001", type: "Válvula", modelo: "XG-200", installDate: "2024-01-15", maintenanceDate: "2025-01-15", status: "Operativo" },
-    { id: "DEV-002", type: "Sensor de Humedad", modelo: "SM-100", installDate: "2024-01-15", maintenanceDate: "2025-01-15", status: "Operativo" },
-    { id: "DEV-003", type: "Sensor de Temperatura", modelo: "ST-50", installDate: "2024-01-04", maintenanceDate: "2025-01-04", status: "No Operativo" }
-  ];
+  const [loadingTable, setLoadingTable] = useState(false);
+  const [activeOption, setActiveOption] = useState("lot");
+  const [isLoading, setIsLoading] = useState(true);
+  const [showMessage, setShowMessage] = useState(false);
+  const [titleMessage, setTitleMessage] = useState(false);
+  const [message, setMessage] = useState(false);
+  const [status, setStatus] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+  const [buttonDisabled, setButtonDisabled] = useState(true);
+  const [filteredData, setFilteredData] = useState([]);
+  const [backupData, setBackupData] = useState([]);
+  const [filters, setFilters] = useState({ estados: {} });
+  const [statusFilter, setStatusFilter] = useState(false);
+  const parentComponent = "iot";
+  const [title, setTitle] = useState();
 
-  const attachments = [
-    { name: "Escritura pública", file: "EscrituraPublica.pdf", size: "5.7MB" },
-    { name: "Certificado de tradición y libertad (CTL)", file: "CTL.pdf", size: "5.7MB" }
-  ];
+  const head_data = {
+    title: "Detalles del lote #" + id,
+    description:
+      "En esta sección podrás visualizar información detallada sobre el lote.",
+    buttons: {
+      // button1: {
+      //   icon: "FaPlus",
+      //   class: "color-hover",
+      //   text: "Apertura válvula",
+      // },
+      button1: {
+        icon: "LuDownload",
+        class: "",
+        text: "Descargar reporte",
+      },
+    },
+  };
+
+  const handleButtonClick = (buttonText) => {
+    // if (buttonText === "Apertura válvula") {
+    //   setShowForm(true);
+    // }
+
+    if (buttonText === "Descargar reporte") {
+      setLoading("is-loading");
+      generateReport();
+    }
+  };
+  //Generar reporte de predio
+  const generateReport = () => {
+    const doc = new jsPDF();
+    // Datos del predio actual
+    // const currentProperty = mockData.find(
+    //   (property) => property.id === parseInt(id)
+    // );
+    // // Filtra los lotes que pertenecen al predio actual
+    // const lotsForProperty = lotMockData.filter(
+    //   (lot) => lot.property_id === parseInt(id)
+    // );
+
+    // Add Roboto font to the document
+    doc.addFont(RobotoNormalFont, "Roboto", "normal");
+    doc.addFont(RobotoBoldFont, "Roboto", "bold");
+    //colorear fondo
+    doc.setFillColor(243, 242, 247);
+    doc.rect(0, 0, 210, 53, "F"); // colorear una parte de la pagina
+    // agregar logo (usando base 64 directamente sobre la importacion)
+    doc.addImage(Icon, "PNG", 156, 10, 39, 11);
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(17);
+    doc.setFont("Roboto", "bold");
+    doc.text("REPORTE PREDIAL", 12, 18);
+    doc.setFontSize(11);
+    doc.text(`Fecha de generación:`, 12, 27);
+    doc.text(`Generado por:`, 12, 39);
+    /*doc.setTextColor(94, 100, 112);*/
+    doc.text("Datos del dueño", 12, 63);
+    doc.text("Datos del predio", 12, 100);
+
+    doc.setTextColor(94, 100, 112);
+    doc.setFont("Roboto", "normal");
+    doc.setFontSize(10);
+    doc.text(`${new Date().toLocaleString()}`, 12, 32);
+    doc.text(`[Nombre del usuario]`, 12, 44);
+    doc.setFontSize(11);
+    doc.text(`[Dirección de la empresa]`, 194, 27, { align: "right" });
+    doc.text(`[Ciudad, Dept. País]`, 194, 33, { align: "right" });
+    doc.text(`[Teléfono]`, 194, 39, { align: "right" });
+    doc.setFontSize(10);
+    doc.text("Nombre completo", 12, 70);
+    doc.text("Número de documento", 110, 70);
+    doc.text("Dirección de correspondencia", 12, 82);
+    doc.text("Teléfono", 110, 82);
+    doc.text("[NOMBRE]", 12, 75);
+    doc.text(currentProperty?.user_name || "[No. documento]", 110, 75);
+    doc.text("[DIRECCION]", 12, 87);
+    doc.text("[TELEFONO]", 110, 87);
+
+    autoTable(doc, {
+      startY: 105,
+      margin: { left: 12, right: 12 },
+      head: [
+        [
+          "ID",
+          "Nombre del predio",
+          "Folio matrícula inmobiliaria",
+          "Extensión",
+          "Latitud",
+          "Longitud",
+          "Número de lotes",
+        ],
+      ],
+      body: [
+        [
+          currentProperty?.id || "",
+          currentProperty?.name || "",
+          currentProperty?.inmobilario || "",
+          currentProperty?.extension || "",
+          currentProperty?.latitud || "",
+          currentProperty?.longitud || "",
+          lotsForProperty.length,
+        ],
+      ],
+      theme: "grid",
+      headStyles: {
+        fillColor: [252, 252, 253],
+        textColor: [0, 0, 0],
+        fontStyle: "bold",
+        lineWidth: 0.5,
+        lineColor: [234, 236, 240],
+      },
+      bodyStyles: {
+        textColor: [89, 89, 89],
+        fontSize: 9,
+        cellPadding: 4,
+      },
+      styles: {
+        fontSize: 9,
+        font: "Roboto",
+        lineColor: [226, 232, 240],
+      },
+    });
+
+    // Lotes asociados al predio
+    const currentY = doc.lastAutoTable.finalY + 10;
+
+    doc.setFontSize(11);
+    doc.setFont("Roboto", "bold");
+    doc.setTextColor(0, 0, 0);
+    doc.text(`Lotes Asociados al predio [${id}]`, 14, currentY);
+
+    // Tabla de lotes asociados
+    autoTable(doc, {
+      startY: currentY + 5,
+      margin: { left: 12, right: 12 },
+      head: [
+        [
+          "ID",
+          "Nombre del lote",
+          "Folio matrícula inmobiliaria",
+          "Extensión",
+          "Latitud",
+          "Longitud",
+          "Tipo de cultivo",
+          "Intervalo de pago",
+        ],
+      ],
+      body: lotsForProperty.map((lot) => [
+        lot.id,
+        lot.name,
+        lot.inmobilario,
+        lot.extension,
+        lot.latitud,
+        lot.longitud,
+        "[Tipo de cultivo]",
+        "[Intervalo de pago]",
+      ]),
+      theme: "grid",
+      headStyles: {
+        fillColor: [252, 252, 253],
+        textColor: [0, 0, 0],
+        fontStyle: "bold",
+        lineWidth: 0.1,
+        lineColor: [234, 236, 240],
+      },
+      bodyStyles: {
+        textColor: [89, 89, 89],
+        fontSize: 9,
+        cellPadding: 4,
+      },
+      styles: {
+        fontSize: 9,
+        font: "Roboto",
+        lineColor: [226, 232, 240],
+      },
+    });
+    //pie de pagina
+    doc.addImage(Icon, "PNG", 12, 280, 32, 9);
+
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(10);
+
+      doc.setFont("Roboto", "normal"); // Set Roboto font for page numbers
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      doc.text(`Página ${i}/${pageCount}`, pageWidth - 10, pageHeight - 10, {
+        align: "right",
+      });
+    }
+
+    // Convertir el PDF a un Blob
+    const pdfBlob = doc.output("blob");
+
+    // Crear una URL del Blob
+    const pdfUrl = URL.createObjectURL(pdfBlob);
+
+    // Abrir el PDF en una nueva pestaña
+    setTimeout(() => {
+      window.open(pdfUrl, "_blank");
+      setLoading("");
+    }, 500);
+  };
 
   // Función para generar etiquetas de fecha según el período seleccionado
   const generateDateLabels = (period) => {
@@ -243,7 +314,7 @@ const LotDetail = () => {
     return labels;
   };
 
-  // Función para generar datos aleatorios
+  // Función para generar datos aleatorios según el período y número de etiquetas
   const generateRandomData = (numLabels, min = 10, max = 100) => {
     return Array.from(
       { length: numLabels },
@@ -251,7 +322,7 @@ const LotDetail = () => {
     );
   };
 
-  // Función para obtener datos según el tipo y período
+  // Función para obtener datos según el tipo (consumo/producción) y período (día/semana/mes/año)
   const getChartData = (type, period) => {
     const labels = generateDateLabels(period);
     const numDataPoints = labels.length;
@@ -315,7 +386,7 @@ const LotDetail = () => {
     }
   };
 
-  // Función para obtener datos de barras
+  // Función para obtener datos de barras según el tipo (consumo/producción) y período (día/semana/mes/año)
   const getBarChartData = (type, period) => {
     const labels = generateDateLabels(period);
     const numDataPoints = labels.length;
@@ -452,566 +523,596 @@ const LotDetail = () => {
     };
   };
 
-  // Indicadores de property_detail en lugar de los de consumo
-  const summaryCards = activeTab === "consumo"
-    ? [
-        {
-          title: "Consumo promedio de energía",
-          valueUptakeEnergy: "155 kWh",
-          bgColor: "rgba(252,241,210,1)",
-        },
-        {
-          title: "Consumo actual de energía",
-          valueUptakeEnergy: "132 kWh",
-          bgColor: "rgba(252,241,210,1)",
-        },
-        {
-          title: "Consumo promedio de agua",
-          valueUptakeWater: "245 m³",
-          bgColor: "rgba(91,147,255,0.15)",
-        },
-        {
-          title: "Consumo actual de agua",
-          valueUptakeWater: "265 m³",
-          bgColor: "rgba(91,147,255,0.15)",
-        },
-      ]
-    : [
-        {
-          title: "Energía almacenada (Baterías)",
-          valueStorageEnergy: "155 kWh",
-          bgColor: "rgba(239,249,217,1)",
-        },
-        {
-          title: "Autonomía restante (Baterías)",
-          valueStorageEnergy: "2h",
-          bgColor: "rgba(239,249,217,1)",
-        },
-        {
-          title: "Producción mensual de energía",
-          valueProductionEnergy: "155 kWh",
-          bgColor: "rgba(229,135,127, 0.4)",
-        },
-        {
-          title: "Producción actual de energía",
-          valueProductionEnergy: "132 kWh",
-          bgColor: "rgba(229,135,127, 0.4)",
-        },
-      ];
+  // Definir los valores para las tarjetas resumen
+  const summaryCards =
+    activeTab === "consumo"
+      ? [
+          {
+            title: "Consumo promedio de energía",
+            valueUptakeEnergy: "155 kWh",
+            bgColor: "rgba(252,241,210,1)",
+          },
+          {
+            title: "Consumo actual de energía",
+            valueUptakeEnergy: "132 kWh",
+            bgColor: "rgba(252,241,210,1)",
+          },
+          {
+            title: "Consumo promedio de agua",
+            valueUptakeWater: "245 m³",
+            bgColor: "rgb(231, 239, 255)",
+          },
+          {
+            title: "Consumo actual de agua",
+            valueUptakeWater: "265 m³",
+            bgColor: "rgb(231, 239, 255)",
+          },
+        ]
+      : [
+          {
+            title: "Energía almacenada (Baterías)",
+            valueStorageEnergy: "155 kWh",
+            bgColor: "#eff9d9",
+          },
+          {
+            title: "Autonomía restante (Baterías)",
+            valueStorageEnergy: "2h",
+            bgColor: "rgba(239,249,217,1)",
+          },
+          {
+            title: "Producción mensual de energía",
+            valueProductionEnergy: "155 kWh",
+            bgColor: "#ffd9d5",
+          },
+          {
+            title: "Producción actual de energía",
+            valueProductionEnergy: "132 kWh",
+            bgColor: "#ffd9d5",
+          },
+        ];
 
-  // Datos para el encabezado (Head)
-  const head_data = {
-    title: `${currentLot.name} #${id}`,
-    description: `En esta sección podrá consultar los detalles del lote vinculado al predio "${linkedProperty.name}".`,
-    buttons: {
-      button1: {
-        icon: "GiWaterTap", // Icono para apertura de válvula
-        class: "color-hover",
-        text: "Apertura de válvula",
-      },
-      button2: {
-        icon: "LuDownload",
-        class: "",
-        text: "Descargar reporte",
-      },
+  const head_iot = {
+    title: "Información de dispositivos IoT",
+    description:
+      "En esta sección podrás visualizar los dispositivos IoT asignados al lote.",
+  };
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setDots((prev) => (prev.length < 3 ? prev + "." : ""));
+    }, 500);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    fetchLot();
+    // fetchIot();
+  }, []);
+
+  const fetchLot = async () => {
+    try {
+      const response = await axios.get(
+        import.meta.env.VITE_URI_BACKEND +
+          import.meta.env.VITE_ROUTE_BACKEND_LOTS_PROPERTY +
+          id
+      );
+      console.log(response.data);
+      setData(response.data.data);
+      setIdProperty(response.data.data.property_id);
+    } catch (error) {
+      console.error("Error al obtener la información del lote:", error);
+    } finally {
+    }
+  };
+
+  console.log(data);
+
+  useEffect(() => {
+    if (IdProperty) {
+      fetchProperty();
+    }
+  }, [IdProperty]);
+
+  const fetchProperty = async () => {
+    try {
+      const response = await axios.get(
+        import.meta.env.VITE_URI_BACKEND +
+          import.meta.env.VITE_ROUTE_BACKEND_PROPERTY +
+          IdProperty
+      );
+      setDataProperty(response.data.data);
+    } catch (error) {
+      console.error("Error al obtener la información del predio:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  console.log(dataProperty);
+
+  // const fetchIot = async () => {
+  //   try {
+  //     setLoadingTable(true);
+  //     const response = await axios.get(
+  //       import.meta.env.VITE_URI_BACKEND +
+  //         import.meta.env.VITE_ROUTE_BACKEND_PROPERTY +
+  //         id +
+  //         import.meta.env.VITE_ROUTE_BACKEND_LOTS
+  //     );
+  //     setDataLots(response.data.data);
+
+  //     const sortedData = response.data.data.sort((a, b) =>
+  //       a.name.localeCompare(b.name)
+  //     );
+  //     // const sortedData = response.data.data.sort((a, b) => a.name - b.name);
+
+  //     setDataLots(sortedData);
+  //     // setButtonDisabled(false);
+  //   } catch (error) {
+  //     console.error("Error al obtener los lotes:", error);
+  //   } finally {
+  //     setLoadingTable(false);
+  //   }
+  // };
+
+  // const updateData = async () => {
+  //   fetchIot();
+  // };
+
+  const dataIot = [
+    {
+      id: 1,
+      device_type: "Sensor de humedad",
+      model: "HS-2000",
+      date_installation: "2024-03-15",
+      maintenance_date: "2025-03-15",
+      status_name: "Activo",
     },
+    {
+      id: 2,
+      device_type: "Válvula inteligente",
+      model: "VLV-500",
+      date_installation: "2024-02-20",
+      maintenance_date: "2025-02-20",
+      status_name: "Mantenimiento",
+    },
+    {
+      id: 3,
+      device_type: "Controlador central",
+      model: "CTRL-X100",
+      date_installation: "2024-01-10",
+      maintenance_date: "2025-01-10",
+      status_name: "Activo",
+    },
+    {
+      id: 4,
+      device_type: "Medidor de flujo",
+      model: "FLW-300",
+      date_installation: "2023-12-05",
+      maintenance_date: "2024-12-05",
+      status_name: "Inactivo",
+    },
+    {
+      id: 5,
+      device_type: "Repetidor de señal LoRa",
+      model: "LORA-RP1",
+      date_installation: "2024-04-01",
+      maintenance_date: "2025-04-01",
+      status_name: "Activo",
+    },
+  ];
+
+  const columns = [
+    "ID",
+    "Tipo de dispositivo",
+    "Modelo",
+    "Fecha de instalación",
+    "Fecha estimada de mantenimiento",
+    "Estado",
+    "Opciones",
+  ];
+
+  const toTitleCase = (str) => {
+    if (typeof str !== "string") return str;
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
   };
 
-  // Función para generar el reporte PDF del lote
-  const generateLotReport = () => {
-    const doc = new jsPDF();
-    
-    // Add Roboto font to the document
-    doc.addFont(RobotoNormalFont, "Roboto", "normal");
-    doc.addFont(RobotoBoldFont, "Roboto", "bold");
-    
-    // Colorear fondo en la parte superior
-    doc.setFillColor(243, 242, 247);
-    doc.rect(0, 0, 210, 53, "F"); // colorear una parte de la pagina
-    
-    // Agregar logo
-    doc.addImage(Icon, "PNG", 156, 10, 39, 11);
-    
-    // Título del reporte
-    doc.setTextColor(0, 0, 0);
-    doc.setFontSize(17);
-    doc.setFont("Roboto", "bold");
-    doc.text("REPORTE DEL LOTE #" + id, 12, 18);
-    
-    // Fecha de generación
-    doc.setFontSize(11);
-    doc.text(`Fecha de generación:`, 12, 27);
-    doc.text(`Generado por:`, 12, 39);
-    
-    // Información de la empresa
-    doc.text(`[Dirección de la empresa]`, 194, 27, { align: "right" });
-    doc.text(`[Ciudad, Dept. País]`, 194, 33, { align: "right" });
-    doc.text(`[Teléfono]`, 194, 39, { align: "right" });
-    
-    // Información en formato de fecha
-    doc.setTextColor(94, 100, 112);
-    doc.setFont("Roboto", "normal");
-    doc.setFontSize(10);
-    doc.text(`${new Date().toLocaleString()}`, 12, 32);
-    doc.text(`[Nombre del usuario]`, 12, 44);
-    
-    // Sección de datos del dueño
-    doc.setTextColor(0, 0, 0);
-    doc.setFont("Roboto", "bold");
-    doc.setFontSize(11);
-    doc.text("Datos del dueño", 12, 63);
-    
-    // Detalles del dueño
-    doc.setTextColor(94, 100, 112);
-    doc.setFont("Roboto", "normal");
-    doc.setFontSize(10);
-    doc.text("Nombre completo", 12, 70);
-    doc.text("Número de documento", 110, 70);
-    doc.text("Dirección de correspondencia", 12, 82);
-    doc.text("Teléfono", 110, 82);
-    doc.text("[NOMBRE]", 12, 75);
-    doc.text(linkedProperty?.user_name || "[No. documento]", 110, 75);
-    doc.text("[DIRECCION]", 12, 87);
-    doc.text("[TELEFONO]", 110, 87);
-    
-    // Sección de datos del predio
-    doc.setTextColor(0, 0, 0);
-    doc.setFont("Roboto", "bold");
-    doc.setFontSize(11);
-    doc.text("Datos del predio", 12, 100);
-    
-    // Tabla con datos del predio
-    autoTable(doc, {
-      startY: 105,
-      margin: { left: 12, right: 12 },
-      head: [
-        [
-          "ID",
-          "Nombre del predio",
-          "Folio matrícula inmobiliaria",
-          "Extensión",
-          "Latitud",
-          "Longitud",
-        ],
-      ],
-      body: [
-        [
-          linkedProperty?.id || "",
-          linkedProperty?.name || "",
-          linkedProperty?.inmobilario || "",
-          linkedProperty?.extension || "",
-          linkedProperty?.latitud || "",
-          linkedProperty?.longitud || "",
-        ],
-      ],
-      theme: "grid",
-      headStyles: {
-        fillColor: [252, 252, 253],
-        textColor: [0, 0, 0],
-        fontStyle: "bold",
-        lineWidth: 0.5,
-        lineColor: [234, 236, 240],
-      },
-      bodyStyles: {
-        textColor: [89, 89, 89],
-        fontSize: 9,
-        cellPadding: 4,
-      },
-      styles: {
-        fontSize: 9,
-        font: "Roboto",
-        lineColor: [226, 232, 240],
-      },
-    });
-    
-    // Sección de datos del lote
-    const currentY = doc.lastAutoTable.finalY + 10;
-    doc.setTextColor(0, 0, 0);
-    doc.setFont("Roboto", "bold");
-    doc.text("Datos del lote", 12, currentY);
-    
-    // Tabla con datos del lote
-    autoTable(doc, {
-      startY: currentY + 5,
-      margin: { left: 12, right: 12 },
-      head: [
-        [
-          "ID",
-          "Nombre del lote",
-          "Folio matrícula inmobiliaria",
-          "Extensión",
-          "Tipo de cultivo",
-          "Intervalo de pago",
-          "Latitud",
-          "Longitud",
-        ],
-      ],
-      body: [
-        [
-          currentLot.id,
-          currentLot.name,
-          currentLot.inmobilario,
-          currentLot.extension,
-          currentLot.cultivoTipo,
-          currentLot.intervaloPago,
-          currentLot.latitud,
-          currentLot.longitud,
-        ],
-      ],
-      theme: "grid",
-      headStyles: {
-        fillColor: [252, 252, 253],
-        textColor: [0, 0, 0],
-        fontStyle: "bold",
-        lineWidth: 0.5,
-        lineColor: [234, 236, 240],
-      },
-      bodyStyles: {
-        textColor: [89, 89, 89],
-        fontSize: 9,
-        cellPadding: 4,
-      },
-      styles: {
-        fontSize: 9,
-        font: "Roboto",
-        lineColor: [226, 232, 240],
-      },
-    });
-    
-    // Sección de dispositivos asociados al lote
-    const deviceY = doc.lastAutoTable.finalY + 10;
-    doc.setTextColor(0, 0, 0);
-    doc.setFont("Roboto", "bold");
-    doc.text("Dispositivos asociados al lote", 12, deviceY);
-    
-    // Tabla con datos de los dispositivos
-    autoTable(doc, {
-      startY: deviceY + 5,
-      margin: { left: 12, right: 12 },
-      head: [
-        [
-          "ID",
-          "Tipo de dispositivo",
-          "Modelo",
-          "Fecha de instalación",
-          "Fecha estimada de mantenimiento",
-          "Estado",
-        ],
-      ],
-      body: devices.map((device) => [
-        device.id,
-        device.type,
-        device.modelo,
-        device.installDate,
-        device.maintenanceDate,
-        device.status,
-      ]),
-      theme: "grid",
-      headStyles: {
-        fillColor: [252, 252, 253],
-        textColor: [0, 0, 0],
-        fontStyle: "bold",
-        lineWidth: 0.5,
-        lineColor: [234, 236, 240],
-      },
-      bodyStyles: {
-        textColor: [89, 89, 89],
-        fontSize: 9,
-        cellPadding: 4,
-      },
-      styles: {
-        fontSize: 9,
-        font: "Roboto",
-        lineColor: [226, 232, 240],
-      },
-    });
-    
-    // Pie de página
-    doc.addImage(Icon, "PNG", 12, 280, 32, 9);
-    
-    // Numeración de páginas
-    const pageCount = doc.internal.getNumberOfPages();
-    for (let i = 1; i <= pageCount; i++) {
-      doc.setPage(i);
-      doc.setFontSize(10);
-      doc.setFont("Roboto", "normal");
-      const pageWidth = doc.internal.pageSize.getWidth();
-      const pageHeight = doc.internal.pageSize.getHeight();
-      doc.text(`Página ${i}/${pageCount}`, pageWidth - 10, pageHeight - 10, {
-        align: "right",
-      });
-    }
-    
-    // Convertir el PDF a un Blob y abrirlo
-    const pdfBlob = doc.output("blob");
-    const pdfUrl = URL.createObjectURL(pdfBlob);
-    window.open(pdfUrl, "_blank");
-  };
+  console.log(dataIot);
 
-  // Función para manejar los clics en los botones
-  const handleButtonClick = (buttonText) => {
-    setLoading("is-loading");
-    
-    if (buttonText === "Apertura de válvula") {
-      setTimeout(() => {
-        alert("Válvula abierta con éxito");
-        setLoading("");
-      }, 1500);
-    }
+  useEffect(() => {
+    if (!statusFilter) {
+      const filtered = dataIot
+        .filter((info) =>
+          Object.values(info)
+            .join(" ")
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase())
+        )
+        .map((info) => ({
+          ID: info.id,
+          "Tipo de dispositivo": toTitleCase(info.device_type) || "",
+          Modelo: info.model || "",
+          "Fecha de instalación": info.date_installation || "",
+          "Fecha estimada de mantenimiento": info.maintenance_date || "",
+          Estado: info.status_name || "",
+        }));
 
-    if (buttonText === "Descargar reporte") {
-      setTimeout(() => {
-        generateLotReport();
-        setLoading("");
-      }, 1500);
+      setFilteredData(filtered);
+      setBackupData(filtered);
+    } else {
+      const selectedStates = Object.keys(filters.estados).filter(
+        (key) => filters.estados[key]
+      );
+
+      if (selectedStates.length > 0) {
+        const filteredByState = backupData.filter((info) =>
+          selectedStates.includes(info.Estado)
+        );
+        setFilteredData(filteredByState);
+      } else {
+        setFilteredData(backupData);
+      }
+
+      setStatusFilter(false);
     }
-  };
+  }, [dataLots, searchTerm, filters.estados]);
+
+  const options = [
+    { icon: "BiShow", name: "Ver detalles" },
+    { icon: "BiEditAlt", name: "Editar" },
+    { icon: "MdOutlineCheckCircle", name: "Habilitar" },
+    { icon: "VscError", name: "Inhabilitar" },
+  ];
+
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedData = filteredData.slice(
+    startIndex,
+    startIndex + itemsPerPage
+  );
 
   return (
-    <div className="property-detail-container">
+    <>
       <Head
         head_data={head_data}
         onButtonClick={handleButtonClick}
         loading={loading}
       />
-
-      <div className="box">
-        <div className="is-flex is-justify-content-space-between is-align-items-center mb-4">
-          <h2 className="title is-5 mb-0">Visualiza las gráficas</h2>
-          <div className="tabs is-toggle is-small">
-            <ul>
-              <li className={activeTab === "consumo" ? "is-active" : ""}>
-                <a onClick={() => setActiveTab("consumo")}>
-                  <span>Consumo</span>
-                </a>
-              </li>
-              <li className={activeTab === "produccion" ? "is-active" : ""}>
-                <a onClick={() => setActiveTab("produccion")}>
-                  <span>Producción</span>
-                </a>
-              </li>
-            </ul>
+      {isLoading ? (
+        <div className="rol-detail">
+          <div className="loader-cell">
+            <div className="loader cont-loader"></div>
+            <p className="loader-text">Cargando información{dots}</p>
           </div>
         </div>
-
-        {/* Tarjetas de resumen */}
-        <div className="columns is-multiline mb-5">
-          {summaryCards.map((card, index) => (
-            <div className="column is-3" key={index}>
-              <div
-                className="box p-4"
-                style={{ backgroundColor: card.bgColor, height: "100%" }}
-              >
-                <p className="is-size-7 has-text-weight-bold mb-2">
-                  {card.title}
-                </p>
-                <p className="is-size-4 has-text-weight-bold uptake-value-energy">
-                  {card.valueUptakeEnergy}
-                </p>
-                <p className="is-size-4 has-text-weight-bold uptake-value-water">
-                  {card.valueUptakeWater}
-                </p>
-                <p className="is-size-4 has-text-weight-bold storage-value-energy">
-                  {card.valueStorageEnergy}
-                </p>
-                <p className="is-size-4 has-text-weight-bold production-value-energy">
-                  {card.valueProductionEnergy}
-                </p>
+      ) : (
+        <>
+          <div className="is-flex is-justify-content-space-between is-align-items-center mb-4">
+            <h2 className="title is-5 mb-0">Visualiza las gráficas</h2>
+            <div className="tabs is-toggle is-small">
+              <div className="buttons is-justify-content-flex-end">
+                <button
+                  className={`button ${
+                    activeTab === "consumo" ? "color-hover" : ""
+                  }`}
+                  onClick={() => setActiveTab("consumo")}
+                >
+                  Consumo
+                </button>
+                <div
+                  className={`button ${
+                    activeTab === "produccion" ? "color-hover" : ""
+                  }`}
+                  onClick={() => setActiveTab("produccion")}
+                >
+                  Producción
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Gráficas */}
-        <div className="columns">
-          <div className="column is-6">
-            <div className="is-flex is-justify-content-space-between is-align-items-center mb-2">
-              <h3 className="subtitle is-6 mb-2">
-                Niveles de {activeTab === "consumo" ? "consumo" : "producción"}
-              </h3>
-              <div className="tabs is-small tabs-period left">
-                <ul>
-                  <li className={activePeriod === "dia" ? "is-active" : ""}>
-                    <a onClick={() => setActivePeriod("dia")}>Día</a>
-                  </li>
-                  <li className={activePeriod === "semana" ? "is-active" : ""}>
-                    <a onClick={() => setActivePeriod("semana")}>Semana</a>
-                  </li>
-                  <li className={activePeriod === "mes" ? "is-active" : ""}>
-                    <a onClick={() => setActivePeriod("mes")}>Mes</a>
-                  </li>
-                  <li className={activePeriod === "año" ? "is-active" : ""}>
-                    <a onClick={() => setActivePeriod("año")}>Año</a>
-                  </li>
-                </ul>
-              </div>
-            </div>
-            <div style={{ height: "250px" }}>
-              <Line
-                data={getChartData(activeTab, activePeriod)}
-                options={getLineOptions(activePeriod)}
-              />
             </div>
           </div>
-          <div className="column is-6">
-            <div className="is-flex is-justify-content-space-between is-align-items-center mb-2">
-              <h3 className="subtitle is-6 mb-2">
-                Niveles de {activeTab === "consumo" ? "consumo" : "producción"}
-              </h3>
-              <div className="tabs is-small tabs-period right">
-                <ul>
-                  <li className={activePeriodRight === "dia" ? "is-active" : ""}>
-                    <a onClick={() => setActivePeriodRight("dia")}>Día</a>
-                  </li>
-                  <li className={activePeriodRight === "semana" ? "is-active" : ""}>
-                    <a onClick={() => setActivePeriodRight("semana")}>Semana</a>
-                  </li>
-                  <li className={activePeriodRight === "mes" ? "is-active" : ""}>
-                    <a onClick={() => setActivePeriodRight("mes")}>Mes</a>
-                  </li>
-                  <li className={activePeriodRight === "año" ? "is-active" : ""}>
-                    <a onClick={() => setActivePeriodRight("año")}>Año</a>
-                  </li>
-                </ul>
+          <div className="rol-detail">
+            {/* Tarjetas de resumen */}
+            <div className="columns is-multiline mb-5">
+              {summaryCards.map((card, index) => (
+                <div className="column" key={index}>
+                  <div
+                    className="box p-4"
+                    style={{ backgroundColor: card.bgColor, height: "100%" }}
+                  >
+                    <p className="has-text-weight-bold has-text-black mb-2">
+                      {card.title}
+                    </p>
+                    <p className="is-size-4 has-text-weight-bold energy-consumption">
+                      {card.valueUptakeEnergy}
+                    </p>
+                    <p className="is-size-4 has-text-weight-bold water-consumption">
+                      {card.valueUptakeWater}
+                    </p>
+                    <p className="is-size-4 has-text-weight-bold battery-production">
+                      {card.valueStorageEnergy}
+                    </p>
+                    <p className="is-size-4 has-text-weight-bold energy-production">
+                      {card.valueProductionEnergy}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Pestañas para tiempo: día, semana, mes, año */}
+            <div className="columns">
+              <div className="column">
+                <div className="is-flex is-justify-content-space-between is-align-items-center mb-2">
+                  <h3 className="subtitle is-6 mb-2">
+                    Niveles de{" "}
+                    {activeTab === "consumo" ? "consumo" : "producción"}
+                  </h3>
+                  <div className="tabs is-flex">
+                    <ul className="mt-0">
+                      <li className={activePeriod === "dia" ? "is-active" : ""}>
+                        <a onClick={() => setActivePeriod("dia")}>Día</a>
+                      </li>
+                      <li
+                        className={activePeriod === "semana" ? "is-active" : ""}
+                      >
+                        <a onClick={() => setActivePeriod("semana")}>Semana</a>
+                      </li>
+                      <li className={activePeriod === "mes" ? "is-active" : ""}>
+                        <a onClick={() => setActivePeriod("mes")}>Mes</a>
+                      </li>
+                      <li className={activePeriod === "año" ? "is-active" : ""}>
+                        <a onClick={() => setActivePeriod("año")}>Año</a>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+                <div style={{ height: "250px" }}>
+                  <Line
+                    data={getChartData(activeTab, activePeriod)}
+                    options={getLineOptions(activePeriod)}
+                  />
+                </div>
+              </div>
+              <div className="column">
+                <div className="is-flex is-justify-content-space-between is-align-items-center mb-2">
+                  <h3 className="subtitle is-6 mb-2">
+                    Niveles de{" "}
+                    {activeTab === "consumo" ? "consumo" : "producción"}
+                  </h3>
+                  <div className="tabs tabs-period right">
+                    <ul className="mt-0">
+                      <li
+                        className={
+                          activePeriodRight === "dia" ? "is-active" : ""
+                        }
+                      >
+                        <a onClick={() => setActivePeriodRight("dia")}>Día</a>
+                      </li>
+                      <li
+                        className={
+                          activePeriodRight === "semana" ? "is-active" : ""
+                        }
+                      >
+                        <a onClick={() => setActivePeriodRight("semana")}>
+                          Semana
+                        </a>
+                      </li>
+                      <li
+                        className={
+                          activePeriodRight === "mes" ? "is-active" : ""
+                        }
+                      >
+                        <a onClick={() => setActivePeriodRight("mes")}>Mes</a>
+                      </li>
+                      <li
+                        className={
+                          activePeriodRight === "año" ? "is-active" : ""
+                        }
+                      >
+                        <a onClick={() => setActivePeriodRight("año")}>Año</a>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+                <div style={{ height: "250px" }}>
+                  <Bar
+                    data={getBarChartData(activeTab, activePeriodRight)}
+                    options={getBarOptions(activePeriodRight)}
+                  />
+                </div>
               </div>
             </div>
-            <div style={{ height: "250px" }}>
-              <Bar
-                data={getBarChartData(activeTab, activePeriodRight)}
-                options={getBarOptions(activePeriodRight)}
-              />
+          </div>
+
+          <div className="property-detail mt-4">
+            <div className="columns is-multiline">
+              <div className="column rol-detail">
+                <div className="level">
+                  <h3 className="title is-6 margin-bottom">
+                    Detalles del predio
+                  </h3>
+                </div>
+                <div className="columns is-multiline is-mobile">
+                  <div className="column is-half column-p0">
+                    <strong> Nombre</strong>
+                  </div>
+                  <div className="column is-half column-p0">
+                    {dataProperty.name || ""}
+                  </div>
+                </div>
+                <div className="columns is-multiline is-mobile">
+                  <div className="column is-half column-p0">
+                    <strong>Folio de matricula inmobilaria</strong>
+                  </div>
+                  <div className="column column-p0">
+                    {dataProperty.real_estate_registration_number || "[]"}
+                  </div>
+                </div>
+                <div className="columns is-multiline is-mobile">
+                  <div className="column is-half column-p0">
+                    <strong>Extensión</strong>
+                  </div>
+                  <div className="column column-p0">
+                    {dataProperty.extension || "[]"}
+                  </div>
+                </div>
+                <div className="columns is-multiline is-mobile">
+                  <div className="column is-half column-p0">
+                    <strong> Latitud</strong>
+                  </div>
+                  <div className="column column-p0">
+                    {dataProperty.latitude || "[]"}
+                  </div>
+                </div>
+                <div className="columns is-multiline is-mobile">
+                  <div className="column is-half column-p0">
+                    <strong> Longitud</strong>
+                  </div>
+                  <div className="column column column-p0">
+                    {dataProperty.longitude || "[]"}
+                  </div>
+                </div>
+                <div className="columns is-multiline is-mobile">
+                  <div className="column is-half">
+                    <strong> Estado</strong>
+                  </div>
+                  <div className="column column">
+                    {dataProperty.state_name || "[]"}
+                  </div>
+                </div>
+              </div>
+              <div className="mr-2 ml-2"></div>
+              <div className="column rol-detail">
+                <div className="level">
+                  <h3 className="title is-6 margin-bottom">
+                    Detalles del lote
+                  </h3>
+                </div>
+                <div className="columns is-multiline is-mobile">
+                  <div className="column is-half column-p0">
+                    <strong>Nombre</strong>
+                  </div>
+                  <div className="column is-half column-p0">
+                    {data.name || "[]"}
+                  </div>
+                </div>
+                <div className="columns is-multiline is-mobile">
+                  <div className="column is-half column-p0">
+                    <strong>Folio de matricula inmobilaria</strong>
+                  </div>
+                  <div className="column is-half column-p0">
+                    {data.real_estate_registration_number || "[]"}
+                  </div>
+                </div>
+                <div className="columns is-multiline is-mobile">
+                  <div className="column is-half column-p0">
+                    <strong>Extensión</strong>
+                  </div>
+                  <div className="column column-p0">
+                    {data.extension || "[]"}
+                  </div>
+                </div>
+                <div className="columns is-multiline is-mobile">
+                  <div className="column is-half column-p0">
+                    <strong>Ubicación</strong>
+                  </div>
+                  <div className="column column-p0">
+                    {data.latitude || "[]"}, {data.longitude || "[]"}
+                  </div>
+                </div>
+                <div className="columns is-multiline is-mobile">
+                  <div className="column is-half column-p0">
+                    <strong>Tipo de cultivo</strong>
+                  </div>
+                  <div className="column column column-p0">
+                    {data.nombre_tipo_cultivo || "[]"}
+                  </div>
+                </div>
+                <div className="columns is-multiline is-mobile">
+                  <div className="column is-half column-p0">
+                    <strong>Fecha estimada de cosecha</strong>
+                  </div>
+                  <div className="column column column-p0">
+                    {data.estimated_harvest_date || "[]"}
+                  </div>
+                </div>
+                <div className="columns is-multiline is-mobile">
+                  <div className="column is-half column-p0">
+                    <strong>Intervalo de pago</strong>
+                  </div>
+                  <div className="column column column-p0">
+                    {data.nombre_intervalo_pago || "[]"}
+                  </div>
+                </div>
+                <div className="columns is-multiline is-mobile">
+                  <div className="column is-half">
+                    <strong>Ubicación de la caseta</strong>
+                  </div>
+                  <div className="column column">
+                    {data.stand_location || "[]"}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
+          <div className="rol-detail mb-5">
+            <h3 className="title is-6 margin-bottom">Ver anexos del lote</h3>
+            <div className="columns">
+              <div className="column">
+                <p>Escritura pública</p>
+                <div className="is-flex is-align-items-center">
+                  <IoDocument className="mr-2" />
+                  {data.public_deed ? (
+                    <a href={data.public_deed} target="_blank">
+                      escritura_publica.pdf
+                    </a>
+                  ) : (
+                    <span className="text-muted">Archivo no disponible</span>
+                  )}
+                </div>
+              </div>
 
-      {/* Mantener los detalles del predio vinculado y nombre/datos del lote igual */}
-      <div className="details">
-        <DetailsBox
-          title="Detalle del predio vinculado"
-          data={{
-            "ID predio": linkedProperty.id,
-            "Nombre del predio": linkedProperty.name,
-            "Folio de matricula inmobiliaria": linkedProperty.inmobilario,
-            "Extensión del predio": linkedProperty.extension,
-            "Longitud": linkedProperty.longitud,
-            "Latitud": linkedProperty.latitud
-          }}
-        />
-
-        <DetailsBox
-          title={currentLot.name}
-          data={{
-            "Folio de matricula inmobiliaria": currentLot.inmobilario,
-            "Extensión del predio": currentLot.extension,
-            "Ubicacion del lote": `${currentLot.longitud}, ${currentLot.latitud}`,
-            "Tipo de cultivo": currentLot.cultivoTipo,
-            "Fecha estimada de cosecha": currentLot.fechaCosecha,
-            "Intervalo de pago": currentLot.intervaloPago,
-            "Ubicacion de caseta": "[Longitud, Latitud]"
-          }}
-        />
-      </div>
-
-      {/* Anexos */}
-      <div className="attachments">
-        <h2>Ver anexos del lote</h2>
-        <div className="attachment-list">
-          {attachments.map((attachment, index) => (
-            <AnexoBox key={index} attachment={attachment} />
-          ))}
-        </div>
-      </div>
-
-      {/* Mantener tabla de dispositivos igual */}
-      <div className="tabs">
-        <ul>
-          <li className={tableTab === "dispositivos" ? "active" : ""}>
-            <a onClick={() => setTableTab("dispositivos")}>Dispositivos</a>
-          </li>
-        </ul>
-      </div>
-
-      <DispositivosTable devices={devices} />
-    </div>
-  );
-};
-
-const DropdownButton = () => {
-  const [isOpen, setIsOpen] = useState(false);
-
-  return (
-    <div className="dropdown is-up">
-      <button className="btn dropdown-toggle" onClick={() => setIsOpen(!isOpen)}>
-        ...
-      </button>
-      {isOpen && (
-        <div className="dropdown-menu">
-          <button className="dropdown-item">Ver</button>
-          <button className="dropdown-item">Editar</button>
-          <button className="dropdown-item">Inhabilitar</button>
-        </div>
+              <div className="column">
+                <p>Certificado de tradición y libertad (CTL)</p>
+                <div className="is-flex is-align-items-center">
+                  <IoDocument className="mr-2" />
+                  {data.freedom_tradition_certificate ? (
+                    <a
+                      href={data.freedom_tradition_certificate}
+                      target="_blank"
+                    >
+                      ctl.pdf
+                    </a>
+                  ) : (
+                    <span className="text-muted">Archivo no disponible</span>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+          {/* <Head head_data={head_lot_data} onButtonClick={handleButtonClick} /> */}
+          <div className="rol-detail">
+            <Head
+              head_data={head_iot}
+              onButtonClick={handleButtonClick}
+              loading={loading}
+            />
+            <Table
+              columns={columns}
+              data={paginatedData}
+              options={options}
+              loadingTable={loadingTable}
+              setId={setIdRow}
+              setTitle={setTitle}
+              setShowEdit={setShowEdit}
+              // setShowChangeStatus={setShowChangeStatus}
+              // setConfirMessage={setConfirMessage}
+              // setTypeForm={setTypeForm}
+            ></Table>
+          </div>
+        </>
       )}
-    </div>
+    </>
   );
 };
 
-const DispositivosTable = ({ devices }) => (
-  <div className="table-container">
-    <table className="custom-table">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Tipo de dispositivo</th>
-          <th>Modelo</th>
-          <th>Fecha de instalación</th>
-          <th>Fecha estimada de mantenimiento</th>
-          <th>Estado</th>
-          <th>Opciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        {devices.map((device, index) => (
-          <tr key={index}>
-            <td>{device.id}</td>
-            <td>{device.type}</td>
-            <td>{device.modelo}</td>
-            <td>{device.installDate}</td>
-            <td>{device.maintenanceDate}</td>
-            <td>
-              <span className={`tag is-${device.status === "Operativo" ? "success" : "light"} is-light`}>
-                <span className={`dot ${device.status === "Operativo" ? "dot-green" : "dot-gray"}`}></span> {device.status}
-              </span>
-            </td>
-            <td><DropdownButton /></td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  </div>
-);
-
-const DetailsBox = ({ title, data }) => (
-  <div className="details-box">
-    <h2>{title}</h2>
-    <table>
-      <tbody>
-        {Object.entries(data).map(([key, value], index) => (
-          <tr key={index}>
-            <th>{key}</th>
-            <td>{value}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  </div>
-);
-
-const AnexoBox = ({ attachment }) => (
-  <div className="anexo-box">
-    <strong>{attachment.name}</strong>
-    <p>{attachment.file} - {attachment.size}</p>
-  </div>
-);
-
-export default LotDetail;
+export default Lot_detail;
