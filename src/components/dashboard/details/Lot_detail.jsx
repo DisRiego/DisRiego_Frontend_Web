@@ -73,12 +73,12 @@ const Lot_detail = () => {
     description:
       "En esta sección podrás visualizar información detallada sobre el lote.",
     buttons: {
-      // button1: {
-      //   icon: "FaPlus",
-      //   class: "color-hover",
-      //   text: "Apertura válvula",
-      // },
       button1: {
+        icon: "FaPlus",
+        class: "color-hover",
+        text: "Apertura de válvula",
+      },
+      button2: {
         icon: "LuDownload",
         class: "",
         text: "Descargar reporte",
@@ -87,7 +87,7 @@ const Lot_detail = () => {
   };
 
   const handleButtonClick = (buttonText) => {
-    // if (buttonText === "Apertura válvula") {
+    // if (buttonText === "Apertura de válvula") {
     //   setShowForm(true);
     // }
 
