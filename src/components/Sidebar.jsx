@@ -27,7 +27,6 @@ const Sidebar = ({ handleOptionChange, selectedOption }) => {
     } else {
       try {
         const decoded = jwtDecode(token);
-        console.log(decoded.rol[0]);
       } catch (error) {
         localStorage.removeItem("token");
         navigate("/login");

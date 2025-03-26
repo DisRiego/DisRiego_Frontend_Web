@@ -1,158 +1,106 @@
 import { useEffect, useState } from "react";
+import axios from "axios";
 import Table from "../Table";
 import Pagination from "../Pagination";
+import Form_certificate from "../forms/adds/Form_certificate";
+import Head from "../Head";
+import Tab_company from "./Tab_company";
+import Message from "../../Message";
 
-const Company_certificate = () => {
+const Company_certificate = ({}) => {
   const [data, setData] = useState([]);
+  const [showForm, setShowForm] = useState(false);
+  const [showEdit, setShowEdit] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 9;
+  const itemsPerPage = 10;
   const [loadingTable, setLoadingTable] = useState(false);
+  const [id, setId] = useState(null);
+  const [loading, setLoading] = useState("");
+  const parentComponent = "certificate";
+  const [title, setTitle] = useState();
+  const [showMessage, setShowMessage] = useState(false);
+  const [titleMessage, setTitleMessage] = useState(false);
+  const [message, setMessage] = useState(false);
+  const [status, setStatus] = useState(false);
 
-  const fetchCertificates = async () => {
-    const mockData = [
-      {
-        id: 1,
-        serial_number: "001",
-        company_nit: "9001234567",
-        generation_date: "03/01/2025",
-        expiration_date: "10/01/2026",
-        attachment: "certificado_001.pdf",
-        status: "Activo",
+  const headData = {
+    title: "Gestión de empresa",
+    description:
+      "En esta sección podrás gestionar los certificados digitales registrados en la empresa.",
+    buttons: {
+      button1: {
+        icon: "FaPlus",
+        class: "color-hover",
+        text: "Añadir certificado",
       },
-      {
-        id: 2,
-        serial_number: "002",
-        company_nit: "9001234567",
-        generation_date: "03/01/2025",
-        expiration_date: "10/01/2026",
-        attachment: "certificado_002.pdf",
-        status: "Expirado",
-      },
-      {
-        id: 3,
-        serial_number: "003",
-        company_nit: "9001234567",
-        generation_date: "03/01/2025",
-        expiration_date: "10/01/2026",
-        attachment: "certificado_003.pdf",
-        status: "Activo",
-      },
-      {
-        id: 4,
-        serial_number: "004",
-        company_nit: "9001234567",
-        generation_date: "05/01/2025",
-        expiration_date: "12/01/2026",
-        attachment: "certificado_004.pdf",
-        status: "Activo",
-      },
-      {
-        id: 5,
-        serial_number: "005",
-        company_nit: "9001234567",
-        generation_date: "07/01/2025",
-        expiration_date: "14/01/2026",
-        attachment: "certificado_005.pdf",
-        status: "Expirado",
-      },
-      {
-        id: 6,
-        serial_number: "006",
-        company_nit: "9001234567",
-        generation_date: "09/01/2025",
-        expiration_date: "16/01/2026",
-        attachment: "certificado_006.pdf",
-        status: "Activo",
-      },
-      {
-        id: 7,
-        serial_number: "007",
-        company_nit: "9001234567",
-        generation_date: "11/01/2025",
-        expiration_date: "18/01/2026",
-        attachment: "certificado_007.pdf",
-        status: "Activo",
-      },
-      {
-        id: 8,
-        serial_number: "008",
-        company_nit: "9001234567",
-        generation_date: "13/01/2025",
-        expiration_date: "20/01/2026",
-        attachment: "certificado_008.pdf",
-        status: "Expirado",
-      },
-      {
-        id: 9,
-        serial_number: "009",
-        company_nit: "9001234567",
-        generation_date: "15/01/2025",
-        expiration_date: "22/01/2026",
-        attachment: "certificado_009.pdf",
-        status: "Activo",
-      },
-      {
-        id: 10,
-        serial_number: "010",
-        company_nit: "9001234567",
-        generation_date: "17/01/2025",
-        expiration_date: "24/01/2026",
-        attachment: "certificado_010.pdf",
-        status: "Activo",
-      },
-      {
-        id: 11,
-        serial_number: "011",
-        company_nit: "9001234567",
-        generation_date: "19/01/2025",
-        expiration_date: "26/01/2026",
-        attachment: "certificado_011.pdf",
-        status: "Expirado",
-      },
-      {
-        id: 12,
-        serial_number: "012",
-        company_nit: "9001234567",
-        generation_date: "21/01/2025",
-        expiration_date: "28/01/2026",
-        attachment: "certificado_012.pdf",
-        status: "Activo",
-      },
-      {
-        id: 13,
-        serial_number: "013",
-        company_nit: "9001234567",
-        generation_date: "23/01/2025",
-        expiration_date: "30/01/2026",
-        attachment: "certificado_013.pdf",
-        status: "Activo",
-      },
-    ];
-
-    setData(mockData);
+    },
   };
+
+  const handleButtonClick = (buttonText) => {
+    if (buttonText === "Añadir certificado") {
+      setShowForm(true);
+    }
+  };
+
+  useEffect(() => {
+    if (showMessage) {
+      const timer = setTimeout(() => {
+        setShowMessage(false);
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [showMessage]);
 
   useEffect(() => {
     fetchCertificates();
   }, []);
 
+  const fetchCertificates = async () => {
+    try {
+      setLoadingTable(true);
+      const response = await axios.get(
+        import.meta.env.VITE_URI_BACKEND +
+          import.meta.env.VITE_ROUTE_BACKEND_COMPANY_CERTIFICATE
+      );
+      setData(response.data.data);
+
+      const sortedData = response.data.data.sort(
+        (a, b) => new Date(b.start_date) - new Date(a.start_date)
+      );
+
+      setData(sortedData);
+      // setButtonDisabled(false);
+    } catch (error) {
+      console.error("Error al obtener los certificados:", error);
+    } finally {
+      setLoadingTable(false);
+    }
+  };
+
+  const updateData = async () => {
+    fetchCertificates();
+  };
+
   const filteredData = data
-    .filter((cert) =>
-      Object.values(cert)
+    .filter((info) =>
+      Object.values(info)
         .join(" ")
         .toLowerCase()
         .includes(searchTerm.toLowerCase())
     )
-    .map((cert) => ({
-      ID: cert.id,
-      "Numéro de serie": cert.serial_number,
-      "Nit empresa": cert.company_nit,
-      "Fecha de generación": cert.generation_date,
-      "Fecha de expiración": cert.expiration_date,
-      Adjunto: cert.attachment,
-      Estado: cert.status,
+    .map((info) => ({
+      ID: info.id,
+      "Numéro de serie": info.serial_number || "",
+      "Nit empresa": info.nit || "",
+      "Fecha de generación": info.start_date || "",
+      "Fecha de expiración": info.expiration_date || "",
+      Adjunto: info.attached || "",
+      Estado: info.status || "",
     }));
+
+  console.log(data);
 
   const columns = [
     "Numéro de serie",
@@ -178,11 +126,20 @@ const Company_certificate = () => {
 
   return (
     <>
+      <Head head_data={headData} onButtonClick={handleButtonClick} />
+      <Tab_company />
       <Table
         columns={columns}
         data={paginatedData}
         options={options}
         loadingTable={loadingTable}
+        parentComponent={parentComponent}
+        setId={setId}
+        setTitle={setTitle}
+        setShowEdit={setShowEdit}
+        // setShowChangeStatus={setShowChangeStatus}
+        // setConfirMessage={setConfirMessage}
+        // setTypeForm={setTypeForm}
       />
       <Pagination
         totalItems={filteredData.length}
@@ -190,6 +147,45 @@ const Company_certificate = () => {
         currentPage={currentPage}
         onPageChange={setCurrentPage}
       />
+      {showForm && (
+        <>
+          <Form_certificate
+            title="Añadir certificado"
+            onClose={() => setShowForm(false)}
+            setShowMessage={setShowMessage}
+            setTitleMessage={setTitleMessage}
+            setMessage={setMessage}
+            setStatus={setStatus}
+            updateData={updateData}
+            loading={loading}
+            setLoading={setLoading}
+          />
+        </>
+      )}
+      {showEdit && (
+        <>
+          <Form_certificate
+            title={title}
+            onClose={() => setShowEdit(false)}
+            setShowMessage={setShowMessage}
+            setTitleMessage={setTitleMessage}
+            setMessage={setMessage}
+            setStatus={setStatus}
+            updateData={updateData}
+            id={id}
+            loading={loading}
+            setLoading={setLoading}
+          />
+        </>
+      )}
+      {showMessage && (
+        <Message
+          titleMessage={titleMessage}
+          message={message}
+          status={status}
+          onClose={() => setShowMessage(false)}
+        />
+      )}
     </>
   );
 };

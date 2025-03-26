@@ -1,9 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { SlOptionsVertical } from "react-icons/sl";
-import Form_edit_property from "./forms/edits/Form_edit_property";
-import Form_edit_property_user from "./forms/edits/Form_edit_property_user";
-import Form_edit_company_certificate from "./forms/edits/Form_edit_company_certificate";
 import Icon from "../Icon";
 import { TbPointFilled } from "react-icons/tb";
 
@@ -30,7 +27,6 @@ const Table = ({
   const { id } = useParams();
   const [activeRow, setActiveRow] = useState(null);
   const menuRefs = useRef({});
-  const [idRow, setIdRow] = useState();
   const [dots, setDots] = useState("");
 
   useEffect(() => {
@@ -65,13 +61,11 @@ const Table = ({
   const handleOption = async (option, row) => {
     // setIdRow(row.ID);
     setId(row.ID);
-    console.log(row.ID);
 
     if (option.name === "Ver detalles" && parentComponent === "lot") {
       navigate(`lot/${row.ID}`);
     } else {
       if (option.name === "Ver detalles") {
-        console.log("Entro tabla id");
         navigate(`${row.ID}`);
       }
     }
@@ -126,11 +120,9 @@ const Table = ({
 
     //Lotes
     if (parentComponent === "lot" && option.name === "Editar") {
-      // console.log(row.ID);
       setTitle("Editar usuario");
       setShowEdit(true);
     }
-
     if (parentComponent === "lot" && option.name === "Inhabilitar") {
       setConfirMessage(
         `¿Desea inhabilitar el predio "${row["Nombre del lote"]}"?`
@@ -144,6 +136,18 @@ const Table = ({
       );
       setTypeForm("habilitar");
       setShowChangeStatus(true);
+    }
+
+    //Lotes
+    if (parentComponent === "certificate" && option.name === "Editar") {
+      setTitle("Editar certificado");
+      setShowEdit(true);
+    }
+
+    //Cultivos
+    if (parentComponent === "crop" && option.name === "Editar") {
+      setTitle("Editar cultivo");
+      setShowEdit(true);
     }
   };
 

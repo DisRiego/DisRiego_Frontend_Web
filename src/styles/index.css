@@ -1151,7 +1151,8 @@ td > td.status-activo,
 td > td.status-inactivo,
 td > td.status-creado,
 td > td.status-pendiente,
-td > td.status-mantenimiento {
+td > td.status-mantenimiento,
+td > td.status-expirado {
   padding: 0em;
   border-bottom: none;
 }
@@ -1187,7 +1188,8 @@ td > td.status-mantenimiento {
   border-radius: 2em;
 }
 
-.button.status-suspendido {
+.button.status-suspendido,
+.button.status-expirado {
   width: 100%;
   pointer-events: none;
   cursor: text;
@@ -1220,7 +1222,8 @@ td > td.status-mantenimiento {
     opacity: 0.8;
   }
 
-  .button.status-suspendido {
+  .button.status-suspendido,
+  .button.status-expirado {
     background-color: transparent;
     color: #ff7e77;
     border-color: #ff7e77;

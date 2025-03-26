@@ -1,97 +1,186 @@
-import React, { useState } from "react";
-import { FaEdit, FaTrash } from "react-icons/fa";
-import Form_edit_crop from "../forms/edits/Form_edit_crop";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import Table from "../Table";
+import Pagination from "../Pagination";
+import Form_crop from "../forms/adds/Form_crop";
+import Head from "../Head";
+import Tab_company from "./Tab_company";
+import Message from "../../Message";
 
-const Company_crop = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [cultivoSeleccionado, setCultivoSeleccionado] = useState(null);
+const Company_crop = ({}) => {
+  const [data, setData] = useState([]);
+  const [showForm, setShowForm] = useState(false);
+  const [showEdit, setShowEdit] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+  const [loadingTable, setLoadingTable] = useState(false);
+  const [id, setId] = useState(null);
+  const [loading, setLoading] = useState("");
+  const parentComponent = "crop";
+  const [title, setTitle] = useState();
+  const [showMessage, setShowMessage] = useState(false);
+  const [titleMessage, setTitleMessage] = useState(false);
+  const [message, setMessage] = useState(false);
+  const [status, setStatus] = useState(false);
 
-  const cultivos = [
-    { id: 1, nombre: "Maíz", tiempo: "90", intervalo: "Mensual" },
-    { id: 2, nombre: "Trigo", tiempo: "120", intervalo: "Trimestral" },
-    { id: 3, nombre: "Arroz", tiempo: "150", intervalo: "Semestral" },
-    { id: 4, nombre: "Cebada", tiempo: "180", intervalo: "Octamestral" },
+  const headData = {
+    title: "Gestión de empresa",
+    description:
+      "En esta sección podrás gestionar los tipos de cultivos registrados en la empresa.",
+    buttons: {
+      button1: {
+        icon: "FaPlus",
+        class: "color-hover",
+        text: "Añadir cultivo",
+      },
+    },
+  };
+
+  const handleButtonClick = (buttonText) => {
+    if (buttonText === "Añadir cultivo") {
+      setShowForm(true);
+    }
+  };
+
+  useEffect(() => {
+    if (showMessage) {
+      const timer = setTimeout(() => {
+        setShowMessage(false);
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [showMessage]);
+
+  useEffect(() => {
+    fetchCrop();
+  }, []);
+
+  const fetchCrop = async () => {
+    try {
+      setLoadingTable(true);
+      const response = await axios.get(
+        import.meta.env.VITE_URI_BACKEND +
+          import.meta.env.VITE_ROUTE_BACKEND_COMPANY_CROP
+      );
+      setData(response.data.data);
+
+      const sortedData = response.data.data.sort((a, b) =>
+        a.name.localeCompare(b.name)
+      );
+      // const sortedData = response.data.data.sort((a, b) => a.name - b.name);
+
+      setData(sortedData);
+      setButtonDisabled(false);
+    } catch (error) {
+      console.error("Error al obtener los certificados:", error);
+    } finally {
+      setLoadingTable(false);
+    }
+  };
+
+  const updateData = async () => {
+    fetchCrop();
+  };
+
+  const filteredData = data
+    .filter((info) =>
+      Object.values(info)
+        .join(" ")
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase())
+    )
+    .map((info) => ({
+      ID: info.id,
+      "Nombre del cultivo": info.name || "",
+      "Tiempo estimada de cosecha": info.harvest_time || "",
+      Intervalo: info.payment_interval_id || "",
+      Estado: info.state_name || "",
+    }));
+
+  console.log(data);
+
+  const columns = [
+    "Nombre del cultivo",
+    "Tiempo estimada de cosecha",
+    "Intervalo",
+    "Estado",
+    "Opciones",
   ];
 
-  const abrirModal = (cultivo) => {
-    setCultivoSeleccionado(cultivo);
-    setIsModalOpen(true);
-  };
+  const options = [
+    { icon: "BiEditAlt", name: "Editar" },
+    { icon: "MdOutlineCheckCircle", name: "Habilitar" },
+    { icon: "MdDisabledVisible", name: "Inhabilitar" },
+  ];
+
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedData = filteredData.slice(
+    startIndex,
+    startIndex + itemsPerPage
+  );
 
   return (
     <>
-      <div className="box">
-        <table className="table is-fullwidth is-hoverable is-striped">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Nombre del cultivo</th>
-              <th>Tiempo estimado de cosecha (días)</th>
-              <th>Intervalo de pago</th>
-              <th>Opciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {cultivos.map((cultivo) => (
-              <tr key={cultivo.id}>
-                <td>{cultivo.id}</td>
-                <td className="has-text-grey">{cultivo.nombre}</td>
-                <td className="has-text-grey">{cultivo.tiempo}</td>
-                <td className="has-text-grey">{cultivo.intervalo}</td>
-                <td>
-                  <button
-                    className="button is-small is-info"
-                    onClick={() => abrirModal(cultivo)}
-                  >
-                    <FaEdit /> Editar
-                  </button>
-                  <button className="button is-small is-danger ml-3">
-                    <FaTrash /> Eliminar
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Paginación */}
-      <nav
-        className="pagination is-centered"
-        role="navigation"
-        aria-label="pagination"
-      >
-        <button className="button is-light">← Atrás</button>
-        <ul className="pagination-list">
-          <li>
-            <a className="pagination-link is-current">1</a>
-          </li>
-          <li>
-            <a className="pagination-link">2</a>
-          </li>
-          <li>
-            <a className="pagination-link">3</a>
-          </li>
-          <li>
-            <span className="pagination-ellipsis">&hellip;</span>
-          </li>
-          <li>
-            <a className="pagination-link">10</a>
-          </li>
-        </ul>
-        <button className="button is-light">Siguiente →</button>
-      </nav>
-
-      {/* Modal para editar cultivo */}
-      {isModalOpen && (
-        <Form_edit_crop
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          cultivoData={cultivoSeleccionado}
-          onSave={(cultivoActualizado) => {
-            console.log("Cultivo actualizado:", cultivoActualizado);
-            setIsModalOpen(false);
-          }}
+      <Head head_data={headData} onButtonClick={handleButtonClick} />
+      <Tab_company />
+      <Table
+        columns={columns}
+        data={paginatedData}
+        options={options}
+        loadingTable={loadingTable}
+        parentComponent={parentComponent}
+        setId={setId}
+        setTitle={setTitle}
+        setShowEdit={setShowEdit}
+        // setShowChangeStatus={setShowChangeStatus}
+        // setConfirMessage={setConfirMessage}
+        // setTypeForm={setTypeForm}
+      />
+      <Pagination
+        totalItems={filteredData.length}
+        itemsPerPage={itemsPerPage}
+        currentPage={currentPage}
+        onPageChange={setCurrentPage}
+      />
+      {showForm && (
+        <>
+          <Form_crop
+            title="Añadir cultivo"
+            onClose={() => setShowForm(false)}
+            setShowMessage={setShowMessage}
+            setTitleMessage={setTitleMessage}
+            setMessage={setMessage}
+            setStatus={setStatus}
+            updateData={updateData}
+            loading={loading}
+            setLoading={setLoading}
+          />
+        </>
+      )}
+      {showEdit && (
+        <>
+          <Form_crop
+            title={title}
+            onClose={() => setShowEdit(false)}
+            setShowMessage={setShowMessage}
+            setTitleMessage={setTitleMessage}
+            setMessage={setMessage}
+            setStatus={setStatus}
+            updateData={updateData}
+            id={id}
+            loading={loading}
+            setLoading={setLoading}
+          />
+        </>
+      )}
+      {showMessage && (
+        <Message
+          titleMessage={titleMessage}
+          message={message}
+          status={status}
+          onClose={() => setShowMessage(false)}
         />
       )}
     </>

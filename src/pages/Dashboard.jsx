@@ -13,7 +13,11 @@ import Rol from "../components/dashboard/Rol";
 import Rol_detail from "../components/dashboard/details/Rol_detail";
 import User from "../components/dashboard/User";
 import User_detail from "../components/dashboard/details/User_detail";
-import Company from "../components/dashboard/Company";
+import Company_data from "../components/dashboard/company/Company_data";
+import Company_certificate from "../components/dashboard/company/Company_certificate";
+import Company_crop from "../components/dashboard/company/Company_crop";
+import Company_payment_interval from "../components/dashboard/company/Company_payment_interval";
+import Company_rates from "../components/dashboard/company/Company_rates";
 import Profile from "../components/dashboard/Profile";
 
 const Dashboard = () => {
@@ -76,8 +80,15 @@ const Dashboard = () => {
       case "report":
         return <Fault_report />;
       case "company":
-      case `company/${id}`:
-        return <Company />;
+        return <Company_data />;
+      case `certificate`:
+        return <Company_certificate />;
+      case `crop`:
+        return <Company_crop />;
+      case `payment`:
+        return <Company_payment_interval />;
+      case `rates`:
+        return <Company_rates />;
       case `profile`:
         return <Profile />;
     }

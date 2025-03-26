@@ -3,18 +3,14 @@ import Form_edit_company_picture from "../forms/edits/Form_edit_company_picture"
 import Form_edit_company_data from "../forms/edits/Form_edit_company_data";
 import Form_edit_company_contact from "../forms/edits/Form_edit_company_contact";
 import Form_edit_company_location from "../forms/edits/Form_edit_company_location";
-import Form_edit_palette from "../forms/edits/Form_edit_palette";
+// import Form_edit_palette from "../forms/edits/Form_edit_palette";
+import Head from "../Head";
 import axios from "axios";
+import Tab_company from "./Tab_company";
 import { FaEdit } from "react-icons/fa";
-import { FaPlus } from "react-icons/fa6";
-import { data } from "react-router-dom";
+import Message from "../../Message";
 
-const Company_data = ({
-  setShowMessage,
-  setStatus,
-  setTitleMessage,
-  setMessage,
-}) => {
+const Company_data = ({}) => {
   const [showModalPicture, setShowModalPicture] = useState(false);
   const [showModalData, setShowModalData] = useState(false);
   const [showModalContact, setShowModalContact] = useState(false);
@@ -30,6 +26,10 @@ const Company_data = ({
     state: "",
     city: "",
   });
+  const [showMessage, setShowMessage] = useState(false);
+  const [titleMessage, setTitleMessage] = useState(false);
+  const [message, setMessage] = useState(false);
+  const [status, setStatus] = useState(false);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -37,6 +37,16 @@ const Company_data = ({
     }, 500);
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    if (showMessage) {
+      const timer = setTimeout(() => {
+        setShowMessage(false);
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [showMessage]);
 
   useEffect(() => {
     fetchCompany();
@@ -106,10 +116,16 @@ const Company_data = ({
     fetchCompany();
   };
 
-  console.log(formData);
+  const headData = {
+    title: "Gestión de empresa",
+    description:
+      "En esta sección podrás gestionar y visualizar la información de la empresa.",
+  };
 
   return (
     <>
+      <Head head_data={headData} />
+      <Tab_company />
       {isLoading ? (
         <div className="rol-detail">
           <div className="loader-cell">
@@ -119,7 +135,7 @@ const Company_data = ({
         </div>
       ) : (
         <>
-          <div className="rol-detail">
+          <div className="rol-detail mb-4">
             <div className="media is-align-items-center">
               <div className="media-left">
                 <figure
@@ -159,7 +175,7 @@ const Company_data = ({
               </div>
             </div>
           </div>
-          <section className="rol-detail">
+          <section className="rol-detail mb-4">
             <div className="level">
               <h3 className="title is-5 margin-bottom">
                 Información de contacto
@@ -322,8 +338,16 @@ const Company_data = ({
           updateData={updateData}
         />
       )}
-      {mostrarModalPaleta && (
+      {/* {mostrarModalPaleta && (
         <Form_edit_palette cerrarModal={() => setMostrarModalPaleta(false)} />
+      )} */}
+      {showMessage && (
+        <Message
+          titleMessage={titleMessage}
+          message={message}
+          status={status}
+          onClose={() => setShowMessage(false)}
+        />
       )}
     </>
   );

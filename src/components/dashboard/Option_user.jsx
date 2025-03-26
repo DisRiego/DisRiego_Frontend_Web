@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { MdOutlineWaterDrop } from "react-icons/md";
 import { FiUsers } from "react-icons/fi";
@@ -17,6 +17,7 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
   const navigate = useNavigate();
   const [token, setToken] = useState("");
   const [permissionsUser, setPermissionsUser] = useState([]);
+  const location = useLocation();
 
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
@@ -29,7 +30,6 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
 
     try {
       const decoded = jwtDecode(storedToken);
-      console.log(decoded);
       const permisos = decoded.rol?.[0]?.permisos?.map((p) => p.name) || [];
       setPermissionsUser(permisos);
 
@@ -44,22 +44,18 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
     }
   }, [navigate]);
 
-  const handleSignUp = async (e) => {
+  const handleSignUp = async () => {
     try {
-      const response = await axios.post(
+      await axios.post(
         import.meta.env.VITE_URI_BACKEND +
           import.meta.env.VITE_ROUTE_BACKEND_LOGOUT,
         {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
       localStorage.removeItem("token");
       navigate("/login");
     } catch (error) {
-      if (error.response.status === 400) {
+      if (error.response?.status === 400) {
         localStorage.removeItem("token");
         navigate("/login");
       }
@@ -131,143 +127,53 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
 
   const optionsFiltered = optionsMenu.filter((option) =>
     Array.isArray(option.permission)
-      ? permissionsUser?.length > 0 &&
-        option.permission.some((permission) =>
-          permissionsUser.includes(permission)
-        )
-      : permissionsUser?.includes(option.permission)
+      ? permissionsUser.length > 0 &&
+        option.permission.some((perm) => permissionsUser.includes(perm))
+      : permissionsUser.includes(option.permission)
   );
 
+  const getSelectedOption = (pathname) => {
+    const companyRelatedOptions = ["certificate", "crop", "payment", "rates"];
+    if (companyRelatedOptions.includes(selectedOption)) return "company";
+
+    const propertyRegex = /^\/dashboard\/property(\/\d+)?(\/lot\/\d+)?$/;
+    if (propertyRegex.test(pathname)) return "property";
+
+    return selectedOption;
+  };
   return (
     <>
       <div className="sidebar-options">
-        <div className="sidebar-options">
-          <Link
-            className={`navbar-item ${
-              selectedOption === "notification" ? "selected" : ""
-            }`}
-            onClick={() => handleOptionChange("notification")}
-            to="/dashboard/notification"
-          >
-            <span className="icon">
-              <HiOutlineBell />
-            </span>
-            {!isCollapsed && <span>Notificaciones</span>}
-          </Link>
+        <Link
+          className={`navbar-item ${
+            getSelectedOption() === "notification" ? "selected" : ""
+          }`}
+          onClick={() => handleOptionChange("notification")}
+          to="/dashboard/notification"
+        >
+          <span className="icon">
+            <HiOutlineBell />
+          </span>
+          {!isCollapsed && <span>Notificaciones</span>}
+        </Link>
 
-          {optionsFiltered.map((option, index) => (
-            <Link
-              key={index}
-              className={`navbar-item ${
-                selectedOption === option.selectoption ? "selected" : ""
-              }`}
-              onClick={() => handleOptionChange(option.selectoption)}
-              to={option.path}
-            >
-              <span className="icon">{option.icon}</span>
-              {!isCollapsed && <span>{option.label}</span>}
-            </Link>
-          ))}
-        </div>
-        {/*<Link
-          className={`navbar-item ${
-            selectedOption === "company" ? "selected" : ""
-          }`}
-          onClick={() => handleOptionChange("company")}
-          to="/dashboard/company"
-        >
-          <span className="icon">
-            <IoHomeOutline />
-          </span>
-          {!isCollapsed && <span>Gestión de empresa</span>}
-        </Link>
+        {optionsFiltered.map((option, index) => (
+          <Link
+            key={index}
+            className={`navbar-item ${
+              getSelectedOption() === option.selectoption ? "selected" : ""
+            }`}
+            onClick={() => handleOptionChange(option.selectoption)}
+            to={option.path}
+          >
+            <span className="icon">{option.icon}</span>
+            {!isCollapsed && <span>{option.label}</span>}
+          </Link>
+        ))}
+
         <Link
           className={`navbar-item ${
-            selectedOption === "rol" ? "selected" : ""
-          }`}
-          onClick={() => handleOptionChange("rol")}
-          to="/dashboard/rol"
-        >
-          <span className="icon">
-            <LuUserCog />
-          </span>
-          {!isCollapsed && <span>Gestión de roles</span>}
-        </Link>
-        <Link
-          className={`navbar-item ${
-            selectedOption === "user" ? "selected" : ""
-          }`}
-          onClick={() => handleOptionChange("user")}
-          to="/dashboard/user"
-        >
-          <span className="icon">
-            <LuUsersRound />
-          </span>
-          {!isCollapsed && <span>Gestión de usuarios</span>}
-        </Link>
-        <Link
-          className={`navbar-item ${
-            selectedOption === "property" ? "selected" : ""
-          }`}
-          onClick={() => handleOptionChange("property")}
-          to="/dashboard/property"
-        >
-          <span className="icon">
-            <TbMapSearch />
-          </span>
-          {!isCollapsed && <span>Gestión de predios</span>}
-        </Link>
-        <Link
-          className={`navbar-item ${
-            selectedOption === "properties" ? "selected" : ""
-          }`}
-          onClick={() => handleOptionChange("properties")}
-          to="/dashboard/properties"
-        >
-          <span className="icon">
-            <TbMapSearch />
-          </span>
-          {!isCollapsed && <span>Mis predios y lotes</span>}
-        </Link> */}
-        {/* <Link
-          className={`navbar-item ${
-            selectedOption === "consumption" ? "selected" : ""
-          }`}
-          onClick={() => handleOptionChange("consumption")}
-          to="/dashboard/consumption"
-        >
-          <span className="icon">
-            <MdOutlineWaterDrop />
-          </span>
-          {!isCollapsed && <span>Mis consumos</span>}
-        </Link>
-        <Link
-          className={`navbar-item ${
-            selectedOption === "bill" ? "selected" : ""
-          }`}
-          onClick={() => handleOptionChange("bill")}
-          to="/dashboard/bill"
-        >
-          <span className="icon">
-            <LuWallet />
-          </span>
-          {!isCollapsed && <span>Mis facturas y pagos</span>}
-        </Link>
-        <Link
-          className={`navbar-item ${
-            selectedOption === "report" ? "selected" : ""
-          }`}
-          onClick={() => handleOptionChange("report")}
-          to="/dashboard/report"
-        >
-          <span className="icon">
-            <TbReport />
-          </span>
-          {!isCollapsed && <span>Mis reportes de fallos</span>}
-        </Link> */}
-        <Link
-          className={`navbar-item ${
-            selectedOption === "profile" ? "selected" : ""
+            getSelectedOption() === "profile" ? "selected" : ""
           }`}
           onClick={() => handleOptionChange("profile")}
           to="/dashboard/profile"
@@ -277,6 +183,7 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
           </span>
           {!isCollapsed && <span>Mi cuenta</span>}
         </Link>
+
         <div className="separator separator-sidebar"></div>
         <Link className="navbar-item" onClick={handleSignUp}>
           <span className="icon">
