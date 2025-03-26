@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { SlOptionsVertical } from "react-icons/sl";
 import Icon from "../Icon";
 import { TbPointFilled } from "react-icons/tb";
+import { IoDocument } from "react-icons/io5";
 
 const OptionsButton = ({ onClick }) => (
   <button className="button is-small button-option" onClick={onClick}>
@@ -289,6 +290,21 @@ const Table = ({
                             <p className="mr-1">{row[column]}</p>
                           </button>
                         </td>
+                      ) : column === "Anexo" ? (
+                        row[column] ? (
+                          <div className="is-flex is-align-items-center">
+                            <IoDocument className="icon-doc" />
+                            <a
+                              className="link-doc"
+                              href={row[column]}
+                              target="_blank"
+                            >
+                              Ver anexo
+                            </a>
+                          </div>
+                        ) : (
+                          "-"
+                        )
                       ) : (
                         row[column] || "-"
                       )}

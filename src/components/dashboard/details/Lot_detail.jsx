@@ -1060,7 +1060,7 @@ const Lot_detail = () => {
               <div className="column">
                 <p>Escritura pública</p>
                 <div className="is-flex is-align-items-center">
-                  <IoDocument className="mr-2" />
+                  <IoDocument className="icon-doc" />
                   {data.public_deed ? (
                     <a href={data.public_deed} target="_blank">
                       escritura_publica.pdf
@@ -1074,7 +1074,7 @@ const Lot_detail = () => {
               <div className="column">
                 <p>Certificado de tradición y libertad (CTL)</p>
                 <div className="is-flex is-align-items-center">
-                  <IoDocument className="mr-2" />
+                  <IoDocument className="icon-doc" />
                   {data.freedom_tradition_certificate ? (
                     <a
                       href={data.freedom_tradition_certificate}

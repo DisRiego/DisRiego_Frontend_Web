@@ -1199,7 +1199,27 @@ td > td.status-expirado {
   border-radius: 2em;
 }
 
+.icon-doc {
+  margin-right: 0.2em;
+}
+
+@media (prefers-color-scheme: light) {
+  .icon-doc {
+    color: #005fad;
+  }
+
+  .link-doc {
+    color: #78ad00;
+    text-decoration: underline;
+  }
+}
+
 @media (prefers-color-scheme: dark) {
+  .link-doc {
+    color: #c2e96a;
+    text-decoration: underline;
+    opacity: 0.8;
+  }
   .button.status-activo {
     background-color: transparent;
     color: #b3ff9e;

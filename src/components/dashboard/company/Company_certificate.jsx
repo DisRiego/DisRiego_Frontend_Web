@@ -96,7 +96,7 @@ const Company_certificate = ({}) => {
       "Nit empresa": info.nit || "",
       "Fecha de generación": info.start_date || "",
       "Fecha de expiración": info.expiration_date || "",
-      Adjunto: info.attached || "",
+      Anexo: info.attached || "",
       Estado: info.status || "",
     }));
 
@@ -107,7 +107,7 @@ const Company_certificate = ({}) => {
     "Nit empresa",
     "Fecha de generación",
     "Fecha de expiración",
-    "Adjunto",
+    "Anexo",
     "Estado",
     "Opciones",
   ];
