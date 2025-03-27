@@ -63,6 +63,25 @@ const Form_lot_user = ({
     }
   }, [idRow]);
 
+  useEffect(() => {
+    if (formData.type_crop_id && formData.planting_date) {
+      const selectedCrop = dataCrop.find(
+        (crop) => crop.id === parseInt(formData.type_crop_id)
+      );
+      if (selectedCrop) {
+        const plantingDate = new Date(formData.planting_date);
+        plantingDate.setDate(
+          plantingDate.getDate() + selectedCrop.harvest_time
+        );
+
+        setFormData((prev) => ({
+          ...prev,
+          estimated_harvest_date: plantingDate.toISOString().split("T")[0],
+        }));
+      }
+    }
+  }, [formData.type_crop_id, formData.planting_date, dataCrop]);
+
   const getLot = async () => {
     try {
       const response = await axios.get(

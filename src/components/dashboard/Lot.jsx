@@ -68,7 +68,7 @@ const Lot = ({
           "Extensión (m²)": info.extension || "",
           Latitud: info.latitude || "",
           Longitud: info.longitude || "",
-          "Tipo de cultivo": info.nombre_tipo_cultivo || "",
+          "Tipo de cultivo": toTitleCase(info.nombre_tipo_cultivo) || "",
           "Intervalo de pago": info.nombre_intervalo_pago || "",
           Estado: info.nombre_estado || "",
         }));
