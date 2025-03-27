@@ -73,6 +73,8 @@ const Profile = () => {
       );
     } catch (error) {
       console.error("Error al obtener los permisos:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -119,14 +121,22 @@ const Profile = () => {
       setIsLoading(false);
     } catch (error) {
       console.error("Error al obtener nombres de ubicación:", error);
-    } finally {
-      setIsLoading(false);
     }
   };
 
   const toTitleCase = (str) => {
     if (typeof str !== "string") return str; // Evita errores con números u otros tipos
     return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  };
+
+  const toStringCase = (str) => {
+    if (typeof str !== "string") return str; // Evita errores si el input no es un string
+
+    return str
+      .toLowerCase() // Convierte todo a minúsculas primero
+      .split(" ") // Divide el texto en palabras
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1)) // Convierte la primera letra de cada palabra en mayúscula
+      .join(" "); // Une las palabras nuevamente en una sola cadena
   };
 
   return (
@@ -160,8 +170,16 @@ const Profile = () => {
                 <div className="content">
                   <h2 className="title is-5 margin-bottom">
                     <strong>
-                      {formData.name} {formData.first_last_name}{" "}
-                      {formData.second_last_name || ""}
+                      {
+                        [
+                          formData.name,
+                          formData.first_last_name,
+                          formData.second_last_name,
+                        ]
+                          .map(toTitleCase) // Aplica Title Case a cada campo
+                          .filter(Boolean) // Elimina valores vacíos o undefined
+                          .join(" ") // Une con un solo espacio
+                      }
                     </strong>
                   </h2>
                 </div>

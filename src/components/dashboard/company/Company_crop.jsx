@@ -88,6 +88,11 @@ const Company_crop = ({}) => {
     fetchCrop();
   };
 
+  const toTitleCase = (str) => {
+    if (typeof str !== "string") return str; // Evita errores con números u otros tipos
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  };
+
   const filteredData = data
     .filter((info) =>
       Object.values(info)
@@ -97,7 +102,7 @@ const Company_crop = ({}) => {
     )
     .map((info) => ({
       ID: info.id,
-      "Nombre del cultivo": info.name || "",
+      "Nombre del cultivo": toTitleCase(info.name) || "",
       "Tiempo estimada de cosecha (días)": info.harvest_time || "",
       Intervalo: info.nombre_intervalo_pago || "",
       Estado: info.nombre_estado || "",

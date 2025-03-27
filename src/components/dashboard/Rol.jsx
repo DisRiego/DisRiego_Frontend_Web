@@ -210,10 +210,10 @@ const Rol = () => {
       );
 
       setData(sortedData);
-      setButtonDisabled(false);
     } catch (error) {
       console.error("Error al obtener los roles:", error);
     } finally {
+      setButtonDisabled(false);
       setLoadingTable(false);
     }
   };

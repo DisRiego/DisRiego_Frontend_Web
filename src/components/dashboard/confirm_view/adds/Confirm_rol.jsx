@@ -46,6 +46,7 @@ const Confirm_rol = ({
         updateData();
       }
     } catch (error) {
+      console.log(error);
       if (typeForm === "create") {
         setTitleMessage("Error al crear el rol");
         setMessage("No se pudo crear el rol. Por favor, inténtelo de nuevo.");

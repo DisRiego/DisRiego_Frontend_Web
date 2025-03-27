@@ -215,6 +215,15 @@ const Table = ({
                 <p className="loader-text">Cargando información{dots}</p>
               </td>
             </tr>
+          ) : data.length === 0 ? (
+            <tr>
+              <td
+                colSpan={columns.length - 1}
+                className="no-data-cell has-text-centered is-vcentered"
+              >
+                No hay datos disponibles.
+              </td>
+            </tr>
           ) : (
             data.map((row, rowIndex) => (
               <tr key={rowIndex}>

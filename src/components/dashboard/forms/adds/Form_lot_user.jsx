@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
-import Confirm_crop from "../../confirm_view/adds/Confirm_crop";
+import Confirm_lot from "../../confirm_view/adds/Confirm_lot";
 import {
+  validateDate,
   validatePhone,
   validateTextArea,
 } from "../../../../hooks/useValidations";
@@ -15,7 +16,7 @@ const Form_lot_user = ({
   setMessage,
   setStatus,
   updateData,
-  id,
+  idRow,
   loading,
   setLoading,
   token,
@@ -23,47 +24,66 @@ const Form_lot_user = ({
   const [showConfirm, setShowConfirm] = useState(false);
   const [typeDocument, setTypeDocument] = useState([]);
   const [data, setData] = useState({});
+  const [dataCrop, setDataCrop] = useState([]);
   const [confirMessage, setConfirMessage] = useState();
   const [method, setMethod] = useState();
   const [uriPost, setUriPost] = useState();
   const [isLoading, setIsLoading] = useState(true);
   const [typeForm, setTypeForm] = useState();
+  const [nameInterval, setNameInterval] = useState("");
+  const [paymentInterval, setPaymentInterval] = useState("");
+  const estimateDateInputRef = useRef(null);
+
+  const handleEstimateDateFocus = () => {
+    if (estimateDateInputRef.current) {
+      estimateDateInputRef.current.showPicker();
+    }
+  };
 
   const [formData, setFormData] = useState({
-    name: "",
-    harvest_time: "",
-    payment_interval_id: "",
+    type_crop_id: "",
+    planting_date: "",
+    estimated_harvest_date: "",
+    payment_interval: "",
   });
 
   const [errors, setErrors] = useState({
-    name: "",
-    harvest_time: "",
-    payment_interval_id: "",
+    type_crop_id: "",
+    planting_date: "",
+    estimated_harvest_date: "",
+    payment_interval: "",
   });
 
   const [submitted, setSubmitted] = useState(false);
 
   useEffect(() => {
-    fetchPayment();
-    if (id != null) {
-      getCrop();
+    getCrop();
+    if (idRow != null) {
+      getPaymentInterval();
+      getLot();
     }
-  }, [id]);
+  }, [idRow]);
 
-  const fetchPayment = async () => {
+  const getLot = async () => {
     try {
       const response = await axios.get(
         import.meta.env.VITE_URI_BACKEND +
-          import.meta.env.VITE_ROUTE_BACKEND_COMPANY_PAYMENT_INTERVAL
+          import.meta.env.VITE_ROUTE_BACKEND_LOTS_PROPERTY +
+          idRow
       );
-      const sortedData = response.data.data.sort((a, b) =>
-        a.name.localeCompare(b.name)
-      );
+      const lotData = response.data.data;
 
-      setTypeDocument(sortedData);
+      setFormData({
+        type_crop_id: lotData.type_crop_id ?? "",
+        planting_date: lotData.planting_date ?? "",
+        estimated_harvest_date: lotData.estimated_harvest_date ?? "",
+        payment_interval: lotData.payment_interval ?? "",
+      });
+
+      setNameInterval(lotData.nombre_intervalo_pago ?? "");
       setIsLoading(false);
     } catch (error) {
-      console.error("Error al obtener los intervalos de pago:", error);
+      console.error("Error al obtener el lote:", error);
     }
   };
 
@@ -71,78 +91,120 @@ const Form_lot_user = ({
     try {
       const response = await axios.get(
         import.meta.env.VITE_URI_BACKEND +
-          import.meta.env.VITE_ROUTE_BACKEND_COMPANY_CROP_OTHER +
-          id
+          import.meta.env.VITE_ROUTE_BACKEND_COMPANY_CROP
       );
-
-      const cropData = response.data.data;
-
-      setData(cropData);
-
-      setFormData({
-        name: cropData.name ? cropData.name : "",
-        harvest_time: cropData.harvest_time ? cropData.harvest_time : "",
-        payment_interval_id: cropData.payment_interval_id
-          ? cropData.payment_interval_id
-          : "",
-      });
-
+      const sortedData = response.data.data.sort((a, b) =>
+        a.name.localeCompare(b.name)
+      );
+      setDataCrop(sortedData);
       setIsLoading(false);
     } catch (error) {
-      console.error("Error al obtener el tipo de cultivo:", error);
+      console.error("Error al obtener los tipos de cultivo:", error);
+    }
+  };
+
+  const getPaymentInterval = async () => {
+    try {
+      const response = await axios.get(
+        import.meta.env.VITE_URI_BACKEND +
+          import.meta.env.VITE_ROUTE_BACKEND_COMPANY_PAYMENT_INTERVAL
+      );
+      const intervalData = response.data.data;
+      setPaymentInterval(intervalData);
+      setIsLoading(false);
+    } catch (error) {
+      console.error("Error al obtener los tipos de cultivo:", error);
     }
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
-    setFormData({
-      ...formData,
+    setFormData((prev) => ({
+      ...prev,
       [name]: value,
-    });
+    }));
+
+    if (name === "type_crop_id") {
+      const selectedCrop = dataCrop.find((crop) => crop.id === parseInt(value));
+      if (selectedCrop) {
+        setFormData((prev) => ({
+          ...prev,
+          payment_interval: selectedCrop.payment_interval_id,
+        }));
+
+        const selectedInterval = paymentInterval.find(
+          (interval) => interval.id === selectedCrop.payment_interval_id
+        );
+
+        setNameInterval(selectedInterval ? selectedInterval.name : "");
+      }
+    }
+
+    if (name === "planting_date" && formData.type_crop_id) {
+      const selectedCrop = dataCrop.find(
+        (crop) => crop.id === parseInt(formData.type_crop_id)
+      );
+      if (selectedCrop) {
+        const plantingDate = new Date(value);
+        plantingDate.setDate(
+          plantingDate.getDate() + selectedCrop.harvest_time
+        );
+        setFormData((prev) => ({
+          ...prev,
+          estimated_harvest_date: plantingDate.toISOString().split("T")[0],
+        }));
+      }
+    }
   };
 
   const handleSaveClick = () => {
     setSubmitted(true);
-    const isNameValid = validateTextArea(formData.name);
-    const isHarvestTimeValid = validatePhone(formData.harvest_time);
-    const isPaymentIntervalValid = validatePhone(formData.payment_interval_id);
+    const isTypeCropValid = validatePhone(formData.type_crop_id);
+    const isHarvestDateValid = validateDate(formData.planting_date);
+    const isEstimatedHarvestValid = validateDate(
+      formData.estimated_harvest_date
+    );
+    const isPaymentIntervalValid = validatePhone(formData.payment_interval);
+    console.log(formData);
 
     setErrors({
-      name: isNameValid ? "" : "false" && "Nombre inválido",
-      harvest_time: isHarvestTimeValid
+      type_crop_id: isTypeCropValid
         ? ""
-        : "false" && "Tiempo estimado inválido",
-      payment_interval_id: isPaymentIntervalValid
+        : "false" && "Debe seleccionar una opción",
+      planting_date: isHarvestDateValid ? "" : "false" && "Fecha invalída",
+      estimated_harvest_date: isEstimatedHarvestValid
+        ? ""
+        : "false" && "Fecha estimada inválida",
+      payment_interval: isPaymentIntervalValid
         ? ""
         : "false" && "Intervalo de pago inválido",
     });
 
-    if (isNameValid && isHarvestTimeValid && isPaymentIntervalValid) {
-      if (id != null) {
-        setConfirMessage("¿Desea editar el tipo de cultivo?");
+    if (
+      isTypeCropValid &&
+      isHarvestDateValid &&
+      isEstimatedHarvestValid &&
+      isPaymentIntervalValid
+    ) {
+      if (idRow != null) {
+        setConfirMessage("¿Desea actualizar la información del lote?");
         setMethod("put");
         setUriPost(
           import.meta.env.VITE_URI_BACKEND +
-            import.meta.env.VITE_ROUTE_BACKEND_COMPANY_CROP_OTHER +
-            id
+            import.meta.env.VITE_ROUTE_BACKEND_LOTS_PROPERTY +
+            idRow +
+            import.meta.env.VITE_ROUTE_BACKEND_LOTS_PROPERTY_USER
         );
-        setTypeForm("edit");
-        setShowConfirm(true);
-      } else {
-        setConfirMessage('¿Desea crear el cultivo "' + formData.name + '"?');
-        setMethod("post");
-        setUriPost(
-          import.meta.env.VITE_URI_BACKEND +
-            import.meta.env.VITE_ROUTE_BACKEND_COMPANY_CROP
-        );
-        setTypeForm("create");
+        setTypeForm("edit_user");
         setShowConfirm(true);
       }
     }
   };
 
-  console.log(formData);
+  const toTitleCase = (str) => {
+    if (typeof str !== "string") return str; // Evita errores con números u otros tipos
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  };
 
   return (
     <>
@@ -163,93 +225,97 @@ const Form_lot_user = ({
                 <div className="field">
                   <label className="label">Tipo de cultivo</label>
                   <div className="control">
-                    <input
-                      className={`input ${
-                        submitted ? (errors.name ? "is-false" : "is-true") : ""
+                    <div
+                      className={`select ${
+                        submitted ? (errors.type_crop_id ? "is-false" : "") : ""
                       }`}
-                      type="text"
-                      name="name"
-                      placeholder="Ingrese el nombre del cultivo"
-                      value={formData.name}
+                    >
+                      <select
+                        name="type_crop_id"
+                        value={formData.type_crop_id}
+                        onChange={handleChange}
+                        disabled={isLoading}
+                      >
+                        <option value="" disabled>
+                          Seleccione una opción
+                        </option>
+                        {dataCrop.map((crop) => (
+                          <option key={crop.id} value={crop.id}>
+                            {toTitleCase(crop.name)}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    {submitted && errors.type_crop_id && (
+                      <p className="input-error">{errors.type_crop_id}</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+              <div className="column">
+                <div className="field">
+                  <label className="label">Fecha de siembra</label>
+                  <div className="control">
+                    <input
+                      ref={estimateDateInputRef}
+                      className={`input ${
+                        submitted
+                          ? errors.planting_date
+                            ? "is-false"
+                            : ""
+                          : ""
+                      }`}
+                      type="date"
+                      name="planting_date"
+                      placeholder="Ingrese la fecha de nacimiento"
+                      value={formData.planting_date}
                       onChange={handleChange}
+                      onFocus={handleEstimateDateFocus}
                       disabled={isLoading}
                     />
                   </div>
-                  {submitted && errors.name && (
-                    <p className="input-error">{errors.name}</p>
+                  {submitted && errors.planting_date && (
+                    <p className="input-error">{errors.planting_date}</p>
                   )}
                 </div>
               </div>
             </div>
-
-            <div className="container-input">
-              <div className="columns">
-                <div className="column">
-                  <div className="field">
-                    <label className="label">
-                      Tiempo estimado de cosecha (días)
-                    </label>
-                    <div className="control">
-                      <input
-                        className={`input ${
-                          submitted
-                            ? errors.harvest_time
-                              ? "is-false"
-                              : "is-true"
-                            : ""
-                        }`}
-                        type="text"
-                        name="harvest_time"
-                        placeholder="Ingrese el tiempo estimado de cosecha"
-                        value={formData.harvest_time}
-                        onChange={handleChange}
-                        disabled={isLoading}
-                      />
-                    </div>
-                    {submitted && errors.harvest_time && (
-                      <p className="input-error">{errors.harvest_time}</p>
-                    )}
-                  </div>
-                </div>
-                <div className="column">
-                  <div className="field">
-                    <label className="label">Intervalo de pago</label>
-                    <div className="control">
-                      <div
-                        className={`select ${
-                          submitted
-                            ? errors.payment_interval_id
-                              ? "is-false"
-                              : "is-true"
-                            : ""
-                        }`}
-                      >
-                        <select
-                          name="payment_interval_id"
-                          value={formData.payment_interval_id}
+            {formData.type_crop_id && formData.planting_date && (
+              <div className="container-input">
+                <div className="columns">
+                  <div className="column">
+                    <div className="field">
+                      <label className="label">Intervalo de pago</label>
+                      <div className="control">
+                        <input
+                          className={`input`}
+                          type="text"
+                          value={nameInterval ?? ""}
                           onChange={handleChange}
-                          disabled={isLoading}
-                        >
-                          <option value="" disabled>
-                            Seleccione una opción
-                          </option>
-                          {typeDocument.map((doc) => (
-                            <option key={doc.id} value={doc.id}>
-                              {doc.name}
-                            </option>
-                          ))}
-                        </select>
+                          disabled
+                        />
                       </div>
-                      {submitted && errors.payment_interval_id && (
-                        <p className="input-error">
-                          {errors.payment_interval_id}
-                        </p>
-                      )}
+                    </div>
+                  </div>
+                  <div className="column">
+                    <div className="field">
+                      <label className="label">Fecha estimada de cosecha</label>
+                      <div className="control">
+                        <input
+                          className={`input`}
+                          type="date"
+                          name="estimated_harvest_date"
+                          placeholder="Ingrese la fecha de nacimiento"
+                          value={formData.estimated_harvest_date}
+                          onChange={handleChange}
+                          disabled
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
+            )}
           </section>
           <footer className="modal-card-foot is-flex is-justify-content-center">
             <div className="buttons">
@@ -264,7 +330,7 @@ const Form_lot_user = ({
         </div>
       </div>
       {showConfirm && (
-        <Confirm_crop
+        <Confirm_lot
           onClose={() => {
             setShowConfirm(false);
           }}

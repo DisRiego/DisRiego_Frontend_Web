@@ -230,6 +230,16 @@ const Form_property = ({
     setErrorFileCtl("");
   };
 
+  const toTitleCase = (str) => {
+    if (typeof str !== "string") return str; // Evita errores si el input no es un string
+
+    return str
+      .toLowerCase() // Convierte todo a minúsculas primero
+      .split(" ") // Divide el texto en palabras
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1)) // Convierte la primera letra de cada palabra en mayúscula
+      .join(" "); // Une las palabras nuevamente en una sola cadena
+  };
+
   const handleSaveClick = async () => {
     setSubmitted(true);
     const isNameValid = validateText(formData.name);
@@ -425,9 +435,16 @@ const Form_property = ({
                             className="input"
                             type="text"
                             disabled
-                            value={`${nameUser.name || ""} ${
-                              nameUser.first_lastname || ""
-                            } ${nameUser.second_lastname || ""}`.trim()}
+                            value={
+                              `${[
+                                nameUser.name,
+                                nameUser.first_lastname,
+                                nameUser.second_lastname,
+                              ]
+                                .map(toTitleCase) // Aplica Title Case a cada parte del nombre
+                                .filter(Boolean) // Elimina valores vacíos
+                                .join(" ")}` // Une con un solo espacio
+                            }
                           />
                         </div>
                       </div>

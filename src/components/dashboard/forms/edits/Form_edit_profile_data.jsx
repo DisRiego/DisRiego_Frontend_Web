@@ -61,12 +61,22 @@ const Form_edit_profile_data = ({
         address: data.address || "",
         phone: data.phone || "",
       });
-      setDisabled(false);
-      console.log(disabled);
     }
   }, [data]);
 
   useEffect(() => {
+    getCountry();
+  }, []);
+
+  useEffect(() => {
+    getState();
+  }, [formData.country]);
+
+  useEffect(() => {
+    getCity();
+  }, [formData.department]);
+
+  const getCountry = async () => {
     axios
       .get("https://api.countrystatecity.in/v1/countries", {
         headers: { "X-CSCAPI-KEY": api_key },
@@ -75,9 +85,9 @@ const Form_edit_profile_data = ({
         setCountries(response.data);
       })
       .catch((error) => console.error("Error al obtener los países:", error));
-  }, []);
+  };
 
-  useEffect(() => {
+  const getState = async () => {
     if (formData.country) {
       axios
         .get(
@@ -98,30 +108,30 @@ const Form_edit_profile_data = ({
     } else {
       setStates([]);
     }
-  }, [formData.country]);
+  };
 
-  useEffect(() => {
+  const getCity = async () => {
     if (formData.country && formData.department) {
-      axios
-        .get(
+      setDisabled(true); // Deshabilitar los inputs mientras se carga
+      try {
+        const response = await axios.get(
           `https://api.countrystatecity.in/v1/countries/${formData.country}/states/${formData.department}/cities`,
-          {
-            headers: { "X-CSCAPI-KEY": api_key },
-          }
-        )
-        .then((response) => {
-          const sortedCities = response.data.sort((a, b) =>
-            a.name.localeCompare(b.name)
-          );
-          setCities(sortedCities);
-        })
-        .catch((error) =>
-          console.error("Error al obtener las ciudades:", error)
+          { headers: { "X-CSCAPI-KEY": api_key } }
         );
+        const sortedCities = response.data.sort((a, b) =>
+          a.name.localeCompare(b.name)
+        );
+        setCities(sortedCities);
+      } catch (error) {
+        console.error("Error al obtener las ciudades:", error);
+      } finally {
+        setDisabled(false); // Habilitar solo si los datos han cargado
+      }
     } else {
       setCities([]);
+      setDisabled(true);
     }
-  }, [formData.country, formData.department]);
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -204,7 +214,7 @@ const Form_edit_profile_data = ({
                         className={`select`}
                         value={formData.country}
                         onChange={handleChange}
-                        disabled={disabled}
+                        disabled={disabled || countries.length === 0}
                       >
                         <option value="" disabled>
                           Seleccione un país
@@ -239,7 +249,7 @@ const Form_edit_profile_data = ({
                         name="department"
                         value={formData.department}
                         onChange={handleChange}
-                        disabled={disabled}
+                        disabled={disabled || states.length === 0}
                       >
                         <option value="">Seleccione un departamento</option>
                         {states.map((state) => (

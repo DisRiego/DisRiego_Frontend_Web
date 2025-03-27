@@ -120,7 +120,7 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
       label: "Gestión de predios",
     },
     {
-      permission: "Editar Predio",
+      permission: "Editar Predios y Lote",
       path: "/dashboard/properties",
       selectoption: "properties",
       icon: <TbMapSearch />,

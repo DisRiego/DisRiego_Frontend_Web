@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import Confirm_rol from "../../confirm_view/adds/Confirm_rol";
 import {
+  validateDescription,
   validateText,
-  validateTextArea,
 } from "../../../../hooks/useValidations";
 import axios from "axios";
 import { IoMdWarning } from "react-icons/io";
@@ -98,7 +98,7 @@ const Form_add_rol = ({
   const handleSaveClick = () => {
     setSubmitted(true);
     const isNameValid = validateText(formData.name);
-    const isDescriptionValid = validateTextArea(formData.description);
+    const isDescriptionValid = validateDescription(formData.description);
     const hasSelectedPermissions = formData.permissions.length > 0;
 
     setErrors({

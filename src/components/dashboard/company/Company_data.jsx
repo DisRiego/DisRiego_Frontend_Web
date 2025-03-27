@@ -146,7 +146,7 @@ const Company_data = ({}) => {
                 >
                   <img
                     src={
-                      formData.logo ||
+                      formData.logo ??
                       "https://cdn-icons-png.flaticon.com/512/3135/3135768.png"
                     }
                     alt="Perfil"
@@ -157,15 +157,15 @@ const Company_data = ({}) => {
               <div className="media-content">
                 <div className="content">
                   <h2 className="title is-5 margin-bottom mt-1">
-                    <strong>{formData.name}</strong>
+                    <strong>{formData.name || "[]"}</strong>
                   </h2>
                   <p className="is-5 margin-bottom mt-2">
-                    <strong>Nit:</strong> {formData.nit}
+                    <strong>Nit:</strong> {formData.nit ?? "[]"}
                   </p>
                   <p className="is-5 margin-bottom">
                     <strong>Certificado: </strong>
                     {"#"}
-                    {formData.certificate.serial_number}
+                    {formData.certificate?.serial_number ?? "[]"}
                   </p>
                 </div>
               </div>
@@ -194,11 +194,11 @@ const Company_data = ({}) => {
             <div className="columns">
               <div className="column">
                 <strong>Correo electrónico</strong>
-                <p>{formData.email}</p>
+                <p>{formData.email ?? "[]"}</p>
               </div>
               <div className="column">
                 <strong>Teléfono</strong>
-                <p>{formData.phone}</p>
+                <p>{formData.phone ?? "[]"}</p>
               </div>
             </div>
           </section>
@@ -215,21 +215,21 @@ const Company_data = ({}) => {
             <div className="columns">
               <div className="column">
                 <strong>País</strong>
-                <p>{locationNames.country || formData.country}</p>
+                <p>{(locationNames.country || formData.country) ?? "[]"}</p>
               </div>
               <div className="column">
                 <strong>Departamento</strong>
-                <p>{locationNames.state || formData.state}</p>
+                <p>{(locationNames.state || formData.state) ?? "[]"}</p>
               </div>
             </div>
             <div className="columns">
               <div className="column">
                 <strong>Ciudad</strong>
-                <p>{locationNames.city || formData.city}</p>
+                <p>{(locationNames.city || formData.city) ?? "[]"}</p>
               </div>
               <div className="column">
                 <strong>Dirección de la empresa</strong>
-                <p>{formData.address}</p>
+                <p>{formData.address ?? "[]"}</p>
               </div>
             </div>
           </section>

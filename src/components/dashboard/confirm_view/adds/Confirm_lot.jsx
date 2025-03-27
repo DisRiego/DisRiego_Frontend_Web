@@ -41,7 +41,7 @@ const Confirm_lot = ({
         onSuccess();
         updateData();
       } else {
-        if (typeForm === "edit_lot") {
+        if (typeForm === "edit_lot" || typeForm === "edit_user") {
           setTitleMessage("Lote actualizado exitosamente");
           setMessage("El lote ha sido actualizado correctamente.");
           setStatus("is-true");
@@ -59,7 +59,7 @@ const Confirm_lot = ({
         setStatus("is-false");
         setShowMessage(true);
       } else {
-        if (typeForm === "edit_lot") {
+        if (typeForm === "edit_lot" || typeForm === "edit_user") {
           setTitleMessage("Error al actualizar el lote");
           setMessage(
             "No se pudo actualizar el lote. Por favor, inténtelo de nuevo."

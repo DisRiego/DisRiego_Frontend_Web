@@ -358,10 +358,10 @@ const Property = () => {
       // const sortedData = response.data.data.sort((a, b) => a.name - b.name);
 
       setData(sortedData);
-      setButtonDisabled(false);
     } catch (error) {
       console.error("Error al obtener los usuarios:", error);
     } finally {
+      setButtonDisabled(false);
       setLoadingTable(false);
     }
   };
