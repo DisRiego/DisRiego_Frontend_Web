@@ -67,6 +67,7 @@ const Lot_detail = () => {
   const [statusFilter, setStatusFilter] = useState(false);
   const parentComponent = "iot";
   const [title, setTitle] = useState();
+  const [dataOwner, setDataOwner] = useState(null);
 
   const head_data = {
     title: "Detalles del lote #" + id,
@@ -99,55 +100,91 @@ const Lot_detail = () => {
   //Generar reporte de predio
   const generateReport = () => {
     const doc = new jsPDF();
-    // Datos del predio actual
-    // const currentProperty = mockData.find(
-    //   (property) => property.id === parseInt(id)
-    // );
-    // // Filtra los lotes que pertenecen al predio actual
-    // const lotsForProperty = lotMockData.filter(
-    //   (lot) => lot.property_id === parseInt(id)
-    // );
 
     // Add Roboto font to the document
     doc.addFont(RobotoNormalFont, "Roboto", "normal");
     doc.addFont(RobotoBoldFont, "Roboto", "bold");
-    //colorear fondo
+
+    // Colorear fondo
     doc.setFillColor(243, 242, 247);
     doc.rect(0, 0, 210, 53, "F"); // colorear una parte de la pagina
-    // agregar logo (usando base 64 directamente sobre la importacion)
+
+    // Agregar logo
     doc.addImage(Icon, "PNG", 156, 10, 39, 11);
     doc.setTextColor(0, 0, 0);
     doc.setFontSize(17);
     doc.setFont("Roboto", "bold");
-    doc.text("REPORTE PREDIAL", 12, 18);
+    doc.text(`REPORTE DEL LOTE #${id}`, 12, 18);
     doc.setFontSize(11);
     doc.text(`Fecha de generación:`, 12, 27);
     doc.text(`Generado por:`, 12, 39);
-    /*doc.setTextColor(94, 100, 112);*/
     doc.text("Datos del dueño", 12, 63);
-    doc.text("Datos del predio", 12, 100);
+    doc.text("Datos del predio", 12, 106);
+    doc.text("Datos del lote", 12, 140);
 
     doc.setTextColor(94, 100, 112);
     doc.setFont("Roboto", "normal");
     doc.setFontSize(10);
     doc.text(`${new Date().toLocaleString()}`, 12, 32);
-    doc.text(`[Nombre del usuario]`, 12, 44);
+
+    // Obtener información del usuario que genera el reporte (si está disponible)
+    const userInfo = localStorage.getItem("userInfo");
+    let userName = "[Nombre del usuario]";
+    if (userInfo) {
+      try {
+        const parsedUserInfo = JSON.parse(userInfo);
+        userName = parsedUserInfo.name || "[Nombre del usuario]";
+      } catch (error) {
+        console.error("Error al parsear userInfo:", error);
+      }
+    }
+
+    doc.text(`${userName}`, 12, 44);
     doc.setFontSize(11);
     doc.text(`[Dirección de la empresa]`, 194, 27, { align: "right" });
     doc.text(`[Ciudad, Dept. País]`, 194, 33, { align: "right" });
     doc.text(`[Teléfono]`, 194, 39, { align: "right" });
+
+    // Datos del dueño (en forma de texto)
     doc.setFontSize(10);
     doc.text("Nombre completo", 12, 70);
     doc.text("Número de documento", 110, 70);
     doc.text("Dirección de correspondencia", 12, 82);
     doc.text("Teléfono", 110, 82);
-    doc.text("[NOMBRE]", 12, 75);
-    doc.text(currentProperty?.user_name || "[No. documento]", 110, 75);
-    doc.text("[DIRECCION]", 12, 87);
-    doc.text("[TELEFONO]", 110, 87);
+    doc.text("ID predio", 12, 94);
+    doc.text("Nombre predio", 110, 94);
 
+    // Usar los datos reales del dueño obtenidos de la base de datos
+    const ownerName = dataOwner
+      ? `${dataOwner.name || ""} ${dataOwner.first_last_name || ""} ${
+          dataOwner.second_last_name || ""
+        }`.trim()
+      : "[NOMBRE]";
+
+    const ownerDocument = dataOwner
+      ? `${dataOwner.type_document_name || ""} ${
+          dataOwner.document_number || ""
+        }`.trim()
+      : "[No. documento]";
+
+    const ownerAddress = dataOwner
+      ? dataOwner.address || "[DIRECCION]"
+      : "[DIRECCION]";
+
+    const ownerPhone = dataOwner
+      ? dataOwner.phone || "[TELEFONO]"
+      : "[TELEFONO]";
+
+    doc.text(ownerName, 12, 75);
+    doc.text(ownerDocument, 110, 75);
+    doc.text(ownerAddress, 12, 87);
+    doc.text(ownerPhone, 110, 87);
+    //doc.text(dataProperty?.name || "[Nombre del predio]", 110, 99);
+    doc.text(`${id}`, 110, 99);
+
+    // Tabla con los datos del predio
     autoTable(doc, {
-      startY: 105,
+      startY: 109,
       margin: { left: 12, right: 12 },
       head: [
         [
@@ -157,18 +194,18 @@ const Lot_detail = () => {
           "Extensión",
           "Latitud",
           "Longitud",
-          "Número de lotes",
+          "Estado",
         ],
       ],
       body: [
         [
-          currentProperty?.id || "",
-          currentProperty?.name || "",
-          currentProperty?.inmobilario || "",
-          currentProperty?.extension || "",
-          currentProperty?.latitud || "",
-          currentProperty?.longitud || "",
-          lotsForProperty.length,
+          dataProperty?.id || "",
+          dataProperty?.name || "",
+          dataProperty?.real_estate_registration_number || "",
+          dataProperty?.extension || "",
+          dataProperty?.latitude || "",
+          dataProperty?.longitude || "",
+          dataProperty?.state_name || "",
         ],
       ],
       theme: "grid",
@@ -191,17 +228,9 @@ const Lot_detail = () => {
       },
     });
 
-    // Lotes asociados al predio
-    const currentY = doc.lastAutoTable.finalY + 10;
-
-    doc.setFontSize(11);
-    doc.setFont("Roboto", "bold");
-    doc.setTextColor(0, 0, 0);
-    doc.text(`Lotes Asociados al predio [${id}]`, 14, currentY);
-
-    // Tabla de lotes asociados
+    // Tabla con los datos del lote
     autoTable(doc, {
-      startY: currentY + 5,
+      startY: 145,
       margin: { left: 12, right: 12 },
       head: [
         [
@@ -213,17 +242,71 @@ const Lot_detail = () => {
           "Longitud",
           "Tipo de cultivo",
           "Intervalo de pago",
+          "Fecha est. cosecha",
         ],
       ],
-      body: lotsForProperty.map((lot) => [
-        lot.id,
-        lot.name,
-        lot.inmobilario,
-        lot.extension,
-        lot.latitud,
-        lot.longitud,
-        "[Tipo de cultivo]",
-        "[Intervalo de pago]",
+      body: [
+        [
+          data?.id || "",
+          data?.name || "",
+          data?.real_estate_registration_number || "",
+          data?.extension || "",
+          data?.latitude || "",
+          data?.longitude || "",
+          data?.nombre_tipo_cultivo || "",
+          data?.nombre_intervalo_pago || "",
+          data?.estimated_harvest_date || "",
+        ],
+      ],
+      theme: "grid",
+      headStyles: {
+        fillColor: [252, 252, 253],
+        textColor: [0, 0, 0],
+        fontStyle: "bold",
+        lineWidth: 0.5,
+        lineColor: [234, 236, 240],
+      },
+      bodyStyles: {
+        textColor: [89, 89, 89],
+        fontSize: 9,
+        cellPadding: 4,
+      },
+      styles: {
+        fontSize: 9,
+        font: "Roboto",
+        lineColor: [226, 232, 240],
+      },
+    });
+
+    // Información de Dispositivos IoT
+    const currentY = doc.lastAutoTable.finalY + 10;
+
+    doc.setFontSize(11);
+    doc.setFont("Roboto", "bold");
+    doc.setTextColor(0, 0, 0);
+    doc.text(`Dispositivos IoT del lote [${id}]`, 14, currentY);
+
+    // Tabla de dispositivos IoT
+    autoTable(doc, {
+      startY: currentY + 5,
+      margin: { left: 12, right: 12 },
+      head: [
+        [
+          "ID",
+          "Tipo de dispositivo",
+          "Modelo",
+          "Fecha de instalación",
+          "Fecha est. mantenimiento",
+          "Estado",
+        ],
+      ],
+      body: dataIot.map((device) => [
+        device.id,
+        device.device_type,
+        device.model,
+        device.date_installation,
+        device.maintenance_date,
+        device.status_name,
       ]),
       theme: "grid",
       headStyles: {
@@ -244,7 +327,8 @@ const Lot_detail = () => {
         lineColor: [226, 232, 240],
       },
     });
-    //pie de pagina
+
+    // Pie de página
     doc.addImage(Icon, "PNG", 12, 280, 32, 9);
 
     const pageCount = doc.internal.getNumberOfPages();
@@ -252,7 +336,7 @@ const Lot_detail = () => {
       doc.setPage(i);
       doc.setFontSize(10);
 
-      doc.setFont("Roboto", "normal"); // Set Roboto font for page numbers
+      doc.setFont("Roboto", "normal");
       const pageWidth = doc.internal.pageSize.getWidth();
       const pageHeight = doc.internal.pageSize.getHeight();
       doc.text(`Página ${i}/${pageCount}`, pageWidth - 10, pageHeight - 10, {
@@ -627,8 +711,26 @@ const Lot_detail = () => {
       setIsLoading(false);
     }
   };
+  useEffect(() => {
+    if (dataProperty && dataProperty.owner_id) {
+      fetchOwner(dataProperty.owner_id);
+    }
+  }, [dataProperty]);
 
-  console.log(dataProperty);
+  // Función para obtener datos del dueño
+  const fetchOwner = async (ownerId) => {
+    try {
+      const response = await axios.get(
+        import.meta.env.VITE_URI_BACKEND +
+          import.meta.env.VITE_ROUTE_BACKEND_USERS +
+          ownerId
+      );
+      setDataOwner(response.data.data[0]);
+    } catch (error) {
+      console.error("Error al obtener los datos del dueño:", error);
+    }
+  };
+  //console.log(dataProperty);
 
   // const fetchIot = async () => {
   //   try {
