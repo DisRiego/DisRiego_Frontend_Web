@@ -3,7 +3,8 @@ import axios from "axios";
 import Confirm_property from "../../confirm_view/adds/Confirm_property";
 import {
   validateFile,
-  validateImage,
+  validateLatitude,
+  validateLongitude,
   validatePhone,
   validateText,
 } from "../../../../hooks/useValidations";
@@ -232,8 +233,8 @@ const Form_property = ({
   const handleSaveClick = async () => {
     setSubmitted(true);
     const isNameValid = validateText(formData.name);
-    const isLongitudeValid = validatePhone(formData.longitude);
-    const isLatitudeValid = validatePhone(formData.latitude);
+    const isLongitudeValid = validateLongitude(formData.longitude);
+    const isLatitudeValid = validateLatitude(formData.latitude);
     const isExtensionValid = validatePhone(formData.extension);
     const isRealStateValid = validatePhone(
       formData.real_estate_registration_number
@@ -376,6 +377,7 @@ const Form_property = ({
                           }`}
                           name="document_number"
                           type="number"
+                          placeholder="Ingrese el número de documento"
                           value={formUser.document_number}
                           onChange={handleChange}
                           // disabled={isLoading}
@@ -443,6 +445,7 @@ const Form_property = ({
                           }`}
                           type="text"
                           name="name"
+                          placeholder="Ingrese el nombre del predio"
                           onChange={handleChangeProperty}
                           value={formData.name}
                         />
@@ -470,6 +473,7 @@ const Form_property = ({
                           }`}
                           type="text"
                           name="real_estate_registration_number"
+                          placeholder="Ingrese el número de folio inmobiliario"
                           onChange={handleChangeProperty}
                           value={formData.real_estate_registration_number}
                         />
@@ -495,6 +499,7 @@ const Form_property = ({
                           }`}
                           type="number"
                           name="extension"
+                          placeholder="Ingrese la extensión del predio"
                           onChange={handleChangeProperty}
                           value={formData.extension}
                         />
@@ -516,6 +521,7 @@ const Form_property = ({
                           }`}
                           type="text"
                           name="latitude"
+                          placeholder="Ingrese la latitud"
                           onChange={handleChangeProperty}
                           value={formData.latitude}
                         />
@@ -539,6 +545,7 @@ const Form_property = ({
                           }`}
                           type="text"
                           name="longitude"
+                          placeholder="Ingrese la longitud"
                           onChange={handleChangeProperty}
                           value={formData.longitude}
                         />

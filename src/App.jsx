@@ -37,7 +37,7 @@ function AppContent() {
           />
           <Route path="/dashboard/properties/:id" element={<Dashboard />} />
           <Route
-            path="/dashboard/properties/:id/lots/:id"
+            path="/dashboard/properties/:id/lot/:id"
             element={<Dashboard />}
           />
           <Route path="/dashboard/report/:id" element={<Dashboard />} />

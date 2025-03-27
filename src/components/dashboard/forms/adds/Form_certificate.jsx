@@ -6,6 +6,7 @@ import {
   validatePhone,
   validateBirthdate,
   validateIssuanceDate,
+  validateExpirationDate,
 } from "../../../../hooks/useValidations";
 import { FaUpload } from "react-icons/fa6";
 
@@ -130,20 +131,22 @@ const Form_certificate = ({
     const isSerialValid = validatePhone(formData.serial_number);
     const isNitValid = validatePhone(formData.nit);
     const isStartDateValid = validateBirthdate(formData.start_date);
-    const isExpirationDateValid = validateIssuanceDate(
-      formData.expiration_date,
-      formData.start_date
+    const isExpirationDateValid = validateExpirationDate(
+      formData.start_date,
+      formData.expiration_date
     );
 
-    const startDate = new Date(formData.start_date);
-    const expirationDate = new Date(formData.expiration_date);
-    const isDateValid = isExpirationDateValid && expirationDate >= startDate;
+    // const startDate = new Date(formData.start_date);
+    // const expirationDate = new Date(formData.expiration_date);
+    // const isDateValid = isExpirationDateValid && expirationDate >= startDate;
 
     setErrors({
       serial_number: isSerialValid ? "" : "Número de serie inválido",
       nit: isNitValid ? "" : "Nit inválido",
       start_date: isStartDateValid ? "" : "Fecha de generación inválida",
-      expiration_date: isDateValid ? "" : "Fecha de expiración inválida",
+      expiration_date: isExpirationDateValid
+        ? ""
+        : "Fecha de expiración inválida",
     });
 
     if (!file && !id) setErrorFile("Debes seleccionar un archivo válido");
@@ -224,6 +227,7 @@ const Form_certificate = ({
                       }`}
                       type="number"
                       name="serial_number"
+                      placeholder="Ingrese el número de serie"
                       onChange={handleChange}
                       value={formData.serial_number}
                       disabled={disabled}
@@ -236,7 +240,7 @@ const Form_certificate = ({
               </div>
               <div className="column">
                 <div className="field">
-                  <label className="label">Nit de la empresa</label>
+                  <label className="label">NIT de la empresa</label>
                   <div className="control">
                     <input
                       className={`input ${
@@ -244,6 +248,7 @@ const Form_certificate = ({
                       }`}
                       type="number"
                       name="nit"
+                      placeholder="Ingrese el NIT de la empresa"
                       onChange={handleChange}
                       value={formData.nit}
                       disabled={disabled}

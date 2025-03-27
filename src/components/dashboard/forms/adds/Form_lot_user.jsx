@@ -7,7 +7,7 @@ import {
   validateTextArea,
 } from "../../../../hooks/useValidations";
 
-const Form_crop = ({
+const Form_lot_user = ({
   title,
   onClose,
   setShowMessage,
@@ -161,7 +161,7 @@ const Form_crop = ({
             <div className="columns">
               <div className="column">
                 <div className="field">
-                  <label className="label">Nombre</label>
+                  <label className="label">Tipo de cultivo</label>
                   <div className="control">
                     <input
                       className={`input ${
@@ -289,4 +289,4 @@ const Form_crop = ({
   );
 };
 
-export default Form_crop;
+export default Form_lot_user;

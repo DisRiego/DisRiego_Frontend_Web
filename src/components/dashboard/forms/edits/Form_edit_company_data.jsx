@@ -21,8 +21,6 @@ const Form_edit_company_data = ({
   setLoading,
   updateData,
 }) => {
-  const [file, setFile] = useState(null);
-  const [fileName, setFileName] = useState("");
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [confirMessage, setConfirMessage] = useState();
@@ -31,23 +29,48 @@ const Form_edit_company_data = ({
   const [typeForm, setTypeForm] = useState("");
   const [newData, setNewData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [certificateData, setCertificateData] = useState([]);
 
   const [formData, setFormData] = useState({
     name: "",
     nit: "",
-    digital_certificate: "",
+    digital_certificate_id: "",
   });
 
   useEffect(() => {
-    getCompany();
+    getCertificate();
   }, []);
+
+  useEffect(() => {
+    if (data) {
+      getCompany();
+    }
+  }, [data]);
 
   const getCompany = () => {
     setFormData({
       name: data.name,
       nit: data.nit,
-      digital_certificate: 1,
+      digital_certificate_id: data.certificate.digital_certificate_id,
     });
+  };
+
+  console.log(formData);
+
+  const getCertificate = async () => {
+    try {
+      const response = await axios.get(
+        import.meta.env.VITE_URI_BACKEND +
+          import.meta.env.VITE_ROUTE_BACKEND_COMPANY_CERTIFICATE
+      );
+      const certificateData = response.data.data;
+      setCertificateData(certificateData);
+      setIsLoading(false);
+
+      // setDisabled(false);
+    } catch (error) {
+      console.log("Error al obtener el certificado", error);
+    }
   };
 
   const [errors, setErrors] = useState({});
@@ -57,26 +80,6 @@ const Form_edit_company_data = ({
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleFileChange = (e) => {
-    const selectedFile = e.target.files[0];
-
-    if (!selectedFile) return;
-
-    const validation = validateImage(selectedFile);
-
-    if (!validation.isValid) {
-      setErrors((prev) => ({
-        ...prev,
-        icon_company: validation.error,
-      }));
-      return;
-    }
-
-    setFile(selectedFile);
-    setFileName(selectedFile.name);
-    setErrors((prev) => ({ ...prev, icon_company: "" }));
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setHasSubmitted(true);
@@ -84,8 +87,8 @@ const Form_edit_company_data = ({
     let newErrors = {};
     if (!validateText(formData.name)) newErrors.name = "Nombre inválido.";
     if (!validatePhone(formData.nit)) newErrors.nit = "NIT inválido.";
-    if (!formData.digital_certificate)
-      newErrors.digital_certificate = "Debe seleccionar un certificado.";
+    if (!validatePhone(formData.digital_certificate_id))
+      newErrors.digital_certificate_id = "Certificado inválido.";
 
     setErrors(newErrors);
 
@@ -93,25 +96,12 @@ const Form_edit_company_data = ({
       const data = new FormData();
       data.append("name", formData.name);
       data.append("nit", formData.nit);
-      data.append("digital_certificate_id", formData.digital_certificate);
+      data.append(
+        "digital_certificate_id",
+        parseInt(formData.digital_certificate_id, 10)
+      );
 
       setNewData(data);
-      //   try {
-      //     const response = await axios.patch(
-      //       import.meta.env.VITE_URI_BACKEND +
-      //         import.meta.env.VITE_ROUTE_BACKEND_COMPANY_EDIT_BASIC,
-      //       data,
-      //       {
-      //         headers: {
-      //           "Content-Type": "multipart/form-data",
-      //         },
-      //       }
-      //     );
-
-      //     console.log("Respuesta del servidor:", response.data);
-      //   } catch (error) {
-      //     console.error("Error al enviar el formulario:", error);
-      //   }
       setConfirMessage(`¿Desea cambiar la información basica de la empresa?`);
       setMethod("patch");
       setUriPost(
@@ -122,6 +112,8 @@ const Form_edit_company_data = ({
       setShowConfirm(true);
     }
   };
+
+  console.log(formData);
 
   return (
     <>
@@ -150,6 +142,7 @@ const Form_edit_company_data = ({
                     placeholder="Ingrese el nombre de la empresa"
                     value={formData.name}
                     onChange={handleChange}
+                    disabled={isLoading}
                   />
                 </div>
                 {errors.name && <p className="input-error">{errors.name}</p>}
@@ -167,38 +160,47 @@ const Form_edit_company_data = ({
                     placeholder="Ingrese el NIT de la empresa"
                     value={formData.nit}
                     onChange={handleChange}
+                    disabled={isLoading}
                   />
                 </div>
                 {errors.nit && <p className="input-error">{errors.nit}</p>}
               </div>
               <div className="field">
-                <label className="label">Certificado digital</label>
-                <div className="control">
-                  <div
-                    className={`select is-fullwidth ${
-                      hasSubmitted
-                        ? errors.digital_certificate
-                          ? "is-false"
-                          : "is-true"
-                        : ""
-                    }`}
-                  >
-                    <select
-                      name="digital_certificate"
-                      value={formData.digital_certificate}
-                      onChange={handleChange}
+                <div className="field">
+                  <label className="label">Certificado digital</label>
+                  <div className="control">
+                    <div
+                      className={`select ${
+                        hasSubmitted
+                          ? errors.name
+                            ? "is-false"
+                            : "is-true"
+                          : ""
+                      }`}
                     >
-                      <option value="" disabled>
-                        Seleccione una opción
-                      </option>
-                      <option value="1">Certificado 1</option>
-                      <option value="2">Certificado 2</option>
-                    </select>
+                      <select
+                        name="digital_certificate_id"
+                        value={formData.digital_certificate_id}
+                        onChange={handleChange}
+                        disabled={isLoading}
+                      >
+                        <option value="" disabled>
+                          Seleccione una opción
+                        </option>
+                        {certificateData.map((certificate) => (
+                          <option key={certificate.id} value={certificate.id}>
+                            {certificate.serial_number}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    {errors.digital_certificate_id && (
+                      <p className="input-error">
+                        {errors.digital_certificate_id}
+                      </p>
+                    )}
                   </div>
                 </div>
-                {errors.digital_certificate && (
-                  <p className="input-error">{errors.digital_certificate}</p>
-                )}
               </div>
             </form>
           </section>

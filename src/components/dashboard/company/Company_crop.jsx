@@ -6,6 +6,7 @@ import Form_crop from "../forms/adds/Form_crop";
 import Head from "../Head";
 import Tab_company from "./Tab_company";
 import Message from "../../Message";
+import Change_status_crop from "../Status/Change_status_crop";
 
 const Company_crop = ({}) => {
   const [data, setData] = useState([]);
@@ -23,6 +24,9 @@ const Company_crop = ({}) => {
   const [titleMessage, setTitleMessage] = useState(false);
   const [message, setMessage] = useState(false);
   const [status, setStatus] = useState(false);
+  const [showChangeStatus, setShowChangeStatus] = useState(false);
+  const [confirMessage, setConfirMessage] = useState();
+  const [typeForm, setTypeForm] = useState();
 
   const headData = {
     title: "Gestión de empresa",
@@ -94,16 +98,16 @@ const Company_crop = ({}) => {
     .map((info) => ({
       ID: info.id,
       "Nombre del cultivo": info.name || "",
-      "Tiempo estimada de cosecha": info.harvest_time || "",
-      Intervalo: info.payment_interval_id || "",
-      Estado: info.state_name || "",
+      "Tiempo estimada de cosecha (días)": info.harvest_time || "",
+      Intervalo: info.nombre_intervalo_pago || "",
+      Estado: info.nombre_estado || "",
     }));
 
   console.log(data);
 
   const columns = [
     "Nombre del cultivo",
-    "Tiempo estimada de cosecha",
+    "Tiempo estimada de cosecha (días)",
     "Intervalo",
     "Estado",
     "Opciones",
@@ -134,9 +138,9 @@ const Company_crop = ({}) => {
         setId={setId}
         setTitle={setTitle}
         setShowEdit={setShowEdit}
-        // setShowChangeStatus={setShowChangeStatus}
-        // setConfirMessage={setConfirMessage}
-        // setTypeForm={setTypeForm}
+        setShowChangeStatus={setShowChangeStatus}
+        setConfirMessage={setConfirMessage}
+        setTypeForm={setTypeForm}
       />
       <Pagination
         totalItems={filteredData.length}
@@ -174,6 +178,22 @@ const Company_crop = ({}) => {
             setLoading={setLoading}
           />
         </>
+      )}
+      {showChangeStatus && (
+        <Change_status_crop
+          onClose={() => setShowChangeStatus(false)}
+          onSuccess={() => setShowChangeStatus(false)}
+          id={id}
+          confirMessage={confirMessage}
+          setShowMessage={setShowMessage}
+          setTitleMessage={setTitleMessage}
+          setMessage={setMessage}
+          setStatus={setStatus}
+          updateData={updateData}
+          typeForm={typeForm}
+          loading={loading}
+          setLoading={setLoading}
+        />
       )}
       {showMessage && (
         <Message

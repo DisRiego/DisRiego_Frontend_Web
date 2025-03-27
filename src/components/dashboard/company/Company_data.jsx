@@ -122,6 +122,8 @@ const Company_data = ({}) => {
       "En esta sección podrás gestionar y visualizar la información de la empresa.",
   };
 
+  console.log(formData);
+
   return (
     <>
       <Head head_data={headData} />
@@ -161,7 +163,9 @@ const Company_data = ({}) => {
                     <strong>Nit:</strong> {formData.nit}
                   </p>
                   <p className="is-5 margin-bottom">
-                    <strong>Certificado:</strong> [Certificado de facturación]
+                    <strong>Certificado: </strong>
+                    {"#"}
+                    {formData.certificate.serial_number}
                   </p>
                 </div>
               </div>

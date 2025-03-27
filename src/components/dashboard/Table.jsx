@@ -19,10 +19,12 @@ const Table = ({
   setId,
   setTitle,
   setShowEdit,
+  setShowEditUser,
   setShowChangeStatus,
   setConfirMessage,
   setTypeForm,
   parentComponent,
+  route,
 }) => {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -120,35 +122,76 @@ const Table = ({
     }
 
     //Lotes
-    if (parentComponent === "lot" && option.name === "Editar") {
+
+    if (route === "properties" && option.name === "Editar") {
       setTitle("Editar usuario");
-      setShowEdit(true);
+      setShowEditUser(true);
+    } else {
+      if (parentComponent === "lot" && option.name === "Editar") {
+        setTitle("Editar usuario");
+        setShowEdit(true);
+      }
     }
     if (parentComponent === "lot" && option.name === "Inhabilitar") {
       setConfirMessage(
-        `¿Desea inhabilitar el predio "${row["Nombre del lote"]}"?`
+        `¿Desea inhabilitar el lote "${row["Nombre del lote"]}"?`
       );
       setTypeForm("inhabilitar");
       setShowChangeStatus(true);
     }
     if (parentComponent === "lot" && option.name === "Habilitar") {
-      setConfirMessage(
-        `¿Desea habilitar el predio "${row["Nombre del lote"]}"?`
-      );
+      setConfirMessage(`¿Desea habilitar el lote "${row["Nombre del lote"]}"?`);
       setTypeForm("habilitar");
       setShowChangeStatus(true);
     }
 
-    //Lotes
+    //Certificados
     if (parentComponent === "certificate" && option.name === "Editar") {
       setTitle("Editar certificado");
       setShowEdit(true);
+    }
+    if (parentComponent === "certificate" && option.name === "Inhabilitar") {
+      setConfirMessage(
+        `¿Desea inhabilitar el certificado con número de serie #${row["Numéro de serie"]}?`
+      );
+      setTypeForm("inhabilitar");
+      setShowChangeStatus(true);
+    }
+    if (parentComponent === "certificate" && option.name === "Habilitar") {
+      setConfirMessage(
+        `¿Desea habilitar el certificado con número de serie #${row["Numéro de serie"]}?`
+      );
+      setTypeForm("habilitar");
+      setShowChangeStatus(true);
     }
 
     //Cultivos
     if (parentComponent === "crop" && option.name === "Editar") {
       setTitle("Editar cultivo");
       setShowEdit(true);
+    }
+    if (parentComponent === "crop" && option.name === "Inhabilitar") {
+      setConfirMessage(
+        `¿Desea inhabilitar el cultivo "${row["Nombre del cultivo"]}"?`
+      );
+      setTypeForm("inhabilitar");
+      setShowChangeStatus(true);
+    }
+    if (parentComponent === "crop" && option.name === "Habilitar") {
+      setConfirMessage(
+        `¿Desea habilitar el cultvio "${row["Nombre del cultivo"]}"?`
+      );
+      setTypeForm("habilitar");
+      setShowChangeStatus(true);
+    }
+
+    //Intervalo
+    if (parentComponent === "crop" && option.name === "Eliminar") {
+      setConfirMessage(
+        `¿Desea eliminar el intervalo "${row["Nombre del intervalo"]}"?`
+      );
+      setTypeForm("eliminar");
+      setShowChangeStatus(true);
     }
   };
 
@@ -225,19 +268,11 @@ const Table = ({
                                   .filter((option) => {
                                     if (
                                       option.name === "Habilitar" &&
-                                      row["Estado"] === "Mantenimiento"
-                                    ) {
-                                      return false;
-                                    }
-                                    if (
-                                      option.name === "Habilitar" &&
-                                      row["Estado"] === "Pendiente"
-                                    ) {
-                                      return false;
-                                    }
-                                    if (
-                                      option.name === "Habilitar" &&
-                                      row["Estado"] === "Activo"
+                                      [
+                                        "Mantenimiento",
+                                        "Pendiente",
+                                        "Activo",
+                                      ].includes(row["Estado"])
                                     ) {
                                       return false;
                                     }
@@ -247,8 +282,15 @@ const Table = ({
                                     ) {
                                       return false;
                                     }
+                                    if (
+                                      option.name === "Editar" &&
+                                      row["Estado"] === "Inactivo"
+                                    ) {
+                                      return false;
+                                    }
                                     return true;
                                   })
+
                                   .map((option, index) => {
                                     const IconComponent = option.icon
                                       ? Icon[option.icon]

@@ -6,6 +6,7 @@ import Form_certificate from "../forms/adds/Form_certificate";
 import Head from "../Head";
 import Tab_company from "./Tab_company";
 import Message from "../../Message";
+import Change_status_certificate from "../Status/Change_status_certificate";
 
 const Company_certificate = ({}) => {
   const [data, setData] = useState([]);
@@ -23,6 +24,9 @@ const Company_certificate = ({}) => {
   const [titleMessage, setTitleMessage] = useState(false);
   const [message, setMessage] = useState(false);
   const [status, setStatus] = useState(false);
+  const [showChangeStatus, setShowChangeStatus] = useState(false);
+  const [confirMessage, setConfirMessage] = useState();
+  const [typeForm, setTypeForm] = useState();
 
   const headData = {
     title: "Gestión de empresa",
@@ -97,7 +101,7 @@ const Company_certificate = ({}) => {
       "Fecha de generación": info.start_date || "",
       "Fecha de expiración": info.expiration_date || "",
       Anexo: info.attached || "",
-      Estado: info.status || "",
+      Estado: info.nombre_estado || "",
     }));
 
   console.log(data);
@@ -137,9 +141,9 @@ const Company_certificate = ({}) => {
         setId={setId}
         setTitle={setTitle}
         setShowEdit={setShowEdit}
-        // setShowChangeStatus={setShowChangeStatus}
-        // setConfirMessage={setConfirMessage}
-        // setTypeForm={setTypeForm}
+        setShowChangeStatus={setShowChangeStatus}
+        setConfirMessage={setConfirMessage}
+        setTypeForm={setTypeForm}
       />
       <Pagination
         totalItems={filteredData.length}
@@ -177,6 +181,22 @@ const Company_certificate = ({}) => {
             setLoading={setLoading}
           />
         </>
+      )}
+      {showChangeStatus && (
+        <Change_status_certificate
+          onClose={() => setShowChangeStatus(false)}
+          onSuccess={() => setShowChangeStatus(false)}
+          id={id}
+          confirMessage={confirMessage}
+          setShowMessage={setShowMessage}
+          setTitleMessage={setTitleMessage}
+          setMessage={setMessage}
+          setStatus={setStatus}
+          updateData={updateData}
+          typeForm={typeForm}
+          loading={loading}
+          setLoading={setLoading}
+        />
       )}
       {showMessage && (
         <Message

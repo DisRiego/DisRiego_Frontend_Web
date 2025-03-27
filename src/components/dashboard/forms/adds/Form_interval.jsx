@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
-import Confirm_crop from "../../confirm_view/adds/Confirm_crop";
+import Confirm_interval from "../../confirm_view/adds/Confirm_interval";
 import {
   validatePhone,
   validateTextArea,
 } from "../../../../hooks/useValidations";
 
-const Form_crop = ({
+const Form_interval = ({
   title,
   onClose,
   setShowMessage,
@@ -21,7 +21,6 @@ const Form_crop = ({
   token,
 }) => {
   const [showConfirm, setShowConfirm] = useState(false);
-  const [typeDocument, setTypeDocument] = useState([]);
   const [data, setData] = useState({});
   const [confirMessage, setConfirMessage] = useState();
   const [method, setMethod] = useState();
@@ -31,59 +30,40 @@ const Form_crop = ({
 
   const [formData, setFormData] = useState({
     name: "",
-    harvest_time: "",
-    payment_interval_id: "",
+    interval_days: "",
   });
 
   const [errors, setErrors] = useState({
     name: "",
-    harvest_time: "",
-    payment_interval_id: "",
+    interval_days: "",
   });
 
   const [submitted, setSubmitted] = useState(false);
 
   useEffect(() => {
-    fetchPayment();
     if (id != null) {
       getCrop();
+    } else {
+      setIsLoading(false);
     }
   }, [id]);
-
-  const fetchPayment = async () => {
-    try {
-      const response = await axios.get(
-        import.meta.env.VITE_URI_BACKEND +
-          import.meta.env.VITE_ROUTE_BACKEND_COMPANY_PAYMENT_INTERVAL
-      );
-      const sortedData = response.data.data.sort((a, b) =>
-        a.name.localeCompare(b.name)
-      );
-
-      setTypeDocument(sortedData);
-      setIsLoading(false);
-    } catch (error) {
-      console.error("Error al obtener los intervalos de pago:", error);
-    }
-  };
 
   const getCrop = async () => {
     try {
       const response = await axios.get(
         import.meta.env.VITE_URI_BACKEND +
-          import.meta.env.VITE_ROUTE_BACKEND_COMPANY_CROP_OTHER +
+          import.meta.env.VITE_ROUTE_BACKEND_COMPANY_PAYMENT_INTERVAL_OTHER +
           id
       );
 
-      const cropData = response.data.data;
+      const intervalData = response.data.data;
 
-      setData(cropData);
+      setData(intervalData);
 
       setFormData({
-        name: cropData.name ? cropData.name : "",
-        harvest_time: cropData.harvest_time ? cropData.harvest_time : "",
-        payment_interval_id: cropData.payment_interval_id
-          ? cropData.payment_interval_id
+        name: intervalData.name ? intervalData.name : "",
+        interval_days: intervalData.interval_days
+          ? intervalData.interval_days
           : "",
       });
 
@@ -105,36 +85,30 @@ const Form_crop = ({
   const handleSaveClick = () => {
     setSubmitted(true);
     const isNameValid = validateTextArea(formData.name);
-    const isHarvestTimeValid = validatePhone(formData.harvest_time);
-    const isPaymentIntervalValid = validatePhone(formData.payment_interval_id);
+    const isIntervalDaysValid = validatePhone(formData.interval_days);
 
     setErrors({
       name: isNameValid ? "" : "false" && "Nombre inválido",
-      harvest_time: isHarvestTimeValid
-        ? ""
-        : "false" && "Tiempo estimado inválido",
-      payment_interval_id: isPaymentIntervalValid
-        ? ""
-        : "false" && "Intervalo de pago inválido",
+      interval_days: isIntervalDaysValid ? "" : "false" && "Intervalo inválido",
     });
 
-    if (isNameValid && isHarvestTimeValid && isPaymentIntervalValid) {
+    if (isNameValid && isIntervalDaysValid) {
       if (id != null) {
-        setConfirMessage("¿Desea editar el tipo de cultivo?");
+        setConfirMessage("¿Desea editar el intervalo?");
         setMethod("put");
         setUriPost(
           import.meta.env.VITE_URI_BACKEND +
-            import.meta.env.VITE_ROUTE_BACKEND_COMPANY_CROP_OTHER +
+            import.meta.env.VITE_ROUTE_BACKEND_COMPANY_PAYMENT_INTERVAL_OTHER +
             id
         );
         setTypeForm("edit");
         setShowConfirm(true);
       } else {
-        setConfirMessage('¿Desea crear el cultivo "' + formData.name + '"?');
+        setConfirMessage('¿Desea crear el intervalo "' + formData.name + '"?');
         setMethod("post");
         setUriPost(
           import.meta.env.VITE_URI_BACKEND +
-            import.meta.env.VITE_ROUTE_BACKEND_COMPANY_CROP
+            import.meta.env.VITE_ROUTE_BACKEND_COMPANY_PAYMENT_INTERVAL
         );
         setTypeForm("create");
         setShowConfirm(true);
@@ -169,7 +143,7 @@ const Form_crop = ({
                       }`}
                       type="text"
                       name="name"
-                      placeholder="Ingrese el nombre del cultivo"
+                      placeholder="Ingrese el nombre del intervalo"
                       value={formData.name}
                       onChange={handleChange}
                       disabled={isLoading}
@@ -186,66 +160,27 @@ const Form_crop = ({
               <div className="columns">
                 <div className="column">
                   <div className="field">
-                    <label className="label">
-                      Tiempo estimado de cosecha (días)
-                    </label>
+                    <label className="label">Intervalo de tiempo (días)</label>
                     <div className="control">
                       <input
                         className={`input ${
                           submitted
-                            ? errors.harvest_time
+                            ? errors.interval_days
                               ? "is-false"
                               : "is-true"
                             : ""
                         }`}
-                        type="text"
-                        name="harvest_time"
-                        placeholder="Ingrese el tiempo estimado de cosecha"
-                        value={formData.harvest_time}
+                        type="number"
+                        name="interval_days"
+                        placeholder="Ingrese el intevalo de tiempo (días)"
+                        value={formData.interval_days}
                         onChange={handleChange}
                         disabled={isLoading}
                       />
                     </div>
-                    {submitted && errors.harvest_time && (
-                      <p className="input-error">{errors.harvest_time}</p>
+                    {submitted && errors.interval_days && (
+                      <p className="input-error">{errors.interval_days}</p>
                     )}
-                  </div>
-                </div>
-                <div className="column">
-                  <div className="field">
-                    <label className="label">Intervalo de pago</label>
-                    <div className="control">
-                      <div
-                        className={`select ${
-                          submitted
-                            ? errors.payment_interval_id
-                              ? "is-false"
-                              : "is-true"
-                            : ""
-                        }`}
-                      >
-                        <select
-                          name="payment_interval_id"
-                          value={formData.payment_interval_id}
-                          onChange={handleChange}
-                          disabled={isLoading}
-                        >
-                          <option value="" disabled>
-                            Seleccione una opción
-                          </option>
-                          {typeDocument.map((doc) => (
-                            <option key={doc.id} value={doc.id}>
-                              {doc.name}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                      {submitted && errors.payment_interval_id && (
-                        <p className="input-error">
-                          {errors.payment_interval_id}
-                        </p>
-                      )}
-                    </div>
                   </div>
                 </div>
               </div>
@@ -264,7 +199,7 @@ const Form_crop = ({
         </div>
       </div>
       {showConfirm && (
-        <Confirm_crop
+        <Confirm_interval
           onClose={() => {
             setShowConfirm(false);
           }}
@@ -289,4 +224,4 @@ const Form_crop = ({
   );
 };
 
-export default Form_crop;
+export default Form_interval;

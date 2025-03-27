@@ -34,7 +34,7 @@ const Profile = () => {
   const head_data = {
     title: "Mi perfil",
     description:
-      "En esta sección podrás visualizar y editar tu información personal",
+      "En esta sección podrás visualizar y editar tu información personal.",
   };
 
   useEffect(() => {
@@ -80,8 +80,6 @@ const Profile = () => {
     setIsLoading(true);
     getUser();
   };
-
-  console.log(formData);
 
   const fetchLocationNames = async (countryCode, stateCode, cityId) => {
     try {

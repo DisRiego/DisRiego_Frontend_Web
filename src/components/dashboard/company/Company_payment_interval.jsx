@@ -2,10 +2,11 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import Table from "../Table";
 import Pagination from "../Pagination";
-import Form_crop from "../forms/adds/Form_crop";
+import Form_interval from "../forms/adds/Form_interval";
 import Head from "../Head";
 import Tab_company from "./Tab_company";
 import Message from "../../Message";
+import Change_status_interval from "../Status/Change_status_interval";
 
 const Company_payment_interval = ({}) => {
   const [data, setData] = useState([]);
@@ -23,6 +24,9 @@ const Company_payment_interval = ({}) => {
   const [titleMessage, setTitleMessage] = useState(false);
   const [message, setMessage] = useState(false);
   const [status, setStatus] = useState(false);
+  const [showChangeStatus, setShowChangeStatus] = useState(false);
+  const [confirMessage, setConfirMessage] = useState();
+  const [typeForm, setTypeForm] = useState();
 
   const headData = {
     title: "Gestión de empresa",
@@ -54,22 +58,19 @@ const Company_payment_interval = ({}) => {
   }, [showMessage]);
 
   useEffect(() => {
-    fetchCrop();
+    fetchPayment();
   }, []);
 
-  const fetchCrop = async () => {
+  const fetchPayment = async () => {
     try {
       setLoadingTable(true);
       const response = await axios.get(
         import.meta.env.VITE_URI_BACKEND +
-          import.meta.env.VITE_ROUTE_BACKEND_COMPANY_CROP
+          import.meta.env.VITE_ROUTE_BACKEND_COMPANY_PAYMENT_INTERVAL
       );
       setData(response.data.data);
 
-      const sortedData = response.data.data.sort((a, b) =>
-        a.name.localeCompare(b.name)
-      );
-      // const sortedData = response.data.data.sort((a, b) => a.name - b.name);
+      const sortedData = response.data.data.sort((a, b) => a.id - b.id);
 
       setData(sortedData);
       setButtonDisabled(false);
@@ -81,62 +82,59 @@ const Company_payment_interval = ({}) => {
   };
 
   const updateData = async () => {
-    fetchCrop();
+    fetchPayment();
   };
 
-  // const filteredData = data
-  //   .filter((info) =>
-  //     Object.values(info)
-  //       .join(" ")
-  //       .toLowerCase()
-  //       .includes(searchTerm.toLowerCase())
-  //   )
-  //   .map((info) => ({
-  //     ID: info.id,
-  //     "Nombre del cultivo": info.name || "",
-  //     "Tiempo estimada de cosecha": info.harvest_time || "",
-  //     Intervalo: info.payment_interval_id || "",
-  //     Estado: info.state_name || "",
-  //   }));
+  const filteredData = data
+    .filter((info) =>
+      Object.values(info)
+        .join(" ")
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase())
+    )
+    .map((info) => ({
+      ID: info.id,
+      "ID del intervalo": info.id,
+      "Nombre del intervalo": info.name || "",
+      "Tiempo del intervalo (días)": info.interval_days || "",
+    }));
 
-  // console.log(data);
+  console.log(data);
 
-  // const columns = [
-  //   "Nombre del cultivo",
-  //   "Tiempo estimada de cosecha",
-  //   "Intervalo",
-  //   "Estado",
-  //   "Opciones",
-  // ];
+  const columns = [
+    "ID del intervalo",
+    "Nombre del intervalo",
+    "Tiempo del intervalo (días)",
+    "Opciones",
+  ];
 
-  // const options = [
-  //   { icon: "BiEditAlt", name: "Editar" },
-  //   { icon: "MdOutlineCheckCircle", name: "Habilitar" },
-  //   { icon: "MdDisabledVisible", name: "Inhabilitar" },
-  // ];
+  const options = [
+    { icon: "BiEditAlt", name: "Editar" },
+    { icon: "MdDeleteSweep", name: "Eliminar" },
+  ];
 
-  // const startIndex = (currentPage - 1) * itemsPerPage;
-  // const paginatedData = filteredData.slice(
-  //   startIndex,
-  //   startIndex + itemsPerPage
-  // );
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedData = filteredData.slice(
+    startIndex,
+    startIndex + itemsPerPage
+  );
 
   return (
     <>
       <Head head_data={headData} onButtonClick={handleButtonClick} />
       <Tab_company />
-      {/* <Table
-      columns={columns}
-      data={paginatedData}
-      options={options}
-      loadingTable={loadingTable}
-      parentComponent={parentComponent}
-      setId={setId}
-      setTitle={setTitle}
-      setShowEdit={setShowEdit}
-      setShowChangeStatus={setShowChangeStatus}
-      setConfirMessage={setConfirMessage}
-      setTypeForm={setTypeForm}
+      <Table
+        columns={columns}
+        data={paginatedData}
+        options={options}
+        loadingTable={loadingTable}
+        parentComponent={parentComponent}
+        setId={setId}
+        setTitle={setTitle}
+        setShowEdit={setShowEdit}
+        setShowChangeStatus={setShowChangeStatus}
+        setConfirMessage={setConfirMessage}
+        setTypeForm={setTypeForm}
       />
       <Pagination
         totalItems={filteredData.length}
@@ -146,8 +144,8 @@ const Company_payment_interval = ({}) => {
       />
       {showForm && (
         <>
-          <Form_crop
-            title="Añadir cultivo"
+          <Form_interval
+            title="Añadir intervalo"
             onClose={() => setShowForm(false)}
             setShowMessage={setShowMessage}
             setTitleMessage={setTitleMessage}
@@ -161,7 +159,7 @@ const Company_payment_interval = ({}) => {
       )}
       {showEdit && (
         <>
-          <Form_crop
+          <Form_interval
             title={title}
             onClose={() => setShowEdit(false)}
             setShowMessage={setShowMessage}
@@ -174,7 +172,23 @@ const Company_payment_interval = ({}) => {
             setLoading={setLoading}
           />
         </>
-      )} */}
+      )}
+      {showChangeStatus && (
+        <Change_status_interval
+          onClose={() => setShowChangeStatus(false)}
+          onSuccess={() => setShowChangeStatus(false)}
+          id={id}
+          confirMessage={confirMessage}
+          setShowMessage={setShowMessage}
+          setTitleMessage={setTitleMessage}
+          setMessage={setMessage}
+          setStatus={setStatus}
+          updateData={updateData}
+          typeForm={typeForm}
+          loading={loading}
+          setLoading={setLoading}
+        />
+      )}
       {showMessage && (
         <Message
           titleMessage={titleMessage}

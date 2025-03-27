@@ -6,6 +6,7 @@ import { BiShow, BiEditAlt  } from "react-icons/bi";
 import { MdDisabledVisible } from "react-icons/md";
 import { MdOutlineCheckCircle } from "react-icons/md";
 import { VscError } from "react-icons/vsc";
+import { MdDeleteSweep } from "react-icons/md";
 
 const Icon = {
   MdDownloadDone,
@@ -16,7 +17,8 @@ const Icon = {
   BiEditAlt,
   MdDisabledVisible,
   MdOutlineCheckCircle,
-  VscError
+  VscError,
+  MdDeleteSweep
 };
 
 export default Icon;

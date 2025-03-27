@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { Bar, Line } from "react-chartjs-2";
 import "../../../styles/index.css";
 import Head from "../Head";
 import Lot from "../Lot";
 import Form_lot from "../forms/adds/Form_lot";
+import Form_lot_user from "../forms/adds/Form_lot_user";
 import Message from "../../Message";
 import Iot_by_property from "../Iot_by_property";
 import Change_status_lot from "../Status/Change_status_lot";
@@ -37,12 +38,14 @@ ChartJS.register(
   Legend
 );
 import { IoDocument } from "react-icons/io5";
+import { jwtDecode } from "jwt-decode";
 
 const Property_detail = () => {
   const { id } = useParams();
+  const location = useLocation();
+  const [route, setRoute] = useState(null);
   const [idUser, setIdUser] = useState(null);
   const [idRow, setIdRow] = useState(null);
-  const navigate = useNavigate();
   const [data, setData] = useState("");
   const [dataUser, setDataUser] = useState("");
   const [dataLots, setDataLots] = useState([]);
@@ -50,6 +53,7 @@ const Property_detail = () => {
   const [dots, setDots] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [showEdit, setShowEdit] = useState();
+  const [showEditUser, setShowEditUser] = useState();
   const [activeTab, setActiveTab] = useState("consumo");
   const [activePeriod, setActivePeriod] = useState("mes");
   const [activePeriodRight, setActivePeriodRight] = useState("año");
@@ -64,17 +68,49 @@ const Property_detail = () => {
   const [title, setTitle] = useState();
   const [confirMessage, setConfirMessage] = useState();
   const [typeForm, setTypeForm] = useState();
+  const token = localStorage.getItem("token");
+  const [canCreateLote, setCanCreateLote] = useState(false);
+
+  useEffect(() => {
+    if (!isNaN(id)) {
+      const segments = location.pathname.split("/").filter(Boolean);
+      const length = segments.length;
+      const penultimate_segment = segments[length - 2];
+
+      setRoute(penultimate_segment);
+    } else {
+      setRoute(null);
+    }
+  }, [id, location.pathname]);
+
+  useEffect(() => {
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        const permissions = decoded.rol[0].permisos.map(
+          (permiso) => permiso.name
+        );
+
+        setCanCreateLote(permissions.includes("Crear Lote"));
+      } catch (error) {
+        console.error("Error al decodificar el token:", error);
+        setCanCreateLote(false);
+      }
+    }
+  }, [token]);
 
   const head_data = {
     title: "Detalles del predio #" + id,
     description:
       "En esta sección podrás visualizar información detallada sobre el predio.",
     buttons: {
-      button1: {
-        icon: "FaPlus",
-        class: "color-hover",
-        text: "Añadir lote",
-      },
+      ...(canCreateLote && {
+        button1: {
+          icon: "FaPlus",
+          class: "color-hover",
+          text: "Añadir lote",
+        },
+      }),
       button2: {
         icon: "LuDownload",
         class: "",
@@ -687,9 +723,11 @@ const Property_detail = () => {
             setIdRow={setIdRow}
             setTitle={setTitle}
             setShowEdit={setShowEdit}
+            setShowEditUser={setShowEditUser}
             setShowChangeStatus={setShowChangeStatus}
             setConfirMessage={setConfirMessage}
             setTypeForm={setTypeForm}
+            route={route}
           />
         );
       case "iot":
@@ -881,14 +919,6 @@ const Property_detail = () => {
                 </div>
                 <div className="columns is-multiline is-mobile">
                   <div className="column is-half column-p0">
-                    <strong> Correo electrónico</strong>
-                  </div>
-                  <div className="column is-half column-p0">
-                    {dataUser.email || ""}
-                  </div>
-                </div>
-                <div className="columns is-multiline is-mobile">
-                  <div className="column is-half column-p0">
                     <strong> Número de telefono</strong>
                   </div>
                   <div className="column column-p0">
@@ -1034,6 +1064,23 @@ const Property_detail = () => {
           <Form_lot
             title="Editar lote"
             onClose={() => setShowEdit(false)}
+            setShowMessage={setShowMessage}
+            setTitleMessage={setTitleMessage}
+            setMessage={setMessage}
+            setStatus={setStatus}
+            updateData={updateData}
+            id={id}
+            idRow={idRow}
+            loading={isLoading}
+            setLoading={setIsLoading}
+          />
+        </>
+      )}
+      {showEditUser && (
+        <>
+          <Form_lot_user
+            title="Editar lote"
+            onClose={() => setShowEditUser(false)}
             setShowMessage={setShowMessage}
             setTitleMessage={setTitleMessage}
             setMessage={setMessage}

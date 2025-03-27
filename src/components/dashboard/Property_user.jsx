@@ -1,20 +1,20 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect, useMemo } from "react";
 import Head from "./Head";
 import Search from "./Search";
 import Filter from "./Filter";
 import Table from "./Table";
 import Pagination from "./Pagination";
 import Form_property from "./forms/adds/Form_property";
+import Filter_property from "./filters/Filter_property";
+import Change_status_property from "./Status/Change_status_property";
 import Message from "../Message";
 import axios from "axios";
 import RobotoNormalFont from "../../assets/fonts/Roboto-Regular.ttf";
 import RobotoBoldFont from "../../assets/fonts/Roboto-Bold.ttf";
 import Icon from "../../assets/icons/Disriego_title.png";
 import { format, subDays, subWeeks, subMonths, subYears } from "date-fns";
-import { jsPDF } from "jspdf";
-import { autoTable } from "jspdf-autotable";
-import { jwtDecode } from "jwt-decode";
+import { jsPDF } from "jspdf"; // Importa jsPDF
+import { autoTable } from "jspdf-autotable"; // componentes de Chart.js usados en el componente
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -36,13 +36,16 @@ ChartJS.register(
   Tooltip,
   Legend
 );
+import { jwtDecode } from "jwt-decode";
 
 const Property_user = () => {
   const token = localStorage.getItem("token");
   const decoded = jwtDecode(token);
-  const id = decoded.id;
+  const user_id = decoded.id;
   const [data, setData] = useState([]);
   const [showForm, setShowForm] = useState(false);
+  const [showEdit, setShowEdit] = useState();
+  const [showChangeStatus, setShowChangeStatus] = useState(false);
   const [showFilter, setShowFilter] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -50,8 +53,18 @@ const Property_user = () => {
   const [loading, setLoading] = useState("");
   const [loadingTable, setLoadingTable] = useState(false);
   const [showMessage, setShowMessage] = useState(false);
+  const [titleMessage, setTitleMessage] = useState(false);
   const [message, setMessage] = useState(false);
   const [status, setStatus] = useState(false);
+  const [buttonDisabled, setButtonDisabled] = useState(true);
+  const [id, setId] = useState(null);
+  const [title, setTitle] = useState();
+  const [confirMessage, setConfirMessage] = useState();
+  const [typeForm, setTypeForm] = useState();
+  const [filteredData, setFilteredData] = useState([]);
+  const [backupData, setBackupData] = useState([]);
+  const [filters, setFilters] = useState({ estados: {} });
+  const [statusFilter, setStatusFilter] = useState(false);
 
   const handleButtonClick = (buttonText) => {
     if (buttonText === "Añadir predio") {
@@ -61,7 +74,7 @@ const Property_user = () => {
     if (buttonText === "Descargar reporte") {
       setLoading("is-loading");
       generatePropertyReport();
-      generateLotReport();
+      // generateLotReport();
     }
   };
   //generacion de pdf consolidado de predios
@@ -117,7 +130,7 @@ const Property_user = () => {
         ],
       ],
       body: filteredData.map((property) => [
-        property["ID del predio"],
+        property.ID,
         property.Nombre,
         property["Número de documento del dueño"],
         property["Folio de matricula inmobiliaria"],
@@ -306,10 +319,11 @@ const Property_user = () => {
     "ID",
     // "ID del predio",
     "Nombre",
+    // "Número de documento del dueño",
     "Folio de matricula inmobiliaria",
+    "Extensión (m²)",
     "Latitud",
     "Longitud",
-    "Extensión (m²)",
     "Estado",
     "Opciones",
   ];
@@ -324,7 +338,7 @@ const Property_user = () => {
       const response = await axios.get(
         import.meta.env.VITE_URI_BACKEND +
           import.meta.env.VITE_ROUTE_BACKEND_PROPERTY_BY_USER +
-          id
+          user_id
       );
       setData(response.data.data);
 
@@ -340,31 +354,68 @@ const Property_user = () => {
     }
   };
 
-  console.log(data);
+  const updateData = async () => {
+    fetchProperties();
+  };
 
-  const filteredData = data
-    .filter((info) =>
-      Object.values(info)
-        .join(" ")
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase())
-    )
-    .map((info) => ({
-      ID: info.id,
-      // "ID del predio": info.id,
-      Nombre: info.name,
-      "Folio de matricula inmobiliaria": info.real_estate_registration_number,
-      Latitud: info.latitude,
-      Longitud: info.longitude,
-      "Extensión (m²)": info.extension,
-      Estado: info.estado,
-    }));
+  useEffect(() => {
+    if (showMessage) {
+      const timer = setTimeout(() => {
+        setShowMessage(false);
+      }, 3000);
 
-  const options = [
-    { icon: "BiShow", name: "Ver detalles" },
-    { icon: "BiEditAlt", name: "Editar" },
-    { icon: "LuDownload", name: "Inhabilitar" },
-  ];
+      return () => clearTimeout(timer);
+    }
+  }, [showMessage]);
+
+  const toTitleCase = (str) => {
+    if (typeof str !== "string") return str;
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  };
+
+  useEffect(() => {
+    if (!statusFilter) {
+      const filtered = data
+        .filter((info) =>
+          Object.values(info)
+            .join(" ")
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase())
+        )
+        .map((info) => ({
+          ID: info.id,
+          // "ID del predio": info.id,
+          Nombre: toTitleCase(info.name),
+          // "Número de documento del dueño": info.owner_document_number,
+          "Folio de matricula inmobiliaria":
+            info.real_estate_registration_number,
+          "Extensión (m²)": info.extension,
+          Latitud: info.latitude,
+          Longitud: info.longitude,
+          Estado: info.state_name,
+        }));
+
+      setFilteredData(filtered);
+      setBackupData(filtered);
+    } else {
+      const selectedStates = Object.keys(filters.estados).filter(
+        (key) => filters.estados[key]
+      );
+
+      if (selectedStates.length > 0) {
+        const filteredByState = backupData.filter((info) =>
+          selectedStates.includes(info.Estado)
+        );
+        setFilteredData(filteredByState);
+      } else {
+        setFilteredData(backupData);
+      }
+
+      setStatusFilter(false);
+    }
+  }, [data, searchTerm, filters.estados]);
+
+  const options = [{ icon: "BiShow", name: "Ver detalles" }];
 
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedData = filteredData.slice(
@@ -378,16 +429,26 @@ const Property_user = () => {
         head_data={head_data}
         onButtonClick={handleButtonClick}
         loading={loading}
+        buttonDisabled={buttonDisabled}
       />
       <div className="container-search">
-        <Search onSearch={setSearchTerm} />
-        <Filter onFilterClick={handleFilterClick} />
+        <Search onSearch={setSearchTerm} buttonDisabled={buttonDisabled} />
+        <Filter
+          onFilterClick={handleFilterClick}
+          buttonDisabled={buttonDisabled}
+        />
       </div>
       <Table
         columns={columns}
         data={paginatedData}
         options={options}
         loadingTable={loadingTable}
+        setId={setId}
+        setTitle={setTitle}
+        setShowEdit={setShowEdit}
+        setShowChangeStatus={setShowChangeStatus}
+        setConfirMessage={setConfirMessage}
+        setTypeForm={setTypeForm}
       />
       <Pagination
         totalItems={filteredData.length}
@@ -397,14 +458,73 @@ const Property_user = () => {
       />
       {showForm && (
         <>
-          <Form_add_property
+          <Form_property
             title="Añadir predio"
             onClose={() => setShowForm(false)}
             setShowMessage={setShowMessage}
+            setTitleMessage={setTitleMessage}
             setMessage={setMessage}
             setStatus={setStatus}
+            updateData={updateData}
+            // id={id}
+            loading={loading}
+            setLoading={setLoading}
           />
         </>
+      )}
+      {showEdit && (
+        <>
+          <Form_property
+            title="Editar predio"
+            onClose={() => setShowEdit(false)}
+            setShowMessage={setShowMessage}
+            setTitleMessage={setTitleMessage}
+            setMessage={setMessage}
+            setStatus={setStatus}
+            updateData={updateData}
+            id={id}
+            loading={loading}
+            setLoading={setLoading}
+          />
+        </>
+      )}
+      {showChangeStatus && (
+        <Change_status_property
+          onClose={() => setShowChangeStatus(false)}
+          onSuccess={() => setShowChangeStatus(false)}
+          id={id}
+          confirMessage={confirMessage}
+          setShowMessage={setShowMessage}
+          setTitleMessage={setTitleMessage}
+          setMessage={setMessage}
+          setStatus={setStatus}
+          updateData={updateData}
+          typeForm={typeForm}
+          loading={loading}
+          setLoading={setLoading}
+        />
+      )}
+      {showFilter && (
+        <>
+          <Filter_property
+            onClose={() => setShowFilter(false)}
+            data={data}
+            filteredData={filteredData}
+            setFilteredData={setFilteredData}
+            setStatusFilter={setStatusFilter}
+            filters={filters}
+            setFilters={setFilters}
+            backupData={backupData}
+          />
+        </>
+      )}
+      {showMessage && (
+        <Message
+          titleMessage={titleMessage}
+          message={message}
+          status={status}
+          onClose={() => setShowMessage(false)}
+        />
       )}
     </>
   );

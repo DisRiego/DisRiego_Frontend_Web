@@ -1,18 +1,21 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import Pagination from "./Pagination";
 import Table from "./Table";
+import { useLocation, useParams } from "react-router-dom";
 
 const Lot = ({
-  id,
+  // id,
   dataLots,
   loadingTable,
   setIdRow,
   setTitle,
   setShowEdit,
+  setShowEditUser,
   setShowChangeStatus,
   setConfirMessage,
   setTypeForm,
+  route,
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -90,18 +93,29 @@ const Lot = ({
     }
   }, [dataLots, searchTerm, filters.estados]);
 
-  const options = [
+  const allOptions = [
     { icon: "BiShow", name: "Ver detalles" },
     { icon: "BiEditAlt", name: "Editar" },
     { icon: "MdOutlineCheckCircle", name: "Habilitar" },
     { icon: "VscError", name: "Inhabilitar" },
   ];
 
+  const options = useMemo(() => {
+    if (route === "properties") {
+      return allOptions.filter(
+        (option) => option.name !== "Habilitar" && option.name !== "Inhabilitar"
+      );
+    }
+    return allOptions;
+  }, [route]);
+
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedData = filteredData.slice(
     startIndex,
     startIndex + itemsPerPage
   );
+
+  console.log(dataLots);
 
   return (
     <>
@@ -113,10 +127,12 @@ const Lot = ({
         setId={setIdRow}
         setTitle={setTitle}
         setShowEdit={setShowEdit}
+        setShowEditUser={setShowEditUser}
         setShowChangeStatus={setShowChangeStatus}
         setConfirMessage={setConfirMessage}
         setTypeForm={setTypeForm}
         parentComponent={parentComponent}
+        route={route}
       />
       <Pagination
         totalItems={filteredData.length}

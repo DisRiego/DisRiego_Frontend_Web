@@ -310,7 +310,7 @@ const Signup = () => {
                 <div>
                   <div className="has-text-centered">
                     <h3 className="subtitle has-text-weight-semibold mb-2">
-                      Registrar usuario
+                      Validar usuario
                     </h3>
                     <p className="title-mb">
                       Ingresa la siguiente información para verificar que el

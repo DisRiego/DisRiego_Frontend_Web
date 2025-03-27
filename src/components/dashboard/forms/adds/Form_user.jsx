@@ -147,7 +147,11 @@ const Form_user = ({
         import.meta.env.VITE_URI_BACKEND +
           import.meta.env.VITE_ROUTE_BACKEND_ROL
       );
-      setRoles(response.data.data);
+      const activeRoles = response.data.data.filter(
+        (role) => role.status_name === "Activo"
+      );
+
+      setRoles(activeRoles);
       setIsLoading(false);
     } catch (error) {
       console.error("Error al obtener los permisos:", error);
@@ -226,7 +230,7 @@ const Form_user = ({
         : "false" && "Segundo  apellido inválido",
       type_document_id: isDocumentTypeValid
         ? ""
-        : "Debe seleccionar un tipo de documento",
+        : "Debe seleccionar una opción",
       document_number: isDocumentNumberValid
         ? ""
         : "false" && "Número de documento inválido",
@@ -236,7 +240,7 @@ const Form_user = ({
       date_issuance_document: isDateValid
         ? ""
         : "false" && "Fecha de expedición inválida",
-      gender_id: isGenderValid ? "" : "Genero inválido",
+      gender_id: isGenderValid ? "" : "Debe seleccionar una opción",
       roles: isRolValid ? "" : "Debe seleccionar al menos un rol.",
     });
 
@@ -292,7 +296,7 @@ const Form_user = ({
             <div className="columns">
               <div className="column">
                 <div className="field">
-                  <label className="label">Nombres</label>
+                  <label className="label">Nombre(s)</label>
                   <div className="control">
                     <input
                       className={`input ${
@@ -300,7 +304,7 @@ const Form_user = ({
                       }`}
                       type="text"
                       name="name"
-                      placeholder="Ingrese el nombre o nombres"
+                      placeholder="Ingrese el/los nombre(s)"
                       value={formData.name}
                       onChange={handleChange}
                       disabled={isLoading}
@@ -354,7 +358,7 @@ const Form_user = ({
                         }`}
                         type="text"
                         name="second_last_name"
-                        placeholder="Ingrese el primer apellido"
+                        placeholder="Ingrese el segundo apellido"
                         value={formData.second_last_name}
                         onChange={handleChange}
                         disabled={isLoading}
@@ -518,8 +522,8 @@ const Form_user = ({
                           ))}
                         </select>
                       </div>
-                      {submitted && errors.gender && (
-                        <p className="input-error">{errors.gender}</p>
+                      {submitted && errors.gender_id && (
+                        <p className="input-error">{errors.gender_id}</p>
                       )}
                     </div>
                   </div>

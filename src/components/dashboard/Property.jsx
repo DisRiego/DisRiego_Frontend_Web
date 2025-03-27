@@ -126,16 +126,18 @@ const Property = () => {
           "Estado",
         ],
       ],
-      body: filteredData.map((property) => [
-        property.ID,
-        property.Nombre,
-        property["Número de documento del dueño"],
-        property["Folio de matricula inmobiliaria"],
-        property.Extensión,
-        property.Latitud,
-        property.Longitud,
-        property.Estado,
-      ]),
+      body: filteredData
+        .sort((a, b) => a.ID - b.ID) // Ordenar por ID antes de mapear
+        .map((property) => [
+          property.ID,
+          property.Nombre,
+          property["Número de documento del dueño"],
+          property["Folio de matricula inmobiliaria"],
+          property.Extensión,
+          property.Latitud,
+          property.Longitud,
+          property.Estado,
+        ]),
       theme: "grid",
       headStyles: {
         fillColor: [252, 252, 253],

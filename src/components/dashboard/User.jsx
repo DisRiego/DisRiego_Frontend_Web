@@ -104,18 +104,14 @@ const User = () => {
           "Estado",
         ],
       ],
-      body: data.map((user) => [
-        toTitleCase(user.name) +
-          " " +
-          toTitleCase(user.first_last_name) +
-          "" +
-          toTitleCase(user.second_last_name),
-        toTitleCase(user.type_document_name),
-        user.document_number,
-        user.email,
-        user.phone,
-        user.roles.map((p) => toTitleCase(p.name)).join(", "),
-        toTitleCase(user.status_name),
+      body: filteredData.map((user) => [
+        toTitleCase(user["Nombres"]) + " " + toTitleCase(user["Apellidos"]),
+        user["Tipo de documento"],
+        user["Numero de documento"],
+        user["Correo Electronico"],
+        user["Numero de telefono"],
+        user["Rol"],
+        toTitleCase(user["Estado"]),
       ]),
       theme: "grid",
       headStyles: {

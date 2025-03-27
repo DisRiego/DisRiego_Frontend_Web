@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import Confirm_lot from "../../confirm_view/adds/Confirm_lot";
 import {
   validateFile,
+  validateLatitude,
+  validateLongitude,
   validatePhone,
   validateText,
 } from "../../../../hooks/useValidations";
@@ -137,8 +139,8 @@ const Form_lot = ({
   const handleSaveClick = async () => {
     setSubmitted(true);
     const isNameValid = validateText(formData.name);
-    const isLongitudeValid = validatePhone(formData.longitude);
-    const isLatitudeValid = validatePhone(formData.latitude);
+    const isLongitudeValid = validateLongitude(formData.longitude);
+    const isLatitudeValid = validateLatitude(formData.latitude);
     const isExtensionValid = validatePhone(formData.extension);
     const isRealStateValid = validatePhone(
       formData.real_estate_registration_number
@@ -242,6 +244,7 @@ const Form_lot = ({
                       type="text"
                       name="name"
                       onChange={handleChangeProperty}
+                      placeholder="Ingrese el nombre del lote"
                       value={formData.name}
                       disabled={disabled}
                     />
@@ -267,6 +270,7 @@ const Form_lot = ({
                       }`}
                       type="text"
                       name="real_estate_registration_number"
+                      placeholder="Ingrese el número de folio inmobiliario"
                       onChange={handleChangeProperty}
                       value={formData.real_estate_registration_number}
                       disabled={disabled}
@@ -289,6 +293,7 @@ const Form_lot = ({
                       }`}
                       type="number"
                       name="extension"
+                      placeholder="Ingrese la extensión del lote"
                       onChange={handleChangeProperty}
                       value={formData.extension}
                       disabled={disabled}
@@ -311,6 +316,7 @@ const Form_lot = ({
                       }`}
                       type="text"
                       name="latitude"
+                      placeholder="Ingrese la latitud"
                       onChange={handleChangeProperty}
                       value={formData.latitude}
                       disabled={disabled}
@@ -331,6 +337,7 @@ const Form_lot = ({
                       }`}
                       type="text"
                       name="longitude"
+                      placeholder="Ingrese la longitud"
                       onChange={handleChangeProperty}
                       value={formData.longitude}
                       disabled={disabled}

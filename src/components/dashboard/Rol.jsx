@@ -103,13 +103,14 @@ const Rol = () => {
           "Estado",
         ],
       ],
-      body: data.map((rol) => [
-        toTitleCase(rol.role_name),
-        toTitleCase(rol.role_description),
-        rol.quantity_users,
-        toTitleCase(rol.permissions.map((p) => p.name).join(", ")),
-        toTitleCase(rol.status_name),
+      body: filteredData.map((rol) => [
+        toTitleCase(rol["Nombre del rol"]),
+        toTitleCase(rol["Descripción"]),
+        rol["Cantidad de usuarios"],
+        toTitleCase(rol["Permisos"]),
+        toTitleCase(rol["Estado"]),
       ]),
+
       theme: "grid",
       headStyles: {
         fillColor: [252, 252, 253],
@@ -194,6 +195,8 @@ const Rol = () => {
     "Estado",
     "Opciones",
   ];
+
+  console.log(filteredData);
 
   const fetchRoles = async () => {
     try {

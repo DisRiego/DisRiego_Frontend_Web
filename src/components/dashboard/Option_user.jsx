@@ -30,8 +30,11 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
 
     try {
       const decoded = jwtDecode(storedToken);
-      const permisos = decoded.rol?.[0]?.permisos?.map((p) => p.name) || [];
+      const permisos =
+        decoded.rol?.flatMap((rol) => rol.permisos?.map((p) => p.name) || []) ||
+        [];
       setPermissionsUser(permisos);
+      console.log(permisos);
 
       if (permisos.length === 0) {
         localStorage.removeItem("token");
@@ -117,7 +120,7 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
       label: "Gestión de predios",
     },
     {
-      permission: "Mis predios y lotes",
+      permission: "Editar Predio",
       path: "/dashboard/properties",
       selectoption: "properties",
       icon: <TbMapSearch />,
@@ -181,7 +184,7 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
           <span className="icon">
             <CgProfile />
           </span>
-          {!isCollapsed && <span>Mi cuenta</span>}
+          {!isCollapsed && <span>Mi perfil</span>}
         </Link>
 
         <div className="separator separator-sidebar"></div>

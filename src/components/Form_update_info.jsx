@@ -179,7 +179,7 @@ const Form_update_info = ({
       address: !validateAddress(formData.address) ? "Dirección inválida" : "",
       // phone_code: !validatePhone(formData.phone_code) ? "Sin extensión" : "",
       phone: !validatePhone(formData.phone) ? "Número de celular inválido" : "",
-      profile_picture: !file ? "Debe subir una foto de perfil" : "",
+      profile_picture: file ? "" : "",
     };
     setErrors(newErrors);
     return Object.values(newErrors).every((error) => error === "");
@@ -188,6 +188,10 @@ const Form_update_info = ({
   const handleSubmit = async () => {
     setHasSubmitted(true);
     if (validateForm()) {
+      const formDataToSend = { ...formData };
+      if (!file) {
+        delete formDataToSend.profile_picture;
+      }
       setConfirMessage(`¿Desea actualizar su información?`);
       setMethod("post");
       setUriPost(
@@ -420,7 +424,7 @@ const Form_update_info = ({
                   </span>
                 </label>
               </div>
-              {hasSubmitted && errors.profile_picture && (
+              {errors.profile_picture && (
                 <p className="has-text-danger is-6">{errors.profile_picture}</p>
               )}
             </div>

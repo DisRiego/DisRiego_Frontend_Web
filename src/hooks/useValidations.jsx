@@ -10,7 +10,7 @@ export const validateEmail = (email) => {
 
 export const validateAddress = (address) => {
   const regex =
-    /^(Calle|Carrera|Avenida|Transversal|Diagonal)\s\d+[a-zA-Z]?\s*(?:[a-zA-Z])?\s*(?:sur|norte|oriente|occidente)?\s*(?:#|n°)?\s*\d+(-\d+)?$/i;
+    /^(Cl|Cll|Cra|Calle|Carrera|Avenida|Transversal|Diagonal)\s\d+[a-zA-Z]?\s*(?:[a-zA-Z])?\s*(?:sur|norte|oriente|occidente)?\s*(?:#|n°)?\s*\d+(-\d+)?$/i;
   return regex.test(address);
 };
 
@@ -41,6 +41,16 @@ export const validateTextArea = (fullText) => {
 export const validatePhone = (phone) => {
   const nameRegex = /^[0-9]+$/;
   return nameRegex.test(phone);
+};
+
+export const validateLatitude = (latitude) => {
+  const latRegex = /^-?(?:90(?:\.0+)?|[0-8]?\d(?:\.\d+)?)$/;
+  return latRegex.test(latitude);
+};
+
+export const validateLongitude = (longitude) => {
+  const lonRegex = /^-?(?:180(?:\.0+)?|1[0-7]\d(?:\.\d+)?|[0-9]?\d(?:\.\d+)?)$/;
+  return lonRegex.test(longitude);
 };
 
 export const validateSerial = (serial) => {
@@ -109,6 +119,45 @@ export const validateIssuanceDate = (issuanceDate, birthdate) => {
   );
 };
 
+export const validateExpirationDate = (issuanceDate, expirationDate) => {
+  const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+
+  if (!dateRegex.test(issuanceDate) || !dateRegex.test(expirationDate)) {
+    return false;
+  }
+
+  const [issueYear, issueMonth, issueDay] = issuanceDate.split("-").map(Number);
+  const [expireYear, expireMonth, expireDay] = expirationDate
+    .split("-")
+    .map(Number);
+
+  const issuance = new Date(issueYear, issueMonth - 1, issueDay);
+  const expiration = new Date(expireYear, expireMonth - 1, expireDay);
+  const today = new Date();
+
+  // Ajustar la fecha actual para comparar solo la fecha (sin hora)
+  today.setHours(0, 0, 0, 0);
+
+  // La fecha de expiración debe ser mayor que la fecha de emisión
+  if (expiration <= issuance) {
+    return false;
+  }
+
+  // La fecha de emisión no puede ser futura
+  if (issuance > today) {
+    return false;
+  }
+
+  return (
+    issuance.getFullYear() === issueYear &&
+    issuance.getMonth() === issueMonth - 1 &&
+    issuance.getDate() === issueDay &&
+    expiration.getFullYear() === expireYear &&
+    expiration.getMonth() === expireMonth - 1 &&
+    expiration.getDate() === expireDay
+  );
+};
+
 export const validateDate = (birthdate) => {
   const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -136,7 +185,7 @@ export const validateImage = (file) => {
     return { isValid: false, error: "No se ha seleccionado un archivo" };
 
   const allowedTypes = ["image/png", "image/jpeg", "image/jpg", "image/gif"];
-  const maxSize = 2 * 1024 * 1024; // 2 MB
+  const maxSize = 1 * 1024 * 1024; // 2 mb
 
   if (!allowedTypes.includes(file.type)) {
     return {
@@ -159,7 +208,7 @@ export const validateFile = (file) => {
   }
 
   const allowedTypes = ["application/pdf"];
-  const maxSize = 2 * 1024 * 1024; // 5 MB
+  const maxSize = 2 * 1024 * 1024; // 2 mb
 
   if (!allowedTypes.includes(file.type)) {
     return {

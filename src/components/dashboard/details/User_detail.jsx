@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { data, useParams } from "react-router-dom";
 import axios from "axios";
 import Head from "../Head";
 import { TbPointFilled } from "react-icons/tb";
@@ -102,6 +102,8 @@ const User_detail = ({ user }) => {
     return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
   };
 
+  console.log(formData);
+
   return (
     <>
       <Head className="mb-3" head_data={head_data} />
@@ -120,7 +122,10 @@ const User_detail = ({ user }) => {
               <div className="media-left">
                 <figure className="image is-64x64 profile-image">
                   <img
-                    src="https://cdn-icons-png.flaticon.com/512/3135/3135768.png"
+                    src={
+                      formData.profile_picture ||
+                      "https://cdn-icons-png.flaticon.com/512/3135/3135768.png"
+                    }
                     alt="Perfil"
                     className="is-rounded"
                   />
