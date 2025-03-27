@@ -70,6 +70,19 @@ export const validateSerial = (serial) => {
   );
 };
 
+export const validatePlaningDate = (date) => {
+  const dateRegex = /^(?:19|20)\d\d-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01])$/;
+  if (!dateRegex.test(date)) return false;
+
+  const [year, month, day] = date.split("-").map(Number);
+  const inputDate = new Date(year, month - 1, day);
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  return inputDate >= today;
+};
+
 export const validateBirthdate = (birthdate) => {
   const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
 

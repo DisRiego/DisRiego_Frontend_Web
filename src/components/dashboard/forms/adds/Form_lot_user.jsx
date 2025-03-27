@@ -3,9 +3,8 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 import Confirm_lot from "../../confirm_view/adds/Confirm_lot";
 import {
-  validateDate,
+  validatePlaningDate,
   validatePhone,
-  validateTextArea,
 } from "../../../../hooks/useValidations";
 
 const Form_lot_user = ({
@@ -81,7 +80,6 @@ const Form_lot_user = ({
       });
 
       setNameInterval(lotData.nombre_intervalo_pago ?? "");
-      setIsLoading(false);
     } catch (error) {
       console.error("Error al obtener el lote:", error);
     }
@@ -119,6 +117,7 @@ const Form_lot_user = ({
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
     setFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -135,8 +134,19 @@ const Form_lot_user = ({
         const selectedInterval = paymentInterval.find(
           (interval) => interval.id === selectedCrop.payment_interval_id
         );
-
         setNameInterval(selectedInterval ? selectedInterval.name : "");
+
+        // Si ya hay una fecha de siembra, recalcular la cosecha
+        if (formData.planting_date) {
+          const plantingDate = new Date(formData.planting_date);
+          plantingDate.setDate(
+            plantingDate.getDate() + selectedCrop.harvest_time
+          );
+          setFormData((prev) => ({
+            ...prev,
+            estimated_harvest_date: plantingDate.toISOString().split("T")[0],
+          }));
+        }
       }
     }
 
@@ -160,8 +170,8 @@ const Form_lot_user = ({
   const handleSaveClick = () => {
     setSubmitted(true);
     const isTypeCropValid = validatePhone(formData.type_crop_id);
-    const isHarvestDateValid = validateDate(formData.planting_date);
-    const isEstimatedHarvestValid = validateDate(
+    const isHarvestDateValid = validatePlaningDate(formData.planting_date);
+    const isEstimatedHarvestValid = validatePlaningDate(
       formData.estimated_harvest_date
     );
     const isPaymentIntervalValid = validatePhone(formData.payment_interval);
@@ -180,24 +190,25 @@ const Form_lot_user = ({
         : "false" && "Intervalo de pago inválido",
     });
 
+    console.log(errors);
+
     if (
       isTypeCropValid &&
       isHarvestDateValid &&
       isEstimatedHarvestValid &&
       isPaymentIntervalValid
     ) {
-      if (idRow != null) {
-        setConfirMessage("¿Desea actualizar la información del lote?");
-        setMethod("put");
-        setUriPost(
-          import.meta.env.VITE_URI_BACKEND +
-            import.meta.env.VITE_ROUTE_BACKEND_LOTS_PROPERTY +
-            idRow +
-            import.meta.env.VITE_ROUTE_BACKEND_LOTS_PROPERTY_USER
-        );
-        setTypeForm("edit_user");
-        setShowConfirm(true);
-      }
+      console.log("Entro!!");
+      setConfirMessage("¿Desea actualizar la información del lote?");
+      setMethod("put");
+      setUriPost(
+        import.meta.env.VITE_URI_BACKEND +
+          import.meta.env.VITE_ROUTE_BACKEND_LOTS_PROPERTY +
+          idRow +
+          import.meta.env.VITE_ROUTE_BACKEND_LOTS_PROPERTY_USER
+      );
+      setTypeForm("edit_user");
+      setShowConfirm(true);
     }
   };
 
