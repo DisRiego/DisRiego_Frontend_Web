@@ -10,8 +10,8 @@ export const validateEmail = (email) => {
 
 export const validateAddress = (address) => {
   const regex =
-    /^(Cl|Cll|Cra|Calle|Carrera|Avenida|Transversal|Diagonal)\s\d+[a-zA-Z]?\s*(?:[a-zA-Z])?\s*(?:sur|norte|oriente|occidente)?\s*(?:#|n°)?\s*\d+(-\d+)?$/i;
-  return regex.test(address);
+    /^(cl|cll|cra|calle|carrera|av|avenida|transversal|diagonal)\s*\d+[a-zA-Z]?\s*(#|n°)?\s*\d+[a-zA-Z]?\s*-?\s*\d*[a-zA-Z]?$/i;
+  return regex.test(address.trim());
 };
 
 export const validatePassword = (password) => {

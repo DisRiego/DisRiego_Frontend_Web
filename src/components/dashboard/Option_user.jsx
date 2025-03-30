@@ -11,6 +11,7 @@ import { LuUserCog } from "react-icons/lu";
 import { LuUsersRound } from "react-icons/lu";
 import { IoHomeOutline } from "react-icons/io5";
 import { CgProfile } from "react-icons/cg";
+import { TbServerBolt } from "react-icons/tb";
 import { jwtDecode } from "jwt-decode";
 
 const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
@@ -173,6 +174,19 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
             {!isCollapsed && <span>{option.label}</span>}
           </Link>
         ))}
+
+        <Link
+          className={`navbar-item ${
+            getSelectedOption() === "iot" ? "selected" : ""
+          }`}
+          onClick={() => handleOptionChange("iot")}
+          to="/dashboard/iot"
+        >
+          <span className="icon">
+            <TbServerBolt />
+          </span>
+          {!isCollapsed && <span>Gestión de dispositivos</span>}
+        </Link>
 
         <Link
           className={`navbar-item ${
