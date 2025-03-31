@@ -93,7 +93,7 @@ const Reset_password = () => {
           .then(
             (result) => {
               setLoading("");
-              setTitle("Correo enviado exisotamente");
+              setTitle("Correo enviado exitosamente");
               setDescription(
                 "Hemos enviado un correo con las instrucciones para restablecer o recordar tu contraseña. Revisa tu bandeja de entrada y, si no lo encuentras, verifica en la carpeta de spam o correo no deseado."
               );
