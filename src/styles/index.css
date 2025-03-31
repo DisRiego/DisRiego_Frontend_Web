@@ -412,6 +412,15 @@ form > .button-login {
   justify-content: space-between;
 }
 
+.container-date {
+  margin: 0em;
+}
+
+.height-device {
+  max-height: 100px;
+  overflow-y: auto;
+}
+
 .accordion {
   margin-bottom: 0.5em;
 }

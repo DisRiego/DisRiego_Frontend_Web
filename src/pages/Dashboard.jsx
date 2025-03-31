@@ -19,6 +19,7 @@ import Company_crop from "../components/dashboard/company/Company_crop";
 import Company_payment_interval from "../components/dashboard/company/Company_payment_interval";
 import Company_rates from "../components/dashboard/company/Company_rates";
 import Iot from "../components/dashboard/Iot";
+import Iot_detail from "../components/dashboard/details/Iot_detail";
 import Profile from "../components/dashboard/Profile";
 
 const Dashboard = () => {
@@ -80,6 +81,8 @@ const Dashboard = () => {
         return <Lot_detail />;
       case `iot`:
         return <Iot />;
+      case `iot/${id}`:
+        return <Iot_detail />;
       case "report":
         return <Fault_report />;
       case "company":

@@ -24,9 +24,9 @@ const Names_navegation = {
       },  
     },
     "iot": {
-      name: "Mis Dispositivos",
+      name: "Gestión de dispositivos",
       submodules: {
-        "detail": "Detalles del lote #",
+        "detail": "Detalles del dispositivo #",
       },  
     },
     "rol": {

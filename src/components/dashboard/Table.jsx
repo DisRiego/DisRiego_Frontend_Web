@@ -20,6 +20,7 @@ const Table = ({
   setTitle,
   setShowEdit,
   setShowEditUser,
+  setShowAssign,
   setShowChangeStatus,
   setConfirMessage,
   setTypeForm,
@@ -193,6 +194,34 @@ const Table = ({
       setTypeForm("eliminar");
       setShowChangeStatus(true);
     }
+
+    //Dispositivos
+    if (id === "iot" && option.name === "Editar") {
+      setTitle("Editar dispositivo");
+      setShowEdit(true);
+    }
+    if (id === "iot" && option.name === "Asignar") {
+      setTitle("Asignar dispositivo");
+      setShowAssign(true);
+    }
+    if (id === "iot" && option.name === "Reasignar") {
+      setTitle("Resignar dispositivo");
+      setShowAssign(true);
+    }
+    if (id === "iot" && option.name === "Inhabilitar") {
+      setConfirMessage(
+        `¿Desea inhabilitar el "${row["Tipo de dispositivo"]}" identificado con el ID #${row["ID Dispositivo"]}?`
+      );
+      setTypeForm("inhabilitar");
+      setShowChangeStatus(true);
+    }
+    if (id === "iot" && option.name === "Habilitar") {
+      setConfirMessage(
+        `¿Desea habilitar el  "${row["Tipo de dispositivo"]}" identificado con el ID #${row["ID Dispositivo"]}?`
+      );
+      setTypeForm("habilitar");
+      setShowChangeStatus(true);
+    }
   };
 
   return (
@@ -275,6 +304,7 @@ const Table = ({
                               <div className="box">
                                 {options
                                   .filter((option) => {
+                                    // Ocultar opción "Habilitar" si ya está habilitado
                                     if (
                                       option.name === "Habilitar" &&
                                       [
@@ -285,18 +315,39 @@ const Table = ({
                                     ) {
                                       return false;
                                     }
+
+                                    // Ocultar "Inhabilitar" si no está activo
                                     if (
                                       option.name === "Inhabilitar" &&
                                       row["Estado"] !== "Activo"
                                     ) {
                                       return false;
                                     }
+
+                                    // Ocultar "Editar" si está inactivo
                                     if (
                                       option.name === "Editar" &&
                                       row["Estado"] === "Inactivo"
                                     ) {
                                       return false;
                                     }
+
+                                    // Mostrar solo "Asignar" si no hay ID Lote
+                                    if (
+                                      option.name === "Asignar" &&
+                                      row["ID Lote"]
+                                    ) {
+                                      return false; // ya está asignado, no muestres Asignar
+                                    }
+
+                                    // Mostrar solo "Reasignar" si sí hay ID Lote
+                                    if (
+                                      option.name === "Reasignar" &&
+                                      !row["ID Lote"]
+                                    ) {
+                                      return false; // no tiene lote, no muestres Reasignar
+                                    }
+
                                     return true;
                                   })
 
