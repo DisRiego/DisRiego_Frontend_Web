@@ -90,20 +90,19 @@ const Form_device = ({
         ...(price_device || {}),
       };
 
-      console.log(uncompressed);
       setFormData(uncompressed);
     } catch (error) {
       console.error("Error al obtener el dispositivo:", error);
     }
   };
 
+  console.log(formData);
+
   const selectedDevice = typeDevice.find(
     (device) => device.id === parseInt(formData.devices_id)
   );
 
   useEffect(() => {
-    if (!formData.devices_id) return;
-
     // Limpiar todos los campos adicionales cuando cambia el tipo
     setFormData((prev) => {
       const { serial_number, model, devices_id } = prev;
@@ -199,7 +198,12 @@ const Form_device = ({
   };
 
   const getDynamicFieldGroups = () => {
-    if (!selectedDevice?.properties) return [];
+    console.log("Ejecutando getDynamicFieldGroups");
+    if (!selectedDevice?.properties) {
+      console.warn("selectedDevice o properties no están disponibles aún");
+      return [];
+    }
+    // if (!selectedDevice?.properties) return [];
 
     const fields = [];
 
@@ -257,10 +261,14 @@ const Form_device = ({
     const chunked = chunkArray(fields, 2);
     return chunked.map((columns) => ({ columns }));
   };
+
   const optionsMap = {};
+
   const dynamicGroups = useMemo(() => {
-    return formData.devices_id ? getDynamicFieldGroups() : [];
-  }, [formData.devices_id, formData["cantidad_de_polos"]]);
+    console.log("Ejecutando useMemo con selectedDevice", selectedDevice);
+    if (!selectedDevice?.properties) return [];
+    return getDynamicFieldGroups();
+  }, [selectedDevice, formData["cantidad_de_polos"]]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -337,10 +345,11 @@ const Form_device = ({
     const hasErrors = Object.values(combinedErrors).some((msg) => msg);
 
     if (!hasErrors) {
-      if (id != null) {
-        const payload = buildPayload();
-        setNewData(payload);
+      const payload = buildPayload();
+      setNewData(payload);
+      console.log(payload);
 
+      if (id != null) {
         setConfirMessage(`¿Desea editar el dispositivo?`);
         setMethod("put");
         setUriPost(
@@ -351,9 +360,6 @@ const Form_device = ({
         setTypeForm("edit_device");
         setShowConfirm(true);
       } else {
-        const payload = buildPayload();
-        setNewData(payload);
-
         setConfirMessage(`¿Desea crear un nuevo dispositivo?`);
         setMethod("post");
         setUriPost(
@@ -365,8 +371,6 @@ const Form_device = ({
       }
     }
   };
-
-  console.log(newData);
 
   return (
     <>
