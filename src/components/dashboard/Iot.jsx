@@ -9,6 +9,12 @@ import Form_device from "./forms/adds/Form_device";
 import Filter_iot from "./filters/Filter_iot";
 import Change_status_iot from "./Status/Change_status_iot";
 import Form_assign_iot from "./forms/adds/Form_assign_iot";
+import { jsPDF } from "jspdf";
+import { autoTable } from "jspdf-autotable";
+import Icon from "../../assets/icons/Disriego_title.png";
+import RobotoNormalFont from "../../assets/fonts/Roboto-Regular.ttf";
+import RobotoBoldFont from "../../assets/fonts/Roboto-Bold.ttf";
+import Message from "../Message";
 
 const Iot = () => {
   const [data, setData] = useState([]);
@@ -20,6 +26,7 @@ const Iot = () => {
   const [showFilter, setShowFilter] = useState(false);
   const [confirMessage, setConfirMessage] = useState();
   const [loading, setLoading] = useState("");
+  const [loadingReport, setLoadingReport] = useState("");
   const [showMessage, setShowMessage] = useState(false);
   const [titleMessage, setTitleMessage] = useState(false);
   const [message, setMessage] = useState(false);
@@ -75,6 +82,118 @@ const Iot = () => {
     }
   };
 
+  // Función para generar el reporte PDF
+  const generateReport = () => {
+    const doc = new jsPDF("landscape");
+
+    // Añadir fuentes Roboto al documento
+    doc.addFont(RobotoNormalFont, "Roboto", "normal");
+    doc.addFont(RobotoBoldFont, "Roboto", "bold");
+
+    // Colorear fondo
+    doc.setFillColor(243, 242, 247);
+    doc.rect(0, 0, 300, 53, "F"); // Colorear una parte de la página
+
+    // Agregar logo
+    doc.addImage(Icon, "PNG", 246, 10, 39, 11);
+
+    // Configurar título y encabezados
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(17);
+    doc.setFont("Roboto", "bold");
+    doc.text("CONSOLIDADO DE DISPOSITIVOS", 12, 18);
+    doc.setFontSize(11);
+    doc.text(`Fecha de generación:`, 12, 27);
+    doc.text(`Generado por:`, 12, 39);
+    doc.text("Dispositivos registrados actualmente", 12, 63);
+
+    // Configurar información adicional
+    doc.setTextColor(94, 100, 112);
+    doc.setFont("Roboto", "normal");
+    doc.setFontSize(10);
+    doc.text(`${new Date().toLocaleString()}`, 12, 32);
+    doc.text(`[Nombre del usuario]`, 12, 44);
+    doc.setFontSize(11);
+    doc.text(`[Dirección de la empresa]`, 285, 27, { align: "right" });
+    doc.text(`[Ciudad, Dept. País]`, 285, 33, { align: "right" });
+    doc.text(`[Teléfono]`, 285, 39, { align: "right" });
+    doc.text(`Cantidad de dispositivos: ${filteredData.length}`, 12, 68);
+
+    // Agregar tabla con autoTable
+    autoTable(doc, {
+      startY: 80,
+      margin: { left: 12 },
+      head: [
+        [
+          "ID dispositivo",
+          "ID Lote",
+          "Número de documento",
+          "Tipo de dispositivo",
+          "Modelo",
+          "Fecha de instalación",
+          "Fecha estimada de mantenimiento",
+          "Estado",
+        ],
+      ],
+      body: filteredData.map((device) => [
+        device["ID Dispositivo"],
+        device["ID Lote"] || "-",
+        device["Número de documento"],
+        device["Tipo de dispositivo"],
+        device["Modelo"],
+        device["Fecha de instalación"],
+        device["Fecha estimada de mantenimiento"],
+        device["Estado"],
+      ]),
+      theme: "grid",
+      headStyles: {
+        fillColor: [252, 252, 253],
+        textColor: [0, 0, 0],
+        fontStyle: "bold",
+        lineColor: [234, 236, 240],
+        lineWidth: 0.5,
+        font: "Roboto", // Añadir fuente Roboto a los encabezados de tabla
+      },
+      bodyStyles: {
+        textColor: [89, 89, 89],
+        font: "Roboto", // Añadir fuente Roboto al cuerpo de la tabla
+      },
+      styles: {
+        fontSize: 10,
+        cellPadding: 3,
+        lineColor: [234, 236, 240],
+      },
+    });
+
+    // Agregar pie de página
+    doc.addImage(Icon, "PNG", 12, 190, 32, 9);
+
+    // Agregar numeración de páginas en el pie de página
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(10);
+      doc.setFont("Roboto", "normal");
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      doc.text(`Página ${i}/${pageCount}`, pageWidth - 10, pageHeight - 10, {
+        align: "right",
+      });
+    }
+
+    // Convertir el PDF a un Blob
+    const pdfBlob = doc.output("blob");
+
+    // Crear una URL del Blob
+    const pdfUrl = URL.createObjectURL(pdfBlob);
+
+    // Abrir el PDF en una nueva pestaña
+    setTimeout(() => {
+      window.open(pdfUrl, "_blank");
+      setLoadingReport("");
+    }, 500);
+  };
+
   const columns = [
     "ID",
     "ID Dispositivo",
@@ -99,157 +218,15 @@ const Iot = () => {
   const fetchDevices = async () => {
     try {
       setLoadingTable(true);
-      const response = [
-        {
-          id: 1,
-          id_lot: "",
-          owner_document: 123456789,
-          name_type_device: "Válvula",
-          model: "VAL-100",
-          installation_date: "2023-01-15",
-          estimated_maintenance_date: "2024-01-15",
-          status_name: "Activo",
-        },
-        {
-          id: 2,
-          id_lot: 2,
-          owner_document: 987654321,
-          name_type_device: "Medidor",
-          model: "MED-200",
-          installation_date: "2022-11-10",
-          estimated_maintenance_date: "2024-11-10",
-          status_name: "Activo",
-        },
-        {
-          id: 3,
-          id_lot: "",
-          owner_document: 111222333,
-          name_type_device: "Controlador",
-          model: "CTRL-X",
-          installation_date: "2021-09-05",
-          estimated_maintenance_date: "2023-09-05",
-          status_name: "Inactivo",
-        },
-        {
-          id: 4,
-          id_lot: 4,
-          owner_document: 444555666,
-          name_type_device: "Relé",
-          model: "REL-12V",
-          installation_date: "2023-03-20",
-          estimated_maintenance_date: "2024-03-20",
-          status_name: "Activo",
-        },
-        {
-          id: 5,
-          id_lot: 5,
-          owner_document: 999888777,
-          name_type_device: "Inversor",
-          model: "INV-4000",
-          installation_date: "2022-06-12",
-          estimated_maintenance_date: "2023-06-12",
-          status_name: "Activo",
-        },
-        {
-          id: 6,
-          id_lot: 6,
-          owner_document: 555333111,
-          name_type_device: "Batería",
-          model: "BAT-LITHIUM",
-          installation_date: "2022-01-30",
-          estimated_maintenance_date: "2023-01-30",
-          status_name: "Inactivo",
-        },
-        {
-          id: 7,
-          id_lot: 7,
-          owner_document: 222333444,
-          name_type_device: "Panel",
-          model: "SOL-PANEL",
-          installation_date: "2023-08-08",
-          estimated_maintenance_date: "2025-08-08",
-          status_name: "Activo",
-        },
-        {
-          id: 8,
-          id_lot: 8,
-          owner_document: 888777666,
-          name_type_device: "Breaker",
-          model: "BRK-3P",
-          installation_date: "2021-04-22",
-          estimated_maintenance_date: "2023-04-22",
-          status_name: "Inactivo",
-        },
-        {
-          id: 9,
-          id_lot: 9,
-          owner_document: 101010101,
-          name_type_device: "DPS",
-          model: "DPS-1000",
-          installation_date: "2022-10-01",
-          estimated_maintenance_date: "2024-10-01",
-          status_name: "Activo",
-        },
-        {
-          id: 10,
-          id_lot: 10,
-          owner_document: 121212121,
-          name_type_device: "Portafusible",
-          model: "PF-32",
-          installation_date: "2023-02-15",
-          estimated_maintenance_date: "2024-02-15",
-          status_name: "Activo",
-        },
-        {
-          id: 11,
-          id_lot: 11,
-          owner_document: 343434343,
-          name_type_device: "Fusible",
-          model: "FUS-15A",
-          installation_date: "2023-05-01",
-          estimated_maintenance_date: "2025-05-01",
-          status_name: "Activo",
-        },
-        {
-          id: 12,
-          id_lot: 12,
-          owner_document: 565656565,
-          name_type_device: "Fuente de poder",
-          model: "PWR-24V",
-          installation_date: "2022-07-17",
-          estimated_maintenance_date: "2023-07-17",
-          status_name: "Activo",
-        },
-        {
-          id: 13,
-          id_lot: 13,
-          owner_document: 787878787,
-          name_type_device: "Adaptador",
-          model: "ADP-ETH",
-          installation_date: "2022-12-25",
-          estimated_maintenance_date: "2024-12-25",
-          status_name: "Activo",
-        },
-        {
-          id: 14,
-          id_lot: 14,
-          owner_document: 909090909,
-          name_type_device: "Antena",
-          model: "ANT-XR",
-          installation_date: "2021-10-10",
-          estimated_maintenance_date: "2023-10-10",
-          status_name: "Inactivo",
-        },
-      ];
+      const response = await axios.get(
+        import.meta.env.VITE_URI_BACKEND_IOT +
+          import.meta.env.VITE_ROUTE_BACKEND_DEVICES
+      );
 
-      // const response = await axios.get(
-      //   import.meta.env.VITE_URI_BACKEND +
-      //     import.meta.env.VITE_ROUTE_BACKEND_USERS
-      // );
-      // const sortedData = response.data.data.sort((a, b) =>
-      //   a.name.localeCompare(b.name)
-      // );
-      const sortedData = response.sort((a, b) => a.id - b.id);
+      console.log(response.data.data);
+
+      const sortedData = response.data.data.sort((a, b) => a.id - b.id);
+      // const sortedData = response.data.data.sort((a, b) => b.id - a.id);
 
       setData(sortedData);
 
@@ -260,6 +237,20 @@ const Iot = () => {
       setLoadingTable(false);
     }
   };
+
+  const updateData = async () => {
+    fetchDevices();
+  };
+
+  useEffect(() => {
+    if (showMessage) {
+      const timer = setTimeout(() => {
+        setShowMessage(false);
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [showMessage]);
 
   useEffect(() => {
     if (!statusFilter) {
@@ -273,13 +264,13 @@ const Iot = () => {
         .map((info) => ({
           ID: info.id,
           "ID Dispositivo": info.id,
-          "ID Lote": info.id_lot,
-          "Número de documento": info.owner_document,
-          "Tipo de dispositivo": info.name_type_device,
+          "ID Lote": info.lot_id,
+          "Número de documento": info.owner_document_number,
+          "Tipo de dispositivo": info.device_type_name,
           Modelo: info.model,
           "Fecha de instalación": info.installation_date,
           "Fecha estimada de mantenimiento": info.estimated_maintenance_date,
-          Estado: info.status_name,
+          Estado: info.device_status_name,
         }));
 
       setFilteredData(filtered);
@@ -319,7 +310,11 @@ const Iot = () => {
 
   return (
     <>
-      <Head head_data={head_data} onButtonClick={handleButtonClick} />
+      <Head
+        head_data={head_data}
+        loading={loadingReport}
+        onButtonClick={handleButtonClick}
+      />
       <div className="container-search">
         <Search onSearch={setSearchTerm} buttonDisabled={buttonDisabled} />
         <Filter
@@ -355,7 +350,7 @@ const Iot = () => {
             setTitleMessage={setTitleMessage}
             setMessage={setMessage}
             setStatus={setStatus}
-            // updateData={updateData}
+            updateData={updateData}
             token={token}
             loading={loading}
             setLoading={setLoading}
@@ -374,7 +369,7 @@ const Iot = () => {
             setTitleMessage={setTitleMessage}
             setMessage={setMessage}
             setStatus={setStatus}
-            // updateData={updateData}
+            updateData={updateData}
             token={token}
             loading={loading}
             setLoading={setLoading}
@@ -428,6 +423,14 @@ const Iot = () => {
           filters={filters}
           setFilters={setFilters}
           backupData={backupData}
+        />
+      )}
+      {showMessage && (
+        <Message
+          titleMessage={titleMessage}
+          message={message}
+          status={status}
+          onClose={() => setShowMessage(false)}
         />
       )}
     </>

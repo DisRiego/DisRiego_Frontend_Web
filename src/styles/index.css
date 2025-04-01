@@ -1161,12 +1161,18 @@ td > td.status-inactivo,
 td > td.status-creado,
 td > td.status-pendiente,
 td > td.status-mantenimiento,
-td > td.status-expirado {
+td > td.status-expirado,
+td > td.status-operativo,
+td > td.status-no-operativo,
+td > td.status-sin-instalar,
+td > td.status-fallo-detectado,
+td > td.status-en-mantenimiento {
   padding: 0em;
   border-bottom: none;
 }
 
-.button.status-activo {
+.button.status-activo,
+.button.status-operativo {
   width: 100%;
   pointer-events: none;
   cursor: text;
@@ -1176,7 +1182,8 @@ td > td.status-expirado {
   border-radius: 2em;
 }
 
-.button.status-inactivo {
+.button.status-inactivo,
+.button.status-no-operativo {
   width: 100%;
   pointer-events: none;
   cursor: text;
@@ -1187,7 +1194,8 @@ td > td.status-expirado {
 }
 
 .button.status-pendiente,
-.button.status-mantenimiento {
+.button.status-mantenimiento,
+.button.status-en-mantenimiento {
   width: 100%;
   pointer-events: none;
   cursor: text;
@@ -1198,13 +1206,24 @@ td > td.status-expirado {
 }
 
 .button.status-suspendido,
-.button.status-expirado {
+.button.status-expirado,
+.button.status-fallo-detectado {
   width: 100%;
   pointer-events: none;
   cursor: text;
   user-select: text;
   background-color: #ffc6c3;
   color: #b42c24;
+  border-radius: 2em;
+}
+
+.button.status-sin-instalar {
+  width: 100%;
+  pointer-events: none;
+  cursor: text;
+  user-select: text;
+  background-color: #dee9ff;
+  color: #244ea2;
   border-radius: 2em;
 }
 
@@ -1229,14 +1248,16 @@ td > td.status-expirado {
     text-decoration: underline;
     opacity: 0.8;
   }
-  .button.status-activo {
+  .button.status-activo,
+  .button.status-operativo {
     background-color: transparent;
     color: #b3ff9e;
     border-color: #b3ff9e;
     opacity: 0.8;
   }
 
-  .button.status-inactivo {
+  .button.status-inactivo,
+  .button.status-no-operativo {
     background-color: transparent;
     color: #f3f2f7;
     border-color: #f3f2f7;
@@ -1244,7 +1265,8 @@ td > td.status-expirado {
   }
 
   .button.status-pendiente,
-  .button.status-mantenimiento {
+  .button.status-mantenimiento,
+  .button.status-en-mantenimiento {
     background-color: transparent;
     color: #ffc100;
     border-color: #ffc100;
@@ -1252,10 +1274,18 @@ td > td.status-expirado {
   }
 
   .button.status-suspendido,
-  .button.status-expirado {
+  .button.status-expirado,
+  .button.status-fallo-detectado {
     background-color: transparent;
     color: #ff7e77;
     border-color: #ff7e77;
+    opacity: 0.8;
+  }
+
+  .button.status-sin-instalar {
+    background-color: transparent;
+    color: #76a4ff;
+    border-color: #76a4ff;
     opacity: 0.8;
   }
 

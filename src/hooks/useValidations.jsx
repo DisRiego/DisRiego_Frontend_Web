@@ -244,3 +244,9 @@ export const validateFile = (file) => {
 
   return { isValid: true, error: "" };
 };
+
+export const validateModel = (model) => {
+  const modelRegex =
+    /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z0-9][a-zA-Z0-9\s-]*[a-zA-Z0-9]$/;
+  return modelRegex.test(model.trim());
+};

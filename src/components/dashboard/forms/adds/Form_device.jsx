@@ -1,129 +1,69 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
+import {
+  validateLastName,
+  validateModel,
+  validatePhone,
+  validateText,
+  validateTextArea,
+} from "../../../../hooks/useValidations";
+import Confirm_iot from "../../confirm_view/adds/Confirm_iot";
 
 const Form_device = ({
   title,
   onClose,
+  id,
   setShowMessage,
-  setTitleMessag,
+  setTitleMessage,
   setMessage,
   setStatus,
-  // updateData,
+  updateData,
   token,
   loading,
   setLoading,
   typeForm,
   setTypeForm,
 }) => {
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [buttonSubmitted, setButtonSubmitted] = useState(false);
   const [typeDevice, setTypeDevice] = useState([]);
-  const [typeCurrent, setTypeCurrent] = useState([]);
-  const [typePanel, setTypePanel] = useState([]);
-  const [quantity, setQuantity] = useState([]);
-  const [typeRelay, setTypeRelay] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [confirMessage, setConfirMessage] = useState();
+  const [method, setMethod] = useState();
+  const [uriPost, setUriPost] = useState("");
+  const [newData, setNewData] = useState();
 
   const [formData, setFormData] = useState({
-    device_type: "",
+    devices_id: "",
     serial_number: "",
     model: "",
   });
 
-  const quantitySelected = parseInt(formData.quantity || 0);
-  const deviceTypeId = parseInt(formData.device_type || 0);
-
   const [errors, setErrors] = useState({
-    device_type: "",
+    devices_id: "",
     serial_number: "",
     model: "",
   });
 
   useEffect(() => {
-    fetchTypePanel();
-    fetchTypeCurrent();
-    fetchQuantity();
-    fetchTypeRelay();
     fetchTypeDevice();
-  }, []);
+
+    if (id != null) {
+      getDevice();
+    }
+  }, [id]);
 
   const fetchTypeDevice = async () => {
     try {
-      const response = [
-        {
-          id: 1,
-          name: "Válvula",
-          device_category_id: 1,
-        },
-        {
-          id: 2,
-          name: "Medidor",
-          device_category_id: 1,
-        },
-        {
-          id: 3,
-          name: "Controlador",
-          device_category_id: 1,
-        },
-        {
-          id: 14,
-          name: "Relé",
-          device_category_id: 1,
-        },
-        {
-          id: 5,
-          name: "Inversor",
-          device_category_id: 2,
-        },
-        {
-          id: 6,
-          name: "Batería",
-          device_category_id: 2,
-        },
-        {
-          id: 7,
-          name: "Panel",
-          device_category_id: 2,
-        },
-        {
-          id: 9,
-          name: "Breaker",
-          device_category_id: 2,
-        },
-        {
-          id: 10,
-          name: "DPS",
-          device_category_id: 2,
-        },
-        {
-          id: 11,
-          name: "Portafusible",
-          device_category_id: 2,
-        },
-        {
-          id: 12,
-          name: "Fusible",
-          device_category_id: 2,
-        },
-        {
-          id: 13,
-          name: "Fuente de poder",
-          device_category_id: 2,
-        },
-        {
-          id: 4,
-          name: "Adaptador",
-          device_category_id: 3,
-        },
-        {
-          id: 8,
-          name: "Antena",
-          device_category_id: 3,
-        },
-      ];
+      const response = await axios.get(
+        import.meta.env.VITE_URI_BACKEND_IOT +
+          import.meta.env.VITE_ROUTE_BACKEND_DEVICES_TYPES
+      );
 
-      //   const response = await axios.get(
-      //     import.meta.env.VITE_URI_BACKEND +
-      //       import.meta.env.VITE_ROUTE_BACKEND_COMPANY_PAYMENT_INTERVAL
-      //   );
-      const sortedData = response.sort((a, b) => a.name.localeCompare(b.name));
+      const sortedData = response.data.sort((a, b) =>
+        a.name.localeCompare(b.name)
+      );
 
       setTypeDevice(sortedData);
       setIsLoading(false);
@@ -132,119 +72,195 @@ const Form_device = ({
     }
   };
 
-  const fetchTypeCurrent = async () => {
+  const getDevice = async () => {
     try {
-      const response = [
-        {
-          id: 1,
-          name: "AV",
-        },
-        {
-          id: 2,
-          name: "DC",
-        },
-      ];
+      const response = await axios.get(
+        import.meta.env.VITE_URI_BACKEND_IOT +
+          import.meta.env.VITE_ROUTE_BACKEND_DEVICES +
+          id
+      );
+      const backupData = response.data.data;
 
-      //   const response = await axios.get(
-      //     import.meta.env.VITE_URI_BACKEND +
-      //       import.meta.env.VITE_ROUTE_BACKEND_COMPANY_PAYMENT_INTERVAL
-      //   );
-      const sortedData = response.sort((a, b) => a.name.localeCompare(b.name));
+      const { price_device, serial_number, model, devices_id } = backupData;
 
-      setTypeCurrent(sortedData);
-      setIsLoading(false);
+      const uncompressed = {
+        serial_number: serial_number?.toString() || "",
+        model: model || "",
+        devices_id: devices_id?.toString() || "",
+        ...(price_device || {}),
+      };
+
+      console.log(uncompressed);
+      setFormData(uncompressed);
     } catch (error) {
-      console.error("Error al obtener los tipos de corriente", error);
+      console.error("Error al obtener el dispositivo:", error);
     }
   };
 
-  const fetchQuantity = async () => {
-    try {
-      const response = [
-        {
-          id: 1,
-          name: "1",
-        },
-        {
-          id: 2,
-          name: "2",
-        },
-        {
-          id: 3,
-          name: "3",
-        },
-        {
-          id: 4,
-          name: "4",
-        },
-      ];
+  const selectedDevice = typeDevice.find(
+    (device) => device.id === parseInt(formData.devices_id)
+  );
 
-      //   const response = await axios.get(
-      //     import.meta.env.VITE_URI_BACKEND +
-      //       import.meta.env.VITE_ROUTE_BACKEND_COMPANY_PAYMENT_INTERVAL
-      //   );
-      const sortedData = response.sort((a, b) => a.id - b.id);
+  useEffect(() => {
+    if (!formData.devices_id) return;
 
-      setQuantity(sortedData);
-      setIsLoading(false);
-    } catch (error) {
-      console.error("Error al obtener la cantidad de polos:", error);
+    // Limpiar todos los campos adicionales cuando cambia el tipo
+    setFormData((prev) => {
+      const { serial_number, model, devices_id } = prev;
+      return { serial_number, model, devices_id };
+    });
+
+    // También reinicia errores si estás validando por campo
+    setErrors((prev) => {
+      const { serial_number, model, devices_id } = prev;
+      return { serial_number, model, devices_id };
+    });
+
+    setSubmitted(false); // Opcional, para evitar que los mensajes de error se queden
+  }, [formData.devices_id]);
+
+  useEffect(() => {
+    if (!selectedDevice?.properties) return;
+
+    const newFields = {};
+
+    Object.entries(selectedDevice.properties).forEach(([key, value]) => {
+      if (typeof value === "string" || value.type === "select") {
+        if (!(key in formData)) {
+          newFields[key] = "";
+        }
+      } else if (value.type === "dynamic_fields") {
+        const dependsOnValue =
+          formData[value.depends_on] || formData["cantidad_de_polos"] || "0";
+        const dynamicFields = value.fields_per_option?.[dependsOnValue] || [];
+        dynamicFields.forEach((fieldKey) => {
+          if (!(fieldKey in formData)) {
+            newFields[fieldKey] = "";
+          }
+        });
+      }
+    });
+
+    if (Object.keys(newFields).length > 0) {
+      setFormData((prev) => ({
+        ...prev,
+        ...newFields,
+      }));
     }
+  }, [formData.devices_id, formData["cantidad_de_polos"]]);
+
+  const toLabel = (str) => {
+    const UNITS = [
+      "Ah",
+      "A",
+      "W",
+      "V",
+      "VAC",
+      "VDC",
+      "Hz",
+      "VA",
+      "kWh",
+      "kW",
+      "mA",
+    ];
+
+    return str
+      .replace(/_/g, " ")
+      .split(" ")
+      .map((word) => {
+        // Detecta si es tipo "(ah)" o "(vdc)"
+        const matchParens = word.match(/^\((.+)\)$/);
+        if (matchParens) {
+          const inner = matchParens[1];
+          const matchedUnit = UNITS.find(
+            (unit) => unit.toLowerCase() === inner.toLowerCase()
+          );
+          if (matchedUnit) return `(${matchedUnit})`;
+        }
+
+        // Detecta palabra completa que es unidad
+        const matchedUnit = UNITS.find(
+          (unit) => unit.toLowerCase() === word.toLowerCase()
+        );
+        if (matchedUnit) return matchedUnit;
+
+        // Capitaliza palabra normal
+        return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+      })
+      .join(" ");
   };
 
-  const fetchTypePanel = async () => {
-    try {
-      const response = [
-        {
-          id: 1,
-          name: "Monocristalino",
-        },
-        {
-          id: 2,
-          name: "Policristalino",
-        },
-      ];
-
-      //   const response = await axios.get(
-      //     import.meta.env.VITE_URI_BACKEND +
-      //       import.meta.env.VITE_ROUTE_BACKEND_COMPANY_PAYMENT_INTERVAL
-      //   );
-      const sortedData = response.sort((a, b) => a.name.localeCompare(b.name));
-
-      setTypePanel(sortedData);
-      setIsLoading(false);
-    } catch (error) {
-      console.error("Error al obtener los tipos de paneles:", error);
+  const chunkArray = (arr, size) => {
+    const result = [];
+    for (let i = 0; i < arr.length; i += size) {
+      result.push(arr.slice(i, i + size));
     }
+    return result;
   };
 
-  const fetchTypeRelay = async () => {
-    try {
-      const response = [
-        {
-          id: 1,
-          name: "EMR",
-        },
-        {
-          id: 2,
-          name: "SSR",
-        },
-      ];
+  const getDynamicFieldGroups = () => {
+    if (!selectedDevice?.properties) return [];
 
-      //   const response = await axios.get(
-      //     import.meta.env.VITE_URI_BACKEND +
-      //       import.meta.env.VITE_ROUTE_BACKEND_COMPANY_PAYMENT_INTERVAL
-      //   );
-      const sortedData = response.sort((a, b) => a.name.localeCompare(b.name));
+    const fields = [];
 
-      setTypeRelay(sortedData);
-      setIsLoading(false);
-    } catch (error) {
-      console.error("Error al obtener los tipos de relay:", error);
-    }
+    Object.entries(selectedDevice.properties).forEach(([key, value]) => {
+      if (typeof value === "string") {
+        fields.push({
+          name: key,
+          label: toLabel(key),
+          type: "text",
+          validationType: "number",
+        });
+      } else if (value.type === "select") {
+        const matchedOptionSource = Object.entries(optionsMap).find(
+          ([, options]) =>
+            options?.some((opt) => value.options.includes(opt.name))
+        );
+
+        if (matchedOptionSource) {
+          const [optionsSource] = matchedOptionSource;
+
+          fields.push({
+            name: key,
+            label: toLabel(key),
+            type: "select",
+            optionsSource,
+            validationType: "select",
+          });
+        } else {
+          // fallback: usar opciones estáticas si no hay match
+          fields.push({
+            name: key,
+            label: toLabel(key),
+            type: "select",
+            options: value.options,
+          });
+        }
+      } else if (value.type === "dynamic_fields") {
+        const dependsOnValue =
+          formData[value.depends_on] || formData[`cantidad_de_polos`] || "0";
+
+        const dynamicFields = value.fields_per_option?.[dependsOnValue] || [];
+
+        dynamicFields.forEach((fieldKey) => {
+          fields.push({
+            name: fieldKey,
+            label: toLabel(fieldKey),
+            type: "text",
+            validationType: "number",
+          });
+        });
+      }
+    });
+
+    // Ahora agrupamos en columnas de a 2 (o la cantidad que prefieras)
+    const chunked = chunkArray(fields, 2);
+    return chunked.map((columns) => ({ columns }));
   };
-
-  console.log(formData);
+  const optionsMap = {};
+  const dynamicGroups = useMemo(() => {
+    return formData.devices_id ? getDynamicFieldGroups() : [];
+  }, [formData.devices_id, formData["cantidad_de_polos"]]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -255,159 +271,102 @@ const Form_device = ({
     });
   };
 
-  const commonFields = {
-    basic: [
-      {
-        columns: [
-          { name: "serial_number", label: "Número de serie" },
-          { name: "model", label: "Modelo" },
-        ],
-      },
-    ],
-    sharedGroup1: [
-      {
-        columns: [],
-      },
-    ],
-    controllerFields: [
-      {
-        columns: [
-          { name: "firmware_version", label: "Versión de firmware" },
-          { name: "mac_address", label: "Dirección MAC" },
-        ],
-      },
-    ],
-    gatewayFields: [
-      {
-        columns: [{ name: "mac_address", label: "Dirección MAC" }],
-      },
-    ],
-    baterryFields: [
-      {
-        columns: [
-          { name: "voltage", label: "Voltaje (V)" },
-          { name: "capacity", label: "Capacidad (Ah)" },
-        ],
-      },
-    ],
-    panelFields: [
-      {
-        columns: [
-          {
-            name: "type_panel",
-            label: "Tipo de panel",
-            type: "select",
-            optionsSource: "typePanel",
-          },
-          {
-            name: "power",
-            label: "Potencia (W)",
-          },
-        ],
-      },
-    ],
-    protectionFields: [
-      {
-        columns: [
-          {
-            name: "current_type",
-            label: "Tipo de corriente",
-            type: "select",
-            optionsSource: "typeCurrent",
-          },
-          {
-            name: "quantity",
-            label: "Cantidad de polos",
-            type: "select",
-            optionsSource: "quantity",
-          },
-        ],
-      },
-    ],
-    fuseFields: [
-      {
-        columns: [
-          { name: "current_type", label: "Tipo de corriente" },
-          { name: "voltage", label: "Voltaje máximo (V)" },
-        ],
-      },
-    ],
-    powerSupplyFields: [
-      {
-        columns: [
-          { name: "electric_power", label: "Potencia eléctrica (W)" },
-          { name: "amperage", label: "Amperaje (A)" },
-        ],
-      },
-    ],
-    relayFields: [
-      {
-        columns: [
-          {
-            name: "realy_type",
-            label: "Tipo de relé",
-            type: "select",
-            optionsSource: "typeRelay",
-          },
-          {
-            name: "amperage",
-            label: "Amperaje (A)",
-          },
-        ],
-      },
-      {
-        columns: [
-          {
-            name: "voltage",
-            label: "Voltaje (V)",
-          },
-        ],
-      },
-    ],
+  const buildPayload = () => {
+    const { devices_id, serial_number, model, ...rest } = formData;
+
+    const price_device = Object.fromEntries(
+      Object.entries(rest).filter(
+        ([key]) => !["devices_id", "serial_number", "model"].includes(key)
+      )
+    );
+
+    return {
+      devices_id,
+      serial_number,
+      model,
+      price_device,
+    };
   };
 
-  const fieldMapByDeviceId = {
-    1: ["sharedGroup1"], // Válvula
-    2: ["sharedGroup1"], // Medidor
-    5: ["sharedGroup1"], // Inversor
-    8: ["sharedGroup1"], // Antena
-    3: ["controllerFields"], // Controlador
-    4: ["gatewayFields"], // Adaptador de red
-    6: ["baterryFields"], // Bateria
-    7: ["panelFields"], // Panel solar
-    9: ["protectionFields"], // Breaker
-    10: ["protectionFields"], // DPS
-    11: ["fuseFields"], // Portafusible
-    12: ["fuseFields"], // Fusible
-    13: ["powerSupplyFields"], // Fuente de poder}
-    14: ["relayFields"], // Fuente de poder
+  const validateDynamicFields = () => {
+    const dynamicFieldErrors = {};
+    dynamicGroups.forEach((group) => {
+      group.columns.forEach((field) => {
+        const value = formData[field.name];
+
+        if (field.type === "select" && !value) {
+          dynamicFieldErrors[field.name] = "Debe seleccionar una opción";
+          return;
+        }
+
+        if (field.validationType === "number" && !validatePhone(value)) {
+          dynamicFieldErrors[field.name] = "Dato inválido";
+          return;
+        }
+
+        if (
+          field.validationType === "alphanumeric" &&
+          !validateTextArea(value)
+        ) {
+          dynamicFieldErrors[field.name] = "Dato inválido";
+          return;
+        }
+      });
+    });
+
+    return dynamicFieldErrors;
   };
 
-  const optionsMap = {
-    typeCurrent,
-    typePanel,
-    quantity,
-    typeRelay,
-  };
+  const handleSaveClick = async () => {
+    setSubmitted(true);
+    const isTypeDeviceValid = validatePhone(formData.devices_id);
+    const isSerialNumberValid = validatePhone(formData.serial_number);
+    const isModelValid = validateModel(formData.model);
 
-  const getExtraFields = (deviceTypeId) => {
-    const groups = fieldMapByDeviceId[deviceTypeId] || [];
-    const fields = groups.flatMap((group) => commonFields[group] || []);
-    return fields;
-  };
+    const dynamicErrors = validateDynamicFields();
 
-  const poloInputs = Array.from({ length: quantitySelected }, (_, i) => ({
-    name: `polo_${i + 1}`,
-    label: `Polo ${i + 1}`,
-  }));
+    const baseErrors = {
+      devices_id: isTypeDeviceValid ? "" : "Tipo de dispositivo inválido",
+      serial_number: isSerialNumberValid ? "" : "Número de serie inválido",
+      model: isModelValid ? "" : "Modelo inválido",
+    };
 
-  const chunkArray = (arr, size) => {
-    const result = [];
-    for (let i = 0; i < arr.length; i += size) {
-      result.push(arr.slice(i, i + size));
+    const combinedErrors = { ...baseErrors, ...dynamicErrors };
+    setErrors(combinedErrors);
+
+    const hasErrors = Object.values(combinedErrors).some((msg) => msg);
+
+    if (!hasErrors) {
+      if (id != null) {
+        const payload = buildPayload();
+        setNewData(payload);
+
+        setConfirMessage(`¿Desea editar el dispositivo?`);
+        setMethod("put");
+        setUriPost(
+          import.meta.env.VITE_URI_BACKEND_IOT +
+            import.meta.env.VITE_ROUTE_BACKEND_DEVICES +
+            id
+        );
+        setTypeForm("edit_device");
+        setShowConfirm(true);
+      } else {
+        const payload = buildPayload();
+        setNewData(payload);
+
+        setConfirMessage(`¿Desea crear un nuevo dispositivo?`);
+        setMethod("post");
+        setUriPost(
+          import.meta.env.VITE_URI_BACKEND_IOT +
+            import.meta.env.VITE_ROUTE_BACKEND_DEVICES
+        );
+        setTypeForm("create_device");
+        setShowConfirm(true);
+      }
     }
-    return result;
   };
+
+  console.log(newData);
 
   return (
     <>
@@ -428,10 +387,18 @@ const Form_device = ({
                 <div className="field">
                   <label className="label">Tipo de dispositivo</label>
                   <div className="control">
-                    <div className={`select`}>
+                    <div
+                      className={`select ${
+                        submitted
+                          ? errors.devices_id
+                            ? "is-false"
+                            : "is-true"
+                          : ""
+                      }`}
+                    >
                       <select
-                        name="device_type"
-                        value={formData.device_type}
+                        name="devices_id"
+                        value={formData.devices_id}
                         onChange={handleChange}
                       >
                         <option value="" disabled>
@@ -444,127 +411,173 @@ const Form_device = ({
                         ))}
                       </select>
                     </div>
+                    {submitted && errors.devices_id && (
+                      <p className="input-error">{errors.devices_id}</p>
+                    )}
                   </div>
                 </div>
               </div>
             </div>
-            {formData.device_type && (
+            {formData.devices_id && (
               <>
                 {/* Inputs básicos */}
-                {commonFields.basic.map((group, index) => (
-                  <div className="columns columns-mb" key={`basic-${index}`}>
-                    {group.columns.map((field) => (
-                      <div className="column" key={field.name}>
-                        <div className="field">
-                          <label className="label">{field.label}</label>
-                          <div className="control">
-                            <input
-                              className="input"
-                              type="text"
-                              name={field.name}
-                              placeholder={`Ingrese ${field.label.toLowerCase()}`}
-                              value={formData[field.name] || ""}
-                              onChange={handleChange}
-                            />
-                          </div>
-                        </div>
+                <div className="columns mb-0">
+                  <div className="column">
+                    <div className="field">
+                      <label className="label">Número de serie</label>
+                      <div className="control">
+                        <input
+                          className={`input ${
+                            submitted
+                              ? errors.serial_number
+                                ? "is-false"
+                                : "is-true"
+                              : ""
+                          }`}
+                          type="number"
+                          name="serial_number"
+                          placeholder="Ingrese el número de serie"
+                          onChange={handleChange}
+                          value={formData.serial_number}
+                        />
                       </div>
-                    ))}
+                      {submitted && errors.serial_number && (
+                        <p className="input-error">{errors.serial_number}</p>
+                      )}
+                    </div>
                   </div>
-                ))}
+                  <div className="column">
+                    <div className="field">
+                      <label className="label">Modelo</label>
+                      <div className="control">
+                        <input
+                          className={`input ${
+                            submitted
+                              ? errors.model
+                                ? "is-false"
+                                : "is-true"
+                              : ""
+                          }`}
+                          type="text"
+                          name="model"
+                          placeholder="Ingrese el modelo del dispositivo"
+                          onChange={handleChange}
+                          value={formData.model}
+                        />
+                      </div>
+                      {submitted && errors.model && (
+                        <p className="input-error">{errors.model}</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
 
                 {/* Inputs adicionales según tipo de dispositivo */}
-                {getExtraFields(parseInt(formData.device_type)).map(
-                  (group, index) => (
-                    <div className="columns columns-mb" key={`extra-${index}`}>
-                      {group.columns.map((field) => (
-                        <div className="column" key={field.name}>
-                          <div className="field">
-                            <label className="label">{field.label}</label>
-                            <div className="control">
-                              {field.type === "select" ? (
-                                <div className="select is-fullwidth">
-                                  <select
-                                    name={field.name}
-                                    value={formData[field.name] || ""}
-                                    onChange={handleChange}
+                {dynamicGroups.map((group, index) => {
+                  const hasPolos = group.columns.some((field) =>
+                    field.name.startsWith("polo_")
+                  );
+
+                  return (
+                    <div key={`extra-${index}`}>
+                      {hasPolos &&
+                        index ===
+                          dynamicGroups.findIndex((g) =>
+                            g.columns.some((f) => f.name.startsWith("polo_"))
+                          ) && (
+                          <div className="columns">
+                            <div className="column column-p0">
+                              <label className="label">
+                                Tensión máxima por polo
+                              </label>
+                            </div>
+                          </div>
+                        )}
+                      <div className="columns columns-mb">
+                        {group.columns.map((field) => (
+                          <div className="column" key={field.name}>
+                            <div className="field">
+                              <label className="label">{field.label}</label>
+                              <div className="control">
+                                {field.type === "select" ? (
+                                  <div
+                                    className={`select ${
+                                      submitted
+                                        ? errors[field.name]
+                                          ? "is-false"
+                                          : "is-true"
+                                        : ""
+                                    }`}
                                   >
-                                    <option value="">
-                                      Seleccione una opción
-                                    </option>
-                                    {optionsMap[field.optionsSource]?.map(
-                                      (option) => (
-                                        <option
-                                          key={option.id}
-                                          value={option.name}
-                                        >
-                                          {option.name}
-                                        </option>
-                                      )
-                                    )}
-                                  </select>
-                                </div>
-                              ) : (
-                                <input
-                                  className="input"
-                                  type="text"
-                                  name={field.name}
-                                  placeholder={`Ingrese ${field.label.toLowerCase()}`}
-                                  value={formData[field.name] || ""}
-                                  onChange={handleChange}
-                                />
+                                    <select
+                                      name={field.name}
+                                      value={formData[field.name] || ""}
+                                      onChange={handleChange}
+                                    >
+                                      <option value="">
+                                        Seleccione una opción
+                                      </option>
+                                      {field.optionsSource
+                                        ? optionsMap[field.optionsSource]?.map(
+                                            (opt) => (
+                                              <option
+                                                key={opt.id}
+                                                value={opt.name}
+                                              >
+                                                {opt.name}
+                                              </option>
+                                            )
+                                          )
+                                        : field.options?.map((opt) => (
+                                            <option key={opt} value={opt}>
+                                              {opt}
+                                            </option>
+                                          ))}
+                                    </select>
+                                  </div>
+                                ) : (
+                                  <>
+                                    <input
+                                      className={`input ${
+                                        submitted
+                                          ? errors[field.name]
+                                            ? "is-false"
+                                            : "is-true"
+                                          : ""
+                                      }`}
+                                      type="text"
+                                      name={field.name}
+                                      value={formData[field.name] || ""}
+                                      onChange={handleChange}
+                                      placeholder={`Ingrese ${field.label.toLowerCase()}`}
+                                    />
+                                  </>
+                                )}
+                              </div>
+                              {submitted && errors[field.name] && (
+                                <p className="input-error">
+                                  {errors[field.name]}
+                                </p>
                               )}
                             </div>
                           </div>
-                        </div>
-                      ))}
-                    </div>
-                  )
-                )}
-
-                {(deviceTypeId === 9 || deviceTypeId === 10) &&
-                  quantitySelected > 0 && (
-                    <>
-                      <div className="mb-1">
-                        <label className="label">Tensión máxima por polo</label>
+                        ))}
                       </div>
-                      {chunkArray(poloInputs, 2).map((group, idx) => (
-                        <div
-                          className="columns columns-mb is-mobile"
-                          key={`polo-row-${idx}`}
-                        >
-                          {group.map((field) => (
-                            <div className="column" key={field.name}>
-                              <div className="field">
-                                <label className="label">{field.label}</label>
-                                <div className="control">
-                                  <input
-                                    className="input"
-                                    type="text"
-                                    name={field.name}
-                                    placeholder={`Tensión del ${field.label.toLowerCase()}`}
-                                    value={formData[field.name] || ""}
-                                    onChange={handleChange}
-                                  />
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      ))}
-                    </>
-                  )}
+                    </div>
+                  );
+                })}
               </>
             )}
           </section>
           <footer className="modal-card-foot is-flex is-justify-content-center">
-            <div className="buttons">
+            <div className="buttons container-button">
               <button className="button" onClick={onClose}>
                 Cancelar
               </button>
               <button
                 className="button color-hover"
-                /*onClick={handleSaveClick}*/
+                onClick={handleSaveClick}
+                disabled={!formData.devices_id}
               >
                 Guardar
               </button>
@@ -572,6 +585,26 @@ const Form_device = ({
           </footer>
         </div>
       </div>
+      {showConfirm && (
+        <Confirm_iot
+          onClose={() => {
+            setShowConfirm(false);
+          }}
+          onSuccess={onClose}
+          confirMessage={confirMessage}
+          method={method}
+          formData={newData}
+          setShowMessage={setShowMessage}
+          setTitleMessage={setTitleMessage}
+          setMessage={setMessage}
+          setStatus={setStatus}
+          updateData={updateData}
+          uriPost={uriPost}
+          typeForm={typeForm}
+          loading={loading}
+          setLoading={setLoading}
+        />
+      )}
     </>
   );
 };
