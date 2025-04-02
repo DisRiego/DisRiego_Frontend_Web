@@ -28,6 +28,7 @@ const Form_device = ({
   const [submitted, setSubmitted] = useState(false);
   const [buttonSubmitted, setButtonSubmitted] = useState(false);
   const [typeDevice, setTypeDevice] = useState([]);
+  const [maintenaneInterval, setMaintenaneInterval] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [confirMessage, setConfirMessage] = useState();
   const [method, setMethod] = useState();
@@ -38,16 +39,19 @@ const Form_device = ({
     devices_id: "",
     serial_number: "",
     model: "",
+    maintenance_interval_id: "",
   });
 
   const [errors, setErrors] = useState({
     devices_id: "",
     serial_number: "",
     model: "",
+    maintenance_interval_id: "",
   });
 
   useEffect(() => {
     fetchTypeDevice();
+    fetchInterval();
 
     if (id != null) {
       getDevice();
@@ -72,6 +76,25 @@ const Form_device = ({
     }
   };
 
+  const fetchInterval = async () => {
+    try {
+      const response = await axios.get(
+        import.meta.env.VITE_URI_BACKEND_IOT +
+          import.meta.env.VITE_ROUTE_BACKEND_MAINTENANCE_INTERVAL
+      );
+      const sortedData = response.data.data.sort((a, b) => {
+        const getNumber = (str) => parseInt(str.match(/\d+/)?.[0], 10);
+        return getNumber(a.name) - getNumber(b.name);
+      });
+
+      setMaintenaneInterval(sortedData);
+
+      setIsLoading(false);
+    } catch (error) {
+      console.error("Error al obtener los tipos de dispositivos", error);
+    }
+  };
+
   const getDevice = async () => {
     try {
       const response = await axios.get(
@@ -81,9 +104,16 @@ const Form_device = ({
       );
       const backupData = response.data.data;
 
-      const { price_device, serial_number, model, devices_id } = backupData;
+      const {
+        price_device,
+        maintenance_interval_id,
+        serial_number,
+        model,
+        devices_id,
+      } = backupData;
 
       const uncompressed = {
+        maintenance_interval_id: maintenance_interval_id || "",
         serial_number: serial_number?.toString() || "",
         model: model || "",
         devices_id: devices_id?.toString() || "",
@@ -96,8 +126,6 @@ const Form_device = ({
     }
   };
 
-  console.log(formData);
-
   const selectedDevice = typeDevice.find(
     (device) => device.id === parseInt(formData.devices_id)
   );
@@ -105,14 +133,16 @@ const Form_device = ({
   useEffect(() => {
     // Limpiar todos los campos adicionales cuando cambia el tipo
     setFormData((prev) => {
-      const { serial_number, model, devices_id } = prev;
-      return { serial_number, model, devices_id };
+      const { maintenance_interval_id, serial_number, model, devices_id } =
+        prev;
+      return { maintenance_interval_id, serial_number, model, devices_id };
     });
 
     // También reinicia errores si estás validando por campo
     setErrors((prev) => {
-      const { serial_number, model, devices_id } = prev;
-      return { serial_number, model, devices_id };
+      const { maintenance_interval_id, serial_number, model, devices_id } =
+        prev;
+      return { maintenance_interval_id, serial_number, model, devices_id };
     });
 
     setSubmitted(false); // Opcional, para evitar que los mensajes de error se queden
@@ -280,11 +310,23 @@ const Form_device = ({
   };
 
   const buildPayload = () => {
-    const { devices_id, serial_number, model, ...rest } = formData;
+    const {
+      devices_id,
+      serial_number,
+      model,
+      maintenance_interval_id,
+      ...rest
+    } = formData;
 
     const price_device = Object.fromEntries(
       Object.entries(rest).filter(
-        ([key]) => !["devices_id", "serial_number", "model"].includes(key)
+        ([key]) =>
+          ![
+            "devices_id",
+            "serial_number",
+            "model",
+            "maintenance_interval_id",
+          ].includes(key)
       )
     );
 
@@ -292,6 +334,7 @@ const Form_device = ({
       devices_id,
       serial_number,
       model,
+      maintenance_interval_id,
       price_device,
     };
   };
@@ -330,6 +373,7 @@ const Form_device = ({
     const isTypeDeviceValid = validatePhone(formData.devices_id);
     const isSerialNumberValid = validatePhone(formData.serial_number);
     const isModelValid = validateModel(formData.model);
+    const isIntervalValid = validatePhone(formData.maintenance_interval_id);
 
     const dynamicErrors = validateDynamicFields();
 
@@ -337,6 +381,9 @@ const Form_device = ({
       devices_id: isTypeDeviceValid ? "" : "Tipo de dispositivo inválido",
       serial_number: isSerialNumberValid ? "" : "Número de serie inválido",
       model: isModelValid ? "" : "Modelo inválido",
+      maintenance_interval_id: isIntervalValid
+        ? ""
+        : "Debe seleccionar una opción",
     };
 
     const combinedErrors = { ...baseErrors, ...dynamicErrors };
@@ -472,6 +519,47 @@ const Form_device = ({
                       {submitted && errors.model && (
                         <p className="input-error">{errors.model}</p>
                       )}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="columns">
+                  <div className="column">
+                    <div className="field">
+                      <label className="label">
+                        Intervalo de mantenimiento
+                      </label>
+                      <div className="control">
+                        <div
+                          className={`select ${
+                            submitted
+                              ? errors.maintenance_interval_id
+                                ? "is-false"
+                                : "is-true"
+                              : ""
+                          }`}
+                        >
+                          <select
+                            name="maintenance_interval_id"
+                            value={formData.maintenance_interval_id}
+                            onChange={handleChange}
+                          >
+                            <option value="" disabled>
+                              Seleccione una opción
+                            </option>
+                            {maintenaneInterval.map((interval) => (
+                              <option key={interval.id} value={interval.id}>
+                                {interval.name}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                        {submitted && errors.maintenance_interval_id && (
+                          <p className="input-error">
+                            {errors.maintenance_interval_id}
+                          </p>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>

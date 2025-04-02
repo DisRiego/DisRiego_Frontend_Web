@@ -421,6 +421,11 @@ form > .button-login {
   overflow-y: auto;
 }
 
+.height-status-device {
+  max-height: 70px;
+  overflow-y: auto;
+}
+
 .accordion {
   margin-bottom: 0.5em;
 }

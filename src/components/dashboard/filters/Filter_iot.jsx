@@ -180,7 +180,7 @@ const Filter_iot = ({
           {/* Estados */}
           <div className="field mt-5">
             <label className="label">Lista de estados</label>
-            <div className="container-status">
+            <div className="container-status height-status-device">
               {status.map((estado) => (
                 <div className="control" key={estado.id}>
                   <label className="checkbox">
