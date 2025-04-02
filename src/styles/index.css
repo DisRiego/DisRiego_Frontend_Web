@@ -1182,14 +1182,23 @@ td > td.status-en-mantenimiento {
   border-radius: 2em;
 }
 
-.button.status-inactivo,
-.button.status-no-operativo {
+.button.status-inactivo {
   width: 100%;
   pointer-events: none;
   cursor: text;
   user-select: text;
   background-color: #f3f2f7;
   color: black;
+  border-radius: 2em;
+}
+
+.button.status-no-operativo {
+  width: 100%;
+  pointer-events: none;
+  cursor: text;
+  user-select: text;
+  background-color: #e4daff;
+  color: #4e3985;
   border-radius: 2em;
 }
 
@@ -1240,6 +1249,40 @@ td > td.status-en-mantenimiento {
     color: #78ad00;
     text-decoration: underline;
   }
+
+  .button.detail-status.status-1,
+  .button.detail-status.status-11 {
+    background-color: #ecfdf3;
+    color: #027a48;
+  }
+
+  .button.detail-status.status-2,
+  .button.detail-status.status-16 {
+    background-color: #f3f2f7;
+    color: black;
+  }
+
+  .button.detail-status.status-3,
+  .button.detail-status.status-14 {
+    background-color: #fff7e2;
+    color: #9f7700;
+  }
+
+  .button.detail-status.status-4,
+  .button.detail-status.status-13 {
+    background-color: #ffc6c3;
+    color: #b42c24;
+  }
+
+  .button.detail-status.status-15 {
+    background-color: #dee9ff;
+    color: #244ea2;
+  }
+
+  .button.detail-status.status-12 {
+    background-color: #e4daff;
+    color: #4e3985;
+  }
 }
 
 @media (prefers-color-scheme: dark) {
@@ -1256,11 +1299,17 @@ td > td.status-en-mantenimiento {
     opacity: 0.8;
   }
 
-  .button.status-inactivo,
-  .button.status-no-operativo {
+  .button.status-inactivo {
     background-color: transparent;
     color: #f3f2f7;
     border-color: #f3f2f7;
+    opacity: 0.8;
+  }
+
+  .button.status-no-operativo {
+    background-color: transparent;
+    color: #bfa6ff;
+    border-color: #bfa6ff;
     opacity: 0.8;
   }
 
@@ -1289,28 +1338,46 @@ td > td.status-en-mantenimiento {
     opacity: 0.8;
   }
 
-  .button.detail-status.status-1 {
+  .button.detail-status.status-1,
+  .button.detail-status.status-11 {
     color: #b3ff9e;
     border-color: #b3ff9e;
-    opacity: 0.7;
+    opacity: 0.8;
   }
 
-  .button.detail-status.status-2 {
+  .button.detail-status.status-2,
+  .button.detail-status.status-16 {
     color: #f3f2f7;
     border-color: #f3f2f7;
-    opacity: 0.7;
+    opacity: 0.8;
   }
 
-  .button.detail-status.status-3 {
+  .button.detail-status.status-3,
+  .button.detail-status.status-14 {
     color: #ffc100;
     border-color: #ffc100;
-    opacity: 0.7;
+    opacity: 0.8;
   }
 
-  .button.detail-status.status-4 {
+  .button.detail-status.status-4,
+  .button.detail-status.status-13 {
     color: #ff7e77;
     border-color: #ff7e77;
-    opacity: 0.7;
+    opacity: 0.8;
+  }
+
+  .button.detail-status.status-15 {
+    background-color: transparent;
+    color: #76a4ff;
+    border-color: #76a4ff;
+    opacity: 0.8;
+  }
+
+  .button.detail-status.status-12 {
+    background-color: transparent;
+    color: #bfa6ff;
+    border-color: #bfa6ff;
+    opacity: 0.8;
   }
 }
 

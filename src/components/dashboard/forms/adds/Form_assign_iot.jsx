@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
 import axios from "axios";
+import { FaSearch } from "react-icons/fa";
+import { IoMdWarning } from "react-icons/io";
+import { validateDate, validatePhone } from "../../../../hooks/useValidations";
 
 const Form_assign_iot = ({
   title,
@@ -16,55 +18,137 @@ const Form_assign_iot = ({
   token,
 }) => {
   const [showConfirm, setShowConfirm] = useState(false);
-  const [data, setData] = useState({});
+  const [showForm, setShowForm] = useState(false);
   const [confirMessage, setConfirMessage] = useState();
   const [method, setMethod] = useState();
   const [uriPost, setUriPost] = useState();
   const [isLoading, setIsLoading] = useState(true);
   const [typeForm, setTypeForm] = useState();
+  const [disabled, setDisabled] = useState(true);
+  const [submitted, setSubmitted] = useState(false);
+  const [propertyValidate, setPropertyValidate] = useState("");
+  const [dataProperty, setDataProperty] = useState({});
+  const [dataLots, setDataLots] = useState([]);
+  const dateInstallationInputRef = useRef(null);
+
+  const handleDateInstallationFocus = () => {
+    if (dateInstallationInputRef.current) {
+      dateInstallationInputRef.current.showPicker();
+    }
+  };
+
+  const [data, setData] = useState({
+    name_device: "",
+    serial_number: "",
+    model: "",
+  });
 
   const [formData, setFormData] = useState({
-    name: "",
-    interval_days: "",
+    device_id: "",
+    property_id: "",
+    lot_id: "",
+    installation_date: "",
+    maintenance_interval_id: "",
+    estimated_maintenance_date: "",
+  });
+
+  const [errorProperty, setErrorProperty] = useState({
+    property_id: "",
   });
 
   const [errors, setErrors] = useState({
-    name: "",
-    interval_days: "",
+    device_id: "",
+    property_id: "",
+    lot_id: "",
+    installation_date: "",
+    maintenance_interval_id: "",
+    estimated_maintenance_date: "",
   });
 
-  const [submitted, setSubmitted] = useState(false);
-
   useEffect(() => {
-    if (id != null) {
-      getCrop();
-    } else {
-      setIsLoading(false);
-    }
+    getDevice();
   }, [id]);
 
-  const getCrop = async () => {
+  const getDevice = async () => {
+    try {
+      const response = await axios.get(
+        import.meta.env.VITE_URI_BACKEND_IOT +
+          import.meta.env.VITE_ROUTE_BACKEND_DEVICES +
+          id
+      );
+      const backupData = response.data.data;
+      setData({
+        name_device: backupData.device_type_name,
+        serial_number: backupData.serial_number,
+        model: backupData.model,
+      });
+
+      setFormData({
+        device_id: backupData.id,
+        property_id: backupData.property_id ?? "",
+        lot_id: backupData.lot_id ?? "",
+        installation_date: backupData.installation_date ?? "",
+        maintenance_interval_id: backupData.maintenance_interval_id ?? "",
+        estimated_maintenance_date: backupData.estimated_maintenance_date ?? "",
+      });
+    } catch (error) {
+      console.error("Error al obtener el dispositivo:", error);
+    }
+  };
+
+  const toTitleCase = (str) => {
+    if (typeof str !== "string") return str; // Evita errores si el input no es un string
+
+    return str
+      .toLowerCase() // Convierte todo a minúsculas primero
+      .split(" ") // Divide el texto en palabras
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1)) // Convierte la primera letra de cada palabra en mayúscula
+      .join(" "); // Une las palabras nuevamente en una sola cadena
+  };
+
+  const getProperty = async () => {
     try {
       const response = await axios.get(
         import.meta.env.VITE_URI_BACKEND +
-          import.meta.env.VITE_ROUTE_BACKEND_COMPANY_PAYMENT_INTERVAL_OTHER +
-          id
+          import.meta.env.VITE_ROUTE_BACKEND_PROPERTY +
+          formData.property_id
       );
-
-      const intervalData = response.data.data;
-
-      setData(intervalData);
-
-      setFormData({
-        name: intervalData.name ? intervalData.name : "",
-        interval_days: intervalData.interval_days
-          ? intervalData.interval_days
-          : "",
+      const backupData = response.data.data;
+      console.log(backupData);
+      setShowForm(true);
+      setDataProperty({
+        nameProperty: backupData.name,
+        owner_name:
+          backupData.owner_name +
+          " " +
+          backupData.owner_first_last_name +
+          " " +
+          backupData.owner_second_last_name,
       });
-
-      setIsLoading(false);
+      setPropertyValidate("");
+      getLots();
+      setDisabled(false);
     } catch (error) {
-      console.error("Error al obtener el tipo de cultivo:", error);
+      setDisabled(true);
+      setPropertyValidate("El predio no está registrado en la plataforma");
+      setShowForm(false);
+    }
+  };
+
+  const getLots = async () => {
+    try {
+      const response = await axios.get(
+        import.meta.env.VITE_URI_BACKEND +
+          import.meta.env.VITE_ROUTE_BACKEND_PROPERTY +
+          formData.property_id +
+          import.meta.env.VITE_ROUTE_BACKEND_LOTS
+      );
+      const backupData = response.data.data;
+      console.log(backupData);
+
+      setDataLots(backupData);
+    } catch (error) {
+      console.log("Error al obtener los lotes", error);
     }
   };
 
@@ -77,42 +161,56 @@ const Form_assign_iot = ({
     });
   };
 
-  const handleSaveClick = () => {
-    setSubmitted(true);
-    const isNameValid = validateTextArea(formData.name);
-    const isIntervalDaysValid = validatePhone(formData.interval_days);
+  const handleChangeProperty = (e) => {
+    const { name, value } = e.target;
 
-    setErrors({
-      name: isNameValid ? "" : "false" && "Nombre inválido",
-      interval_days: isIntervalDaysValid ? "" : "false" && "Intervalo inválido",
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  };
+
+  const handleValidate = async () => {
+    const isPropertyValid = validatePhone(formData.property_id);
+
+    setErrorProperty({
+      property_id: isPropertyValid ? "" : "false" && "ID del predio inválido",
     });
 
-    if (isNameValid && isIntervalDaysValid) {
-      if (id != null) {
-        setConfirMessage("¿Desea editar el intervalo?");
-        setMethod("put");
-        setUriPost(
-          import.meta.env.VITE_URI_BACKEND +
-            import.meta.env.VITE_ROUTE_BACKEND_COMPANY_PAYMENT_INTERVAL_OTHER +
-            id
-        );
-        setTypeForm("edit");
-        setShowConfirm(true);
-      } else {
-        setConfirMessage('¿Desea crear el intervalo "' + formData.name + '"?');
-        setMethod("post");
-        setUriPost(
-          import.meta.env.VITE_URI_BACKEND +
-            import.meta.env.VITE_ROUTE_BACKEND_COMPANY_PAYMENT_INTERVAL
-        );
-        setTypeForm("create");
-        setShowConfirm(true);
-      }
+    if (isPropertyValid) {
+      getProperty();
+    }
+  };
+
+  const handleSaveClick = () => {
+    setSubmitted(true);
+    const isLotValid = validatePhone(formData.lot_id);
+    const isInstallationDateValid = validateDate(formData.installation_date);
+
+    setErrors({
+      lot_id: isLotValid ? "" : "false" && "Debe seleccionar una opción",
+      installation_date: isInstallationDateValid
+        ? ""
+        : "false" && "Fecha de instalación inválida",
+    });
+
+    if (isLotValid) {
+      console.log("Entro!!");
+      // if (id != null) {
+      //   setConfirMessage(`¿Desea asignar el dispositivo al lote?`);
+      //   setMethod("put");
+      //   setUriPost(
+      //     import.meta.env.VITE_URI_BACKEND +
+      //       import.meta.env.VITE_ROUTE_BACKEND_COMPANY_PAYMENT_INTERVAL_OTHER +
+      //       id
+      //   );
+      //   setTypeForm("edit");
+      //   setShowConfirm(true);
+      // }
     }
   };
 
   console.log(formData);
-
   return (
     <>
       <div className="modal is-active">
@@ -127,31 +225,193 @@ const Form_assign_iot = ({
             ></button>
           </header>
           <section className="modal-card-body">
-            <div className="columns">
+            <div className="columns columns-mb">
               <div className="column">
                 <div className="field">
-                  <label className="label">Nombre</label>
+                  <label className="label">Tipo de dispositivo</label>
                   <div className="control">
-                    <input
-                      className={`input ${
-                        submitted ? (errors.name ? "is-false" : "is-true") : ""
-                      }`}
-                      type="text"
-                      name="name"
-                      placeholder="Ingrese el nombre del intervalo"
-                      value={formData.name}
-                      onChange={handleChange}
-                      disabled={isLoading}
-                    />
+                    <div className={`select`}>
+                      <select
+                        name="name_device"
+                        value={data.name_device}
+                        disabled
+                      >
+                        <option>{data.name_device}</option>
+                      </select>
+                    </div>
                   </div>
-                  {submitted && errors.name && (
-                    <p className="input-error">{errors.name}</p>
-                  )}
                 </div>
               </div>
             </div>
 
-            <div className="container-input">
+            <div className="columns columns-mb">
+              <div className="column">
+                <div className="field">
+                  <label className="label">Número de serie</label>
+                  <div className="control">
+                    <input
+                      className={`input`}
+                      type="number"
+                      name="serial_number"
+                      value={data.serial_number}
+                      disabled
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className="column">
+                <div className="field">
+                  <label className="label">Modelo</label>
+                  <div className="control">
+                    <input
+                      className={`input`}
+                      type="text"
+                      name="model"
+                      value={data.model}
+                      disabled
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="columns mb-0">
+              <div className="column">
+                <div className="control">
+                  <label className="label">ID del predio</label>
+                  <div className="field has-addons mb-0">
+                    <div className="control is-expanded">
+                      <input
+                        className={`input`}
+                        name="property_id"
+                        type="number"
+                        placeholder="Ingrese el ID del predio"
+                        value={formData.property_id}
+                        onChange={handleChangeProperty}
+                        // disabled={isLoading}
+                      />
+                    </div>
+                    <div className="control">
+                      <button
+                        className={`button button-search `}
+                        onClick={handleValidate}
+                      >
+                        <FaSearch className="" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {propertyValidate != "" && (
+              <div className="is-flex is-flex-direction-row	is-justify-content-center is-align-items-center">
+                <IoMdWarning className="icon login-error mr-2" />
+                <p className="input-error">{propertyValidate}</p>
+              </div>
+            )}
+            {showForm && (
+              <>
+                <div className="columns">
+                  <div className="column">
+                    <div className="field">
+                      <label className="label">Nombre del predio</label>
+                      <div className="control">
+                        <input
+                          className={`input`}
+                          type="text"
+                          name="serial_number"
+                          value={dataProperty.nameProperty}
+                          disabled
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="column">
+                    <div className="field">
+                      <label className="label">Nombre del usuario</label>
+                      <div className="control">
+                        <input
+                          className={`input`}
+                          type="text"
+                          name="serial_number"
+                          value={
+                            `${[dataProperty.owner_name]
+                              .map(toTitleCase) // Aplica Title Case a cada parte del nombre
+                              .filter(Boolean) // Elimina valores vacíos
+                              .join(" ")}` // Une con un solo espacio
+                          }
+                          disabled
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="columns">
+                  <div className="column">
+                    <div className="field">
+                      <label className="label">Lote a asignar</label>
+                      <div className="control">
+                        <div
+                          className={`select ${
+                            submitted ? (errors.lot_id ? "is-false" : "") : ""
+                          }`}
+                        >
+                          <select
+                            className={`select`}
+                            name="lot_id"
+                            value={formData.lot_id}
+                            onChange={handleChange}
+                            // disabled={isLoading}
+                          >
+                            <option value="" disabled>
+                              Seleccione una opción
+                            </option>
+                            {dataLots.map((lot) => (
+                              <option key={lot.id} value={lot.id}>
+                                {lot.name}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                        {errors && errors.lot_id && (
+                          <p className="input-error">{errors.lot_id}</p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="column">
+                    <div className="field">
+                      <label className="label">Fecha de siembra</label>
+                      <div className="control">
+                        <input
+                          ref={dateInstallationInputRef}
+                          className={`input ${
+                            submitted
+                              ? errors.installation_date
+                                ? "is-false"
+                                : ""
+                              : ""
+                          }`}
+                          type="date"
+                          name="installation_date"
+                          placeholder="Ingrese la fecha de instalación"
+                          value={formData.installation_date}
+                          onChange={handleChange}
+                          onFocus={handleDateInstallationFocus}
+                        />
+                      </div>
+                      {submitted && errors.installation_date && (
+                        <p className="input-error">
+                          {errors.installation_date}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+            {/* <div className="container-input">
               <div className="columns">
                 <div className="column">
                   <div className="field">
@@ -179,14 +439,18 @@ const Form_assign_iot = ({
                   </div>
                 </div>
               </div>
-            </div>
+            </div> */}
           </section>
           <footer className="modal-card-foot is-flex is-justify-content-center">
-            <div className="buttons">
+            <div className="buttons container-button">
               <button className="button" onClick={onClose}>
                 Cancelar
               </button>
-              <button className="button color-hover" onClick={handleSaveClick}>
+              <button
+                className="button color-hover"
+                disabled={disabled}
+                onClick={handleSaveClick}
+              >
                 Guardar
               </button>
             </div>

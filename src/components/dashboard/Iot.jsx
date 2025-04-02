@@ -141,8 +141,8 @@ const Iot = () => {
         device["Número de documento"],
         device["Tipo de dispositivo"],
         device["Modelo"],
-        device["Fecha de instalación"],
-        device["Fecha estimada de mantenimiento"],
+        device["Fecha de instalación"]?.slice(0, 10),
+        device["Fecha estimada de mantenimiento"]?.slice(0, 10),
         device["Estado"],
       ]),
       theme: "grid",
@@ -268,8 +268,9 @@ const Iot = () => {
           "Número de documento": info.owner_document_number,
           "Tipo de dispositivo": info.device_type_name,
           Modelo: info.model,
-          "Fecha de instalación": info.installation_date,
-          "Fecha estimada de mantenimiento": info.estimated_maintenance_date,
+          "Fecha de instalación": info.installation_date?.slice(0, 10),
+          "Fecha estimada de mantenimiento":
+            info.estimated_maintenance_date?.slice(0, 10),
           Estado: info.device_status_name,
         }));
 
@@ -407,7 +408,7 @@ const Iot = () => {
           setTitleMessage={setTitleMessage}
           setMessage={setMessage}
           setStatus={setStatus}
-          // updateData={updateData}
+          updateData={updateData}
           typeForm={typeForm}
           loading={loading}
           setLoading={setLoading}

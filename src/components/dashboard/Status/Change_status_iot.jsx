@@ -22,7 +22,7 @@ const Change_status_iot = ({
 
   useEffect(() => {
     setFormData({
-      new_state: typeForm === "habilitar" ? true : false,
+      new_status: typeForm === "habilitar" ? 12 : 16,
     });
   }, [typeForm]);
 
@@ -31,10 +31,10 @@ const Change_status_iot = ({
       setLoading("is-loading");
       setIsProcessing(true);
       const response = await axios.put(
-        import.meta.env.VITE_URI_BACKEND +
-          import.meta.env.VITE_ROUTE_BACKEND_LOTS_PROPERTY +
+        import.meta.env.VITE_URI_BACKEND_IOT +
+          import.meta.env.VITE_ROUTE_BACKEND_DEVICES +
           id +
-          import.meta.env.VITE_ROUTE_BACKEND_PROPERTY_CHANGE_STATUS,
+          import.meta.env.VITE_ROUTE_BACKEND_DEVICES_CHANGE_STATUS,
         formData,
         {
           headers: {
@@ -45,12 +45,12 @@ const Change_status_iot = ({
 
       if (typeForm === "habilitar") {
         setTitleMessage("Habilitación exitosa");
-        setMessage("Se ha habilitado el lote correctamente.");
+        setMessage("Se ha habilitado el dispositivo correctamente.");
         setStatus("is-true");
         setShowMessage(true);
       } else {
         setTitleMessage("Inhabilitación exitosa");
-        setMessage("Se ha inhabilitado el lote correctamente.");
+        setMessage("Se ha inhabilitado el dispositivo correctamente.");
         setStatus("is-true");
         setShowMessage(true);
       }
@@ -63,13 +63,13 @@ const Change_status_iot = ({
       if (typeForm === "habilitar") {
         setTitleMessage("Habilitación fallida");
         setMessage(
-          "No se pudo habilitar el lote. Por favor, inténtelo de nuevo."
+          "No se pudo habilitar el dispositivo. Por favor, inténtelo de nuevo."
         );
         setStatus("is-false");
       } else {
         setTitleMessage("Inhabilitación fallida");
         setMessage(
-          "No se pudo inhabilitar el lote. Por favor, inténtelo de nuevo."
+          "No se pudo inhabilitar el dispositivo. Por favor, inténtelo de nuevo."
         );
         setStatus("is-false");
       }

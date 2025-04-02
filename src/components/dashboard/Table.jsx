@@ -311,15 +311,26 @@ const Table = ({
                                         "Mantenimiento",
                                         "Pendiente",
                                         "Activo",
+                                        "Fallo detectado",
+                                        "En mantenimiento",
+                                        "Operativo",
+                                        "Sin instalar",
+                                        "No Operativo",
                                       ].includes(row["Estado"])
                                     ) {
                                       return false;
                                     }
 
-                                    // Ocultar "Inhabilitar" si no está activo
+                                    // Estados que permiten inhabilitar
+                                    const statesAllowingDisabling = [
+                                      "Activo",
+                                      "No Operativo",
+                                    ];
                                     if (
                                       option.name === "Inhabilitar" &&
-                                      row["Estado"] !== "Activo"
+                                      !statesAllowingDisabling.includes(
+                                        row["Estado"]
+                                      )
                                     ) {
                                       return false;
                                     }

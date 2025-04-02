@@ -492,7 +492,7 @@ const Form_device = ({
                           <div className="columns">
                             <div className="column column-p0">
                               <label className="label">
-                                Tensión máxima por polo
+                                Tensión máxima por polo (V)
                               </label>
                             </div>
                           </div>
