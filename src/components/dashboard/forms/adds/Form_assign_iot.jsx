@@ -409,6 +409,40 @@ const Form_assign_iot = ({
                     </div>
                   </div>
                 </div>
+                <div className="columns">
+                  <div className="column">
+                    <div className="field">
+                      <label className="label">
+                        Intervalo de mantenimiento
+                      </label>
+                      <div className="control">
+                        <input
+                          className={`input`}
+                          type="text"
+                          name="maintenance_interval_id"
+                          value={formData.maintenance_interval_id}
+                          onChange={handleChange}
+                          disabled
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="column">
+                    <div className="field">
+                      <label className="label">Fecha de siembra</label>
+                      <div className="control">
+                        <input
+                          className={`input`}
+                          type="date"
+                          name="installation_date"
+                          value={formData.installation_date}
+                          onChange={handleChange}
+                          disabled
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </>
             )}
             {/* <div className="container-input">
