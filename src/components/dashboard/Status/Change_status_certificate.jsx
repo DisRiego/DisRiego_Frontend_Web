@@ -21,7 +21,7 @@ const Change_status_certificate = ({
 
   useEffect(() => {
     setFormData({
-      new_status: typeForm === "habilitar" ? 22 : 23,
+      new_status: typeForm === "habilitar" ? 9 : 10,
     });
   }, [typeForm, id]);
 
