@@ -15,6 +15,7 @@ import Icon from "../../assets/icons/Disriego_title.png";
 import RobotoNormalFont from "../../assets/fonts/Roboto-Regular.ttf";
 import RobotoBoldFont from "../../assets/fonts/Roboto-Bold.ttf";
 import Message from "../Message";
+import Iot_tab from "./Iot_tab";
 
 const Iot = () => {
   const [data, setData] = useState([]);
@@ -37,6 +38,7 @@ const Iot = () => {
   const [typeForm, setTypeForm] = useState();
   const token = localStorage.getItem("token");
   const [typeAction, setTypeAction] = useState("");
+  const [activeTab, setActiveTab] = useState("todos");
 
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -239,6 +241,78 @@ const Iot = () => {
     }
   };
 
+  const fetchDevicesIot = async () => {
+    try {
+      setLoadingTable(true);
+      const response = await axios.get(
+        import.meta.env.VITE_URI_BACKEND_IOT +
+          import.meta.env.VITE_ROUTE_BACKEND_DEVICES_BY_CATEGORY +
+          1
+      );
+
+      console.log(response.data.data);
+
+      const sortedData = response.data.data.sort((a, b) => a.id - b.id);
+      // const sortedData = response.data.data.sort((a, b) => b.id - a.id);
+
+      setData(sortedData);
+
+      setButtonDisabled(false);
+    } catch (error) {
+      console.error("Error al obtener los usuarios:", error);
+    } finally {
+      setLoadingTable(false);
+    }
+  };
+
+  const fetchDevicesEnergy = async () => {
+    try {
+      setLoadingTable(true);
+      const response = await axios.get(
+        import.meta.env.VITE_URI_BACKEND_IOT +
+          import.meta.env.VITE_ROUTE_BACKEND_DEVICES_BY_CATEGORY +
+          2
+      );
+
+      console.log(response.data.data);
+
+      const sortedData = response.data.data.sort((a, b) => a.id - b.id);
+      // const sortedData = response.data.data.sort((a, b) => b.id - a.id);
+
+      setData(sortedData);
+
+      setButtonDisabled(false);
+    } catch (error) {
+      console.error("Error al obtener los usuarios:", error);
+    } finally {
+      setLoadingTable(false);
+    }
+  };
+
+  const fetchDevicesConnectivity = async () => {
+    try {
+      setLoadingTable(true);
+      const response = await axios.get(
+        import.meta.env.VITE_URI_BACKEND_IOT +
+          import.meta.env.VITE_ROUTE_BACKEND_DEVICES_BY_CATEGORY +
+          3
+      );
+
+      console.log(response.data.data);
+
+      const sortedData = response.data.data.sort((a, b) => a.id - b.id);
+      // const sortedData = response.data.data.sort((a, b) => b.id - a.id);
+
+      setData(sortedData);
+
+      setButtonDisabled(false);
+    } catch (error) {
+      console.error("Error al obtener los usuarios:", error);
+    } finally {
+      setLoadingTable(false);
+    }
+  };
+
   const updateData = async () => {
     fetchDevices();
   };
@@ -265,6 +339,7 @@ const Iot = () => {
         .map((info) => ({
           ID: info.id,
           "ID Dispositivo": info.id,
+          "ID Predio": info.property_id,
           "ID Lote": info.lot_id,
           "Número de documento": info.owner_document_number,
           "Tipo de dispositivo": info.device_type_name,
@@ -295,6 +370,29 @@ const Iot = () => {
     }
   }, [data, searchTerm, filters.estados]);
 
+  const tabs = [
+    {
+      key: "todos",
+      label: "Todos los dispositivos",
+      onClick: fetchDevices,
+    },
+    {
+      key: "iot",
+      label: "Dispositivos IoT",
+      onClick: fetchDevicesIot,
+    },
+    {
+      key: "energy",
+      label: "Fuentes de energía",
+      onClick: fetchDevicesEnergy,
+    },
+    {
+      key: "connectivity",
+      label: "Conectividad",
+      onClick: fetchDevicesConnectivity,
+    },
+  ];
+
   const options = [
     { icon: "BiShow", name: "Ver detalles" },
     { icon: "TbMap2", name: "Asignar" },
@@ -302,6 +400,7 @@ const Iot = () => {
     { icon: "BiEditAlt", name: "Editar" },
     { icon: "MdOutlineCheckCircle", name: "Habilitar" },
     { icon: "VscError", name: "Inhabilitar" },
+    { icon: "TbMapSearch", name: "Redirigir al lote" },
   ];
 
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -317,6 +416,8 @@ const Iot = () => {
         loading={loadingReport}
         onButtonClick={handleButtonClick}
       />
+      <Iot_tab tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab} />
+
       <div className="container-search">
         <Search onSearch={setSearchTerm} buttonDisabled={buttonDisabled} />
         <Filter

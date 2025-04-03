@@ -8,6 +8,7 @@ import { MdOutlineCheckCircle } from "react-icons/md";
 import { VscError } from "react-icons/vsc";
 import { MdDeleteSweep } from "react-icons/md";
 import { TbMap2 } from "react-icons/tb";
+import { TbMapSearch } from "react-icons/tb";
 
 const Icon = {
   MdDownloadDone,
@@ -20,7 +21,8 @@ const Icon = {
   MdOutlineCheckCircle,
   VscError,
   MdDeleteSweep,
-  TbMap2
+  TbMap2,
+  TbMapSearch
 };
 
 export default Icon;

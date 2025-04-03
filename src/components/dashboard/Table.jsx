@@ -211,6 +211,10 @@ const Table = ({
       setTypeAction("Reasignar");
       setShowAssign(true);
     }
+    if (id === "iot" && option.name === "Redirigir al lote") {
+      navigate(`/dashboard/property/${row["ID Predio"]}/lot/${row["ID Lote"]}`);
+      console.log(row);
+    }
     if (id === "iot" && option.name === "Inhabilitar") {
       setConfirMessage(
         `¿Desea inhabilitar el "${row["Tipo de dispositivo"]}" identificado con el ID #${row["ID Dispositivo"]}?`
@@ -260,7 +264,7 @@ const Table = ({
             data.map((row, rowIndex) => (
               <tr key={rowIndex}>
                 {columns
-                  .filter((column) => column !== "ID")
+                  .filter((column) => !["ID", "ID Predio"].includes(column))
                   .map((column, colIndex) => (
                     <td key={`${rowIndex}-${colIndex}`}>
                       {column === "Permisos" ? (
@@ -363,6 +367,13 @@ const Table = ({
                                       !statesAllowingReassign.includes(
                                         row["Estado"]
                                       )
+                                    ) {
+                                      return false;
+                                    }
+
+                                    if (
+                                      option.name === "Redirigir al lote" &&
+                                      row["ID Lote"] === null
                                     ) {
                                       return false;
                                     }
