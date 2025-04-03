@@ -147,7 +147,7 @@ const Filter_iot = ({
           </div>
 
           {/* Fecha de instalación */}
-          <div className="field mt-5">
+          {/* <div className="field mt-5">
             <label className="label">Fecha de instalación</label>
             <div className="container-status p-0">
               <div className="field">
@@ -175,7 +175,7 @@ const Filter_iot = ({
                 </div>
               </div>
             </div>
-          </div>
+          </div> */}
 
           {/* Estados */}
           <div className="field mt-5">

@@ -45,6 +45,30 @@ const Confirm_iot = ({
           onClose();
           onSuccess();
           updateData();
+        } else {
+          if (typeForm === "assign_device") {
+            setTitleMessage("Dispositivo asignado exitosamente");
+            setMessage(
+              "El dispositivo ha sido asignado al lote correctamente."
+            );
+            setStatus("is-true");
+            setShowMessage(true);
+            onClose();
+            onSuccess();
+            updateData();
+          } else {
+            if (typeForm === "reassing_device") {
+              setTitleMessage("Dispositivo reasignado exitosamente");
+              setMessage(
+                "El dispositivo ha sido reasignado al lote correctamente."
+              );
+              setStatus("is-true");
+              setShowMessage(true);
+              onClose();
+              onSuccess();
+              updateData();
+            }
+          }
         }
       }
     } catch (error) {
@@ -64,6 +88,24 @@ const Confirm_iot = ({
           );
           setStatus("is-false");
           setShowMessage(true);
+        } else {
+          if (typeForm === "assign_device") {
+            setTitleMessage("Error al asignar el dispositivo");
+            setMessage(
+              "No se pudo asignar el dispositivo. Por favor, inténtelo de nuevo."
+            );
+            setStatus("is-false");
+            setShowMessage(true);
+          } else {
+            if (typeForm === "reassing_device") {
+              setTitleMessage("Error al reasignar el dispositivo");
+              setMessage(
+                "No se pudo reasignar el dispositivo. Por favor, inténtelo de nuevo."
+              );
+              setStatus("is-false");
+              setShowMessage(true);
+            }
+          }
         }
       }
     } finally {

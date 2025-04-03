@@ -228,7 +228,6 @@ const Form_device = ({
   };
 
   const getDynamicFieldGroups = () => {
-    console.log("Ejecutando getDynamicFieldGroups");
     if (!selectedDevice?.properties) {
       console.warn("selectedDevice o properties no están disponibles aún");
       return [];
@@ -295,7 +294,6 @@ const Form_device = ({
   const optionsMap = {};
 
   const dynamicGroups = useMemo(() => {
-    console.log("Ejecutando useMemo con selectedDevice", selectedDevice);
     if (!selectedDevice?.properties) return [];
     return getDynamicFieldGroups();
   }, [selectedDevice, formData["cantidad_de_polos"]]);

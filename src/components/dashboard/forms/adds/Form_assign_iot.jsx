@@ -2,7 +2,12 @@ import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { FaSearch } from "react-icons/fa";
 import { IoMdWarning } from "react-icons/io";
-import { validateDate, validatePhone } from "../../../../hooks/useValidations";
+import {
+  validateDate,
+  validateEstimatedMaintenanceDate,
+  validatePhone,
+} from "../../../../hooks/useValidations";
+import Confirm_iot from "../../confirm_view/adds/Confirm_iot";
 
 const Form_assign_iot = ({
   title,
@@ -16,6 +21,7 @@ const Form_assign_iot = ({
   loading,
   setLoading,
   token,
+  typeAction,
 }) => {
   const [showConfirm, setShowConfirm] = useState(false);
   const [showForm, setShowForm] = useState(false);
@@ -25,10 +31,12 @@ const Form_assign_iot = ({
   const [isLoading, setIsLoading] = useState(true);
   const [typeForm, setTypeForm] = useState();
   const [disabled, setDisabled] = useState(true);
+  const [validated, setValidated] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [propertyValidate, setPropertyValidate] = useState("");
   const [dataProperty, setDataProperty] = useState({});
   const [dataLots, setDataLots] = useState([]);
+  const [maintenaneInterval, setMaintenaneInterval] = useState([]);
   const dateInstallationInputRef = useRef(null);
 
   const handleDateInstallationFocus = () => {
@@ -69,6 +77,20 @@ const Form_assign_iot = ({
     getDevice();
   }, [id]);
 
+  const fetchInterval = async (interval_id) => {
+    try {
+      const response = await axios.get(
+        import.meta.env.VITE_URI_BACKEND_IOT +
+          import.meta.env.VITE_ROUTE_BACKEND_MAINTENANCE_INTERVAL +
+          interval_id
+      );
+      const backupData = response.data.data;
+      setMaintenaneInterval(backupData);
+    } catch (error) {
+      console.error("Error al obtener los tipos de dispositivos", error);
+    }
+  };
+
   const getDevice = async () => {
     try {
       const response = await axios.get(
@@ -83,13 +105,16 @@ const Form_assign_iot = ({
         model: backupData.model,
       });
 
+      fetchInterval(backupData.maintenance_interval_id);
+
       setFormData({
         device_id: backupData.id,
         property_id: backupData.property_id ?? "",
         lot_id: backupData.lot_id ?? "",
-        installation_date: backupData.installation_date ?? "",
+        installation_date: backupData.installation_date?.slice(0, 10) ?? "",
         maintenance_interval_id: backupData.maintenance_interval_id ?? "",
-        estimated_maintenance_date: backupData.estimated_maintenance_date ?? "",
+        estimated_maintenance_date:
+          backupData.estimated_maintenance_date?.slice(0, 10) ?? "",
       });
     } catch (error) {
       console.error("Error al obtener el dispositivo:", error);
@@ -114,7 +139,6 @@ const Form_assign_iot = ({
           formData.property_id
       );
       const backupData = response.data.data;
-      console.log(backupData);
       setShowForm(true);
       setDataProperty({
         nameProperty: backupData.name,
@@ -144,7 +168,6 @@ const Form_assign_iot = ({
           import.meta.env.VITE_ROUTE_BACKEND_LOTS
       );
       const backupData = response.data.data;
-      console.log(backupData);
 
       setDataLots(backupData);
     } catch (error) {
@@ -159,6 +182,17 @@ const Form_assign_iot = ({
       ...formData,
       [name]: value,
     });
+
+    if (name === "installation_date") {
+      const maintenanceDate = new Date(value);
+      maintenanceDate.setDate(
+        maintenanceDate.getDate() + maintenaneInterval.days
+      );
+      setFormData((prev) => ({
+        ...prev,
+        estimated_maintenance_date: maintenanceDate.toISOString().split("T")[0],
+      }));
+    }
   };
 
   const handleChangeProperty = (e) => {
@@ -171,6 +205,8 @@ const Form_assign_iot = ({
   };
 
   const handleValidate = async () => {
+    setValidated(true);
+
     const isPropertyValid = validatePhone(formData.property_id);
 
     setErrorProperty({
@@ -178,39 +214,85 @@ const Form_assign_iot = ({
     });
 
     if (isPropertyValid) {
+      setFormData((prev) => ({
+        ...prev,
+        lot_id: "",
+      }));
+
       getProperty();
     }
   };
 
   const handleSaveClick = () => {
     setSubmitted(true);
+    const isPropertyValid = validatePhone(formData.property_id);
     const isLotValid = validatePhone(formData.lot_id);
+    const isDeviceValid = validatePhone(formData.device_id);
     const isInstallationDateValid = validateDate(formData.installation_date);
+    const isIntervalValid = validatePhone(formData.maintenance_interval_id);
+    const isEstimatedDateValid = validateEstimatedMaintenanceDate(
+      formData.estimated_maintenance_date,
+      formData.installation_date
+    );
+
+    const InstallationDate = new Date(formData.installation_date);
+    const MaintenanceeDate = new Date(formData.maintenance_interval_id);
+    const isDateValid =
+      isEstimatedDateValid && InstallationDate >= MaintenanceeDate;
 
     setErrors({
-      lot_id: isLotValid ? "" : "false" && "Debe seleccionar una opción",
+      property_id: isPropertyValid ? "" : "false" && "ID del predio inválido",
+      lot_id: isLotValid ? "" : "false" && "ID del lote inválido",
+      device_id: isDeviceValid ? "" : "false" && "ID del dispositivo inválido",
       installation_date: isInstallationDateValid
         ? ""
         : "false" && "Fecha de instalación inválida",
+      maintenance_interval_id: isIntervalValid
+        ? ""
+        : "false" && "Intervalo de mantenimiento inválido",
+      estimated_maintenance_date: isEstimatedDateValid
+        ? ""
+        : "false" && "Fecha de mantenimiento inválida",
     });
 
-    if (isLotValid) {
-      console.log("Entro!!");
-      // if (id != null) {
-      //   setConfirMessage(`¿Desea asignar el dispositivo al lote?`);
-      //   setMethod("put");
-      //   setUriPost(
-      //     import.meta.env.VITE_URI_BACKEND +
-      //       import.meta.env.VITE_ROUTE_BACKEND_COMPANY_PAYMENT_INTERVAL_OTHER +
-      //       id
-      //   );
-      //   setTypeForm("edit");
-      //   setShowConfirm(true);
-      // }
+    if (
+      isPropertyValid &&
+      isLotValid &&
+      isDeviceValid &&
+      isInstallationDateValid &&
+      isIntervalValid &&
+      isDateValid
+    ) {
+      if (typeAction === "Asignar") {
+        setConfirMessage(
+          `¿Desea asignar el dispositivo al lote con ID "${formData.lot_id}"?`
+        );
+        setMethod("post");
+        setUriPost(
+          import.meta.env.VITE_URI_BACKEND_IOT +
+            import.meta.env.VITE_ROUTE_BACKEND_DEVICES_ASSIGN
+        );
+        setTypeForm("assign_device");
+        setShowConfirm(true);
+      } else {
+        if (typeAction === "Reasignar") {
+          setConfirMessage(
+            `¿Desea reasignar el dispositivo al lote con ID "${formData.lot_id}"?`
+          );
+          setMethod("post");
+          setUriPost(
+            import.meta.env.VITE_URI_BACKEND_IOT +
+              import.meta.env.VITE_ROUTE_BACKEND_DEVICES_REASSING
+          );
+          setTypeForm("reassing_device");
+          setShowConfirm(true);
+        }
+      }
     }
   };
 
   console.log(formData);
+  console.log(errors);
   return (
     <>
       <div className="modal is-active">
@@ -382,7 +464,7 @@ const Form_assign_iot = ({
                   </div>
                   <div className="column">
                     <div className="field">
-                      <label className="label">Fecha de siembra</label>
+                      <label className="label">Fecha de instalación</label>
                       <div className="control">
                         <input
                           ref={dateInstallationInputRef}
@@ -417,63 +499,58 @@ const Form_assign_iot = ({
                       </label>
                       <div className="control">
                         <input
-                          className={`input`}
+                          className={`input ${
+                            submitted
+                              ? errors.maintenance_interval_id
+                                ? "is-false"
+                                : ""
+                              : ""
+                          }`}
                           type="text"
                           name="maintenance_interval_id"
-                          value={formData.maintenance_interval_id}
+                          value={maintenaneInterval.name}
                           onChange={handleChange}
                           disabled
                         />
                       </div>
+                      {submitted && errors.maintenance_interval_id && (
+                        <p className="input-error">
+                          {errors.maintenance_interval_id}
+                        </p>
+                      )}
                     </div>
                   </div>
                   <div className="column">
                     <div className="field">
-                      <label className="label">Fecha de siembra</label>
+                      <label className="label">
+                        Fecha estimada de mantenimiento
+                      </label>
                       <div className="control">
                         <input
-                          className={`input`}
+                          className={`input ${
+                            submitted
+                              ? errors.estimated_maintenance_date
+                                ? "is-false"
+                                : ""
+                              : ""
+                          }`}
                           type="date"
-                          name="installation_date"
-                          value={formData.installation_date}
+                          name="estimated_maintenance_date"
+                          value={formData.estimated_maintenance_date}
                           onChange={handleChange}
                           disabled
                         />
                       </div>
+                      {submitted && errors.estimated_maintenance_date && (
+                        <p className="input-error">
+                          {errors.estimated_maintenance_date}
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
               </>
             )}
-            {/* <div className="container-input">
-              <div className="columns">
-                <div className="column">
-                  <div className="field">
-                    <label className="label">Intervalo de tiempo (días)</label>
-                    <div className="control">
-                      <input
-                        className={`input ${
-                          submitted
-                            ? errors.interval_days
-                              ? "is-false"
-                              : "is-true"
-                            : ""
-                        }`}
-                        type="number"
-                        name="interval_days"
-                        placeholder="Ingrese el intevalo de tiempo (días)"
-                        value={formData.interval_days}
-                        onChange={handleChange}
-                        disabled={isLoading}
-                      />
-                    </div>
-                    {submitted && errors.interval_days && (
-                      <p className="input-error">{errors.interval_days}</p>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div> */}
           </section>
           <footer className="modal-card-foot is-flex is-justify-content-center">
             <div className="buttons container-button">
@@ -492,7 +569,7 @@ const Form_assign_iot = ({
         </div>
       </div>
       {showConfirm && (
-        <Confirm_interval
+        <Confirm_iot
           onClose={() => {
             setShowConfirm(false);
           }}

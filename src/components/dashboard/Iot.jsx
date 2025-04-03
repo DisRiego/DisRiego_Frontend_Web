@@ -36,6 +36,7 @@ const Iot = () => {
   const [title, setTitle] = useState();
   const [typeForm, setTypeForm] = useState();
   const token = localStorage.getItem("token");
+  const [typeAction, setTypeAction] = useState("");
 
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -335,6 +336,7 @@ const Iot = () => {
         setShowChangeStatus={setShowChangeStatus}
         setConfirMessage={setConfirMessage}
         setTypeForm={setTypeForm}
+        setTypeAction={setTypeAction}
       />
       <Pagination
         totalItems={filteredData.length}
@@ -389,12 +391,13 @@ const Iot = () => {
             setTitleMessage={setTitleMessage}
             setMessage={setMessage}
             setStatus={setStatus}
-            // updateData={updateData}
+            updateData={updateData}
             token={token}
             loading={loading}
             setLoading={setLoading}
             typeForm={typeForm}
             setTypeForm={setTypeForm}
+            typeAction={typeAction}
           />
         </>
       )}

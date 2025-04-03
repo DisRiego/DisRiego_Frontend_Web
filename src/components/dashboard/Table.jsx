@@ -26,6 +26,7 @@ const Table = ({
   setTypeForm,
   parentComponent,
   route,
+  setTypeAction,
 }) => {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -202,10 +203,12 @@ const Table = ({
     }
     if (id === "iot" && option.name === "Asignar") {
       setTitle("Asignar dispositivo");
+      setTypeAction("Asignar");
       setShowAssign(true);
     }
     if (id === "iot" && option.name === "Reasignar") {
       setTitle("Resignar dispositivo");
+      setTypeAction("Reasignar");
       setShowAssign(true);
     }
     if (id === "iot" && option.name === "Inhabilitar") {
@@ -352,12 +355,23 @@ const Table = ({
                                     }
 
                                     // Mostrar solo "Reasignar" si sí hay ID Lote
+                                    const statesAllowingReassign = [
+                                      "No Operativo",
+                                    ];
                                     if (
                                       option.name === "Reasignar" &&
-                                      !row["ID Lote"]
+                                      !statesAllowingReassign.includes(
+                                        row["Estado"]
+                                      )
                                     ) {
-                                      return false; // no tiene lote, no muestres Reasignar
+                                      return false;
                                     }
+                                    // if (
+                                    //   option.name === "Reasignar" &&
+                                    //   !row["ID Lote"]
+                                    // ) {
+                                    //   return false; // no tiene lote, no muestres Reasignar
+                                    // }
 
                                     return true;
                                   })

@@ -250,3 +250,20 @@ export const validateModel = (model) => {
     /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z0-9][a-zA-Z0-9\s-]*[a-zA-Z0-9]$/;
   return modelRegex.test(model.trim());
 };
+
+export const validateEstimatedMaintenanceDate = (
+  estimatedDate,
+  installationDate
+) => {
+  const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+
+  if (!dateRegex.test(estimatedDate) || !dateRegex.test(installationDate)) {
+    return false;
+  }
+
+  const estimated = new Date(estimatedDate);
+  const installation = new Date(installationDate);
+
+  // La fecha estimada debe ser igual o posterior a la fecha de instalación
+  return estimated >= installation;
+};
