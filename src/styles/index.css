@@ -238,6 +238,14 @@ p.title + p {
   transform: translateY(-100%);
 }
 
+.menu-option-notification {
+  position: absolute;
+  z-index: 1;
+  right: 0;
+  bottom: 0;
+  transform: translateY(100%);
+}
+
 .column-option .table-container {
   overflow: visible;
   overflow-y: visible;
@@ -250,17 +258,20 @@ p.title + p {
   }
 }
 
-.menu-option > .box {
+.menu-option > .box,
+.menu-option-notification > .box {
   border: 1px solid var(--bulma-border);
   padding: 5px;
 }
 
-.menu-option > .box > .button {
+.menu-option > .box > .button,
+.menu-option-notification > .box > .button {
   border-style: none;
   justify-content: flex-start;
 }
 
-.menu-option > .box > .button:hover {
+.menu-option > .box > .button:hover,
+.menu-option-notification > .box > .button:hover {
   background-color: #c2e96a;
   color: black;
 }

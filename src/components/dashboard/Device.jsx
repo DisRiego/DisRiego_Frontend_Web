@@ -3,6 +3,7 @@ import axios from "axios";
 import Head from "./Head";
 import Search from "./Search";
 import Filter from "./Filter";
+import Tab from "./Tab";
 import Table from "./Table";
 import Pagination from "./Pagination";
 import Form_device from "./forms/adds/Form_device";
@@ -15,9 +16,8 @@ import Icon from "../../assets/icons/Disriego_title.png";
 import RobotoNormalFont from "../../assets/fonts/Roboto-Regular.ttf";
 import RobotoBoldFont from "../../assets/fonts/Roboto-Bold.ttf";
 import Message from "../Message";
-import Iot_tab from "./Iot_tab";
 
-const Iot = () => {
+const Device = () => {
   const [data, setData] = useState([]);
   const [loadingTable, setLoadingTable] = useState(false);
   const [showForm, setShowForm] = useState(false);
@@ -416,8 +416,7 @@ const Iot = () => {
         loading={loadingReport}
         onButtonClick={handleButtonClick}
       />
-      <Iot_tab tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab} />
-
+      <Tab tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab} />
       <div className="container-search">
         <Search onSearch={setSearchTerm} buttonDisabled={buttonDisabled} />
         <Filter
@@ -542,4 +541,4 @@ const Iot = () => {
   );
 };
 
-export default Iot;
+export default Device;

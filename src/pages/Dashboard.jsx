@@ -18,9 +18,10 @@ import Company_certificate from "../components/dashboard/company/Company_certifi
 import Company_crop from "../components/dashboard/company/Company_crop";
 import Company_payment_interval from "../components/dashboard/company/Company_payment_interval";
 import Company_rates from "../components/dashboard/company/Company_rates";
-import Iot from "../components/dashboard/Iot";
+import Device from "../components/dashboard/Device";
 import Iot_detail from "../components/dashboard/details/Iot_detail";
 import Profile from "../components/dashboard/Profile";
+import Request from "../components/dashboard/Request";
 
 const Dashboard = () => {
   const { id } = useParams();
@@ -61,6 +62,8 @@ const Dashboard = () => {
     switch (selectedOption) {
       case "notification":
         return <Notification />;
+      case "request":
+        return <Request />;
       case "rol":
         return <Rol />;
       case `rol/${id}`:
@@ -79,9 +82,9 @@ const Dashboard = () => {
         return <Property_detail />;
       case `lot/${id}`:
         return <Lot_detail />;
-      case `iot`:
-        return <Iot />;
-      case `iot/${id}`:
+      case `device`:
+        return <Device />;
+      case `device/${id}`:
         return <Iot_detail />;
       case "report":
         return <Fault_report />;

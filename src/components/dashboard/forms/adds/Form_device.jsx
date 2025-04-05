@@ -34,6 +34,7 @@ const Form_device = ({
   const [method, setMethod] = useState();
   const [uriPost, setUriPost] = useState("");
   const [newData, setNewData] = useState();
+  const [disabled, setDisabled] = useState(true);
 
   const [formData, setFormData] = useState({
     devices_id: "",
@@ -70,7 +71,8 @@ const Form_device = ({
       );
 
       setTypeDevice(sortedData);
-      setIsLoading(false);
+      // setIsLoading(false);
+      setDisabled(false);
     } catch (error) {
       console.error("Error al obtener los tipos de dispositivos", error);
     }
@@ -94,7 +96,7 @@ const Form_device = ({
       console.error("Error al obtener los tipos de dispositivos", error);
     }
   };
-
+  console.log(disabled);
   const getDevice = async () => {
     try {
       const response = await axios.get(
@@ -449,6 +451,7 @@ const Form_device = ({
                         name="devices_id"
                         value={formData.devices_id}
                         onChange={handleChange}
+                        disabled={disabled}
                       >
                         <option value="" disabled>
                           Seleccione una opción

@@ -8,7 +8,6 @@ import Lot from "../Lot";
 import Form_lot from "../forms/adds/Form_lot";
 import Form_lot_user from "../forms/adds/Form_lot_user";
 import Message from "../../Message";
-import Iot_by_property from "../Iot_by_property";
 import Change_status_lot from "../Status/Change_status_lot";
 import RobotoNormalFont from "../../../assets/fonts/Roboto-Regular.ttf";
 import RobotoBoldFont from "../../../assets/fonts/Roboto-Bold.ttf";
@@ -761,8 +760,7 @@ const Property_detail = () => {
             route={route}
           />
         );
-      case "iot":
-        return <Iot_by_property />;
+
       default:
         return null;
     }

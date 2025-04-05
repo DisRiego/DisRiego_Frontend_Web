@@ -197,32 +197,32 @@ const Table = ({
     }
 
     //Dispositivos
-    if (id === "iot" && option.name === "Editar") {
+    if (id === "device" && option.name === "Editar") {
       setTitle("Editar dispositivo");
       setShowEdit(true);
     }
-    if (id === "iot" && option.name === "Asignar") {
+    if (id === "device" && option.name === "Asignar") {
       setTitle("Asignar dispositivo");
       setTypeAction("Asignar");
       setShowAssign(true);
     }
-    if (id === "iot" && option.name === "Reasignar") {
+    if (id === "device" && option.name === "Reasignar") {
       setTitle("Resignar dispositivo");
       setTypeAction("Reasignar");
       setShowAssign(true);
     }
-    if (id === "iot" && option.name === "Redirigir al lote") {
+    if (id === "device" && option.name === "Redirigir al lote") {
       navigate(`/dashboard/property/${row["ID Predio"]}/lot/${row["ID Lote"]}`);
       console.log(row);
     }
-    if (id === "iot" && option.name === "Inhabilitar") {
+    if (id === "device" && option.name === "Inhabilitar") {
       setConfirMessage(
         `¿Desea inhabilitar el "${row["Tipo de dispositivo"]}" identificado con el ID #${row["ID Dispositivo"]}?`
       );
       setTypeForm("inhabilitar");
       setShowChangeStatus(true);
     }
-    if (id === "iot" && option.name === "Habilitar") {
+    if (id === "device" && option.name === "Habilitar") {
       setConfirMessage(
         `¿Desea habilitar el  "${row["Tipo de dispositivo"]}" identificado con el ID #${row["ID Dispositivo"]}?`
       );

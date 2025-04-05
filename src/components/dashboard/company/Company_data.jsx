@@ -1,14 +1,13 @@
 import { useEffect, useState } from "react";
+import axios from "axios";
+import Head from "../Head";
+import Tab from "../Tab";
+import Message from "../../Message";
 import Form_edit_company_picture from "../forms/edits/Form_edit_company_picture";
 import Form_edit_company_data from "../forms/edits/Form_edit_company_data";
 import Form_edit_company_contact from "../forms/edits/Form_edit_company_contact";
 import Form_edit_company_location from "../forms/edits/Form_edit_company_location";
-// import Form_edit_palette from "../forms/edits/Form_edit_palette";
-import Head from "../Head";
-import axios from "axios";
-import Tab_company from "./Tab_company";
 import { FaEdit } from "react-icons/fa";
-import Message from "../../Message";
 
 const Company_data = ({}) => {
   const [showModalPicture, setShowModalPicture] = useState(false);
@@ -31,6 +30,25 @@ const Company_data = ({}) => {
   const [message, setMessage] = useState(false);
   const [status, setStatus] = useState(false);
 
+  const tabs = [
+    {
+      key: "company",
+      label: "Datos de la empresa",
+      path: "/dashboard/company",
+    },
+    {
+      key: "certificate",
+      label: "Certificados Digitales",
+      path: "/dashboard/company/certificate",
+    },
+    { key: "crop", label: "Tipo de cultivos", path: "/dashboard/company/crop" },
+    {
+      key: "payment",
+      label: "Intervalo de pago",
+      path: "/dashboard/company/payment",
+    },
+    { key: "rates", label: "Tarifas", path: "/dashboard/company/rates" },
+  ];
   useEffect(() => {
     const interval = setInterval(() => {
       setDots((prev) => (prev.length < 3 ? prev + "." : ""));
@@ -127,7 +145,7 @@ const Company_data = ({}) => {
   return (
     <>
       <Head head_data={headData} />
-      <Tab_company />
+      <Tab tabs={tabs} useLinks={true}></Tab>
       {isLoading ? (
         <div className="rol-detail">
           <div className="loader-cell">

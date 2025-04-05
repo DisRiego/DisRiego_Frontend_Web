@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import Head from "../Head";
+import Tab from "../Tab";
 import Table from "../Table";
 import Pagination from "../Pagination";
-import Form_crop from "../forms/adds/Form_crop";
-import Head from "../Head";
-import Tab_company from "./Tab_company";
 import Message from "../../Message";
 
 const Company_rates = ({}) => {
@@ -42,6 +41,26 @@ const Company_rates = ({}) => {
       setShowForm(true);
     }
   };
+
+  const tabs = [
+    {
+      key: "company",
+      label: "Datos de la empresa",
+      path: "/dashboard/company",
+    },
+    {
+      key: "certificate",
+      label: "Certificados Digitales",
+      path: "/dashboard/company/certificate",
+    },
+    { key: "crop", label: "Tipo de cultivos", path: "/dashboard/company/crop" },
+    {
+      key: "payment",
+      label: "Intervalo de pago",
+      path: "/dashboard/company/payment",
+    },
+    { key: "rates", label: "Tarifas", path: "/dashboard/company/rates" },
+  ];
 
   useEffect(() => {
     if (showMessage) {
@@ -124,7 +143,7 @@ const Company_rates = ({}) => {
   return (
     <>
       <Head head_data={headData} onButtonClick={handleButtonClick} />
-      <Tab_company />
+      <Tab tabs={tabs} useLinks={true}></Tab>
       {/* <Table
       columns={columns}
       data={paginatedData}

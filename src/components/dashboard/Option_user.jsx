@@ -140,6 +140,9 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
     const companyRelatedOptions = ["certificate", "crop", "payment", "rates"];
     if (companyRelatedOptions.includes(selectedOption)) return "company";
 
+    const notificationdOptions = ["notification", "request"];
+    if (notificationdOptions.includes(selectedOption)) return "notification";
+
     const propertyRegex = /^\/dashboard\/property(\/\d+)?(\/lot\/\d+)?$/;
     if (propertyRegex.test(pathname)) return "property";
 
@@ -177,10 +180,10 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
 
         <Link
           className={`navbar-item ${
-            getSelectedOption() === "iot" ? "selected" : ""
+            getSelectedOption() === "device" ? "selected" : ""
           }`}
           onClick={() => handleOptionChange("iot")}
-          to="/dashboard/iot"
+          to="/dashboard/device"
         >
           <span className="icon">
             <TbServerBolt />

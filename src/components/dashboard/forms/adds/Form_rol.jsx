@@ -266,7 +266,7 @@ const Form_add_rol = ({
                             checked={filters.permisos[permiso.id] || false}
                             onChange={handlePermissionChange}
                           />{" "}
-                          {permiso.description}
+                          {permiso.name}
                         </label>
                       </div>
                     ))}
