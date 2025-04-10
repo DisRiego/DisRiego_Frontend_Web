@@ -6,6 +6,9 @@ import "../../../styles/index.css";
 import Head from "../Head";
 import Table from "../Table";
 import Pagination from "../Pagination";
+import Form_aperture from "../forms/adds/Form_aperture";
+import Form_device from "../forms/adds/Form_device";
+import Change_status_iot from "../Status/Change_status_iot";
 import RobotoNormalFont from "../../../assets/fonts/Roboto-Regular.ttf";
 import RobotoBoldFont from "../../../assets/fonts/Roboto-Bold.ttf";
 import Icon from "../../../assets/icons/Disriego_title.png";
@@ -46,7 +49,7 @@ const Lot_detail = () => {
   const [loading, setLoading] = useState("");
   const [dots, setDots] = useState("");
   const [showForm, setShowForm] = useState(false);
-  const [showEdit, setShowEdit] = useState();
+  const [showEdit, setShowEdit] = useState(false);
   const [activeTab, setActiveTab] = useState("consumo");
   const [activePeriod, setActivePeriod] = useState("mes");
   const [activePeriodRight, setActivePeriodRight] = useState("año");
@@ -65,9 +68,14 @@ const Lot_detail = () => {
   const [backupData, setBackupData] = useState([]);
   const [filters, setFilters] = useState({ estados: {} });
   const [statusFilter, setStatusFilter] = useState(false);
-  const parentComponent = "iot";
+  const parentComponent = "device";
   const [title, setTitle] = useState();
   const [dataOwner, setDataOwner] = useState(null);
+  const [dataIot, setDataIot] = useState([]);
+  const [showChangeStatus, setShowChangeStatus] = useState(false);
+  const [confirMessage, setConfirMessage] = useState();
+  const [typeForm, setTypeForm] = useState();
+  const token = localStorage.getItem("token");
 
   const head_data = {
     title: "Detalles del lote #" + id,
@@ -77,7 +85,7 @@ const Lot_detail = () => {
       button1: {
         icon: "FaPlus",
         class: "color-hover",
-        text: "Apertura de válvula",
+        text: "Solicitar apertura",
       },
       button2: {
         icon: "LuDownload",
@@ -88,9 +96,9 @@ const Lot_detail = () => {
   };
 
   const handleButtonClick = (buttonText) => {
-    // if (buttonText === "Apertura de válvula") {
-    //   setShowForm(true);
-    // }
+    if (buttonText === "Solicitar apertura") {
+      setShowForm(true);
+    }
 
     if (buttonText === "Descargar reporte") {
       setLoading("is-loading");
@@ -670,7 +678,7 @@ const Lot_detail = () => {
 
   useEffect(() => {
     fetchLot();
-    // fetchIot();
+    getDevicesByLot();
   }, []);
 
   const fetchLot = async () => {
@@ -680,7 +688,6 @@ const Lot_detail = () => {
           import.meta.env.VITE_ROUTE_BACKEND_LOTS_PROPERTY +
           id
       );
-      console.log(response.data);
       setData(response.data.data);
       setIdProperty(response.data.data.property_id);
     } catch (error) {
@@ -688,8 +695,6 @@ const Lot_detail = () => {
     } finally {
     }
   };
-
-  console.log(data);
 
   useEffect(() => {
     if (IdProperty) {
@@ -711,13 +716,13 @@ const Lot_detail = () => {
       setIsLoading(false);
     }
   };
+
   useEffect(() => {
     if (dataProperty && dataProperty.owner_id) {
       fetchOwner(dataProperty.owner_id);
     }
   }, [dataProperty]);
 
-  // Función para obtener datos del dueño
   const fetchOwner = async (ownerId) => {
     try {
       const response = await axios.get(
@@ -730,79 +735,30 @@ const Lot_detail = () => {
       console.error("Error al obtener los datos del dueño:", error);
     }
   };
-  //console.log(dataProperty);
 
-  // const fetchIot = async () => {
-  //   try {
-  //     setLoadingTable(true);
-  //     const response = await axios.get(
-  //       import.meta.env.VITE_URI_BACKEND +
-  //         import.meta.env.VITE_ROUTE_BACKEND_PROPERTY +
-  //         id +
-  //         import.meta.env.VITE_ROUTE_BACKEND_LOTS
-  //     );
-  //     setDataLots(response.data.data);
+  const getDevicesByLot = async () => {
+    try {
+      const response = await axios.get(
+        import.meta.env.VITE_URI_BACKEND_IOT +
+          import.meta.env.VITE_ROUTE_BACKEND_DEVICES_BY_LOTS +
+          id
+      );
+      // const dataIot = response.data.data.sort((a, b) =>
+      //   a.type_opening.localeCompare(b.type_opening)
+      // );
 
-  //     const sortedData = response.data.data.sort((a, b) =>
-  //       a.name.localeCompare(b.name)
-  //     );
-  //     // const sortedData = response.data.data.sort((a, b) => a.name - b.name);
+      const dataIot = response.data.data.devices;
 
-  //     setDataLots(sortedData);
-  //     // setButtonDisabled(false);
-  //   } catch (error) {
-  //     console.error("Error al obtener los lotes:", error);
-  //   } finally {
-  //     setLoadingTable(false);
-  //   }
-  // };
+      setDataIot(dataIot);
+      // setIsLoading(false);
+    } catch (error) {
+      console.error("Error al obtener los dispositivos del lote:", error);
+    }
+  };
 
-  // const updateData = async () => {
-  //   fetchIot();
-  // };
-
-  const dataIot = [
-    {
-      id: 1,
-      device_type: "Sensor de humedad",
-      model: "HS-2000",
-      date_installation: "2024-03-15",
-      maintenance_date: "2025-03-15",
-      status_name: "Activo",
-    },
-    {
-      id: 2,
-      device_type: "Válvula inteligente",
-      model: "VLV-500",
-      date_installation: "2024-02-20",
-      maintenance_date: "2025-02-20",
-      status_name: "Mantenimiento",
-    },
-    {
-      id: 3,
-      device_type: "Controlador central",
-      model: "CTRL-X100",
-      date_installation: "2024-01-10",
-      maintenance_date: "2025-01-10",
-      status_name: "Activo",
-    },
-    {
-      id: 4,
-      device_type: "Medidor de flujo",
-      model: "FLW-300",
-      date_installation: "2023-12-05",
-      maintenance_date: "2024-12-05",
-      status_name: "Inactivo",
-    },
-    {
-      id: 5,
-      device_type: "Repetidor de señal LoRa",
-      model: "LORA-RP1",
-      date_installation: "2024-04-01",
-      maintenance_date: "2025-04-01",
-      status_name: "Activo",
-    },
-  ];
+  const updateData = async () => {
+    getDevicesByLot();
+  };
 
   const columns = [
     "ID",
@@ -819,8 +775,6 @@ const Lot_detail = () => {
     return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
   };
 
-  console.log(dataIot);
-
   useEffect(() => {
     if (!statusFilter) {
       const filtered = dataIot
@@ -834,8 +788,9 @@ const Lot_detail = () => {
           ID: info.id,
           "Tipo de dispositivo": toTitleCase(info.device_type) || "",
           Modelo: info.model || "",
-          "Fecha de instalación": info.date_installation || "",
-          "Fecha estimada de mantenimiento": info.maintenance_date || "",
+          "Fecha de instalación": info.installation_date?.slice(0, 10),
+          "Fecha estimada de mantenimiento":
+            info.estimated_maintenance_date?.slice(0, 10) || "",
           Estado: info.status_name || "",
         }));
 
@@ -857,7 +812,7 @@ const Lot_detail = () => {
 
       setStatusFilter(false);
     }
-  }, [dataLots, searchTerm, filters.estados]);
+  }, [dataIot, searchTerm, filters.estados]);
 
   const options = [
     { icon: "BiShow", name: "Ver detalles" },
@@ -1206,12 +1161,64 @@ const Lot_detail = () => {
               setId={setIdRow}
               setTitle={setTitle}
               setShowEdit={setShowEdit}
-              // setShowChangeStatus={setShowChangeStatus}
-              // setConfirMessage={setConfirMessage}
-              // setTypeForm={setTypeForm}
+              parentComponent={parentComponent}
+              setShowChangeStatus={setShowChangeStatus}
+              setConfirMessage={setConfirMessage}
+              setTypeForm={setTypeForm}
             ></Table>
           </div>
         </>
+      )}
+      {showForm && (
+        <>
+          <Form_aperture
+            title="Solicitar Apertura de válvula"
+            onClose={() => setShowForm(false)}
+            setShowMessage={setShowMessage}
+            setTitleMessage={setTitleMessage}
+            setMessage={setMessage}
+            setStatus={setStatus}
+            loading={loading}
+            setLoading={setLoading}
+            id={id}
+            dataOwner={dataOwner}
+          />
+        </>
+      )}
+      {showEdit && (
+        <>
+          <Form_device
+            title={title}
+            onClose={() => setShowEdit(false)}
+            id={idRow}
+            setShowMessage={setShowMessage}
+            setTitleMessage={setTitleMessage}
+            setMessage={setMessage}
+            setStatus={setStatus}
+            updateData={updateData}
+            token={token}
+            loading={loading}
+            setLoading={setLoading}
+            typeForm={typeForm}
+            setTypeForm={setTypeForm}
+          />
+        </>
+      )}
+      {showChangeStatus && (
+        <Change_status_iot
+          onClose={() => setShowChangeStatus(false)}
+          onSuccess={() => setShowChangeStatus(false)}
+          id={idRow}
+          confirMessage={confirMessage}
+          setShowMessage={setShowMessage}
+          setTitleMessage={setTitleMessage}
+          setMessage={setMessage}
+          setStatus={setStatus}
+          updateData={updateData}
+          typeForm={typeForm}
+          loading={loading}
+          setLoading={setLoading}
+        />
       )}
     </>
   );

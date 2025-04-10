@@ -35,11 +35,18 @@ const Table = ({
   const [dots, setDots] = useState("");
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setDots((prev) => (prev.length < 3 ? prev + "." : ""));
-    }, 500);
-    return () => clearInterval(interval);
-  }, []);
+    let intervalId;
+
+    if (loadingTable) {
+      intervalId = setInterval(() => {
+        setDots((prev) => (prev.length < 3 ? prev + "." : ""));
+      }, 500);
+    }
+
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [loadingTable]);
 
   useEffect(() => {
     const handleOutsideClick = (event) => {
@@ -70,8 +77,12 @@ const Table = ({
     if (option.name === "Ver detalles" && parentComponent === "lot") {
       navigate(`lot/${row.ID}`);
     } else {
-      if (option.name === "Ver detalles") {
-        navigate(`${row.ID}`);
+      if (option.name === "Ver detalles" && parentComponent === "device") {
+        navigate(`device/${row.ID}`);
+      } else {
+        if (option.name === "Ver detalles") {
+          navigate(`${row.ID}`);
+        }
       }
     }
 
@@ -213,18 +224,37 @@ const Table = ({
     }
     if (id === "device" && option.name === "Redirigir al lote") {
       navigate(`/dashboard/property/${row["ID Predio"]}/lot/${row["ID Lote"]}`);
-      console.log(row);
     }
     if (id === "device" && option.name === "Inhabilitar") {
       setConfirMessage(
-        `¿Desea inhabilitar el "${row["Tipo de dispositivo"]}" identificado con el ID #${row["ID Dispositivo"]}?`
+        `¿Desea inhabilitar el dispositivo "${row["Tipo de dispositivo"]}" identificado con el ID #${row["ID Dispositivo"]}?`
       );
       setTypeForm("inhabilitar");
       setShowChangeStatus(true);
     }
     if (id === "device" && option.name === "Habilitar") {
       setConfirMessage(
-        `¿Desea habilitar el  "${row["Tipo de dispositivo"]}" identificado con el ID #${row["ID Dispositivo"]}?`
+        `¿Desea habilitar el dispositivo "${row["Tipo de dispositivo"]}" identificado con el ID #${row["ID Dispositivo"]}?`
+      );
+      setTypeForm("habilitar");
+      setShowChangeStatus(true);
+    }
+
+    //Dispositivos por lote
+    if (option.name === "Editar" && parentComponent === "device") {
+      setTitle("Editar dispositivo");
+      setShowEdit(true);
+    }
+    if (option.name === "Inhabilitar" && parentComponent === "device") {
+      setConfirMessage(
+        `¿Desea inhabilitar el dispositivo "${row["Tipo de dispositivo"]}" identificado con el ID #${row.ID}?`
+      );
+      setTypeForm("inhabilitar");
+      setShowChangeStatus(true);
+    }
+    if (option.name === "Habilitar" && parentComponent === "device") {
+      setConfirMessage(
+        `¿Desea habilitar el dispositivo "${row["Tipo de dispositivo"]}" identificado con el ID #${row.ID}?`
       );
       setTypeForm("habilitar");
       setShowChangeStatus(true);

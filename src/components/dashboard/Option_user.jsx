@@ -182,7 +182,7 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
           className={`navbar-item ${
             getSelectedOption() === "device" ? "selected" : ""
           }`}
-          onClick={() => handleOptionChange("iot")}
+          onClick={() => handleOptionChange("device")}
           to="/dashboard/device"
         >
           <span className="icon">

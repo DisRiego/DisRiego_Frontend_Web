@@ -651,6 +651,10 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   margin: 1.5em 0em;
 }
 
+.notification-read {
+  border-left: 0.2em solid #a8ce52;
+}
+
 div > .tabs a {
   border-radius: 0px;
 }

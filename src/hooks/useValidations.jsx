@@ -267,3 +267,8 @@ export const validateEstimatedMaintenanceDate = (
   // La fecha estimada debe ser igual o posterior a la fecha de instalación
   return estimated >= installation;
 };
+
+export const validateTime = (text) => {
+  const timeRegex = /^(?:[01]\d|2[0-3]):[0-5]\d$/;
+  return timeRegex.test(text.trim());
+};
