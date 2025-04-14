@@ -266,14 +266,14 @@ const Table = ({
       setConfirMessage(
         `¿Desea aprobar la solicitud con ID "${row["ID de la solicitud"]}"?`
       );
-      setTypeForm("inhabilitar");
+      setTypeForm("habilitar");
       setShowChangeStatus(true);
     }
     if (id === "request" && option.name === "Denegar") {
       setConfirMessage(
         `¿Desea denegar la solicitud con ID "${row["ID de la solicitud"]}"?`
       );
-      setTypeForm("habilitar");
+      setTypeForm("inhabilitar");
       setShowChangeStatus(true);
     }
   };
@@ -424,13 +424,8 @@ const Table = ({
                                     ) {
                                       return false;
                                     }
-                                    // if (
-                                    //   option.name === "Reasignar" &&
-                                    //   !row["ID Lote"]
-                                    // ) {
-                                    //   return false; // no tiene lote, no muestres Reasignar
-                                    // }
 
+                                    //Condiciones para las opciones de aprobar y denegar
                                     if (option.name === "Aprobar") {
                                       const allowedStates = [
                                         "Pendiente",

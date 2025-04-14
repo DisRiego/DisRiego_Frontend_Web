@@ -36,14 +36,14 @@ const Change_status_request = ({
         formData
       );
 
-      if (typeForm === "habilitar") {
-        setTitleMessage("Habilitación exitosa");
-        setMessage("Se ha habilitado el lote correctamente.");
+      if (typeForm === "aprobar") {
+        setTitleMessage("Aprobación exitosa");
+        setMessage("Se ha aprobado la solicitud correctamente.");
         setStatus("is-true");
         setShowMessage(true);
       } else {
-        setTitleMessage("Inhabilitación exitosa");
-        setMessage("Se ha inhabilitado el lote correctamente.");
+        setTitleMessage("Denegación exitosa");
+        setMessage("Se ha denegado la solicitud correctamente.");
         setStatus("is-true");
         setShowMessage(true);
       }
@@ -53,16 +53,16 @@ const Change_status_request = ({
       updateData();
     } catch (error) {
       console.log(error);
-      if (typeForm === "habilitar") {
-        setTitleMessage("Habilitación fallida");
+      if (typeForm === "aprobar") {
+        setTitleMessage("Aprobación fallida");
         setMessage(
-          "No se pudo habilitar el lote. Por favor, inténtelo de nuevo."
+          "No se pudo aprobar la solicitud. Por favor, inténtelo de nuevo."
         );
         setStatus("is-false");
       } else {
-        setTitleMessage("Inhabilitación fallida");
+        setTitleMessage("Denegación fallida");
         setMessage(
-          "No se pudo inhabilitar el lote. Por favor, inténtelo de nuevo."
+          "No se pudo denegar la solicitud. Por favor, inténtelo de nuevo."
         );
         setStatus("is-false");
       }

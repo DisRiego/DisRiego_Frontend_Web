@@ -1441,3 +1441,13 @@ td > td.status-rechazada {
 .columns > .column-p0 {
   padding-bottom: 0px;
 }
+
+.button.aprrove {
+  color: black;
+  background-color: #c2e96a;
+}
+
+.button.deny {
+  background-color: #ffc6c3;
+  color: #940800;
+}

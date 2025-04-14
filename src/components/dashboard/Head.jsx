@@ -18,8 +18,16 @@ const Head = ({ head_data, onButtonClick, loading, buttonDisabled }) => {
           onClick={() => onButtonClick(button.text)}
           disabled={buttonDisabled}
         >
-          <span className="icon">{IconComponent && <IconComponent />}</span>
-          <span>{button.text}</span>
+          {IconComponent ? (
+            <>
+              <span className="icon">
+                <IconComponent />
+              </span>
+              <span>{button.text}</span>
+            </>
+          ) : (
+            <span>{button.text}</span>
+          )}
         </button>
       );
     });

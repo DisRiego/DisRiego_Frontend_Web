@@ -64,6 +64,16 @@ const Request = () => {
   ];
 
   useEffect(() => {
+    if (showMessage) {
+      const timer = setTimeout(() => {
+        setShowMessage(false);
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [showMessage]);
+
+  useEffect(() => {
     getRequest();
   }, []);
 
@@ -166,6 +176,14 @@ const Request = () => {
         currentPage={currentPage}
         onPageChange={setCurrentPage}
       />
+      {showMessage && (
+        <Message
+          titleMessage={titleMessage}
+          message={message}
+          status={status}
+          onClose={() => setShowMessage(false)}
+        />
+      )}
       {showChangeStatus && (
         <Change_status_request
           onClose={() => setShowChangeStatus(false)}

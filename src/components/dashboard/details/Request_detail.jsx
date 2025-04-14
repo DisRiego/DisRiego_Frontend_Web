@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import Head from "../Head";
+import Message from "../../Message";
+import Change_status_request from "../Status/Change_status_request";
 import { TbPointFilled } from "react-icons/tb";
 import { format } from "date-fns";
 
@@ -11,6 +13,31 @@ const Request_detail = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [dots, setDots] = useState("");
 
+  const [title, setTitle] = useState();
+  const [typeForm, setTypeForm] = useState();
+  const [showChangeStatus, setShowChangeStatus] = useState(false);
+  const [confirMessage, setConfirMessage] = useState();
+  const [loading, setLoading] = useState("");
+
+  const [showMessage, setShowMessage] = useState(false);
+  const [titleMessage, setTitleMessage] = useState(false);
+  const [message, setMessage] = useState(false);
+  const [status, setStatus] = useState(false);
+
+  const handleButtonClick = (buttonText) => {
+    if (buttonText === "Aprobar solicitud") {
+      setConfirMessage(`¿Desea aprobar la solicitud con ID "${id}"?`);
+      setTypeForm("aprobar");
+      setShowChangeStatus(true);
+    }
+
+    if (buttonText === "Denegar solicitud") {
+      setConfirMessage(`¿Desea aprobar la solicitud con ID "${id}"?`);
+      setTypeForm("denegar");
+      setShowChangeStatus(true);
+    }
+  };
+
   useEffect(() => {
     const interval = setInterval(() => {
       setDots((prev) => (prev.length < 3 ? prev + "." : ""));
@@ -19,10 +46,20 @@ const Request_detail = () => {
   }, []);
 
   useEffect(() => {
-    getRol();
+    if (showMessage) {
+      const timer = setTimeout(() => {
+        setShowMessage(false);
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [showMessage]);
+
+  useEffect(() => {
+    getRequest();
   }, []);
 
-  const getRol = async () => {
+  const getRequest = async () => {
     try {
       const response = await axios.get(
         import.meta.env.VITE_URI_BACKEND_IOT +
@@ -38,10 +75,24 @@ const Request_detail = () => {
     }
   };
 
+  const updateData = async () => {
+    getRequest();
+  };
+
   const head_data = {
     title: "Ver Detalles de la Solicitud #" + id,
     description:
       "En esta sección, puedes consultar la información de la solicitud.",
+    buttons: {
+      button1: {
+        class: "aprrove",
+        text: "Aprobar solicitud",
+      },
+      button2: {
+        class: "deny",
+        text: "Denegar solicitud",
+      },
+    },
   };
 
   const formatDateTime = (dateString) => {
@@ -52,7 +103,11 @@ const Request_detail = () => {
 
   return (
     <div>
-      <Head className="mb-3" head_data={head_data} />
+      <Head
+        className="mb-3"
+        head_data={head_data}
+        onButtonClick={handleButtonClick}
+      />
 
       {isLoading ? (
         <div className="rol-detail">
@@ -121,6 +176,30 @@ const Request_detail = () => {
             </div>
           </div>
         </>
+      )}
+      {showMessage && (
+        <Message
+          titleMessage={titleMessage}
+          message={message}
+          status={status}
+          onClose={() => setShowMessage(false)}
+        />
+      )}
+      {showChangeStatus && (
+        <Change_status_request
+          onClose={() => setShowChangeStatus(false)}
+          onSuccess={() => setShowChangeStatus(false)}
+          id={id}
+          confirMessage={confirMessage}
+          setShowMessage={setShowMessage}
+          setTitleMessage={setTitleMessage}
+          setMessage={setMessage}
+          setStatus={setStatus}
+          updateData={updateData}
+          typeForm={typeForm}
+          loading={loading}
+          setLoading={setLoading}
+        />
       )}
     </div>
   );
