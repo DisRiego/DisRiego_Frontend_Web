@@ -45,7 +45,6 @@ const Lot_detail = () => {
   const navigate = useNavigate();
   const [data, setData] = useState("");
   const [dataProperty, setDataProperty] = useState("");
-  const [dataLots, setDataLots] = useState([]);
   const [loading, setLoading] = useState("");
   const [dots, setDots] = useState("");
   const [showForm, setShowForm] = useState(false);
@@ -76,17 +75,24 @@ const Lot_detail = () => {
   const [confirMessage, setConfirMessage] = useState();
   const [typeForm, setTypeForm] = useState();
   const token = localStorage.getItem("token");
+  const [valveID, setValveID] = useState();
+
+  const hasValveDevice = dataIot.some((device) =>
+    device.device_type?.toLowerCase().includes("válvula")
+  );
 
   const head_data = {
     title: "Detalles del lote #" + id,
     description:
       "En esta sección podrás visualizar información detallada sobre el lote.",
     buttons: {
-      button1: {
-        icon: "FaPlus",
-        class: "color-hover",
-        text: "Solicitar apertura",
-      },
+      ...(hasValveDevice && {
+        button1: {
+          icon: "FaPlus",
+          class: "color-hover",
+          text: "Solicitar apertura",
+        },
+      }),
       button2: {
         icon: "LuDownload",
         class: "",
@@ -743,11 +749,15 @@ const Lot_detail = () => {
           import.meta.env.VITE_ROUTE_BACKEND_DEVICES_BY_LOTS +
           id
       );
-      // const dataIot = response.data.data.sort((a, b) =>
-      //   a.type_opening.localeCompare(b.type_opening)
-      // );
 
-      const dataIot = response.data.data.devices;
+      const dataIot = response.data.data.devices.sort((a, b) => a.id - b.id);
+      const valve = dataIot.find((device) =>
+        device.device_type?.toLowerCase().includes("válvula")
+      );
+
+      if (valve) {
+        setValveID(valve.id);
+      }
 
       setDataIot(dataIot);
       // setIsLoading(false);
@@ -778,12 +788,13 @@ const Lot_detail = () => {
   useEffect(() => {
     if (!statusFilter) {
       const filtered = dataIot
-        .filter((info) =>
-          Object.values(info)
+        .filter((info) => {
+          if (!searchTerm) return true; // ← esto evita que se filtre de más
+          return Object.values(info)
             .join(" ")
             .toLowerCase()
-            .includes(searchTerm.toLowerCase())
-        )
+            .includes(searchTerm.toLowerCase());
+        })
         .map((info) => ({
           ID: info.id,
           "Tipo de dispositivo": toTitleCase(info.device_type) || "",
@@ -1166,6 +1177,12 @@ const Lot_detail = () => {
               setConfirMessage={setConfirMessage}
               setTypeForm={setTypeForm}
             ></Table>
+            <Pagination
+              totalItems={filteredData.length}
+              itemsPerPage={itemsPerPage}
+              currentPage={currentPage}
+              onPageChange={setCurrentPage}
+            />
           </div>
         </>
       )}
@@ -1182,6 +1199,7 @@ const Lot_detail = () => {
             setLoading={setLoading}
             id={id}
             dataOwner={dataOwner}
+            valveID={valveID}
           />
         </>
       )}

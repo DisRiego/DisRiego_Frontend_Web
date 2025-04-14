@@ -27,6 +27,7 @@ const Table = ({
   parentComponent,
   route,
   setTypeAction,
+  // setValveID
 }) => {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -259,6 +260,22 @@ const Table = ({
       setTypeForm("habilitar");
       setShowChangeStatus(true);
     }
+
+    //Notificaciones
+    if (id === "request" && option.name === "Aprobar") {
+      setConfirMessage(
+        `¿Desea aprobar la solicitud con ID "${row["ID de la solicitud"]}"?`
+      );
+      setTypeForm("inhabilitar");
+      setShowChangeStatus(true);
+    }
+    if (id === "request" && option.name === "Denegar") {
+      setConfirMessage(
+        `¿Desea denegar la solicitud con ID "${row["ID de la solicitud"]}"?`
+      );
+      setTypeForm("habilitar");
+      setShowChangeStatus(true);
+    }
   };
 
   return (
@@ -413,6 +430,28 @@ const Table = ({
                                     // ) {
                                     //   return false; // no tiene lote, no muestres Reasignar
                                     // }
+
+                                    if (option.name === "Aprobar") {
+                                      const allowedStates = [
+                                        "Pendiente",
+                                        "Rechazada",
+                                      ];
+                                      if (
+                                        !allowedStates.includes(row["Estado"])
+                                      )
+                                        return false;
+                                    }
+
+                                    if (option.name === "Denegar") {
+                                      const allowedStates = [
+                                        "Pendiente",
+                                        "Aprobada",
+                                      ];
+                                      if (
+                                        !allowedStates.includes(row["Estado"])
+                                      )
+                                        return false;
+                                    }
 
                                     return true;
                                   })

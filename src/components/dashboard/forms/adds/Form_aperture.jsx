@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import {
-  validateDate,
+  validateOpenDate,
+  validateCloseDate,
   validatePhone,
   validateTime,
+  validateCloseTime,
 } from "../../../../hooks/useValidations";
 import Confirm_aperture from "../../confirm_view/adds/Confirm_aperture";
 
@@ -18,6 +20,7 @@ const Form_aperture = ({
   setLoading,
   id,
   dataOwner,
+  valveID,
 }) => {
   const [showConfirm, setShowConfirm] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -28,6 +31,7 @@ const Form_aperture = ({
   const [disabled, setDisabled] = useState(true);
   const [typeForm, setTypeForm] = useState();
   const [typeAperture, setTypeAperture] = useState([]);
+  const [nameTypeAperture, setNameTypeAperture] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const openDateInputRef = useRef(null);
   const hourOpenRef = useRef(null);
@@ -62,7 +66,7 @@ const Form_aperture = ({
     type_opening_id: "",
     lot_id: id ?? "",
     user_id: dataOwner?.id ?? "",
-    device_iot_id: "",
+    device_iot_id: valveID ?? "",
     open_date: "",
     hour_open_date: "",
     close_date: "",
@@ -96,8 +100,6 @@ const Form_aperture = ({
         a.type_opening.localeCompare(b.type_opening)
       );
 
-      console.log(sortedData);
-
       setTypeAperture(sortedData);
       setIsLoading(false);
       setDisabled(false);
@@ -109,6 +111,19 @@ const Form_aperture = ({
   const handleChange = (e) => {
     const { name, value } = e.target;
 
+    // Si el campo cambiado es el tipo de apertura
+    if (name === "type_opening_id") {
+      // Buscar el objeto completo por el ID seleccionado
+      const selectedType = typeAperture.find(
+        (type) => String(type.id) === value
+      );
+
+      // Actualizar el nombre también si se encontró
+      if (selectedType) {
+        setNameTypeAperture(selectedType.type_opening);
+      }
+    }
+
     setFormData({
       ...formData,
       [name]: value,
@@ -119,11 +134,18 @@ const Form_aperture = ({
     setSubmitted(true);
 
     const isTypeApertureValid = validatePhone(formData.type_opening_id);
-    const isOpenDateValid = validateDate(formData.open_date);
+    const isOpenDateValid = validateOpenDate(formData.open_date);
     const isHourOpenValid = validateTime(formData.hour_open_date);
-    const isClosedDateValid = validateDate(formData.close_date);
-    const isHourClosedValid = validateTime(formData.hour_closed_date);
-
+    const isClosedDateValid = validateCloseDate(
+      formData.open_date,
+      formData.close_date
+    );
+    const isHourClosedValid = validateCloseTime(
+      formData.open_date,
+      formData.close_date,
+      formData.hour_open_date,
+      formData.hour_closed_date
+    );
     const isVolumeWaterValid =
       formData.type_opening_id === "1"
         ? validatePhone(formData.volume_water)
@@ -161,14 +183,43 @@ const Form_aperture = ({
         type_opening_id: formData.type_opening_id,
         lot_id: formData.lot_id,
         user_id: formData.user_id,
-        device_iot_id: formData.device_iot_id,
+        device_iot_id: parseInt(formData.device_iot_id),
         open_date: openTimestamp,
         close_date: closedTimestamp,
-        volume_water: formData.volume_water,
+        volume_water: formData.volume_water
+          ? parseInt(formData.volume_water)
+          : null,
       };
 
-      console.log(dataToSend);
+      setNewData(dataToSend);
+      setConfirMessage(
+        `¿Desea crear la solicitud de "${nameTypeAperture}" para el lote con ID "${
+          formData.lot_id
+        }" con la siguiente información?
+        \n Fecha de apertura: ${formData.open_date}, ${formatTime12h(
+          formData.hour_open_date
+        )}\n Fecha de cierre: ${formData.close_date}, ${formatTime12h(
+          formData.hour_closed_date
+        )}`
+      );
+      setMethod("post");
+      setUriPost(
+        import.meta.env.VITE_URI_BACKEND_IOT +
+          import.meta.env.VITE_ROUTE_BACKEND_IOT_APERTURE_CREATE
+      );
+      setTypeForm("create");
+      setShowConfirm(true);
     }
+  };
+
+  const formatTime12h = (timeStr) => {
+    if (!timeStr) return "";
+    const [hour, minute] = timeStr.split(":").map(Number);
+
+    const ampm = hour >= 12 ? "pm" : "am";
+    const hour12 = hour % 12 === 0 ? 12 : hour % 12;
+
+    return `${hour12}:${minute.toString().padStart(2, "0")} ${ampm}`;
   };
 
   return (

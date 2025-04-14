@@ -41,6 +41,12 @@ const Names_navegation = {
         "detail": "Detalles del usuario #",
       },  
     },
+    "request": {
+      name: "Solicitudes",
+      submodules: {
+        "detail": "Detalles de la Solicitud #",
+      },  
+    },
   };
   
   export default Names_navegation;

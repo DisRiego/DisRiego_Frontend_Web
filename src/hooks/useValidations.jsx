@@ -272,3 +272,50 @@ export const validateTime = (text) => {
   const timeRegex = /^(?:[01]\d|2[0-3]):[0-5]\d$/;
   return timeRegex.test(text.trim());
 };
+
+export const validateOpenDate = (date) => {
+  const [year, month, day] = date.split("-").map(Number);
+
+  // Crear la fecha manualmente en zona horaria local
+  const inputDate = new Date(year, month - 1, day);
+  const today = new Date();
+
+  // Normaliza ambas fechas a medianoche
+  inputDate.setHours(0, 0, 0, 0);
+  today.setHours(0, 0, 0, 0);
+
+  return inputDate >= today;
+};
+
+export const validateCloseDate = (openDate, closeDate) => {
+  if (!openDate || !closeDate) return false;
+
+  const [openYear, openMonth, openDay] = openDate.split("-").map(Number);
+  const [closeYear, closeMonth, closeDay] = closeDate.split("-").map(Number);
+
+  const open = new Date(openYear, openMonth - 1, openDay);
+  const close = new Date(closeYear, closeMonth - 1, closeDay);
+
+  // Normaliza ambas fechas a medianoche en zona local
+  open.setHours(0, 0, 0, 0);
+  close.setHours(0, 0, 0, 0);
+  return close >= open;
+};
+
+export const validateCloseTime = (openDate, closeDate, openTime, closeTime) => {
+  if (!openTime || !closeTime || !openDate || !closeDate) return false;
+
+  // Solo comparar horas si la fecha de apertura y cierre son iguales
+  if (openDate !== closeDate) return true;
+
+  const [openHours, openMinutes] = openTime.split(":").map(Number);
+  const [closeHours, closeMinutes] = closeTime.split(":").map(Number);
+
+  const open = new Date();
+  open.setHours(openHours, openMinutes, 0, 0);
+
+  const close = new Date();
+  close.setHours(closeHours, closeMinutes, 0, 0);
+
+  return close > open;
+};

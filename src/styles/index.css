@@ -201,6 +201,11 @@ p.title + p {
   background-color: #c2e96a;
 }
 
+.button.color-pending {
+  color: #624900;
+  background-color: #fcf1d2;
+}
+
 .button.color-hover:disabled {
   color: hsl(221, 14%, 71%);
 }
@@ -1186,13 +1191,16 @@ td > td.status-operativo,
 td > td.status-no-operativo,
 td > td.status-sin-instalar,
 td > td.status-fallo-detectado,
-td > td.status-en-mantenimiento {
+td > td.status-en-mantenimiento,
+td > td.status-aprobada,
+td > td.status-rechazada {
   padding: 0em;
   border-bottom: none;
 }
 
 .button.status-activo,
-.button.status-operativo {
+.button.status-operativo,
+.button.status-aprobada {
   width: 100%;
   pointer-events: none;
   cursor: text;
@@ -1236,7 +1244,8 @@ td > td.status-en-mantenimiento {
 
 .button.status-suspendido,
 .button.status-expirado,
-.button.status-fallo-detectado {
+.button.status-fallo-detectado,
+.button.status-rechazada {
   width: 100%;
   pointer-events: none;
   cursor: text;
@@ -1271,7 +1280,8 @@ td > td.status-en-mantenimiento {
   }
 
   .button.detail-status.status-1,
-  .button.detail-status.status-11 {
+  .button.detail-status.status-11,
+  .button.detail-status.status-17 {
     background-color: #ecfdf3;
     color: #027a48;
   }
@@ -1283,13 +1293,15 @@ td > td.status-en-mantenimiento {
   }
 
   .button.detail-status.status-3,
-  .button.detail-status.status-14 {
+  .button.detail-status.status-14,
+  .button.detail-status.status-18 {
     background-color: #fff7e2;
     color: #9f7700;
   }
 
   .button.detail-status.status-4,
-  .button.detail-status.status-13 {
+  .button.detail-status.status-13,
+  .button.detail-status.status-19 {
     background-color: #ffc6c3;
     color: #b42c24;
   }
@@ -1312,7 +1324,8 @@ td > td.status-en-mantenimiento {
     opacity: 0.8;
   }
   .button.status-activo,
-  .button.status-operativo {
+  .button.status-operativo,
+  .button.status-aprobada {
     background-color: transparent;
     color: #b3ff9e;
     border-color: #b3ff9e;
@@ -1344,7 +1357,8 @@ td > td.status-en-mantenimiento {
 
   .button.status-suspendido,
   .button.status-expirado,
-  .button.status-fallo-detectado {
+  .button.status-fallo-detectado,
+  .button.status-rechazada {
     background-color: transparent;
     color: #ff7e77;
     border-color: #ff7e77;
@@ -1359,7 +1373,8 @@ td > td.status-en-mantenimiento {
   }
 
   .button.detail-status.status-1,
-  .button.detail-status.status-11 {
+  .button.detail-status.status-11,
+  .button.detail-status.status-17 {
     color: #b3ff9e;
     border-color: #b3ff9e;
     opacity: 0.8;
@@ -1373,14 +1388,16 @@ td > td.status-en-mantenimiento {
   }
 
   .button.detail-status.status-3,
-  .button.detail-status.status-14 {
+  .button.detail-status.status-14,
+  .button.detail-status.status-18 {
     color: #ffc100;
     border-color: #ffc100;
     opacity: 0.8;
   }
 
   .button.detail-status.status-4,
-  .button.detail-status.status-13 {
+  .button.detail-status.status-13,
+  .button.detail-status.status-19 {
     color: #ff7e77;
     border-color: #ff7e77;
     opacity: 0.8;

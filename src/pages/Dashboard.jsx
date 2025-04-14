@@ -19,9 +19,10 @@ import Company_crop from "../components/dashboard/company/Company_crop";
 import Company_payment_interval from "../components/dashboard/company/Company_payment_interval";
 import Company_rates from "../components/dashboard/company/Company_rates";
 import Device from "../components/dashboard/Device";
-import Iot_detail from "../components/dashboard/details/Iot_detail";
+import Device_detail from "../components/dashboard/details/Device_detail";
 import Profile from "../components/dashboard/Profile";
 import Request from "../components/dashboard/Request";
+import Request_detail from "../components/dashboard/details/Request_detail";
 
 const Dashboard = () => {
   const { id } = useParams();
@@ -64,6 +65,8 @@ const Dashboard = () => {
         return <Notification />;
       case "request":
         return <Request />;
+      case `request/${id}`:
+        return <Request_detail />;
       case "rol":
         return <Rol />;
       case `rol/${id}`:
@@ -85,7 +88,7 @@ const Dashboard = () => {
       case `device`:
         return <Device />;
       case `device/${id}`:
-        return <Iot_detail />;
+        return <Device_detail />;
       case "report":
         return <Fault_report />;
       case "company":

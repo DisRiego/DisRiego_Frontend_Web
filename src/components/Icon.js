@@ -9,6 +9,7 @@ import { VscError } from "react-icons/vsc";
 import { MdDeleteSweep } from "react-icons/md";
 import { TbMap2 } from "react-icons/tb";
 import { TbMapSearch } from "react-icons/tb";
+import { MdPendingActions } from "react-icons/md";
 
 const Icon = {
   MdDownloadDone,
@@ -22,7 +23,8 @@ const Icon = {
   VscError,
   MdDeleteSweep,
   TbMap2,
-  TbMapSearch
+  TbMapSearch,
+  MdPendingActions
 };
 
 export default Icon;

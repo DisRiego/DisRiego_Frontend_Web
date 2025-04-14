@@ -1,67 +1,73 @@
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 
-const Confirm_aperture = ({
-  confirMessage,
+const Change_status_request = ({
   onClose,
-  method,
-  formData,
+  onSuccess,
+  id,
+  confirMessage,
   setShowMessage,
   setTitleMessage,
   setMessage,
   setStatus,
-  onSuccess,
   updateData,
-  uriPost,
   typeForm,
   loading,
   setLoading,
 }) => {
+  const [formData, setFormData] = useState({});
   const [isProcessing, setIsProcessing] = useState(false);
+  // console.log(typeForm);
+  console.log(formData);
+
+  useEffect(() => {
+    setFormData({
+      request_id: id,
+    });
+  }, [typeForm]);
 
   const handleConfirm = async () => {
     try {
       setLoading("is-loading");
       setIsProcessing(true);
-      const response = await axios({
-        method: method,
-        url: uriPost,
-        data: formData,
-      });
-      if (typeForm === "create") {
-        setTitleMessage("Intervalo creado exitosamente");
-        setMessage("El Intervalo ha sido creado correctamente.");
+      const response = await axios.post(
+        import.meta.env.VITE_URI_BACKEND_IOT +
+          import.meta.env.VITE_ROUTE_BACKEND_REQUEST_CHANGE_STATUS,
+        formData
+      );
+
+      if (typeForm === "habilitar") {
+        setTitleMessage("Habilitación exitosa");
+        setMessage("Se ha habilitado el lote correctamente.");
         setStatus("is-true");
         setShowMessage(true);
-        onClose();
-        onSuccess();
-        updateData();
       } else {
-        setTitleMessage("Modificación exitosa");
-        setMessage("El Intervalo se ha modificado correctamente.");
+        setTitleMessage("Inhabilitación exitosa");
+        setMessage("Se ha inhabilitado el lote correctamente.");
         setStatus("is-true");
         setShowMessage(true);
-        onClose();
-        onSuccess();
-        updateData();
       }
+
+      onClose();
+      onSuccess();
+      updateData();
     } catch (error) {
       console.log(error);
-      if (typeForm === "create") {
-        setTitleMessage("Error al crear el Intervalo");
+      if (typeForm === "habilitar") {
+        setTitleMessage("Habilitación fallida");
         setMessage(
-          "No se pudo crear el Intervalo. Por favor, inténtelo de nuevo."
+          "No se pudo habilitar el lote. Por favor, inténtelo de nuevo."
         );
         setStatus("is-false");
-        setShowMessage(true);
       } else {
-        setTitleMessage("Modificación fallida");
+        setTitleMessage("Inhabilitación fallida");
         setMessage(
-          "No se pudo modificar el Intervalo. Por favor, inténtelo de nuevo."
+          "No se pudo inhabilitar el lote. Por favor, inténtelo de nuevo."
         );
         setStatus("is-false");
-        setShowMessage(true);
       }
+
+      setShowMessage(true);
     } finally {
       setLoading("");
       setIsProcessing(false);
@@ -80,13 +86,8 @@ const Confirm_aperture = ({
             <p className="title has-text-centered is-5">
               ¿Está seguro de realizar la siguiente acción?
             </p>
-            <p className="has-text-centered">
-              {confirMessage.split("\n").map((line, index) => (
-                <React.Fragment key={index}>
-                  {line}
-                  <br />
-                </React.Fragment>
-              ))}
+            <p className="text-confirm has-text-centered mt-2">
+              {confirMessage}
             </p>
             <div className="buttons is-centered mt-4">
               <div className="buttons">
@@ -111,4 +112,4 @@ const Confirm_aperture = ({
   );
 };
 
-export default Confirm_aperture;
+export default Change_status_request;
