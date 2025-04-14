@@ -22,6 +22,7 @@ const Table = ({
   setShowEditUser,
   setShowAssign,
   setShowChangeStatus,
+  setShowFormReject,
   setConfirMessage,
   setTypeForm,
   parentComponent,
@@ -270,11 +271,8 @@ const Table = ({
       setShowChangeStatus(true);
     }
     if (id === "request" && option.name === "Denegar") {
-      setConfirMessage(
-        `¿Desea denegar la solicitud con ID "${row["ID de la solicitud"]}"?`
-      );
-      setTypeForm("denegar");
-      setShowChangeStatus(true);
+      setTitle("Denegar solicitud");
+      setShowFormReject(true);
     }
   };
 

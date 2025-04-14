@@ -4,6 +4,7 @@ import axios from "axios";
 import Head from "../Head";
 import Message from "../../Message";
 import Change_status_request from "../Status/Change_status_request";
+import Form_request_reject from "../forms/adds/Form_request_reject";
 import { TbPointFilled } from "react-icons/tb";
 import { format } from "date-fns";
 
@@ -16,6 +17,7 @@ const Request_detail = () => {
   const [title, setTitle] = useState();
   const [typeForm, setTypeForm] = useState();
   const [showChangeStatus, setShowChangeStatus] = useState(false);
+  const [showFormReject, setShowFormReject] = useState(false);
   const [confirMessage, setConfirMessage] = useState();
   const [loading, setLoading] = useState("");
 
@@ -32,9 +34,9 @@ const Request_detail = () => {
     }
 
     if (buttonText === "Denegar solicitud") {
-      setConfirMessage(`¿Desea aprobar la solicitud con ID "${id}"?`);
+      setTitle("Denegar solicitud");
       setTypeForm("denegar");
-      setShowChangeStatus(true);
+      setShowFormReject(true);
     }
   };
 
@@ -84,16 +86,18 @@ const Request_detail = () => {
     title: "Ver Detalles de la Solicitud #" + id,
     description:
       "En esta sección, puedes consultar la información de la solicitud.",
-    buttons: {
-      button1: {
-        class: "aprrove",
-        text: "Aprobar solicitud",
+    ...(data?.status == 18 && {
+      buttons: {
+        button1: {
+          class: "aprrove",
+          text: "Aprobar solicitud",
+        },
+        button2: {
+          class: "deny",
+          text: "Denegar solicitud",
+        },
       },
-      button2: {
-        class: "deny",
-        text: "Denegar solicitud",
-      },
-    },
+    }),
   };
 
   const formatDateTime = (dateString) => {
@@ -176,15 +180,28 @@ const Request_detail = () => {
               </div>
             </div>
           </div>
+          {![17, 18].includes(data.status) &&
+            data.rejection_reason_name &&
+            data.rejection_comment && (
+              <div className="rol-detail">
+                <div className="level">
+                  <h3 className="title is-6 margin-bottom">
+                    Información del rechazo
+                  </h3>
+                </div>
+                <div className="columns">
+                  <div className="column">
+                    <h3 className="title is-6 mb-2">Motivo</h3>
+                    <p>{data?.rejection_reason_name}</p>
+                  </div>
+                  <div className="column">
+                    <h3 className="title is-6 mb-2">Descripción</h3>
+                    <p>{data?.rejection_comment}</p>
+                  </div>
+                </div>
+              </div>
+            )}
         </>
-      )}
-      {showMessage && (
-        <Message
-          titleMessage={titleMessage}
-          message={message}
-          status={status}
-          onClose={() => setShowMessage(false)}
-        />
       )}
       {showChangeStatus && (
         <Change_status_request
@@ -200,6 +217,30 @@ const Request_detail = () => {
           typeForm={typeForm}
           loading={loading}
           setLoading={setLoading}
+        />
+      )}
+      {showFormReject && (
+        <>
+          <Form_request_reject
+            title={title}
+            onClose={() => setShowFormReject(false)}
+            setShowMessage={setShowMessage}
+            setTitleMessage={setTitleMessage}
+            setMessage={setMessage}
+            setStatus={setStatus}
+            updateData={updateData}
+            id={id}
+            loading={loading}
+            setLoading={setLoading}
+          />
+        </>
+      )}
+      {showMessage && (
+        <Message
+          titleMessage={titleMessage}
+          message={message}
+          status={status}
+          onClose={() => setShowMessage(false)}
         />
       )}
     </div>

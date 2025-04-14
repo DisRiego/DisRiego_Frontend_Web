@@ -43,6 +43,11 @@ export const validateDescription = (fullText) => {
   return descriptionRegex.test(fullText) && fullText.trim() !== "";
 };
 
+export const validateDescriptionReject = (fullText) => {
+  const descriptionRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ0-9\s.,:]+$/;
+  return descriptionRegex.test(fullText) && fullText.trim() !== "";
+};
+
 export const validatePhone = (phone) => {
   const nameRegex = /^[0-9]+$/;
   return nameRegex.test(phone);

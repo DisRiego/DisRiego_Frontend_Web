@@ -1,64 +1,52 @@
-import { useEffect, useState } from "react";
+import React, { useState } from "react";
 import axios from "axios";
 
-const Change_status_request = ({
-  onClose,
-  onSuccess,
-  id,
+const Confirm_reject_request = ({
   confirMessage,
+  onClose,
+  method,
+  formData,
   setShowMessage,
   setTitleMessage,
   setMessage,
   setStatus,
+  onSuccess,
   updateData,
+  uriPost,
   typeForm,
   loading,
   setLoading,
 }) => {
-  const [formData, setFormData] = useState({});
   const [isProcessing, setIsProcessing] = useState(false);
-  // console.log(typeForm);
-  console.log(formData);
-
-  useEffect(() => {
-    if (typeForm === "aprobar") {
-      setFormData({
-        request_id: id,
-      });
-    }
-  }, [typeForm]);
 
   const handleConfirm = async () => {
     try {
       setLoading("is-loading");
       setIsProcessing(true);
-      const response = await axios.post(
-        import.meta.env.VITE_URI_BACKEND_IOT +
-          import.meta.env.VITE_ROUTE_BACKEND_REQUEST_CHANGE_STATUS,
-        formData
-      );
-
-      if (typeForm === "aprobar") {
-        setTitleMessage("Aprobación exitosa");
-        setMessage("Se ha aprobado la solicitud correctamente.");
+      const response = await axios({
+        method: method,
+        url: uriPost,
+        data: formData,
+      });
+      if (typeForm === "denegar") {
+        setTitleMessage("Denegación exitosa");
+        setMessage("Se ha denegado la solicitud correctamente.");
         setStatus("is-true");
         setShowMessage(true);
+        onClose();
+        onSuccess();
+        updateData();
       }
-
-      onClose();
-      onSuccess();
-      updateData();
     } catch (error) {
       console.log(error);
-      if (typeForm === "aprobar") {
-        setTitleMessage("Aprobación fallida");
+      if (typeForm === "denegar") {
+        setTitleMessage("Denegación fallida");
         setMessage(
-          "No se pudo aprobar la solicitud. Por favor, inténtelo de nuevo."
+          "No se pudo denegar la solicitud. Por favor, inténtelo de nuevo."
         );
         setStatus("is-false");
+        setShowMessage(true);
       }
-
-      setShowMessage(true);
     } finally {
       setLoading("");
       setIsProcessing(false);
@@ -77,8 +65,13 @@ const Change_status_request = ({
             <p className="title has-text-centered is-5">
               ¿Está seguro de realizar la siguiente acción?
             </p>
-            <p className="text-confirm has-text-centered mt-2">
-              {confirMessage}
+            <p className="has-text-centered">
+              {confirMessage.split("\n").map((line, index) => (
+                <React.Fragment key={index}>
+                  {line}
+                  <br />
+                </React.Fragment>
+              ))}
             </p>
             <div className="buttons is-centered mt-4">
               <div className="buttons">
@@ -103,4 +96,4 @@ const Change_status_request = ({
   );
 };
 
-export default Change_status_request;
+export default Confirm_reject_request;
