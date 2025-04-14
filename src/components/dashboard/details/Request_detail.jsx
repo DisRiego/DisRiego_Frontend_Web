@@ -76,6 +76,7 @@ const Request_detail = () => {
   };
 
   const updateData = async () => {
+    setIsLoading(true);
     getRequest();
   };
 

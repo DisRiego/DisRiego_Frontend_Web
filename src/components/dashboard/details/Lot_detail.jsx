@@ -75,23 +75,51 @@ const Lot_detail = () => {
   const [confirMessage, setConfirMessage] = useState();
   const [typeForm, setTypeForm] = useState();
   const token = localStorage.getItem("token");
+  const [isValveStatusLoaded, setIsValveStatusLoaded] = useState(false);
   const [valveID, setValveID] = useState();
+  const [statusValve, setStatusValve] = useState("");
 
   const hasValveDevice = dataIot.some((device) =>
     device.device_type?.toLowerCase().includes("válvula")
   );
+
+  const getValveButtonData = () => {
+    if (!isValveStatusLoaded || !hasValveDevice) return null;
+
+    switch (statusValve.toLowerCase()) {
+      case "pendiente":
+        return {
+          icon: "",
+          class: "color-pending",
+          text: "Pendiente de aprobación",
+        };
+      case "aprobada":
+        return {
+          icon: "",
+          class: "color-waiting",
+          text: "En espera de apertura",
+        };
+      case "cerrada":
+        return null;
+      case "rechazada":
+      case "cancelada":
+      default:
+        return {
+          icon: "FaPlus",
+          class: "color-hover",
+          text: "Solicitar apertura",
+        };
+    }
+  };
+  const valveButtonData = getValveButtonData();
 
   const head_data = {
     title: "Detalles del lote #" + id,
     description:
       "En esta sección podrás visualizar información detallada sobre el lote.",
     buttons: {
-      ...(hasValveDevice && {
-        button1: {
-          icon: "FaPlus",
-          class: "color-hover",
-          text: "Solicitar apertura",
-        },
+      ...(valveButtonData && {
+        button1: valveButtonData,
       }),
       button2: {
         icon: "LuDownload",
@@ -758,11 +786,40 @@ const Lot_detail = () => {
       if (valve) {
         setValveID(valve.id);
       }
+      // console.log(valve.id);
+      fetchRequest(valve.id);
 
       setDataIot(dataIot);
       // setIsLoading(false);
     } catch (error) {
       console.error("Error al obtener los dispositivos del lote:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (!valveID) return;
+
+    const interval = setInterval(() => {
+      fetchRequest(valveID); // vuelve a pedir el estado
+    }, 10000); // 10 segundos
+
+    return () => clearInterval(interval); // limpiar al desmontar
+  }, [valveID]);
+
+  const fetchRequest = async (valve) => {
+    try {
+      const response = await axios.get(
+        import.meta.env.VITE_URI_BACKEND_IOT +
+          import.meta.env.VITE_ROUTE_BACKEND_REQUEST_BY_VALVE +
+          valve
+      );
+      const dataBack = response.data.data.latest_request.status.name;
+      setStatusValve(dataBack);
+      console.log(dataBack);
+    } catch (error) {
+      console.error("Error al obtener el estado de la válvula:", error);
+    } finally {
+      setIsValveStatusLoaded(true);
     }
   };
 

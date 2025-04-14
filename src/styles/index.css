@@ -206,6 +206,11 @@ p.title + p {
   background-color: #fcf1d2;
 }
 
+.button.color-waiting {
+  background-color: #dee9ff;
+  color: #244ea2;
+}
+
 .button.color-hover:disabled {
   color: hsl(221, 14%, 71%);
 }
@@ -1192,6 +1197,7 @@ td > td.status-no-operativo,
 td > td.status-sin-instalar,
 td > td.status-fallo-detectado,
 td > td.status-en-mantenimiento,
+td > td.status-en-espera,
 td > td.status-aprobada,
 td > td.status-rechazada {
   padding: 0em;

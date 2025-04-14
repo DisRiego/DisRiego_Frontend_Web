@@ -261,19 +261,19 @@ const Table = ({
       setShowChangeStatus(true);
     }
 
-    //Notificaciones
+    //Solicitudes
     if (id === "request" && option.name === "Aprobar") {
       setConfirMessage(
         `¿Desea aprobar la solicitud con ID "${row["ID de la solicitud"]}"?`
       );
-      setTypeForm("habilitar");
+      setTypeForm("aprobar");
       setShowChangeStatus(true);
     }
     if (id === "request" && option.name === "Denegar") {
       setConfirMessage(
         `¿Desea denegar la solicitud con ID "${row["ID de la solicitud"]}"?`
       );
-      setTypeForm("inhabilitar");
+      setTypeForm("denegar");
       setShowChangeStatus(true);
     }
   };

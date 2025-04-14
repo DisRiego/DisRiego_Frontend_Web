@@ -21,9 +21,11 @@ const Change_status_request = ({
   console.log(formData);
 
   useEffect(() => {
-    setFormData({
-      request_id: id,
-    });
+    if (typeForm === "aprobar") {
+      setFormData({
+        request_id: id,
+      });
+    }
   }, [typeForm]);
 
   const handleConfirm = async () => {
