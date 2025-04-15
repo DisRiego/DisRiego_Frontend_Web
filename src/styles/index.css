@@ -1457,3 +1457,8 @@ td > td.status-rechazada {
   background-color: #ffc6c3;
   color: #940800;
 }
+
+.button.color-warning {
+  background-color: #ffc6c3;
+  color: #940800;
+}

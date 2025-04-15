@@ -276,6 +276,17 @@ const Table = ({
     }
   };
 
+  const getNormalizedStatus = (status) => {
+    if (!status) return "";
+
+    const normalized = status.toLowerCase();
+
+    if (["en espera", "cerrada"].includes(normalized)) return "No operativo";
+    if (normalized === "abierta") return "Operativo";
+
+    return status;
+  };
+
   return (
     <div className="table-container">
       <table className="table is-fullwidth is-striped is-hoverable">
@@ -475,21 +486,26 @@ const Table = ({
                           )}
                         </div>
                       ) : column === "Estado" ? (
-                        <td
-                          key={`${rowIndex}-${colIndex}`}
-                          className={`status-${row[column]
+                        (() => {
+                          const displayedStatus = getNormalizedStatus(
+                            row[column]
+                          );
+                          const className = `status-${displayedStatus
                             .toLowerCase()
-                            .replace(/\s+/g, "-")}`}
-                        >
-                          <button
-                            className={`button status-${row[column]
-                              .toLowerCase()
-                              .replace(/\s+/g, "-")}`}
-                          >
-                            <TbPointFilled className="mr-1" />
-                            <p className="mr-1">{row[column]}</p>
-                          </button>
-                        </td>
+                            .replace(/\s+/g, "-")}`;
+
+                          return (
+                            <td
+                              key={`${rowIndex}-${colIndex}`}
+                              className={className}
+                            >
+                              <button className={`button ${className}`}>
+                                <TbPointFilled className="mr-1" />
+                                <p className="mr-1">{displayedStatus}</p>
+                              </button>
+                            </td>
+                          );
+                        })()
                       ) : column === "Anexo" ? (
                         row[column] ? (
                           <div className="is-flex is-align-items-center">

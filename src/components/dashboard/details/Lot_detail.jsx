@@ -77,7 +77,8 @@ const Lot_detail = () => {
   const token = localStorage.getItem("token");
   const [isValveStatusLoaded, setIsValveStatusLoaded] = useState(false);
   const [valveID, setValveID] = useState();
-  const [statusValve, setStatusValve] = useState("");
+  const [statusRequest, setStatusRequest] = useState("");
+  const [statusValve, setStatusVale] = useState("");
 
   const hasValveDevice = dataIot.some((device) =>
     device.device_type?.toLowerCase().includes("válvula")
@@ -86,31 +87,47 @@ const Lot_detail = () => {
   const getValveButtonData = () => {
     if (!isValveStatusLoaded || !hasValveDevice) return null;
 
-    switch (statusValve.toLowerCase()) {
-      case "pendiente":
+    const request = statusRequest?.toLowerCase();
+    const valve = statusValve?.toLowerCase();
+
+    if (request === "aprobada") {
+      if (valve === "abierta") {
         return {
-          icon: "",
-          class: "color-pending",
-          text: "Pendiente de aprobación",
+          icon: "FaDoorClosed",
+          class: "color-warning",
+          text: "Cerrar válvula",
         };
-      case "aprobada":
+      }
+
+      if (valve === "cerrada") {
         return {
-          icon: "",
-          class: "color-waiting",
-          text: "En espera de apertura",
-        };
-      case "cerrada":
-        return null;
-      case "rechazada":
-      case "cancelada":
-      default:
-        return {
-          icon: "FaPlus",
+          icon: "FaDoorOpen",
           class: "color-hover",
-          text: "Solicitar apertura",
+          text: "Abrir válvula",
         };
+      }
+      return {
+        icon: "",
+        class: "color-waiting",
+        text: "En espera de apertura",
+      };
     }
+
+    if (request === "pendiente") {
+      return {
+        icon: "",
+        class: "color-pending",
+        text: "Pendiente de aprobación",
+      };
+    }
+
+    return {
+      icon: "FaPlus",
+      class: "color-hover",
+      text: "Solicitar apertura",
+    };
   };
+
   const valveButtonData = getValveButtonData();
 
   const head_data = {
@@ -137,6 +154,16 @@ const Lot_detail = () => {
     if (buttonText === "Descargar reporte") {
       setLoading("is-loading");
       generateReport();
+    }
+
+    if (buttonText === "Abrir válvula") {
+      handleOpenValve();
+      // setLoading("is-loading");
+    }
+
+    if (buttonText === "Cerrar válvula") {
+      handleClosedValve();
+      // setLoading("is-loading");
     }
   };
   //Generar reporte de predio
@@ -813,9 +840,10 @@ const Lot_detail = () => {
           import.meta.env.VITE_ROUTE_BACKEND_REQUEST_BY_VALVE +
           valve
       );
-      const dataBack = response.data.data.latest_request.status.name;
-      setStatusValve(dataBack);
-      console.log(dataBack);
+      const requestBack = response.data.data.latest_request.status.name;
+      const valveBack = response.data.data.status.name;
+      setStatusRequest(requestBack);
+      setStatusVale(valveBack);
     } catch (error) {
       console.error("Error al obtener el estado de la válvula:", error);
     } finally {
@@ -825,6 +853,38 @@ const Lot_detail = () => {
 
   const updateData = async () => {
     getDevicesByLot();
+  };
+
+  const handleOpenValve = async () => {
+    try {
+      const open = {
+        device_id: valveID,
+      };
+      const response = await axios.post(
+        import.meta.env.VITE_URI_BACKEND_IOT +
+          import.meta.env.VITE_ROUTE_BACKEND_IOT_OPEN_VALVE,
+        open
+      );
+      console.log(response);
+    } catch (error) {
+      console.error("Error al abrir válvula:", error);
+    }
+  };
+
+  const handleClosedValve = async () => {
+    try {
+      const closed = {
+        device_id: valveID,
+      };
+      const response = await axios.post(
+        import.meta.env.VITE_URI_BACKEND_IOT +
+          import.meta.env.VITE_ROUTE_BACKEND_IOT_OPEN_VALVE,
+        closed
+      );
+      console.log(response);
+    } catch (error) {
+      console.error("Error al cerrar válvula:", error);
+    }
   };
 
   const columns = [
