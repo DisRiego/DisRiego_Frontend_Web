@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import useUserPermissions from "../../../hooks/useUserPermissions";
 import Head from "../Head";
 import Tab from "../Tab";
 import Table from "../Table";
@@ -9,6 +10,13 @@ import Form_certificate from "../forms/adds/Form_certificate";
 import Change_status_certificate from "../Status/Change_status_certificate";
 
 const Company_certificate = ({}) => {
+  const {
+    permissions: permissionsUser,
+    token,
+    decodedToken,
+  } = useUserPermissions();
+  const hasPermission = (permission) => permissionsUser.includes(permission);
+
   const [data, setData] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
@@ -33,11 +41,13 @@ const Company_certificate = ({}) => {
     description:
       "En esta sección podrás gestionar los certificados digitales registrados en la empresa.",
     buttons: {
-      button1: {
-        icon: "FaPlus",
-        class: "color-hover",
-        text: "Añadir certificado",
-      },
+      ...(hasPermission("Añadir certificado") && {
+        button1: {
+          icon: "FaPlus",
+          class: "color-hover",
+          text: "Añadir certificado",
+        },
+      }),
     },
   };
 
@@ -48,24 +58,32 @@ const Company_certificate = ({}) => {
   };
 
   const tabs = [
-    {
+    hasPermission("Ver detalles de la empresa") && {
       key: "company",
       label: "Datos de la empresa",
       path: "/dashboard/company",
     },
-    {
+    hasPermission("Ver todos los certificados digitales") && {
       key: "certificate",
       label: "Certificados Digitales",
       path: "/dashboard/company/certificate",
     },
-    { key: "crop", label: "Tipo de cultivos", path: "/dashboard/company/crop" },
-    {
+    hasPermission("Ver todos los tipos de cultivos") && {
+      key: "crop",
+      label: "Tipo de cultivos",
+      path: "/dashboard/company/crop",
+    },
+    hasPermission("Ver todos los intervalos de pagos") && {
       key: "payment",
       label: "Intervalo de pago",
       path: "/dashboard/company/payment",
     },
-    { key: "rates", label: "Tarifas", path: "/dashboard/company/rates" },
-  ];
+    hasPermission("Ver todas las tarifas") && {
+      key: "rates",
+      label: "Tarifas",
+      path: "/dashboard/company/rates",
+    },
+  ].filter(Boolean);
 
   useEffect(() => {
     if (showMessage) {
@@ -137,10 +155,19 @@ const Company_certificate = ({}) => {
   ];
 
   const options = [
-    { icon: "BiEditAlt", name: "Editar" },
-    { icon: "MdOutlineCheckCircle", name: "Habilitar" },
-    { icon: "MdDisabledVisible", name: "Inhabilitar" },
-  ];
+    hasPermission("Editar certificado") && {
+      icon: "BiEditAlt",
+      name: "Editar",
+    },
+    hasPermission("Habilitar certificado") && {
+      icon: "MdOutlineCheckCircle",
+      name: "Habilitar",
+    },
+    hasPermission("Inhabilitar certificado") && {
+      icon: "MdDisabledVisible",
+      name: "Inhabilitar",
+    },
+  ].filter(Boolean);
 
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedData = filteredData.slice(

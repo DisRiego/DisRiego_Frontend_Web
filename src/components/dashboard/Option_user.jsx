@@ -75,7 +75,13 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
       label: "Notificaciones",
     },
     {
-      permission: ["Ver detalles de la empresa"],
+      permission: [
+        "Ver detalles de la empresa",
+        "Ver todos los certificados digitales",
+        "Ver todos los tipos de cultivos",
+        "Ver todos los intervalos de pagos",
+        "Ver todas las tarifas",
+      ],
       path: "/dashboard/company",
       selectoption: "company",
       icon: <IoHomeOutline />,
@@ -118,12 +124,18 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
     },
   ];
 
-  const optionsFiltered = optionsMenu.filter((option) =>
-    Array.isArray(option.permission)
-      ? permissionsUser.length > 0 &&
-        option.permission.some((perm) => permissionsUser.includes(perm))
-      : permissionsUser.includes(option.permission)
-  );
+  const optionsFiltered = optionsMenu.filter((option) => {
+    if (Array.isArray(option.permission)) {
+      // Solo para Gestión de empresa, exigir Ver detalles de la empresa
+      if (option.selectoption === "company") {
+        return permissionsUser.includes("Ver detalles de la empresa");
+      }
+      // Para otras opciones con array, se permite si tiene al menos uno
+      return option.permission.some((perm) => permissionsUser.includes(perm));
+    } else {
+      return permissionsUser.includes(option.permission);
+    }
+  });
 
   const getSelectedOption = (pathname) => {
     const companyRelatedOptions = ["certificate", "crop", "payment", "rates"];

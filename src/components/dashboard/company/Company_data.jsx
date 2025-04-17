@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import useUserPermissions from "../../../hooks/useUserPermissions";
 import Head from "../Head";
 import Tab from "../Tab";
 import Message from "../../Message";
@@ -10,6 +11,13 @@ import Form_edit_company_location from "../forms/edits/Form_edit_company_locatio
 import { FaEdit } from "react-icons/fa";
 
 const Company_data = ({}) => {
+  const {
+    permissions: permissionsUser,
+    token,
+    decodedToken,
+  } = useUserPermissions();
+  const hasPermission = (permission) => permissionsUser.includes(permission);
+
   const [showModalPicture, setShowModalPicture] = useState(false);
   const [showModalData, setShowModalData] = useState(false);
   const [showModalContact, setShowModalContact] = useState(false);
@@ -31,24 +39,33 @@ const Company_data = ({}) => {
   const [status, setStatus] = useState(false);
 
   const tabs = [
-    {
+    hasPermission("Ver detalles de la empresa") && {
       key: "company",
       label: "Datos de la empresa",
       path: "/dashboard/company",
     },
-    {
+    hasPermission("Ver todos los certificados digitales") && {
       key: "certificate",
       label: "Certificados Digitales",
       path: "/dashboard/company/certificate",
     },
-    { key: "crop", label: "Tipo de cultivos", path: "/dashboard/company/crop" },
-    {
+    hasPermission("Ver todos los tipos de cultivos") && {
+      key: "crop",
+      label: "Tipo de cultivos",
+      path: "/dashboard/company/crop",
+    },
+    hasPermission("Ver todos los intervalos de pagos") && {
       key: "payment",
       label: "Intervalo de pago",
       path: "/dashboard/company/payment",
     },
-    { key: "rates", label: "Tarifas", path: "/dashboard/company/rates" },
-  ];
+    hasPermission("Ver todas las tarifas") && {
+      key: "rates",
+      label: "Tarifas",
+      path: "/dashboard/company/rates",
+    },
+  ].filter(Boolean);
+
   useEffect(() => {
     const interval = setInterval(() => {
       setDots((prev) => (prev.length < 3 ? prev + "." : ""));
@@ -67,8 +84,10 @@ const Company_data = ({}) => {
   }, [showMessage]);
 
   useEffect(() => {
-    fetchCompany();
-  }, []);
+    if (token && hasPermission("Ver detalles de la empresa")) {
+      fetchCompany();
+    }
+  }, [token, permissionsUser]);
 
   const fetchCompany = async () => {
     try {
@@ -185,14 +204,16 @@ const Company_data = ({}) => {
                   </p>
                 </div>
               </div>
-              <div className="level">
-                <button
-                  className="button"
-                  onClick={() => setShowModalData(true)}
-                >
-                  <FaEdit className="mr-2" /> Editar
-                </button>
-              </div>
+              {hasPermission("Editar datos de la empresa") && (
+                <div className="level">
+                  <button
+                    className="button"
+                    onClick={() => setShowModalData(true)}
+                  >
+                    <FaEdit className="mr-2" /> Editar
+                  </button>
+                </div>
+              )}
             </div>
           </div>
           <section className="rol-detail mb-4">
@@ -200,12 +221,14 @@ const Company_data = ({}) => {
               <h3 className="title is-5 margin-bottom">
                 Información de contacto
               </h3>
-              <button
-                className="button"
-                onClick={() => setShowModalContact(true)}
-              >
-                <FaEdit className="mr-2" /> Editar
-              </button>
+              {hasPermission("Editar datos de la empresa") && (
+                <button
+                  className="button"
+                  onClick={() => setShowModalContact(true)}
+                >
+                  <FaEdit className="mr-2" /> Editar
+                </button>
+              )}
             </div>
             <div className="columns">
               <div className="column">
@@ -221,12 +244,14 @@ const Company_data = ({}) => {
           <section className="rol-detail">
             <div className="level">
               <h3 className="title is-5 margin-bottom">Ubicación</h3>
-              <button
-                className="button"
-                onClick={() => setShowModalLocation(true)}
-              >
-                <FaEdit className="mr-2" /> Editar
-              </button>
+              {hasPermission("Editar datos de la empresa") && (
+                <button
+                  className="button"
+                  onClick={() => setShowModalLocation(true)}
+                >
+                  <FaEdit className="mr-2" /> Editar
+                </button>
+              )}
             </div>
             <div className="columns">
               <div className="column">
