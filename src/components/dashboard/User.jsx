@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import useUserPermissions from "../../hooks/useUserPermissions";
 import Head from "./Head";
 import Search from "./Search";
 import Filter from "./Filter";
@@ -44,7 +45,13 @@ const User = () => {
   const [id, setId] = useState(null);
   const [title, setTitle] = useState();
   const [typeForm, setTypeForm] = useState();
-  const token = localStorage.getItem("token");
+
+  const {
+    permissions: permissionsUser,
+    token,
+    decodedToken,
+  } = useUserPermissions();
+  const hasPermission = (permission) => permissionsUser.includes(permission);
 
   const handleButtonClick = (buttonText) => {
     if (buttonText === "Añadir usuario") {
@@ -180,16 +187,20 @@ const User = () => {
     description:
       "En esta sección puedes gestionar usuarios, asignar roles y editar su información.",
     buttons: {
-      button1: {
-        icon: "FaPlus",
-        class: "color-hover",
-        text: "Añadir usuario",
-      },
-      button2: {
-        icon: "LuDownload",
-        class: "",
-        text: "Descargar reporte",
-      },
+      ...(hasPermission("Crear Usuario") && {
+        button1: {
+          icon: "FaPlus",
+          class: "color-hover",
+          text: "Añadir usuario",
+        },
+      }),
+      ...(hasPermission("Generar Informes Usuarios") && {
+        button2: {
+          icon: "LuDownload",
+          class: "",
+          text: "Descargar reporte",
+        },
+      }),
     },
   };
 
@@ -207,8 +218,10 @@ const User = () => {
   ];
 
   useEffect(() => {
-    fetchUsers();
-  }, []);
+    if (token && hasPermission("Ver Usuario")) {
+      fetchUsers();
+    }
+  }, [token, permissionsUser]);
 
   const fetchUsers = async () => {
     try {
@@ -291,11 +304,23 @@ const User = () => {
   }, [showMessage]);
 
   const options = [
-    { icon: "BiShow", name: "Ver detalles" },
-    { icon: "BiEditAlt", name: "Editar" },
-    { icon: "MdOutlineCheckCircle", name: "Habilitar" },
-    { icon: "VscError", name: "Inhabilitar" },
-  ];
+    hasPermission("Ver Detalles Usuario") && {
+      icon: "BiShow",
+      name: "Ver detalles",
+    },
+    hasPermission("Editar Usuario") && {
+      icon: "BiEditAlt",
+      name: "Editar",
+    },
+    hasPermission("Habilitar Usuario") && {
+      icon: "MdOutlineCheckCircle",
+      name: "Habilitar",
+    },
+    hasPermission("Inhabilitar Usuario") && {
+      icon: "VscError",
+      name: "Inhabilitar",
+    },
+  ].filter(Boolean);
 
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedData = filteredData.slice(

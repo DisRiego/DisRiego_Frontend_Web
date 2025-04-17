@@ -362,128 +362,144 @@ const Table = ({
                           <OptionsButton
                             onClick={() => handleClick(rowIndex)}
                           />
-                          {activeRow === rowIndex && (
-                            <div className="menu-option">
-                              <div className="box">
-                                {options
-                                  .filter((option) => {
-                                    // Ocultar opción "Habilitar" si ya está habilitado
-                                    if (
-                                      option.name === "Habilitar" &&
-                                      [
-                                        "Mantenimiento",
-                                        "Pendiente",
-                                        "Activo",
-                                        "Fallo detectado",
-                                        "En mantenimiento",
-                                        "Operativo",
-                                        "Sin instalar",
-                                        "No Operativo",
-                                      ].includes(row["Estado"])
-                                    ) {
-                                      return false;
-                                    }
+                          {activeRow === rowIndex &&
+                            (() => {
+                              const visibleOptions = options.filter(
+                                (option) => {
+                                  // ...tu lógica de filtrado de opciones ya existente...
+                                  return true; // o el resultado de cada condición
+                                }
+                              );
 
-                                    // Estados que permiten inhabilitar
-                                    const statesAllowingDisabling = [
-                                      "Activo",
-                                      "No Operativo",
-                                    ];
-                                    if (
-                                      option.name === "Inhabilitar" &&
-                                      !statesAllowingDisabling.includes(
-                                        row["Estado"]
-                                      )
-                                    ) {
-                                      return false;
-                                    }
+                              if (visibleOptions.length === 0) return null;
 
-                                    // Ocultar "Editar" si está inactivo
-                                    if (
-                                      option.name === "Editar" &&
-                                      row["Estado"] === "Inactivo"
-                                    ) {
-                                      return false;
-                                    }
-
-                                    // Mostrar solo "Asignar" si no hay ID Lote
-                                    if (
-                                      option.name === "Asignar" &&
-                                      row["ID Lote"]
-                                    ) {
-                                      return false; // ya está asignado, no muestres Asignar
-                                    }
-
-                                    // Mostrar solo "Reasignar" si sí hay ID Lote
-                                    const statesAllowingReassign = [
-                                      "No Operativo",
-                                    ];
-                                    if (
-                                      option.name === "Reasignar" &&
-                                      !statesAllowingReassign.includes(
-                                        row["Estado"]
-                                      )
-                                    ) {
-                                      return false;
-                                    }
-
-                                    if (
-                                      option.name === "Redirigir al lote" &&
-                                      row["ID Lote"] === null
-                                    ) {
-                                      return false;
-                                    }
-
-                                    //Condiciones para las opciones de aprobar y denegar
-                                    if (option.name === "Aprobar") {
-                                      const allowedStates = [
-                                        "Pendiente",
-                                        "Rechazada",
-                                      ];
-                                      if (
-                                        !allowedStates.includes(row["Estado"])
-                                      )
-                                        return false;
-                                    }
-
-                                    if (option.name === "Denegar") {
-                                      const allowedStates = [
-                                        "Pendiente",
-                                        "Aprobada",
-                                      ];
-                                      if (
-                                        !allowedStates.includes(row["Estado"])
-                                      )
-                                        return false;
-                                    }
-
-                                    return true;
-                                  })
-
-                                  .map((option, index) => {
-                                    const IconComponent = option.icon
-                                      ? Icon[option.icon]
-                                      : null;
-                                    return (
-                                      <button
-                                        key={index}
-                                        className="button is-fullwidth"
-                                        onClick={() =>
-                                          handleOption(option, row)
+                              return (
+                                <div className="menu-option">
+                                  <div className="box">
+                                    {options
+                                      .filter((option) => {
+                                        // Ocultar opción "Habilitar" si ya está habilitado
+                                        if (
+                                          option.name === "Habilitar" &&
+                                          [
+                                            "Mantenimiento",
+                                            "Pendiente",
+                                            "Activo",
+                                            "Fallo detectado",
+                                            "En mantenimiento",
+                                            "Operativo",
+                                            "Sin instalar",
+                                            "No Operativo",
+                                          ].includes(row["Estado"])
+                                        ) {
+                                          return false;
                                         }
-                                      >
-                                        {IconComponent && (
-                                          <span className="icon">
-                                            <IconComponent />
-                                          </span>
-                                        )}
-                                        <span>{option.name}</span>
-                                      </button>
-                                    );
-                                  })}
-                              </div>
-                            </div>
-                          )}
+
+                                        // Estados que permiten inhabilitar
+                                        const statesAllowingDisabling = [
+                                          "Activo",
+                                          "No Operativo",
+                                        ];
+                                        if (
+                                          option.name === "Inhabilitar" &&
+                                          !statesAllowingDisabling.includes(
+                                            row["Estado"]
+                                          )
+                                        ) {
+                                          return false;
+                                        }
+
+                                        // Ocultar "Editar" si está inactivo
+                                        if (
+                                          option.name === "Editar" &&
+                                          row["Estado"] === "Inactivo"
+                                        ) {
+                                          return false;
+                                        }
+
+                                        // Mostrar solo "Asignar" si no hay ID Lote
+                                        if (
+                                          option.name === "Asignar" &&
+                                          row["ID Lote"]
+                                        ) {
+                                          return false; // ya está asignado, no muestres Asignar
+                                        }
+
+                                        // Mostrar solo "Reasignar" si sí hay ID Lote
+                                        const statesAllowingReassign = [
+                                          "No Operativo",
+                                        ];
+                                        if (
+                                          option.name === "Reasignar" &&
+                                          !statesAllowingReassign.includes(
+                                            row["Estado"]
+                                          )
+                                        ) {
+                                          return false;
+                                        }
+
+                                        if (
+                                          option.name === "Redirigir al lote" &&
+                                          row["ID Lote"] === null
+                                        ) {
+                                          return false;
+                                        }
+
+                                        //Condiciones para las opciones de aprobar y denegar
+                                        if (option.name === "Aprobar") {
+                                          const allowedStates = [
+                                            "Pendiente",
+                                            // "Rechazada",
+                                          ];
+                                          if (
+                                            !allowedStates.includes(
+                                              row["Estado"]
+                                            )
+                                          )
+                                            return false;
+                                        }
+
+                                        if (option.name === "Denegar") {
+                                          const allowedStates = [
+                                            "Pendiente",
+                                            // "Aprobada",
+                                          ];
+                                          if (
+                                            !allowedStates.includes(
+                                              row["Estado"]
+                                            )
+                                          )
+                                            return false;
+                                        }
+
+                                        return true;
+                                      })
+
+                                      .map((option, index) => {
+                                        const IconComponent = option.icon
+                                          ? Icon[option.icon]
+                                          : null;
+                                        return (
+                                          <button
+                                            key={index}
+                                            className="button is-fullwidth"
+                                            onClick={() =>
+                                              handleOption(option, row)
+                                            }
+                                          >
+                                            {IconComponent && (
+                                              <span className="icon">
+                                                <IconComponent />
+                                              </span>
+                                            )}
+                                            <span>{option.name}</span>
+                                          </button>
+                                        );
+                                      })}
+                                  </div>
+                                </div>
+                              );
+                            })()}
                         </div>
                       ) : column === "Estado" ? (
                         (() => {

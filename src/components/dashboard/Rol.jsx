@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import useUserPermissions from "../../hooks/useUserPermissions";
 import Head from "./Head";
 import Search from "./Search";
 import Filter from "./Filter";
@@ -41,6 +42,13 @@ const Rol = () => {
   const [title, setTitle] = useState();
   const [id, setId] = useState(null);
   const [typeForm, setTypeForm] = useState();
+
+  const {
+    permissions: permissionsUser,
+    token,
+    decodedToken,
+  } = useUserPermissions();
+  const hasPermission = (permission) => permissionsUser.includes(permission);
 
   const handleButtonClick = (buttonText) => {
     if (buttonText === "Añadir rol") {
@@ -173,16 +181,20 @@ const Rol = () => {
     title: "Gestión de roles",
     description: "En esta sección puedes administrar los roles del sistema.",
     buttons: {
-      button1: {
-        icon: "FaPlus",
-        class: "color-hover",
-        text: "Añadir rol",
-      },
-      button2: {
-        icon: "LuDownload",
-        class: "",
-        text: "Descargar reporte",
-      },
+      ...(hasPermission("Crear Rol") && {
+        button1: {
+          icon: "FaPlus",
+          class: "color-hover",
+          text: "Añadir rol",
+        },
+      }),
+      ...(hasPermission("Generar Informes Roles") && {
+        button2: {
+          icon: "LuDownload",
+          class: "",
+          text: "Descargar reporte",
+        },
+      }),
     },
   };
 
@@ -195,8 +207,6 @@ const Rol = () => {
     "Estado",
     "Opciones",
   ];
-
-  console.log(filteredData);
 
   const fetchRoles = async () => {
     try {
@@ -223,8 +233,10 @@ const Rol = () => {
   };
 
   useEffect(() => {
-    fetchRoles();
-  }, []);
+    if (token && hasPermission("Ver Rol")) {
+      fetchRoles();
+    }
+  }, [token, permissionsUser]);
 
   useEffect(() => {
     if (showMessage) {
@@ -275,11 +287,23 @@ const Rol = () => {
   }, [data, searchTerm, filters.estados]);
 
   const options = [
-    { icon: "BiShow", name: "Ver detalles" },
-    { icon: "BiEditAlt", name: "Editar" },
-    { icon: "MdOutlineCheckCircle", name: "Habilitar" },
-    { icon: "VscError", name: "Inhabilitar" },
-  ];
+    hasPermission("Ver Detalles Rol") && {
+      icon: "BiShow",
+      name: "Ver detalles",
+    },
+    hasPermission("Editar Rol") && {
+      icon: "BiEditAlt",
+      name: "Editar",
+    },
+    hasPermission("Habilitar Rol") && {
+      icon: "MdOutlineCheckCircle",
+      name: "Habilitar",
+    },
+    hasPermission("Inhabilitar Rol") && {
+      icon: "VscError",
+      name: "Inhabilitar",
+    },
+  ].filter(Boolean);
 
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedData = filteredData.slice(

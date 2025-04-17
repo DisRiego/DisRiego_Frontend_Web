@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { Bar, Line } from "react-chartjs-2";
-import "../../../styles/index.css";
+import useUserPermissions from "../../../hooks/useUserPermissions";
 import Head from "../Head";
 import Table from "../Table";
 import Pagination from "../Pagination";
@@ -74,7 +74,13 @@ const Lot_detail = () => {
   const [showChangeStatus, setShowChangeStatus] = useState(false);
   const [confirMessage, setConfirMessage] = useState();
   const [typeForm, setTypeForm] = useState();
-  const token = localStorage.getItem("token");
+  const {
+    permissions: permissionsUser,
+    token,
+    decodedToken,
+  } = useUserPermissions();
+  const hasPermission = (permission) => permissionsUser.includes(permission);
+
   const [isValveStatusLoaded, setIsValveStatusLoaded] = useState(false);
   const [valveID, setValveID] = useState();
   const [statusRequest, setStatusRequest] = useState("");
@@ -90,42 +96,44 @@ const Lot_detail = () => {
     const request = statusRequest?.toLowerCase();
     const valve = statusValve?.toLowerCase();
 
-    if (request === "aprobada") {
-      if (valve === "abierta") {
+    if (token && hasPermission("Crear Solicitud Valvula")) {
+      if (request === "aprobada") {
+        if (valve === "abierta") {
+          return {
+            icon: "FaDoorClosed",
+            class: "color-warning",
+            text: "Cerrar válvula",
+          };
+        }
+
+        if (valve === "cerrada") {
+          return {
+            icon: "FaDoorOpen",
+            class: "color-hover",
+            text: "Abrir válvula",
+          };
+        }
         return {
-          icon: "FaDoorClosed",
-          class: "color-warning",
-          text: "Cerrar válvula",
+          icon: "",
+          class: "color-waiting",
+          text: "En espera de apertura",
         };
       }
 
-      if (valve === "cerrada") {
+      if (request === "pendiente") {
         return {
-          icon: "FaDoorOpen",
-          class: "color-hover",
-          text: "Abrir válvula",
+          icon: "",
+          class: "color-pending",
+          text: "Pendiente de aprobación",
         };
       }
+
       return {
-        icon: "",
-        class: "color-waiting",
-        text: "En espera de apertura",
+        icon: "FaPlus",
+        class: "color-hover",
+        text: "Solicitar apertura",
       };
     }
-
-    if (request === "pendiente") {
-      return {
-        icon: "",
-        class: "color-pending",
-        text: "Pendiente de aprobación",
-      };
-    }
-
-    return {
-      icon: "FaPlus",
-      class: "color-hover",
-      text: "Solicitar apertura",
-    };
   };
 
   const valveButtonData = getValveButtonData();
@@ -138,11 +146,13 @@ const Lot_detail = () => {
       ...(valveButtonData && {
         button1: valveButtonData,
       }),
-      button2: {
-        icon: "LuDownload",
-        class: "",
-        text: "Descargar reporte",
-      },
+      ...(hasPermission("Generar Reporte lote") && {
+        button2: {
+          icon: "LuDownload",
+          class: "",
+          text: "Descargar reporte",
+        },
+      }),
     },
   };
 
@@ -739,8 +749,10 @@ const Lot_detail = () => {
 
   useEffect(() => {
     fetchLot();
-    getDevicesByLot();
-  }, []);
+    if (token && hasPermission("Ver Dispositivo por Lote")) {
+      getDevicesByLot();
+    }
+  }, [token, permissionsUser]);
 
   const fetchLot = async () => {
     try {
@@ -944,10 +956,26 @@ const Lot_detail = () => {
 
   const options = [
     { icon: "BiShow", name: "Ver detalles" },
-    { icon: "BiEditAlt", name: "Editar" },
-    { icon: "MdOutlineCheckCircle", name: "Habilitar" },
-    { icon: "VscError", name: "Inhabilitar" },
-  ];
+    hasPermission("Editar Dispositivo") && {
+      icon: "BiEditAlt",
+      name: "Editar",
+    },
+    hasPermission("Habilitar Dispositivo") && {
+      icon: "MdOutlineCheckCircle",
+      name: "Habilitar",
+    },
+    hasPermission("Inhabilitar Dispositivo") && {
+      icon: "VscError",
+      name: "Inhabilitar",
+    },
+  ].filter(Boolean);
+
+  // const options = [
+  //   { icon: "BiShow", name: "Ver detalles" },
+  //   { icon: "BiEditAlt", name: "Editar" },
+  //   { icon: "MdOutlineCheckCircle", name: "Habilitar" },
+  //   { icon: "VscError", name: "Inhabilitar" },
+  // ];
 
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedData = filteredData.slice(
@@ -1275,32 +1303,34 @@ const Lot_detail = () => {
             </div>
           </div>
           {/* <Head head_data={head_lot_data} onButtonClick={handleButtonClick} /> */}
-          <div className="rol-detail">
-            <Head
-              head_data={head_iot}
-              onButtonClick={handleButtonClick}
-              loading={loading}
-            />
-            <Table
-              columns={columns}
-              data={paginatedData}
-              options={options}
-              loadingTable={loadingTable}
-              setId={setIdRow}
-              setTitle={setTitle}
-              setShowEdit={setShowEdit}
-              parentComponent={parentComponent}
-              setShowChangeStatus={setShowChangeStatus}
-              setConfirMessage={setConfirMessage}
-              setTypeForm={setTypeForm}
-            ></Table>
-            <Pagination
-              totalItems={filteredData.length}
-              itemsPerPage={itemsPerPage}
-              currentPage={currentPage}
-              onPageChange={setCurrentPage}
-            />
-          </div>
+          {hasPermission("Ver Dispositivo por Lote") && (
+            <div className="rol-detail">
+              <Head
+                head_data={head_iot}
+                onButtonClick={handleButtonClick}
+                loading={loading}
+              />
+              <Table
+                columns={columns}
+                data={paginatedData}
+                options={options}
+                loadingTable={loadingTable}
+                setId={setIdRow}
+                setTitle={setTitle}
+                setShowEdit={setShowEdit}
+                parentComponent={parentComponent}
+                setShowChangeStatus={setShowChangeStatus}
+                setConfirMessage={setConfirMessage}
+                setTypeForm={setTypeForm}
+              ></Table>
+              <Pagination
+                totalItems={filteredData.length}
+                itemsPerPage={itemsPerPage}
+                currentPage={currentPage}
+                onPageChange={setCurrentPage}
+              />
+            </div>
+          )}
         </>
       )}
       {showForm && (

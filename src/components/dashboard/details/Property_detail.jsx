@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { Bar, Line } from "react-chartjs-2";
-import "../../../styles/index.css";
+import useUserPermissions from "../../../hooks/useUserPermissions";
 import Head from "../Head";
 import Lot from "../Lot";
 import Form_lot from "../forms/adds/Form_lot";
@@ -67,8 +67,14 @@ const Property_detail = () => {
   const [title, setTitle] = useState();
   const [confirMessage, setConfirMessage] = useState();
   const [typeForm, setTypeForm] = useState();
-  const token = localStorage.getItem("token");
   const [canCreateLote, setCanCreateLote] = useState(false);
+
+  const {
+    permissions: permissionsUser,
+    token,
+    decodedToken,
+  } = useUserPermissions();
+  const hasPermission = (permission) => permissionsUser.includes(permission);
 
   useEffect(() => {
     if (!isNaN(id)) {
@@ -82,39 +88,25 @@ const Property_detail = () => {
     }
   }, [id, location.pathname]);
 
-  useEffect(() => {
-    if (token) {
-      try {
-        const decoded = jwtDecode(token);
-        const permissions = decoded.rol[0].permisos.map(
-          (permiso) => permiso.name
-        );
-
-        setCanCreateLote(permissions.includes("Crear Lote"));
-      } catch (error) {
-        console.error("Error al decodificar el token:", error);
-        setCanCreateLote(false);
-      }
-    }
-  }, [token]);
-
   const head_data = {
     title: "Detalles del predio #" + id,
     description:
       "En esta sección podrás visualizar información detallada sobre el predio.",
     buttons: {
-      ...(canCreateLote && {
+      ...(hasPermission("Crear Lote") && {
         button1: {
           icon: "FaPlus",
           class: "color-hover",
           text: "Añadir lote",
         },
       }),
-      button2: {
-        icon: "LuDownload",
-        class: "",
-        text: "Descargar reporte",
-      },
+      ...(hasPermission("Generar Informes de un Predio") && {
+        button2: {
+          icon: "LuDownload",
+          class: "",
+          text: "Descargar reporte",
+        },
+      }),
     },
   };
 
@@ -666,8 +658,14 @@ const Property_detail = () => {
 
   useEffect(() => {
     fetchProperty();
-    fetchLots();
-  }, []);
+
+    if (
+      token &&
+      (hasPermission("Ver Lote") || hasPermission("Ver Mis Lotes"))
+    ) {
+      fetchLots();
+    }
+  }, [token, permissionsUser]);
 
   const fetchProperty = async () => {
     try {

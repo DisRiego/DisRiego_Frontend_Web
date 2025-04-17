@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import useUserPermissions from "../../hooks/useUserPermissions";
 import Head from "./Head";
 import Search from "./Search";
 import Filter from "./Filter";
@@ -36,7 +37,13 @@ const Device = () => {
   const [id, setId] = useState(null);
   const [title, setTitle] = useState();
   const [typeForm, setTypeForm] = useState();
-  const token = localStorage.getItem("token");
+  const {
+    permissions: permissionsUser,
+    token,
+    decodedToken,
+  } = useUserPermissions();
+  const hasPermission = (permission) => permissionsUser.includes(permission);
+
   const [typeAction, setTypeAction] = useState("");
   const [activeTab, setActiveTab] = useState("todos");
 
@@ -61,16 +68,20 @@ const Device = () => {
     description:
       "En esta sección puedes gestionar todos los dispositivos y visualizar su estado actual.",
     buttons: {
-      button1: {
-        icon: "FaPlus",
-        class: "color-hover",
-        text: "Añadir dispositivo",
-      },
-      button2: {
-        icon: "LuDownload",
-        class: "",
-        text: "Descargar reporte",
-      },
+      ...(hasPermission("Registrar Dispositivo") && {
+        button1: {
+          icon: "FaPlus",
+          class: "color-hover",
+          text: "Añadir dispositivo",
+        },
+      }),
+      ...(hasPermission("Generar Informes Dispositivos") && {
+        button2: {
+          icon: "LuDownload",
+          class: "",
+          text: "Descargar reporte",
+        },
+      }),
     },
   };
 
@@ -215,8 +226,12 @@ const Device = () => {
   };
 
   useEffect(() => {
-    fetchDevices();
-  }, []);
+    if (token && hasPermission("Ver Dispositivo")) {
+      fetchDevices();
+    }
+  }, [token, permissionsUser]);
+
+  console.log(permissionsUser);
 
   const fetchDevices = async () => {
     try {
@@ -395,13 +410,28 @@ const Device = () => {
 
   const options = [
     { icon: "BiShow", name: "Ver detalles" },
-    { icon: "TbMap2", name: "Asignar" },
-    { icon: "TbMap2", name: "Reasignar" },
-    { icon: "BiEditAlt", name: "Editar" },
-    { icon: "MdOutlineCheckCircle", name: "Habilitar" },
-    { icon: "VscError", name: "Inhabilitar" },
+    hasPermission("Asignar Dispositivo Lote") && {
+      icon: "TbMap2",
+      name: "Asignar",
+    },
+    hasPermission("Asignar Dispositivo Lote") && {
+      icon: "TbMap2",
+      name: "Reasignar",
+    },
+    hasPermission("Editar Dispositivo") && {
+      icon: "BiEditAlt",
+      name: "Editar",
+    },
+    hasPermission("Habilitar Dispositivo") && {
+      icon: "MdOutlineCheckCircle",
+      name: "Habilitar",
+    },
+    hasPermission("Inhabilitar Dispositivo") && {
+      icon: "VscError",
+      name: "Inhabilitar",
+    },
     { icon: "TbMapSearch", name: "Redirigir al lote" },
-  ];
+  ].filter(Boolean);
 
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedData = filteredData.slice(
@@ -444,7 +474,7 @@ const Device = () => {
         currentPage={currentPage}
         onPageChange={setCurrentPage}
       />
-      {showForm && (
+      {showForm && hasPermission("Registrar Dispositivo") && (
         <>
           <Form_device
             title="Añadir dispositivo"
@@ -462,7 +492,7 @@ const Device = () => {
           />
         </>
       )}
-      {showEdit && (
+      {showEdit && hasPermission("Editar Dispositivo") && (
         <>
           <Form_device
             title={title}
@@ -481,7 +511,7 @@ const Device = () => {
           />
         </>
       )}
-      {showAssign && (
+      {showAssign && hasPermission("Asignar Dispositivo Lote") && (
         <>
           <Form_assign_iot
             title={title}

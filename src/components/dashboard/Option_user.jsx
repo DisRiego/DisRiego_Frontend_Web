@@ -35,7 +35,7 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
         decoded.rol?.flatMap((rol) => rol.permisos?.map((p) => p.name) || []) ||
         [];
       setPermissionsUser(permisos);
-      console.log(permisos);
+      // console.log(permisos);
 
       if (permisos.length === 0) {
         localStorage.removeItem("token");
@@ -85,47 +85,39 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
       label: "Gestión de empresa",
     },
     {
-      permission: [
-        "Crear Rol",
-        "Editar Rol",
-        "Inhabilitar Rol",
-        "Habilitar Rol",
-      ],
+      permission: ["Ver Rol"],
       path: "/dashboard/rol",
       selectoption: "rol",
       icon: <LuUserCog />,
       label: "Gestión de roles",
     },
     {
-      permission: [
-        "Crear Usuario",
-        "Editar Usuario",
-        "Inhabilitar Usuario",
-        "Habilitar Usuario",
-      ],
+      permission: ["Ver Usuario"],
       path: "/dashboard/user",
       selectoption: "user",
       icon: <LuUsersRound />,
       label: "Gestión de usuarios",
     },
     {
-      permission: [
-        "Crear Predio",
-        "Editar Predio",
-        "Inhabilitar Predio",
-        "Habilitar Predio",
-      ],
+      permission: ["Ver Predio"],
       path: "/dashboard/property",
       selectoption: "property",
       icon: <TbMapSearch />,
       label: "Gestión de predios",
     },
     {
-      permission: "Editar Predios y Lote",
+      permission: "Ver Mis Predios",
       path: "/dashboard/properties",
       selectoption: "properties",
       icon: <TbMapSearch />,
       label: "Mis predios y lotes",
+    },
+    {
+      permission: "Ver Dispositivo",
+      path: "/dashboard/device",
+      selectoption: "device",
+      icon: <TbServerBolt />,
+      label: "Gestión de dispositivos",
     },
   ];
 
@@ -177,19 +169,6 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
             {!isCollapsed && <span>{option.label}</span>}
           </Link>
         ))}
-
-        <Link
-          className={`navbar-item ${
-            getSelectedOption() === "device" ? "selected" : ""
-          }`}
-          onClick={() => handleOptionChange("device")}
-          to="/dashboard/device"
-        >
-          <span className="icon">
-            <TbServerBolt />
-          </span>
-          {!isCollapsed && <span>Gestión de dispositivos</span>}
-        </Link>
 
         <Link
           className={`navbar-item ${

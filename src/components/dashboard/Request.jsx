@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { MdDownloadDone } from "react-icons/md";
+import useDecodedToken from "../../hooks/useDecodedToken";
+import useUserPermissions from "../../hooks/useUserPermissions";
 import Head from "./Head";
 import Tab from "./Tab";
 import Search from "./Search";
@@ -11,6 +12,7 @@ import Filter_request from "./filters/Filter_request";
 import Form_request_reject from "./forms/adds/Form_request_reject";
 import Change_status_request from "./Status/Change_status_request";
 import Message from "../Message";
+import { MdDownloadDone } from "react-icons/md";
 import { format } from "date-fns";
 
 const Request = () => {
@@ -20,6 +22,13 @@ const Request = () => {
   const itemsPerPage = 9;
   const [loadingTable, setLoadingTable] = useState(false);
   const [id, setId] = useState(null);
+
+  const {
+    permissions: permissionsUser,
+    token,
+    decodedToken,
+  } = useUserPermissions();
+  const hasPermission = (permission) => permissionsUser.includes(permission);
 
   const [showFilter, setShowFilter] = useState(false);
   const [filteredData, setFilteredData] = useState([]);
@@ -47,11 +56,13 @@ const Request = () => {
     description:
       "En esta sección puedes gestionar las solicitudes generadas por la plataforma.",
     buttons: {
-      button1: {
-        icon: "LuDownload",
-        class: "",
-        text: "Descargar reporte",
-      },
+      ...(hasPermission("Generar Informes Solicitudes") && {
+        button1: {
+          icon: "LuDownload",
+          class: "",
+          text: "Descargar reporte",
+        },
+      }),
     },
   };
 
@@ -86,8 +97,14 @@ const Request = () => {
   }, [showMessage]);
 
   useEffect(() => {
-    getRequest();
-  }, []);
+    if (token && hasPermission("Visualizar Solicitudes")) {
+      getRequest();
+    } else {
+      if (token && hasPermission("Visualizar Solicitudes Usuario")) {
+        getRequestUser();
+      }
+    }
+  }, [token, permissionsUser]);
 
   const getRequest = async () => {
     try {
@@ -95,6 +112,29 @@ const Request = () => {
       const response = await axios.get(
         import.meta.env.VITE_URI_BACKEND_IOT +
           import.meta.env.VITE_ROUTE_BACKEND_REQUEST
+      );
+
+      const sortedData = response.data.data.sort(
+        (a, b) => new Date(b.request_date) - new Date(a.request_date)
+      );
+
+      setData(sortedData);
+
+      // setButtonDisabled(false);
+    } catch (error) {
+      console.error("Error al obtener los usuarios:", error);
+    } finally {
+      setLoadingTable(false);
+    }
+  };
+
+  const getRequestUser = async () => {
+    try {
+      setLoadingTable(true);
+      const response = await axios.get(
+        import.meta.env.VITE_URI_BACKEND_IOT +
+          import.meta.env.VITE_ROUTE_BACKEND_REQUEST_BY_USER +
+          decodedToken.id
       );
 
       const sortedData = response.data.data.sort(
@@ -183,10 +223,21 @@ const Request = () => {
   ];
 
   const options = [
-    { icon: "BiShow", name: "Ver detalles" },
-    { icon: "MdDownloadDone", name: "Aprobar" },
-    { icon: "VscError", name: "Denegar" },
+    hasPermission("Ver Detalles Solicitudes") && {
+      icon: "BiShow",
+      name: "Ver detalles",
+    },
+    hasPermission("Aprobar Solicitudes") && {
+      icon: "MdDownloadDone",
+      name: "Aprobar",
+    },
+    hasPermission("Denegar Solicitudes") && {
+      icon: "VscError",
+      name: "Denegar",
+    },
   ];
+
+  console.log(permissionsUser);
 
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedData = filteredData.slice(

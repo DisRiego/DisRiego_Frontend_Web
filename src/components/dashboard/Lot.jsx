@@ -3,6 +3,7 @@ import axios from "axios";
 import Pagination from "./Pagination";
 import Table from "./Table";
 import { useLocation, useParams } from "react-router-dom";
+import useUserPermissions from "../../hooks/useUserPermissions";
 
 const Lot = ({
   // id,
@@ -25,7 +26,14 @@ const Lot = ({
   const [backupData, setBackupData] = useState([]);
   const [filters, setFilters] = useState({ estados: {} });
   const [statusFilter, setStatusFilter] = useState(false);
+
   const parentComponent = "lot";
+  const {
+    permissions: permissionsUser,
+    token,
+    decodedToken,
+  } = useUserPermissions();
+  const hasPermission = (permission) => permissionsUser.includes(permission);
 
   const columns = [
     "ID",
@@ -94,28 +102,45 @@ const Lot = ({
   }, [dataLots, searchTerm, filters.estados]);
 
   const allOptions = [
-    { icon: "BiShow", name: "Ver detalles" },
-    { icon: "BiEditAlt", name: "Editar" },
-    { icon: "MdOutlineCheckCircle", name: "Habilitar" },
-    { icon: "VscError", name: "Inhabilitar" },
-  ];
+    hasPermission("Ver Detalles Lote") && {
+      icon: "BiShow",
+      name: "Ver detalles",
+    },
+    hasPermission("Editar Lote") && { icon: "BiEditAlt", name: "Editar" },
+    hasPermission("Habilitar Lote") && {
+      icon: "MdOutlineCheckCircle",
+      name: "Habilitar",
+    },
+    hasPermission("Inhabilitar Lote") && {
+      icon: "VscError",
+      name: "Inhabilitar",
+    },
+  ].filter(Boolean);
 
   const options = useMemo(() => {
     if (route === "properties") {
-      return allOptions.filter(
-        (option) => option.name !== "Habilitar" && option.name !== "Inhabilitar"
-      );
+      return [
+        hasPermission("Ver Detalles Lotes") && {
+          icon: "BiShow",
+          name: "Ver detalles",
+        },
+        hasPermission("Editar Lotes") && {
+          icon: "BiEditAlt",
+          name: "Editar",
+        },
+      ].filter(Boolean);
     }
+
     return allOptions;
-  }, [route]);
+  }, [route, permissionsUser]);
+
+  console.log(permissionsUser);
 
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedData = filteredData.slice(
     startIndex,
     startIndex + itemsPerPage
   );
-
-  console.log(dataLots);
 
   return (
     <>

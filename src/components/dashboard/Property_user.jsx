@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import useUserPermissions from "../../hooks/useUserPermissions";
 import Head from "./Head";
 import Search from "./Search";
 import Filter from "./Filter";
@@ -36,12 +37,7 @@ ChartJS.register(
   Tooltip,
   Legend
 );
-import { jwtDecode } from "jwt-decode";
-
 const Property_user = () => {
-  const token = localStorage.getItem("token");
-  const decoded = jwtDecode(token);
-  const user_id = decoded.id;
   const [data, setData] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [showEdit, setShowEdit] = useState();
@@ -65,6 +61,13 @@ const Property_user = () => {
   const [backupData, setBackupData] = useState([]);
   const [filters, setFilters] = useState({ estados: {} });
   const [statusFilter, setStatusFilter] = useState(false);
+
+  const {
+    permissions: permissionsUser,
+    token,
+    decodedToken,
+  } = useUserPermissions();
+  const hasPermission = (permission) => permissionsUser.includes(permission);
 
   const handleButtonClick = (buttonText) => {
     if (buttonText === "Añadir predio") {
@@ -329,8 +332,10 @@ const Property_user = () => {
   ];
 
   useEffect(() => {
-    fetchProperties();
-  }, []);
+    if (token && hasPermission("Ver Mis Predios")) {
+      fetchProperties();
+    }
+  }, [token, permissionsUser]);
 
   const fetchProperties = async () => {
     try {
@@ -338,7 +343,7 @@ const Property_user = () => {
       const response = await axios.get(
         import.meta.env.VITE_URI_BACKEND +
           import.meta.env.VITE_ROUTE_BACKEND_PROPERTY_BY_USER +
-          user_id
+          decodedToken.id
       );
       setData(response.data.data);
 
@@ -415,7 +420,12 @@ const Property_user = () => {
     }
   }, [data, searchTerm, filters.estados]);
 
-  const options = [{ icon: "BiShow", name: "Ver detalles" }];
+  const options = [
+    hasPermission("Ver Detalles Predios") && {
+      icon: "BiShow",
+      name: "Ver detalles",
+    },
+  ].filter(Boolean);
 
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedData = filteredData.slice(

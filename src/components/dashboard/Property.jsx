@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import useUserPermissions from "../../hooks/useUserPermissions";
 import Head from "./Head";
 import Search from "./Search";
 import Filter from "./Filter";
@@ -62,6 +63,13 @@ const Property = () => {
   const [backupData, setBackupData] = useState([]);
   const [filters, setFilters] = useState({ estados: {} });
   const [statusFilter, setStatusFilter] = useState(false);
+
+  const {
+    permissions: permissionsUser,
+    token,
+    decodedToken,
+  } = useUserPermissions();
+  const hasPermission = (permission) => permissionsUser.includes(permission);
 
   const handleButtonClick = (buttonText) => {
     if (buttonText === "Añadir predio") {
@@ -313,16 +321,20 @@ const Property = () => {
     description:
       "En esta sección puedes gestionar predios, registrar nuevos lotes y visualizar sus detalles.",
     buttons: {
-      button1: {
-        icon: "FaPlus",
-        class: "color-hover",
-        text: "Añadir predio",
-      },
-      button2: {
-        icon: "LuDownload",
-        class: "",
-        text: "Descargar reporte",
-      },
+      ...(hasPermission("Crear Predio") && {
+        button1: {
+          icon: "FaPlus",
+          class: "color-hover",
+          text: "Añadir predio",
+        },
+      }),
+      ...(hasPermission("Generar Informes Predios") && {
+        button2: {
+          icon: "LuDownload",
+          class: "",
+          text: "Descargar reporte",
+        },
+      }),
     },
   };
 
@@ -340,8 +352,10 @@ const Property = () => {
   ];
 
   useEffect(() => {
-    fetchProperties();
-  }, []);
+    if (token && hasPermission("Ver Predio")) {
+      fetchProperties();
+    }
+  }, [token, permissionsUser]);
 
   const fetchProperties = async () => {
     try {
@@ -428,11 +442,23 @@ const Property = () => {
   }, [data, searchTerm, filters.estados]);
 
   const options = [
-    { icon: "BiShow", name: "Ver detalles" },
-    { icon: "BiEditAlt", name: "Editar" },
-    { icon: "MdOutlineCheckCircle", name: "Habilitar" },
-    { icon: "VscError", name: "Inhabilitar" },
-  ];
+    hasPermission("Ver Detalles Predio") && {
+      icon: "BiShow",
+      name: "Ver detalles",
+    },
+    hasPermission("Editar Predio") && {
+      icon: "BiEditAlt",
+      name: "Editar",
+    },
+    hasPermission("Habilitar Predio") && {
+      icon: "MdOutlineCheckCircle",
+      name: "Habilitar",
+    },
+    hasPermission("Inhabilitar Predio") && {
+      icon: "VscError",
+      name: "Inhabilitar",
+    },
+  ].filter(Boolean);
 
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedData = filteredData.slice(

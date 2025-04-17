@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
+import useUserPermissions from "../../../hooks/useUserPermissions";
 import Head from "../Head";
 import Message from "../../Message";
 import Change_status_request from "../Status/Change_status_request";
@@ -25,6 +26,13 @@ const Request_detail = () => {
   const [titleMessage, setTitleMessage] = useState(false);
   const [message, setMessage] = useState(false);
   const [status, setStatus] = useState(false);
+
+  const {
+    permissions: permissionsUser,
+    token,
+    decodedToken,
+  } = useUserPermissions();
+  const hasPermission = (permission) => permissionsUser.includes(permission);
 
   const handleButtonClick = (buttonText) => {
     if (buttonText === "Aprobar solicitud") {
@@ -88,14 +96,18 @@ const Request_detail = () => {
       "En esta sección, puedes consultar la información de la solicitud.",
     ...(data?.status == 18 && {
       buttons: {
-        button1: {
-          class: "aprrove",
-          text: "Aprobar solicitud",
-        },
-        button2: {
-          class: "deny",
-          text: "Denegar solicitud",
-        },
+        ...(hasPermission("Aprobar Solicitudes") && {
+          button1: {
+            class: "aprrove",
+            text: "Aprobar solicitud",
+          },
+        }),
+        ...(hasPermission("Denegar Solicitudes") && {
+          button2: {
+            class: "deny",
+            text: "Denegar solicitud",
+          },
+        }),
       },
     }),
   };
