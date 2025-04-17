@@ -332,7 +332,7 @@ const Property_user = () => {
   ];
 
   useEffect(() => {
-    if (token && hasPermission("Ver Mis Predios")) {
+    if (token && hasPermission("Ver todos los predios de un usuario")) {
       fetchProperties();
     }
   }, [token, permissionsUser]);
@@ -421,7 +421,7 @@ const Property_user = () => {
   }, [data, searchTerm, filters.estados]);
 
   const options = [
-    hasPermission("Ver Detalles Predios") && {
+    hasPermission("Ver detalles del predio de un usuario") && {
       icon: "BiShow",
       name: "Ver detalles",
     },

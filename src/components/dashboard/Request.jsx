@@ -56,7 +56,7 @@ const Request = () => {
     description:
       "En esta sección puedes gestionar las solicitudes generadas por la plataforma.",
     buttons: {
-      ...(hasPermission("Generar Informes Solicitudes") && {
+      ...(hasPermission("Descargar reportes de todas las solicitudes") && {
         button1: {
           icon: "LuDownload",
           class: "",
@@ -74,17 +74,18 @@ const Request = () => {
   };
 
   const tabs = [
-    {
+    hasPermission("Ver notificaciones") && {
       key: "notification",
       label: "Notificaciones",
       path: "/dashboard/notification",
     },
-    {
+    (hasPermission("Ver todas las solicitudes") ||
+      hasPermission("Ver todas las solicitudes de un usuario")) && {
       key: "request",
       label: "Solicitudes",
       path: "/dashboard/request",
     },
-  ];
+  ].filter(Boolean);
 
   useEffect(() => {
     if (showMessage) {
@@ -97,10 +98,10 @@ const Request = () => {
   }, [showMessage]);
 
   useEffect(() => {
-    if (token && hasPermission("Visualizar Solicitudes")) {
+    if (token && hasPermission("Ver todas las solicitudes")) {
       getRequest();
     } else {
-      if (token && hasPermission("Visualizar Solicitudes Usuario")) {
+      if (token && hasPermission("Ver todas las solicitudes de un usuario")) {
         getRequestUser();
       }
     }
@@ -223,21 +224,19 @@ const Request = () => {
   ];
 
   const options = [
-    hasPermission("Ver Detalles Solicitudes") && {
+    hasPermission("Ver detalles de una solicitud") && {
       icon: "BiShow",
       name: "Ver detalles",
     },
-    hasPermission("Aprobar Solicitudes") && {
+    hasPermission("Aprobar solicitud") && {
       icon: "MdDownloadDone",
       name: "Aprobar",
     },
-    hasPermission("Denegar Solicitudes") && {
+    hasPermission("Denegar solicitud") && {
       icon: "VscError",
       name: "Denegar",
     },
-  ];
-
-  console.log(permissionsUser);
+  ].filter(Boolean);
 
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedData = filteredData.slice(

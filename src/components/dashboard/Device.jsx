@@ -68,14 +68,14 @@ const Device = () => {
     description:
       "En esta sección puedes gestionar todos los dispositivos y visualizar su estado actual.",
     buttons: {
-      ...(hasPermission("Registrar Dispositivo") && {
+      ...(hasPermission("Añadir dispositivo") && {
         button1: {
           icon: "FaPlus",
           class: "color-hover",
           text: "Añadir dispositivo",
         },
       }),
-      ...(hasPermission("Generar Informes Dispositivos") && {
+      ...(hasPermission("Descargar reportes de los dispositivos") && {
         button2: {
           icon: "LuDownload",
           class: "",
@@ -92,120 +92,8 @@ const Device = () => {
 
     if (buttonText === "Descargar reporte") {
       setLoadingReport("is-loading");
-      generateReport();
+      generateReport(data, filteredData, () => setLoadingReport(""));
     }
-  };
-
-  // Función para generar el reporte PDF
-  const generateReport = () => {
-    const doc = new jsPDF("landscape");
-
-    // Añadir fuentes Roboto al documento
-    doc.addFont(RobotoNormalFont, "Roboto", "normal");
-    doc.addFont(RobotoBoldFont, "Roboto", "bold");
-
-    // Colorear fondo
-    doc.setFillColor(243, 242, 247);
-    doc.rect(0, 0, 300, 53, "F"); // Colorear una parte de la página
-
-    // Agregar logo
-    doc.addImage(Icon, "PNG", 246, 10, 39, 11);
-
-    // Configurar título y encabezados
-    doc.setTextColor(0, 0, 0);
-    doc.setFontSize(17);
-    doc.setFont("Roboto", "bold");
-    doc.text("CONSOLIDADO DE DISPOSITIVOS", 12, 18);
-    doc.setFontSize(11);
-    doc.text(`Fecha de generación:`, 12, 27);
-    doc.text(`Generado por:`, 12, 39);
-    doc.text("Dispositivos registrados actualmente", 12, 63);
-
-    // Configurar información adicional
-    doc.setTextColor(94, 100, 112);
-    doc.setFont("Roboto", "normal");
-    doc.setFontSize(10);
-    doc.text(`${new Date().toLocaleString()}`, 12, 32);
-    doc.text(`[Nombre del usuario]`, 12, 44);
-    doc.setFontSize(11);
-    doc.text(`[Dirección de la empresa]`, 285, 27, { align: "right" });
-    doc.text(`[Ciudad, Dept. País]`, 285, 33, { align: "right" });
-    doc.text(`[Teléfono]`, 285, 39, { align: "right" });
-    doc.text(`Cantidad de dispositivos: ${filteredData.length}`, 12, 68);
-
-    // Agregar tabla con autoTable
-    autoTable(doc, {
-      startY: 80,
-      margin: { left: 12 },
-      head: [
-        [
-          "ID dispositivo",
-          "ID Lote",
-          "Número de documento",
-          "Tipo de dispositivo",
-          "Modelo",
-          "Fecha de instalación",
-          "Fecha estimada de mantenimiento",
-          "Estado",
-        ],
-      ],
-      body: filteredData.map((device) => [
-        device["ID Dispositivo"],
-        device["ID Lote"] || "-",
-        device["Número de documento"],
-        device["Tipo de dispositivo"],
-        device["Modelo"],
-        device["Fecha de instalación"]?.slice(0, 10),
-        device["Fecha estimada de mantenimiento"]?.slice(0, 10),
-        device["Estado"],
-      ]),
-      theme: "grid",
-      headStyles: {
-        fillColor: [252, 252, 253],
-        textColor: [0, 0, 0],
-        fontStyle: "bold",
-        lineColor: [234, 236, 240],
-        lineWidth: 0.5,
-        font: "Roboto", // Añadir fuente Roboto a los encabezados de tabla
-      },
-      bodyStyles: {
-        textColor: [89, 89, 89],
-        font: "Roboto", // Añadir fuente Roboto al cuerpo de la tabla
-      },
-      styles: {
-        fontSize: 10,
-        cellPadding: 3,
-        lineColor: [234, 236, 240],
-      },
-    });
-
-    // Agregar pie de página
-    doc.addImage(Icon, "PNG", 12, 190, 32, 9);
-
-    // Agregar numeración de páginas en el pie de página
-    const pageCount = doc.internal.getNumberOfPages();
-    for (let i = 1; i <= pageCount; i++) {
-      doc.setPage(i);
-      doc.setFontSize(10);
-      doc.setFont("Roboto", "normal");
-      const pageWidth = doc.internal.pageSize.getWidth();
-      const pageHeight = doc.internal.pageSize.getHeight();
-      doc.text(`Página ${i}/${pageCount}`, pageWidth - 10, pageHeight - 10, {
-        align: "right",
-      });
-    }
-
-    // Convertir el PDF a un Blob
-    const pdfBlob = doc.output("blob");
-
-    // Crear una URL del Blob
-    const pdfUrl = URL.createObjectURL(pdfBlob);
-
-    // Abrir el PDF en una nueva pestaña
-    setTimeout(() => {
-      window.open(pdfUrl, "_blank");
-      setLoadingReport("");
-    }, 500);
   };
 
   const columns = [
@@ -226,7 +114,7 @@ const Device = () => {
   };
 
   useEffect(() => {
-    if (token && hasPermission("Ver Dispositivo")) {
+    if (token && hasPermission("Ver todos los dispositivos")) {
       fetchDevices();
     }
   }, [token, permissionsUser]);
@@ -409,28 +297,34 @@ const Device = () => {
   ];
 
   const options = [
-    { icon: "BiShow", name: "Ver detalles" },
-    hasPermission("Asignar Dispositivo Lote") && {
+    hasPermission("Ver detalles de un dispositivo") && {
+      icon: "BiShow",
+      name: "Ver detalles",
+    },
+    hasPermission("Asignar dispositivo a un lote") && {
       icon: "TbMap2",
       name: "Asignar",
     },
-    hasPermission("Asignar Dispositivo Lote") && {
+    hasPermission("Reasignar dispositivo a un lote") && {
       icon: "TbMap2",
       name: "Reasignar",
     },
-    hasPermission("Editar Dispositivo") && {
+    hasPermission("Editar dispositivo") && {
       icon: "BiEditAlt",
       name: "Editar",
     },
-    hasPermission("Habilitar Dispositivo") && {
+    hasPermission("Habilitar dispositivo") && {
       icon: "MdOutlineCheckCircle",
       name: "Habilitar",
     },
-    hasPermission("Inhabilitar Dispositivo") && {
+    hasPermission("Inhabilitar dispositivo") && {
       icon: "VscError",
       name: "Inhabilitar",
     },
-    { icon: "TbMapSearch", name: "Redirigir al lote" },
+    hasPermission("Ver detalles de un lote") && {
+      icon: "TbMapSearch",
+      name: "Redirigir al lote",
+    },
   ].filter(Boolean);
 
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -572,3 +466,114 @@ const Device = () => {
 };
 
 export default Device;
+
+const generateReport = (data, filteredData, onFinish) => {
+  const doc = new jsPDF("landscape");
+
+  // Añadir fuentes Roboto al documento
+  doc.addFont(RobotoNormalFont, "Roboto", "normal");
+  doc.addFont(RobotoBoldFont, "Roboto", "bold");
+
+  // Colorear fondo
+  doc.setFillColor(243, 242, 247);
+  doc.rect(0, 0, 300, 53, "F"); // Colorear una parte de la página
+
+  // Agregar logo
+  doc.addImage(Icon, "PNG", 246, 10, 39, 11);
+
+  // Configurar título y encabezados
+  doc.setTextColor(0, 0, 0);
+  doc.setFontSize(17);
+  doc.setFont("Roboto", "bold");
+  doc.text("CONSOLIDADO DE DISPOSITIVOS", 12, 18);
+  doc.setFontSize(11);
+  doc.text(`Fecha de generación:`, 12, 27);
+  doc.text(`Generado por:`, 12, 39);
+  doc.text("Dispositivos registrados actualmente", 12, 63);
+
+  // Configurar información adicional
+  doc.setTextColor(94, 100, 112);
+  doc.setFont("Roboto", "normal");
+  doc.setFontSize(10);
+  doc.text(`${new Date().toLocaleString()}`, 12, 32);
+  doc.text(`[Nombre del usuario]`, 12, 44);
+  doc.setFontSize(11);
+  doc.text(`[Dirección de la empresa]`, 285, 27, { align: "right" });
+  doc.text(`[Ciudad, Dept. País]`, 285, 33, { align: "right" });
+  doc.text(`[Teléfono]`, 285, 39, { align: "right" });
+  doc.text(`Cantidad de dispositivos: ${filteredData.length}`, 12, 68);
+
+  // Agregar tabla con autoTable
+  autoTable(doc, {
+    startY: 80,
+    margin: { left: 12 },
+    head: [
+      [
+        "ID dispositivo",
+        "ID Lote",
+        "Número de documento",
+        "Tipo de dispositivo",
+        "Modelo",
+        "Fecha de instalación",
+        "Fecha estimada de mantenimiento",
+        "Estado",
+      ],
+    ],
+    body: filteredData.map((device) => [
+      device["ID Dispositivo"],
+      device["ID Lote"] || "-",
+      device["Número de documento"],
+      device["Tipo de dispositivo"],
+      device["Modelo"],
+      device["Fecha de instalación"]?.slice(0, 10),
+      device["Fecha estimada de mantenimiento"]?.slice(0, 10),
+      device["Estado"],
+    ]),
+    theme: "grid",
+    headStyles: {
+      fillColor: [252, 252, 253],
+      textColor: [0, 0, 0],
+      fontStyle: "bold",
+      lineColor: [234, 236, 240],
+      lineWidth: 0.5,
+      font: "Roboto", // Añadir fuente Roboto a los encabezados de tabla
+    },
+    bodyStyles: {
+      textColor: [89, 89, 89],
+      font: "Roboto", // Añadir fuente Roboto al cuerpo de la tabla
+    },
+    styles: {
+      fontSize: 10,
+      cellPadding: 3,
+      lineColor: [234, 236, 240],
+    },
+  });
+
+  // Agregar pie de página
+  doc.addImage(Icon, "PNG", 12, 190, 32, 9);
+
+  // Agregar numeración de páginas en el pie de página
+  const pageCount = doc.internal.getNumberOfPages();
+  for (let i = 1; i <= pageCount; i++) {
+    doc.setPage(i);
+    doc.setFontSize(10);
+    doc.setFont("Roboto", "normal");
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    doc.text(`Página ${i}/${pageCount}`, pageWidth - 10, pageHeight - 10, {
+      align: "right",
+    });
+  }
+
+  // Convertir el PDF a un Blob
+  const pdfBlob = doc.output("blob");
+
+  // Crear una URL del Blob
+  const pdfUrl = URL.createObjectURL(pdfBlob);
+
+  // Abrir el PDF en una nueva pestaña
+  setTimeout(() => {
+    window.open(pdfUrl, "_blank");
+    onFinish();
+  }, 500);
+};

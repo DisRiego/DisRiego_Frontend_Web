@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
+import useUserPermissions from "../../hooks/useUserPermissions";
 import Head from "./Head";
 import Tab from "./Tab";
 import { SlOptions } from "react-icons/sl";
@@ -43,13 +44,19 @@ const DateSeparator = ({ date }) => (
 );
 
 const Notification = () => {
-  const token = localStorage.getItem("token");
   const [dots, setDots] = useState("");
   const [data, setData] = useState([]);
   const [activeRow, setActiveRow] = useState(null);
   const [loadingTable, setLoadingTable] = useState(false);
   const menuRefs = useRef({});
   let shownDates = new Set();
+
+  const {
+    permissions: permissionsUser,
+    token,
+    decodedToken,
+  } = useUserPermissions();
+  const hasPermission = (permission) => permissionsUser.includes(permission);
 
   const [visibleData, setVisibleData] = useState([]);
   const [page, setPage] = useState(1);
@@ -74,31 +81,36 @@ const Notification = () => {
     description:
       "En esta sección puedes gestionar las notificaciones generadas por la plataforma.",
     buttons: {
-      button1: {
-        icon: "MdDownloadDone",
-        class: "color-hover",
-        text: "Marcar todo como leido",
-      },
+      ...(hasPermission("Marcar como leídas todas las notificaciones") && {
+        button1: {
+          icon: "MdDownloadDone",
+          class: "color-hover",
+          text: "Marcar todo como leido",
+        },
+      }),
     },
   };
 
   const tabs = [
-    {
+    hasPermission("Ver notificaciones") && {
       key: "notification",
       label: "Notificaciones",
       path: "/dashboard/notification",
     },
-    {
+    (hasPermission("Ver todas las solicitudes") ||
+      hasPermission("Ver todas las solicitudes de un usuario")) && {
       key: "request",
       label: "Solicitudes",
       path: "/dashboard/request",
     },
-  ];
+  ].filter(Boolean);
 
   const options = [
-    // { icon: BiShow, name: "Ver detalles" },
-    { icon: MdDownloadDone, name: "Marcar como leído" },
-  ];
+    hasPermission("Marcar como leída una notificación") && {
+      icon: MdDownloadDone,
+      name: "Marcar como leído",
+    },
+  ].filter(Boolean);
 
   const handleButtonClick = (buttonText) => {
     if (buttonText === "Marcar todo como leido") {
@@ -181,10 +193,10 @@ const Notification = () => {
   }, []);
 
   useEffect(() => {
-    if (token) {
+    if (token && hasPermission("Ver notificaciones")) {
       getNotificaction();
     }
-  }, []);
+  }, [token, permissionsUser]);
 
   const getNotificaction = async () => {
     try {

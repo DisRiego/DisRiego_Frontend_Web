@@ -140,8 +140,6 @@ const Company_data = ({}) => {
       "En esta sección podrás gestionar y visualizar la información de la empresa.",
   };
 
-  console.log(formData);
-
   return (
     <>
       <Head head_data={headData} />

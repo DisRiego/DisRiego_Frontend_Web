@@ -61,115 +61,8 @@ const User = () => {
     //Aqui es donde se debe implementar la funcionalidad del reporte
     if (buttonText === "Descargar reporte") {
       setLoading("is-loading");
-      generateUserReport();
+      generateUserReport(data, filteredData, toTitleCase, () => setLoading(""));
     }
-  };
-
-  const generateUserReport = () => {
-    const doc = new jsPDF("landscape");
-
-    // Add Roboto font to the document
-    doc.addFont(RobotoNormalFont, "Roboto", "normal");
-    doc.addFont(RobotoBoldFont, "Roboto", "bold");
-
-    //colorear fondo
-    doc.setFillColor(243, 242, 247); // Azul claro
-    doc.rect(0, 0, 300, 53, "F"); // colorear una parte de la pagina
-    // agregar logo (usando base 64 directamente sobre la importacion)
-    doc.addImage(Icon, "PNG", 246, 10, 39, 11);
-
-    doc.setFontSize(17);
-    doc.setFont("Roboto", "bold");
-    doc.text("REPORTE DE USUARIOS", 12, 18);
-    doc.setFontSize(11);
-    doc.text(`Fecha de generación:`, 12, 27);
-    doc.text(`Generado por:`, 12, 39);
-    doc.text("Usuarios registrados actualmente", 12, 63);
-    doc.setTextColor(94, 100, 112);
-    doc.setFont("Roboto", "normal");
-    doc.setFontSize(10);
-    doc.text(`${new Date().toLocaleString()}`, 12, 32);
-    doc.text(`[Nombre del usuario]`, 12, 44);
-    doc.setFontSize(11);
-    doc.text(`[Dirección de la empresa]`, 285, 27, { align: "right" });
-    doc.text(`[Ciudad, Dept. País]`, 285, 33, { align: "right" });
-    doc.text(`[Teléfono]`, 285, 39, { align: "right" });
-    doc.text(`Cantidad de usuarios: ${data.length}`, 12, 68);
-
-    // Agregar tabla con autoTable
-    autoTable(doc, {
-      startY: 80,
-      margin: { left: 12 },
-      head: [
-        [
-          "Nombre",
-          "Tipo de documento",
-          "Numero de documento",
-          "Correo Electronico",
-          "Número de Telefono",
-          "Rol",
-          "Estado",
-        ],
-      ],
-      body: filteredData.map((user) => [
-        toTitleCase(user["Nombres"]) + " " + toTitleCase(user["Apellidos"]),
-        user["Tipo de documento"],
-        user["Numero de documento"],
-        user["Correo Electronico"],
-        user["Numero de telefono"],
-        user["Rol"],
-        toTitleCase(user["Estado"]),
-      ]),
-      theme: "grid",
-      headStyles: {
-        fillColor: [252, 252, 253],
-        textColor: [0, 0, 0],
-        fontStyle: "bold",
-        font: "Roboto",
-        lineColor: [234, 236, 240],
-        lineWidth: 0.5,
-      },
-      bodyStyles: { textColor: [89, 89, 89], font: "Roboto" },
-      styles: {
-        fontSize: 9,
-        cellPadding: 3,
-        lineColor: [234, 236, 240],
-        font: "Roboto",
-      },
-      columnStyles: {
-        0: { cellWidth: "auto" },
-        1: { cellWidth: "auto" },
-        2: { cellWidth: "auto" },
-        3: { cellWidth: "auto" },
-        4: { cellWidth: "auto" },
-        5: { cellWidth: "auto" },
-        6: { cellWidth: "auto" },
-      },
-    });
-    doc.addImage(Icon, "PNG", 12, 190, 32, 9);
-    // Agregar numeración de páginas en el pie de página
-    const pageCount = doc.internal.getNumberOfPages();
-    for (let i = 1; i <= pageCount; i++) {
-      doc.setPage(i);
-      doc.setFontSize(10);
-      const pageWidth = doc.internal.pageSize.getWidth();
-      const pageHeight = doc.internal.pageSize.getHeight();
-      doc.text(`Página ${i}/${pageCount}`, pageWidth - 10, pageHeight - 10, {
-        align: "right",
-      });
-    }
-
-    // Convertir el PDF a un Blob
-    const pdfBlob = doc.output("blob");
-
-    // Crear una URL del Blob
-    const pdfUrl = URL.createObjectURL(pdfBlob);
-
-    // Abrir el PDF en una nueva pestaña
-    setTimeout(() => {
-      window.open(pdfUrl, "_blank");
-      setLoading("");
-    }, 500);
   };
 
   const toTitleCase = (str) => {
@@ -187,14 +80,14 @@ const User = () => {
     description:
       "En esta sección puedes gestionar usuarios, asignar roles y editar su información.",
     buttons: {
-      ...(hasPermission("Crear Usuario") && {
+      ...(hasPermission("Añadir usuario") && {
         button1: {
           icon: "FaPlus",
           class: "color-hover",
           text: "Añadir usuario",
         },
       }),
-      ...(hasPermission("Generar Informes Usuarios") && {
+      ...(hasPermission("Descargar reportes de todos los usuarios") && {
         button2: {
           icon: "LuDownload",
           class: "",
@@ -218,7 +111,7 @@ const User = () => {
   ];
 
   useEffect(() => {
-    if (token && hasPermission("Ver Usuario")) {
+    if (token && hasPermission("Ver detalles de un usuario")) {
       fetchUsers();
     }
   }, [token, permissionsUser]);
@@ -304,19 +197,19 @@ const User = () => {
   }, [showMessage]);
 
   const options = [
-    hasPermission("Ver Detalles Usuario") && {
+    hasPermission("Ver detalles de un usuario") && {
       icon: "BiShow",
       name: "Ver detalles",
     },
-    hasPermission("Editar Usuario") && {
+    hasPermission("Editar usuario") && {
       icon: "BiEditAlt",
       name: "Editar",
     },
-    hasPermission("Habilitar Usuario") && {
+    hasPermission("Habilitar usuario") && {
       icon: "MdOutlineCheckCircle",
       name: "Habilitar",
     },
-    hasPermission("Inhabilitar Usuario") && {
+    hasPermission("Inhabilitar usuario") && {
       icon: "VscError",
       name: "Inhabilitar",
     },
@@ -441,3 +334,111 @@ const User = () => {
 };
 
 export default User;
+
+const generateUserReport = (data, filteredData, toTitleCase, onFinish) => {
+  const doc = new jsPDF("landscape");
+
+  // Add Roboto font to the document
+  doc.addFont(RobotoNormalFont, "Roboto", "normal");
+  doc.addFont(RobotoBoldFont, "Roboto", "bold");
+
+  //colorear fondo
+  doc.setFillColor(243, 242, 247); // Azul claro
+  doc.rect(0, 0, 300, 53, "F"); // colorear una parte de la pagina
+  // agregar logo (usando base 64 directamente sobre la importacion)
+  doc.addImage(Icon, "PNG", 246, 10, 39, 11);
+
+  doc.setFontSize(17);
+  doc.setFont("Roboto", "bold");
+  doc.text("REPORTE DE USUARIOS", 12, 18);
+  doc.setFontSize(11);
+  doc.text(`Fecha de generación:`, 12, 27);
+  doc.text(`Generado por:`, 12, 39);
+  doc.text("Usuarios registrados actualmente", 12, 63);
+  doc.setTextColor(94, 100, 112);
+  doc.setFont("Roboto", "normal");
+  doc.setFontSize(10);
+  doc.text(`${new Date().toLocaleString()}`, 12, 32);
+  doc.text(`[Nombre del usuario]`, 12, 44);
+  doc.setFontSize(11);
+  doc.text(`[Dirección de la empresa]`, 285, 27, { align: "right" });
+  doc.text(`[Ciudad, Dept. País]`, 285, 33, { align: "right" });
+  doc.text(`[Teléfono]`, 285, 39, { align: "right" });
+  doc.text(`Cantidad de usuarios: ${data.length}`, 12, 68);
+
+  // Agregar tabla con autoTable
+  autoTable(doc, {
+    startY: 80,
+    margin: { left: 12 },
+    head: [
+      [
+        "Nombre",
+        "Tipo de documento",
+        "Numero de documento",
+        "Correo Electronico",
+        "Número de Telefono",
+        "Rol",
+        "Estado",
+      ],
+    ],
+    body: filteredData.map((user) => [
+      toTitleCase(user["Nombres"]) + " " + toTitleCase(user["Apellidos"]),
+      user["Tipo de documento"],
+      user["Numero de documento"],
+      user["Correo Electronico"],
+      user["Numero de telefono"],
+      user["Rol"],
+      toTitleCase(user["Estado"]),
+    ]),
+    theme: "grid",
+    headStyles: {
+      fillColor: [252, 252, 253],
+      textColor: [0, 0, 0],
+      fontStyle: "bold",
+      font: "Roboto",
+      lineColor: [234, 236, 240],
+      lineWidth: 0.5,
+    },
+    bodyStyles: { textColor: [89, 89, 89], font: "Roboto" },
+    styles: {
+      fontSize: 9,
+      cellPadding: 3,
+      lineColor: [234, 236, 240],
+      font: "Roboto",
+    },
+    columnStyles: {
+      0: { cellWidth: "auto" },
+      1: { cellWidth: "auto" },
+      2: { cellWidth: "auto" },
+      3: { cellWidth: "auto" },
+      4: { cellWidth: "auto" },
+      5: { cellWidth: "auto" },
+      6: { cellWidth: "auto" },
+    },
+  });
+  doc.addImage(Icon, "PNG", 12, 190, 32, 9);
+  // Agregar numeración de páginas en el pie de página
+  const pageCount = doc.internal.getNumberOfPages();
+  for (let i = 1; i <= pageCount; i++) {
+    doc.setPage(i);
+    doc.setFontSize(10);
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    doc.text(`Página ${i}/${pageCount}`, pageWidth - 10, pageHeight - 10, {
+      align: "right",
+    });
+  }
+
+  // Convertir el PDF a un Blob
+  const pdfBlob = doc.output("blob");
+
+  // Crear una URL del Blob
+  const pdfUrl = URL.createObjectURL(pdfBlob);
+
+  // Abrir el PDF en una nueva pestaña
+  setTimeout(() => {
+    window.open(pdfUrl, "_blank");
+    onFinish();
+    setLoading("");
+  }, 500);
+};

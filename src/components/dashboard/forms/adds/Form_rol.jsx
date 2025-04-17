@@ -184,6 +184,16 @@ const Form_add_rol = ({
     return acc;
   }, {});
 
+  // Ordenar las categorías alfabéticamente
+  const sortedCategories = Object.keys(groupedPermissions).sort((a, b) =>
+    a.localeCompare(b)
+  );
+
+  // Ordenar permisos dentro de cada categoría
+  Object.keys(groupedPermissions).forEach((categoria) => {
+    groupedPermissions[categoria].sort((a, b) => a.name.localeCompare(b.name));
+  });
+
   return (
     <>
       <div className="modal is-active">
@@ -241,7 +251,7 @@ const Form_add_rol = ({
             </div>
             <div className="field">
               <label className="label">Lista de permisos</label>
-              {Object.keys(groupedPermissions).map((categoria) => (
+              {sortedCategories.map((categoria) => (
                 <div key={categoria} className="accordion">
                   <div
                     className="accordion-header"

@@ -102,16 +102,16 @@ const Lot = ({
   }, [dataLots, searchTerm, filters.estados]);
 
   const allOptions = [
-    hasPermission("Ver Detalles Lote") && {
+    hasPermission("Ver detalles de un lote") && {
       icon: "BiShow",
       name: "Ver detalles",
     },
-    hasPermission("Editar Lote") && { icon: "BiEditAlt", name: "Editar" },
-    hasPermission("Habilitar Lote") && {
+    hasPermission("Editar lote") && { icon: "BiEditAlt", name: "Editar" },
+    hasPermission("Habilitar lote") && {
       icon: "MdOutlineCheckCircle",
       name: "Habilitar",
     },
-    hasPermission("Inhabilitar Lote") && {
+    hasPermission("Inhabilitar lote") && {
       icon: "VscError",
       name: "Inhabilitar",
     },
@@ -120,11 +120,11 @@ const Lot = ({
   const options = useMemo(() => {
     if (route === "properties") {
       return [
-        hasPermission("Ver Detalles Lotes") && {
+        hasPermission("Ver detalles del lote de un usuario") && {
           icon: "BiShow",
           name: "Ver detalles",
         },
-        hasPermission("Editar Lotes") && {
+        hasPermission("Editar lotes de un usuario") && {
           icon: "BiEditAlt",
           name: "Editar",
         },
@@ -133,8 +133,6 @@ const Lot = ({
 
     return allOptions;
   }, [route, permissionsUser]);
-
-  console.log(permissionsUser);
 
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedData = filteredData.slice(

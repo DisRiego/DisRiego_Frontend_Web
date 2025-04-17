@@ -96,7 +96,7 @@ const Lot_detail = () => {
     const request = statusRequest?.toLowerCase();
     const valve = statusValve?.toLowerCase();
 
-    if (token && hasPermission("Crear Solicitud Valvula")) {
+    if (token && hasPermission("Generar solicitud de apertura de válvula")) {
       if (request === "aprobada") {
         if (valve === "abierta") {
           return {
@@ -146,7 +146,7 @@ const Lot_detail = () => {
       ...(valveButtonData && {
         button1: valveButtonData,
       }),
-      ...(hasPermission("Generar Reporte lote") && {
+      ...(hasPermission("Descargar reportes de un lote") && {
         button2: {
           icon: "LuDownload",
           class: "",
@@ -163,7 +163,9 @@ const Lot_detail = () => {
 
     if (buttonText === "Descargar reporte") {
       setLoading("is-loading");
-      generateReport();
+      generateReport(data, dataOwner, dataProperty, dataIot, id, () =>
+        setLoading("")
+      );
     }
 
     if (buttonText === "Abrir válvula") {
@@ -175,265 +177,6 @@ const Lot_detail = () => {
       handleClosedValve();
       // setLoading("is-loading");
     }
-  };
-  //Generar reporte de predio
-  const generateReport = () => {
-    const doc = new jsPDF();
-
-    // Add Roboto font to the document
-    doc.addFont(RobotoNormalFont, "Roboto", "normal");
-    doc.addFont(RobotoBoldFont, "Roboto", "bold");
-
-    // Colorear fondo
-    doc.setFillColor(243, 242, 247);
-    doc.rect(0, 0, 210, 53, "F"); // colorear una parte de la pagina
-
-    // Agregar logo
-    doc.addImage(Icon, "PNG", 156, 10, 39, 11);
-    doc.setTextColor(0, 0, 0);
-    doc.setFontSize(17);
-    doc.setFont("Roboto", "bold");
-    doc.text(`REPORTE DEL LOTE #${id}`, 12, 18);
-    doc.setFontSize(11);
-    doc.text(`Fecha de generación:`, 12, 27);
-    doc.text(`Generado por:`, 12, 39);
-    doc.text("Datos del dueño", 12, 63);
-    doc.text("Datos del predio", 12, 106);
-    doc.text("Datos del lote", 12, 140);
-
-    doc.setTextColor(94, 100, 112);
-    doc.setFont("Roboto", "normal");
-    doc.setFontSize(10);
-    doc.text(`${new Date().toLocaleString()}`, 12, 32);
-
-    // Obtener información del usuario que genera el reporte (si está disponible)
-    const userInfo = localStorage.getItem("userInfo");
-    let userName = "[Nombre del usuario]";
-    if (userInfo) {
-      try {
-        const parsedUserInfo = JSON.parse(userInfo);
-        userName = parsedUserInfo.name || "[Nombre del usuario]";
-      } catch (error) {
-        console.error("Error al parsear userInfo:", error);
-      }
-    }
-
-    doc.text(`${userName}`, 12, 44);
-    doc.setFontSize(11);
-    doc.text(`[Dirección de la empresa]`, 194, 27, { align: "right" });
-    doc.text(`[Ciudad, Dept. País]`, 194, 33, { align: "right" });
-    doc.text(`[Teléfono]`, 194, 39, { align: "right" });
-
-    // Datos del dueño (en forma de texto)
-    doc.setFontSize(10);
-    doc.text("Nombre completo", 12, 70);
-    doc.text("Número de documento", 110, 70);
-    doc.text("Dirección de correspondencia", 12, 82);
-    doc.text("Teléfono", 110, 82);
-    doc.text("ID predio", 12, 94);
-    doc.text("Nombre predio", 110, 94);
-
-    // Usar los datos reales del dueño obtenidos de la base de datos
-    const ownerName = dataOwner
-      ? `${dataOwner.name || ""} ${dataOwner.first_last_name || ""} ${
-          dataOwner.second_last_name || ""
-        }`.trim()
-      : "[NOMBRE]";
-
-    const ownerDocument = dataOwner
-      ? `${dataOwner.type_document_name || ""} ${
-          dataOwner.document_number || ""
-        }`.trim()
-      : "[No. documento]";
-
-    const ownerAddress = dataOwner
-      ? dataOwner.address || "[DIRECCION]"
-      : "[DIRECCION]";
-
-    const ownerPhone = dataOwner
-      ? dataOwner.phone || "[TELEFONO]"
-      : "[TELEFONO]";
-
-    doc.text(ownerName, 12, 75);
-    doc.text(ownerDocument, 110, 75);
-    doc.text(ownerAddress, 12, 87);
-    doc.text(ownerPhone, 110, 87);
-    //doc.text(dataProperty?.name || "[Nombre del predio]", 110, 99);
-    doc.text(`${id}`, 110, 99);
-
-    // Tabla con los datos del predio
-    autoTable(doc, {
-      startY: 109,
-      margin: { left: 12, right: 12 },
-      head: [
-        [
-          "ID",
-          "Nombre del predio",
-          "Folio matrícula inmobiliaria",
-          "Extensión",
-          "Latitud",
-          "Longitud",
-          "Estado",
-        ],
-      ],
-      body: [
-        [
-          dataProperty?.id || "",
-          dataProperty?.name || "",
-          dataProperty?.real_estate_registration_number || "",
-          dataProperty?.extension || "",
-          dataProperty?.latitude || "",
-          dataProperty?.longitude || "",
-          dataProperty?.state_name || "",
-        ],
-      ],
-      theme: "grid",
-      headStyles: {
-        fillColor: [252, 252, 253],
-        textColor: [0, 0, 0],
-        fontStyle: "bold",
-        lineWidth: 0.5,
-        lineColor: [234, 236, 240],
-      },
-      bodyStyles: {
-        textColor: [89, 89, 89],
-        fontSize: 9,
-        cellPadding: 4,
-      },
-      styles: {
-        fontSize: 9,
-        font: "Roboto",
-        lineColor: [226, 232, 240],
-      },
-    });
-
-    // Tabla con los datos del lote
-    autoTable(doc, {
-      startY: 145,
-      margin: { left: 12, right: 12 },
-      head: [
-        [
-          "ID",
-          "Nombre del lote",
-          "Folio matrícula inmobiliaria",
-          "Extensión",
-          "Latitud",
-          "Longitud",
-          "Tipo de cultivo",
-          "Intervalo de pago",
-          "Fecha est. cosecha",
-        ],
-      ],
-      body: [
-        [
-          data?.id || "",
-          data?.name || "",
-          data?.real_estate_registration_number || "",
-          data?.extension || "",
-          data?.latitude || "",
-          data?.longitude || "",
-          data?.nombre_tipo_cultivo || "",
-          data?.nombre_intervalo_pago || "",
-          data?.estimated_harvest_date || "",
-        ],
-      ],
-      theme: "grid",
-      headStyles: {
-        fillColor: [252, 252, 253],
-        textColor: [0, 0, 0],
-        fontStyle: "bold",
-        lineWidth: 0.5,
-        lineColor: [234, 236, 240],
-      },
-      bodyStyles: {
-        textColor: [89, 89, 89],
-        fontSize: 9,
-        cellPadding: 4,
-      },
-      styles: {
-        fontSize: 9,
-        font: "Roboto",
-        lineColor: [226, 232, 240],
-      },
-    });
-
-    // Información de Dispositivos IoT
-    const currentY = doc.lastAutoTable.finalY + 10;
-
-    doc.setFontSize(11);
-    doc.setFont("Roboto", "bold");
-    doc.setTextColor(0, 0, 0);
-    doc.text(`Dispositivos IoT del lote [${id}]`, 14, currentY);
-
-    // Tabla de dispositivos IoT
-    autoTable(doc, {
-      startY: currentY + 5,
-      margin: { left: 12, right: 12 },
-      head: [
-        [
-          "ID",
-          "Tipo de dispositivo",
-          "Modelo",
-          "Fecha de instalación",
-          "Fecha est. mantenimiento",
-          "Estado",
-        ],
-      ],
-      body: dataIot.map((device) => [
-        device.id,
-        device.device_type,
-        device.model,
-        device.date_installation,
-        device.maintenance_date,
-        device.status_name,
-      ]),
-      theme: "grid",
-      headStyles: {
-        fillColor: [252, 252, 253],
-        textColor: [0, 0, 0],
-        fontStyle: "bold",
-        lineWidth: 0.1,
-        lineColor: [234, 236, 240],
-      },
-      bodyStyles: {
-        textColor: [89, 89, 89],
-        fontSize: 9,
-        cellPadding: 4,
-      },
-      styles: {
-        fontSize: 9,
-        font: "Roboto",
-        lineColor: [226, 232, 240],
-      },
-    });
-
-    // Pie de página
-    doc.addImage(Icon, "PNG", 12, 280, 32, 9);
-
-    const pageCount = doc.internal.getNumberOfPages();
-    for (let i = 1; i <= pageCount; i++) {
-      doc.setPage(i);
-      doc.setFontSize(10);
-
-      doc.setFont("Roboto", "normal");
-      const pageWidth = doc.internal.pageSize.getWidth();
-      const pageHeight = doc.internal.pageSize.getHeight();
-      doc.text(`Página ${i}/${pageCount}`, pageWidth - 10, pageHeight - 10, {
-        align: "right",
-      });
-    }
-
-    // Convertir el PDF a un Blob
-    const pdfBlob = doc.output("blob");
-
-    // Crear una URL del Blob
-    const pdfUrl = URL.createObjectURL(pdfBlob);
-
-    // Abrir el PDF en una nueva pestaña
-    setTimeout(() => {
-      window.open(pdfUrl, "_blank");
-      setLoading("");
-    }, 500);
   };
 
   // Función para generar etiquetas de fecha según el período seleccionado
@@ -749,8 +492,15 @@ const Lot_detail = () => {
 
   useEffect(() => {
     fetchLot();
-    if (token && hasPermission("Ver Dispositivo por Lote")) {
+    if (token && hasPermission("Ver todos los dispositivos de un lote")) {
       getDevicesByLot();
+    } else {
+      if (
+        token &&
+        hasPermission("Ver todos los dispositivos del lote de un usuario")
+      ) {
+        getDevicesByLot();
+      }
     }
   }, [token, permissionsUser]);
 
@@ -955,27 +705,26 @@ const Lot_detail = () => {
   }, [dataIot, searchTerm, filters.estados]);
 
   const options = [
-    { icon: "BiShow", name: "Ver detalles" },
-    hasPermission("Editar Dispositivo") && {
+    (hasPermission("Ver detalles de un dispositivo") ||
+      hasPermission(
+        "Ver detalles de los dispositivos del lote de un usuario"
+      )) && {
+      icon: "BiShow",
+      name: "Ver detalles",
+    },
+    hasPermission("Editar dispositivo") && {
       icon: "BiEditAlt",
       name: "Editar",
     },
-    hasPermission("Habilitar Dispositivo") && {
+    hasPermission("Habilitar dispositivo") && {
       icon: "MdOutlineCheckCircle",
       name: "Habilitar",
     },
-    hasPermission("Inhabilitar Dispositivo") && {
+    hasPermission("Inhabilitar dispositivo") && {
       icon: "VscError",
       name: "Inhabilitar",
     },
   ].filter(Boolean);
-
-  // const options = [
-  //   { icon: "BiShow", name: "Ver detalles" },
-  //   { icon: "BiEditAlt", name: "Editar" },
-  //   { icon: "MdOutlineCheckCircle", name: "Habilitar" },
-  //   { icon: "VscError", name: "Inhabilitar" },
-  // ];
 
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedData = filteredData.slice(
@@ -1303,7 +1052,10 @@ const Lot_detail = () => {
             </div>
           </div>
           {/* <Head head_data={head_lot_data} onButtonClick={handleButtonClick} /> */}
-          {hasPermission("Ver Dispositivo por Lote") && (
+          {(hasPermission("Ver todos los dispositivos de un lote") ||
+            hasPermission(
+              "Ver todos los dispositivos del lote de un usuario"
+            )) && (
             <div className="rol-detail">
               <Head
                 head_data={head_iot}
@@ -1390,3 +1142,267 @@ const Lot_detail = () => {
 };
 
 export default Lot_detail;
+
+const generateReport = (
+  data,
+  dataOwner,
+  dataProperty,
+  dataIot,
+  id,
+  onFinish
+) => {
+  const doc = new jsPDF();
+
+  // Add Roboto font to the document
+  doc.addFont(RobotoNormalFont, "Roboto", "normal");
+  doc.addFont(RobotoBoldFont, "Roboto", "bold");
+
+  // Colorear fondo
+  doc.setFillColor(243, 242, 247);
+  doc.rect(0, 0, 210, 53, "F"); // colorear una parte de la pagina
+
+  // Agregar logo
+  doc.addImage(Icon, "PNG", 156, 10, 39, 11);
+  doc.setTextColor(0, 0, 0);
+  doc.setFontSize(17);
+  doc.setFont("Roboto", "bold");
+  doc.text(`REPORTE DEL LOTE #${id}`, 12, 18);
+  doc.setFontSize(11);
+  doc.text(`Fecha de generación:`, 12, 27);
+  doc.text(`Generado por:`, 12, 39);
+  doc.text("Datos del dueño", 12, 63);
+  doc.text("Datos del predio", 12, 106);
+  doc.text("Datos del lote", 12, 140);
+
+  doc.setTextColor(94, 100, 112);
+  doc.setFont("Roboto", "normal");
+  doc.setFontSize(10);
+  doc.text(`${new Date().toLocaleString()}`, 12, 32);
+
+  // Obtener información del usuario que genera el reporte (si está disponible)
+  const userInfo = localStorage.getItem("userInfo");
+  let userName = "[Nombre del usuario]";
+  if (userInfo) {
+    try {
+      const parsedUserInfo = JSON.parse(userInfo);
+      userName = parsedUserInfo.name || "[Nombre del usuario]";
+    } catch (error) {
+      console.error("Error al parsear userInfo:", error);
+    }
+  }
+
+  doc.text(`${userName}`, 12, 44);
+  doc.setFontSize(11);
+  doc.text(`[Dirección de la empresa]`, 194, 27, { align: "right" });
+  doc.text(`[Ciudad, Dept. País]`, 194, 33, { align: "right" });
+  doc.text(`[Teléfono]`, 194, 39, { align: "right" });
+
+  // Datos del dueño (en forma de texto)
+  doc.setFontSize(10);
+  doc.text("Nombre completo", 12, 70);
+  doc.text("Número de documento", 110, 70);
+  doc.text("Dirección de correspondencia", 12, 82);
+  doc.text("Teléfono", 110, 82);
+  doc.text("ID predio", 12, 94);
+  doc.text("Nombre predio", 110, 94);
+
+  // Usar los datos reales del dueño obtenidos de la base de datos
+  const ownerName = dataOwner
+    ? `${dataOwner.name || ""} ${dataOwner.first_last_name || ""} ${
+        dataOwner.second_last_name || ""
+      }`.trim()
+    : "[NOMBRE]";
+
+  const ownerDocument = dataOwner
+    ? `${dataOwner.type_document_name || ""} ${
+        dataOwner.document_number || ""
+      }`.trim()
+    : "[No. documento]";
+
+  const ownerAddress = dataOwner
+    ? dataOwner.address || "[DIRECCION]"
+    : "[DIRECCION]";
+
+  const ownerPhone = dataOwner ? dataOwner.phone || "[TELEFONO]" : "[TELEFONO]";
+
+  doc.text(ownerName, 12, 75);
+  doc.text(ownerDocument, 110, 75);
+  doc.text(ownerAddress, 12, 87);
+  doc.text(ownerPhone, 110, 87);
+  //doc.text(dataProperty?.name || "[Nombre del predio]", 110, 99);
+  doc.text(`${id}`, 110, 99);
+
+  // Tabla con los datos del predio
+  autoTable(doc, {
+    startY: 109,
+    margin: { left: 12, right: 12 },
+    head: [
+      [
+        "ID",
+        "Nombre del predio",
+        "Folio matrícula inmobiliaria",
+        "Extensión",
+        "Latitud",
+        "Longitud",
+        "Estado",
+      ],
+    ],
+    body: [
+      [
+        dataProperty?.id || "",
+        dataProperty?.name || "",
+        dataProperty?.real_estate_registration_number || "",
+        dataProperty?.extension || "",
+        dataProperty?.latitude || "",
+        dataProperty?.longitude || "",
+        dataProperty?.state_name || "",
+      ],
+    ],
+    theme: "grid",
+    headStyles: {
+      fillColor: [252, 252, 253],
+      textColor: [0, 0, 0],
+      fontStyle: "bold",
+      lineWidth: 0.5,
+      lineColor: [234, 236, 240],
+    },
+    bodyStyles: {
+      textColor: [89, 89, 89],
+      fontSize: 9,
+      cellPadding: 4,
+    },
+    styles: {
+      fontSize: 9,
+      font: "Roboto",
+      lineColor: [226, 232, 240],
+    },
+  });
+
+  // Tabla con los datos del lote
+  autoTable(doc, {
+    startY: 145,
+    margin: { left: 12, right: 12 },
+    head: [
+      [
+        "ID",
+        "Nombre del lote",
+        "Folio matrícula inmobiliaria",
+        "Extensión",
+        "Latitud",
+        "Longitud",
+        "Tipo de cultivo",
+        "Intervalo de pago",
+        "Fecha est. cosecha",
+      ],
+    ],
+    body: [
+      [
+        data?.id || "",
+        data?.name || "",
+        data?.real_estate_registration_number || "",
+        data?.extension || "",
+        data?.latitude || "",
+        data?.longitude || "",
+        data?.nombre_tipo_cultivo || "",
+        data?.nombre_intervalo_pago || "",
+        data?.estimated_harvest_date || "",
+      ],
+    ],
+    theme: "grid",
+    headStyles: {
+      fillColor: [252, 252, 253],
+      textColor: [0, 0, 0],
+      fontStyle: "bold",
+      lineWidth: 0.5,
+      lineColor: [234, 236, 240],
+    },
+    bodyStyles: {
+      textColor: [89, 89, 89],
+      fontSize: 9,
+      cellPadding: 4,
+    },
+    styles: {
+      fontSize: 9,
+      font: "Roboto",
+      lineColor: [226, 232, 240],
+    },
+  });
+
+  // Información de Dispositivos IoT
+  const currentY = doc.lastAutoTable.finalY + 10;
+
+  doc.setFontSize(11);
+  doc.setFont("Roboto", "bold");
+  doc.setTextColor(0, 0, 0);
+  doc.text(`Dispositivos IoT del lote [${id}]`, 14, currentY);
+
+  // Tabla de dispositivos IoT
+  autoTable(doc, {
+    startY: currentY + 5,
+    margin: { left: 12, right: 12 },
+    head: [
+      [
+        "ID",
+        "Tipo de dispositivo",
+        "Modelo",
+        "Fecha de instalación",
+        "Fecha est. mantenimiento",
+        "Estado",
+      ],
+    ],
+    body: dataIot.map((device) => [
+      device.id,
+      device.device_type,
+      device.model,
+      device.date_installation,
+      device.maintenance_date,
+      device.status_name,
+    ]),
+    theme: "grid",
+    headStyles: {
+      fillColor: [252, 252, 253],
+      textColor: [0, 0, 0],
+      fontStyle: "bold",
+      lineWidth: 0.1,
+      lineColor: [234, 236, 240],
+    },
+    bodyStyles: {
+      textColor: [89, 89, 89],
+      fontSize: 9,
+      cellPadding: 4,
+    },
+    styles: {
+      fontSize: 9,
+      font: "Roboto",
+      lineColor: [226, 232, 240],
+    },
+  });
+
+  // Pie de página
+  doc.addImage(Icon, "PNG", 12, 280, 32, 9);
+
+  const pageCount = doc.internal.getNumberOfPages();
+  for (let i = 1; i <= pageCount; i++) {
+    doc.setPage(i);
+    doc.setFontSize(10);
+
+    doc.setFont("Roboto", "normal");
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    doc.text(`Página ${i}/${pageCount}`, pageWidth - 10, pageHeight - 10, {
+      align: "right",
+    });
+  }
+
+  // Convertir el PDF a un Blob
+  const pdfBlob = doc.output("blob");
+
+  // Crear una URL del Blob
+  const pdfUrl = URL.createObjectURL(pdfBlob);
+
+  // Abrir el PDF en una nueva pestaña
+  setTimeout(() => {
+    window.open(pdfUrl, "_blank");
+    onFinish();
+  }, 500);
+};

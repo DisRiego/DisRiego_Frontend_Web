@@ -93,14 +93,14 @@ const Property_detail = () => {
     description:
       "En esta sección podrás visualizar información detallada sobre el predio.",
     buttons: {
-      ...(hasPermission("Crear Lote") && {
+      ...(hasPermission("Añadir lote") && {
         button1: {
           icon: "FaPlus",
           class: "color-hover",
           text: "Añadir lote",
         },
       }),
-      ...(hasPermission("Generar Informes de un Predio") && {
+      ...(hasPermission("Descargar reportes de un predio") && {
         button2: {
           icon: "LuDownload",
           class: "",
@@ -117,215 +117,8 @@ const Property_detail = () => {
 
     if (buttonText === "Descargar reporte") {
       setLoading("is-loading");
-      generateReport();
+      generateReport(data, dataUser, dataLots, id, () => setLoading(""));
     }
-  };
-  //Generar reporte de predio
-  const generateReport = () => {
-    const doc = new jsPDF();
-
-    // Usar los datos del predio y los lotes obtenidos de la BD
-    // en lugar de currentProperty y lotsForProperty
-
-    // Add Roboto font to the document
-    doc.addFont(RobotoNormalFont, "Roboto", "normal");
-    doc.addFont(RobotoBoldFont, "Roboto", "bold");
-
-    // Colorear fondo
-    doc.setFillColor(243, 242, 247);
-    doc.rect(0, 0, 210, 53, "F"); // colorear una parte de la pagina
-
-    // Agregar logo
-    doc.addImage(Icon, "PNG", 156, 10, 39, 11);
-    doc.setTextColor(0, 0, 0);
-    doc.setFontSize(17);
-    doc.setFont("Roboto", "bold");
-    doc.text("REPORTE PREDIAL", 12, 18);
-    doc.setFontSize(11);
-    doc.text(`Fecha de generación:`, 12, 27);
-    doc.text(`Generado por:`, 12, 39);
-    doc.text("Datos del dueño", 12, 63);
-    doc.text("Datos del predio", 12, 100);
-
-    doc.setTextColor(94, 100, 112);
-    doc.setFont("Roboto", "normal");
-    doc.setFontSize(10);
-    doc.text(`${new Date().toLocaleString()}`, 12, 32);
-
-    // Obtener información del usuario que genera el reporte (si está disponible)
-    const userInfo = localStorage.getItem("userInfo");
-    let userName = "[Nombre del usuario]";
-    if (userInfo) {
-      try {
-        const parsedUserInfo = JSON.parse(userInfo);
-        userName = parsedUserInfo.name || "[Nombre del usuario]";
-      } catch (error) {
-        console.error("Error al parsear userInfo:", error);
-      }
-    }
-
-    doc.text(`${userName}`, 12, 44);
-    doc.setFontSize(11);
-    doc.text(`[Dirección de la empresa]`, 194, 27, { align: "right" });
-    doc.text(`[Ciudad, Dept. País]`, 194, 33, { align: "right" });
-    doc.text(`[Teléfono]`, 194, 39, { align: "right" });
-
-    doc.setFontSize(10);
-    doc.text("Nombre completo", 12, 70);
-    doc.text("Número de documento", 110, 70);
-    doc.text("Dirección de correspondencia", 12, 82);
-    doc.text("Teléfono", 110, 82);
-
-    // Usar los datos del usuario obtenidos de la BD
-    const ownerName = dataUser
-      ? `${dataUser.name || ""} ${dataUser.first_last_name || ""} ${
-          dataUser.second_last_name || ""
-        }`
-      : "[NOMBRE]";
-
-    const documentInfo = dataUser
-      ? `${dataUser.type_document_name || ""} ${dataUser.document_number || ""}`
-      : "[No. documento]";
-
-    const phoneInfo = dataUser ? dataUser.phone || "[TELEFONO]" : "[TELEFONO]";
-
-    doc.text(ownerName.trim(), 12, 75);
-    doc.text(documentInfo.trim(), 110, 75);
-    doc.text("[DIRECCION]", 12, 87); // Añadir dirección si está disponible en dataUser
-    doc.text(phoneInfo, 110, 87);
-
-    const toTitleCase = (str) => {
-      if (typeof str !== "string") return str;
-      return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
-    };
-
-    // Tabla con los datos del predio
-    autoTable(doc, {
-      startY: 105,
-      margin: { left: 12, right: 12 },
-      head: [
-        [
-          "ID",
-          "Nombre del predio",
-          "Folio matrícula inmobiliaria",
-          "Extensión",
-          "Latitud",
-          "Longitud",
-          "Número de lotes",
-        ],
-      ],
-      body: [
-        [
-          data?.id || "",
-          data?.name || "",
-          data?.real_estate_registration_number || "",
-          data?.extension || "",
-          data?.latitude || "",
-          data?.longitude || "",
-          dataLots?.length || 0,
-        ],
-      ],
-      theme: "grid",
-      headStyles: {
-        fillColor: [252, 252, 253],
-        textColor: [0, 0, 0],
-        fontStyle: "bold",
-        lineWidth: 0.5,
-        lineColor: [234, 236, 240],
-      },
-      bodyStyles: {
-        textColor: [89, 89, 89],
-        fontSize: 9,
-        cellPadding: 4,
-      },
-      styles: {
-        fontSize: 9,
-        font: "Roboto",
-        lineColor: [226, 232, 240],
-      },
-    });
-
-    // Lotes asociados al predio
-    const currentY = doc.lastAutoTable.finalY + 10;
-
-    doc.setFontSize(11);
-    doc.setFont("Roboto", "bold");
-    doc.setTextColor(0, 0, 0);
-    doc.text(`Lotes Asociados al predio [${id}]`, 14, currentY);
-
-    // Tabla de lotes asociados usando dataLots
-    autoTable(doc, {
-      startY: currentY + 5,
-      margin: { left: 12, right: 12 },
-      head: [
-        [
-          "ID",
-          "Nombre del lote",
-          "Folio matrícula inmobiliaria",
-          "Extensión",
-          "Latitud",
-          "Longitud",
-          "Tipo de cultivo",
-          "Intervalo de pago",
-        ],
-      ],
-      body: dataLots.map((lot) => [
-        lot.id,
-        toTitleCase(lot.name),
-        lot.real_estate_registration_number || "",
-        lot.extension || "",
-        lot.latitude || "",
-        lot.longitude || "",
-        toTitleCase(lot.nombre_tipo_cultivo) || "[]",
-        lot.payment_interval || "[]",
-      ]),
-      theme: "grid",
-      headStyles: {
-        fillColor: [252, 252, 253],
-        textColor: [0, 0, 0],
-        fontStyle: "bold",
-        lineWidth: 0.1,
-        lineColor: [234, 236, 240],
-      },
-      bodyStyles: {
-        textColor: [89, 89, 89],
-        fontSize: 9,
-        cellPadding: 4,
-      },
-      styles: {
-        fontSize: 9,
-        font: "Roboto",
-        lineColor: [226, 232, 240],
-      },
-    });
-
-    // Pie de página
-    doc.addImage(Icon, "PNG", 12, 280, 32, 9);
-
-    const pageCount = doc.internal.getNumberOfPages();
-    for (let i = 1; i <= pageCount; i++) {
-      doc.setPage(i);
-      doc.setFontSize(10);
-
-      doc.setFont("Roboto", "normal");
-      const pageWidth = doc.internal.pageSize.getWidth();
-      const pageHeight = doc.internal.pageSize.getHeight();
-      doc.text(`Página ${i}/${pageCount}`, pageWidth - 10, pageHeight - 10, {
-        align: "right",
-      });
-    }
-
-    // Convertir el PDF a un Blob
-    const pdfBlob = doc.output("blob");
-
-    // Crear una URL del Blob
-    const pdfUrl = URL.createObjectURL(pdfBlob);
-
-    // Abrir el PDF en una nueva pestaña
-    setTimeout(() => {
-      window.open(pdfUrl, "_blank");
-      setLoading("");
-    }, 500);
   };
 
   // Función para generar etiquetas de fecha según el período seleccionado
@@ -661,7 +454,8 @@ const Property_detail = () => {
 
     if (
       token &&
-      (hasPermission("Ver Lote") || hasPermission("Ver Mis Lotes"))
+      (hasPermission("Ver todos los lotes") ||
+        hasPermission("Ver todos los lotes de un usuario"))
     ) {
       fetchLots();
     }
@@ -1149,3 +943,210 @@ const Property_detail = () => {
 };
 
 export default Property_detail;
+
+const generateReport = (data, dataUser, dataLots, id, onFinish) => {
+  const doc = new jsPDF();
+
+  // Usar los datos del predio y los lotes obtenidos de la BD
+  // en lugar de currentProperty y lotsForProperty
+
+  // Add Roboto font to the document
+  doc.addFont(RobotoNormalFont, "Roboto", "normal");
+  doc.addFont(RobotoBoldFont, "Roboto", "bold");
+
+  // Colorear fondo
+  doc.setFillColor(243, 242, 247);
+  doc.rect(0, 0, 210, 53, "F"); // colorear una parte de la pagina
+
+  // Agregar logo
+  doc.addImage(Icon, "PNG", 156, 10, 39, 11);
+  doc.setTextColor(0, 0, 0);
+  doc.setFontSize(17);
+  doc.setFont("Roboto", "bold");
+  doc.text("REPORTE PREDIAL", 12, 18);
+  doc.setFontSize(11);
+  doc.text(`Fecha de generación:`, 12, 27);
+  doc.text(`Generado por:`, 12, 39);
+  doc.text("Datos del dueño", 12, 63);
+  doc.text("Datos del predio", 12, 100);
+
+  doc.setTextColor(94, 100, 112);
+  doc.setFont("Roboto", "normal");
+  doc.setFontSize(10);
+  doc.text(`${new Date().toLocaleString()}`, 12, 32);
+
+  // Obtener información del usuario que genera el reporte (si está disponible)
+  const userInfo = localStorage.getItem("userInfo");
+  let userName = "[Nombre del usuario]";
+  if (userInfo) {
+    try {
+      const parsedUserInfo = JSON.parse(userInfo);
+      userName = parsedUserInfo.name || "[Nombre del usuario]";
+    } catch (error) {
+      console.error("Error al parsear userInfo:", error);
+    }
+  }
+
+  doc.text(`${userName}`, 12, 44);
+  doc.setFontSize(11);
+  doc.text(`[Dirección de la empresa]`, 194, 27, { align: "right" });
+  doc.text(`[Ciudad, Dept. País]`, 194, 33, { align: "right" });
+  doc.text(`[Teléfono]`, 194, 39, { align: "right" });
+
+  doc.setFontSize(10);
+  doc.text("Nombre completo", 12, 70);
+  doc.text("Número de documento", 110, 70);
+  doc.text("Dirección de correspondencia", 12, 82);
+  doc.text("Teléfono", 110, 82);
+
+  // Usar los datos del usuario obtenidos de la BD
+  const ownerName = dataUser
+    ? `${dataUser.name || ""} ${dataUser.first_last_name || ""} ${
+        dataUser.second_last_name || ""
+      }`
+    : "[NOMBRE]";
+
+  const documentInfo = dataUser
+    ? `${dataUser.type_document_name || ""} ${dataUser.document_number || ""}`
+    : "[No. documento]";
+
+  const phoneInfo = dataUser ? dataUser.phone || "[TELEFONO]" : "[TELEFONO]";
+
+  doc.text(ownerName.trim(), 12, 75);
+  doc.text(documentInfo.trim(), 110, 75);
+  doc.text("[DIRECCION]", 12, 87); // Añadir dirección si está disponible en dataUser
+  doc.text(phoneInfo, 110, 87);
+
+  const toTitleCase = (str) => {
+    if (typeof str !== "string") return str;
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  };
+
+  // Tabla con los datos del predio
+  autoTable(doc, {
+    startY: 105,
+    margin: { left: 12, right: 12 },
+    head: [
+      [
+        "ID",
+        "Nombre del predio",
+        "Folio matrícula inmobiliaria",
+        "Extensión",
+        "Latitud",
+        "Longitud",
+        "Número de lotes",
+      ],
+    ],
+    body: [
+      [
+        data?.id || "",
+        data?.name || "",
+        data?.real_estate_registration_number || "",
+        data?.extension || "",
+        data?.latitude || "",
+        data?.longitude || "",
+        dataLots?.length || 0,
+      ],
+    ],
+    theme: "grid",
+    headStyles: {
+      fillColor: [252, 252, 253],
+      textColor: [0, 0, 0],
+      fontStyle: "bold",
+      lineWidth: 0.5,
+      lineColor: [234, 236, 240],
+    },
+    bodyStyles: {
+      textColor: [89, 89, 89],
+      fontSize: 9,
+      cellPadding: 4,
+    },
+    styles: {
+      fontSize: 9,
+      font: "Roboto",
+      lineColor: [226, 232, 240],
+    },
+  });
+
+  // Lotes asociados al predio
+  const currentY = doc.lastAutoTable.finalY + 10;
+
+  doc.setFontSize(11);
+  doc.setFont("Roboto", "bold");
+  doc.setTextColor(0, 0, 0);
+  doc.text(`Lotes Asociados al predio [${id}]`, 14, currentY);
+
+  // Tabla de lotes asociados usando dataLots
+  autoTable(doc, {
+    startY: currentY + 5,
+    margin: { left: 12, right: 12 },
+    head: [
+      [
+        "ID",
+        "Nombre del lote",
+        "Folio matrícula inmobiliaria",
+        "Extensión",
+        "Latitud",
+        "Longitud",
+        "Tipo de cultivo",
+        "Intervalo de pago",
+      ],
+    ],
+    body: dataLots.map((lot) => [
+      lot.id,
+      toTitleCase(lot.name),
+      lot.real_estate_registration_number || "",
+      lot.extension || "",
+      lot.latitude || "",
+      lot.longitude || "",
+      toTitleCase(lot.nombre_tipo_cultivo) || "[]",
+      lot.payment_interval || "[]",
+    ]),
+    theme: "grid",
+    headStyles: {
+      fillColor: [252, 252, 253],
+      textColor: [0, 0, 0],
+      fontStyle: "bold",
+      lineWidth: 0.1,
+      lineColor: [234, 236, 240],
+    },
+    bodyStyles: {
+      textColor: [89, 89, 89],
+      fontSize: 9,
+      cellPadding: 4,
+    },
+    styles: {
+      fontSize: 9,
+      font: "Roboto",
+      lineColor: [226, 232, 240],
+    },
+  });
+
+  // Pie de página
+  doc.addImage(Icon, "PNG", 12, 280, 32, 9);
+
+  const pageCount = doc.internal.getNumberOfPages();
+  for (let i = 1; i <= pageCount; i++) {
+    doc.setPage(i);
+    doc.setFontSize(10);
+
+    doc.setFont("Roboto", "normal");
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    doc.text(`Página ${i}/${pageCount}`, pageWidth - 10, pageHeight - 10, {
+      align: "right",
+    });
+  }
+
+  // Convertir el PDF a un Blob
+  const pdfBlob = doc.output("blob");
+
+  // Crear una URL del Blob
+  const pdfUrl = URL.createObjectURL(pdfBlob);
+
+  // Abrir el PDF en una nueva pestaña
+  setTimeout(() => {
+    window.open(pdfUrl, "_blank");
+    onFinish();
+  }, 500);
+};

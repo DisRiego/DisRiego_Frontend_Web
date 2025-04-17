@@ -68,52 +68,49 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
 
   const optionsMenu = [
     {
-      permission: [
-        "Editar Datos Empresa",
-        "Adicionar Certificado",
-        "Editar Certificado",
-        "Crear Tipo Cultivo",
-        "Editar Tipo Cultivo",
-        "Inhabilitar Tipo Cultivo",
-        "Crear Intervalo Pago",
-        "Editar Intervalo Pago",
-        "Inhabilitar Intervalo Pago",
-      ],
+      permission: "Ver notificaciones",
+      path: "/dashboard/notification",
+      selectoption: "notification",
+      icon: <HiOutlineBell />,
+      label: "Notificaciones",
+    },
+    {
+      permission: ["Ver detalles de la empresa"],
       path: "/dashboard/company",
       selectoption: "company",
       icon: <IoHomeOutline />,
       label: "Gestión de empresa",
     },
     {
-      permission: ["Ver Rol"],
+      permission: ["Ver todos los roles"],
       path: "/dashboard/rol",
       selectoption: "rol",
       icon: <LuUserCog />,
       label: "Gestión de roles",
     },
     {
-      permission: ["Ver Usuario"],
+      permission: ["Ver todos los usuarios"],
       path: "/dashboard/user",
       selectoption: "user",
       icon: <LuUsersRound />,
       label: "Gestión de usuarios",
     },
     {
-      permission: ["Ver Predio"],
+      permission: ["Ver todos los predios"],
       path: "/dashboard/property",
       selectoption: "property",
       icon: <TbMapSearch />,
       label: "Gestión de predios",
     },
     {
-      permission: "Ver Mis Predios",
+      permission: "Ver todos los predios de un usuario",
       path: "/dashboard/properties",
       selectoption: "properties",
       icon: <TbMapSearch />,
       label: "Mis predios y lotes",
     },
     {
-      permission: "Ver Dispositivo",
+      permission: "Ver todos los dispositivos",
       path: "/dashboard/device",
       selectoption: "device",
       icon: <TbServerBolt />,
@@ -143,19 +140,6 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
   return (
     <>
       <div className="sidebar-options">
-        <Link
-          className={`navbar-item ${
-            getSelectedOption() === "notification" ? "selected" : ""
-          }`}
-          onClick={() => handleOptionChange("notification")}
-          to="/dashboard/notification"
-        >
-          <span className="icon">
-            <HiOutlineBell />
-          </span>
-          {!isCollapsed && <span>Notificaciones</span>}
-        </Link>
-
         {optionsFiltered.map((option, index) => (
           <Link
             key={index}
