@@ -16,6 +16,7 @@ const Form_aperture = ({
   setTitleMessage,
   setMessage,
   setStatus,
+  updateData,
   loading,
   setLoading,
   id,
@@ -171,13 +172,23 @@ const Form_aperture = ({
       isHourClosedValid &&
       isVolumeWaterValid
     ) {
-      const openTimestamp = new Date(
+      const openDateLocal = new Date(
         `${formData.open_date}T${formData.hour_open_date}:00`
-      ).toISOString();
-
-      const closedTimestamp = new Date(
+      );
+      const closeDateLocal = new Date(
         `${formData.close_date}T${formData.hour_closed_date}:00`
-      ).toISOString();
+      );
+
+      const openTimestamp = toLocalISOString(openDateLocal);
+      const closedTimestamp = toLocalISOString(closeDateLocal);
+
+      // const openTimestamp = new Date(
+      //   `${formData.open_date}T${formData.hour_open_date}:00`
+      // ).toISOString();
+
+      // const closedTimestamp = new Date(
+      //   `${formData.close_date}T${formData.hour_closed_date}:00`
+      // ).toISOString();
 
       const dataToSend = {
         type_opening_id: formData.type_opening_id,
@@ -190,7 +201,7 @@ const Form_aperture = ({
           ? parseInt(formData.volume_water)
           : null,
       };
-
+      console.log(dataToSend);
       setNewData(dataToSend);
       setConfirMessage(
         `¿Desea crear la solicitud de "${nameTypeAperture}" para el lote con ID "${
@@ -221,6 +232,24 @@ const Form_aperture = ({
 
     return `${hour12}:${minute.toString().padStart(2, "0")} ${ampm}`;
   };
+
+  function toLocalISOString(date) {
+    const pad = (n) => String(n).padStart(2, "0");
+
+    return (
+      date.getFullYear() +
+      "-" +
+      pad(date.getMonth() + 1) +
+      "-" +
+      pad(date.getDate()) +
+      "T" +
+      pad(date.getHours()) +
+      ":" +
+      pad(date.getMinutes()) +
+      ":" +
+      pad(date.getSeconds())
+    );
+  }
 
   return (
     <>
@@ -450,6 +479,7 @@ const Form_aperture = ({
           typeForm={typeForm}
           loading={loading}
           setLoading={setLoading}
+          updateData={updateData}
         />
       )}
     </>

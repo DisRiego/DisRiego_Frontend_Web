@@ -324,3 +324,36 @@ export const validateCloseTime = (openDate, closeDate, openTime, closeTime) => {
 
   return close > open;
 };
+
+export const validateMultInput = (fieldName, value) => {
+  let regex;
+
+  if (
+    fieldName === "polo_1" ||
+    fieldName === "polo_2" ||
+    fieldName === "polo_3" ||
+    fieldName === "polo_4"
+  ) {
+    regex = /^[0-9]+$/;
+  } else if (fieldName === "direccion_mac" || fieldName === "dirección_mac") {
+    regex = /^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/;
+  } else if (
+    fieldName === "version_firmware" ||
+    fieldName === "versión_firmware"
+  ) {
+    regex = /^(v)?\d+(\.\d+){1,2}$/;
+  } else if (
+    fieldName === "voltaje_(v)" ||
+    fieldName === "voltaje_(vac)" ||
+    fieldName === "potencia_(w)" ||
+    fieldName === "amperaje_(a)" ||
+    fieldName === "capacidad_(ah)" ||
+    fieldName === "voltaje_maximo"
+  ) {
+    regex = /^\d+(\.\d+)?$/;
+  } else {
+    return true;
+  }
+
+  return regex?.test(value);
+};

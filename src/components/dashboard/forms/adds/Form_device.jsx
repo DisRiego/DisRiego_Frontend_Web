@@ -3,6 +3,7 @@ import axios from "axios";
 import {
   validateLastName,
   validateModel,
+  validateMultInput,
   validatePhone,
   validateText,
   validateTextArea,
@@ -96,7 +97,6 @@ const Form_device = ({
       console.error("Error al obtener los tipos de dispositivos", error);
     }
   };
-  console.log(disabled);
   const getDevice = async () => {
     try {
       const response = await axios.get(
@@ -350,7 +350,10 @@ const Form_device = ({
           return;
         }
 
-        if (field.validationType === "number" && !validatePhone(value)) {
+        if (
+          field.validationType === "number" &&
+          !validateMultInput(field.name, value)
+        ) {
           dynamicFieldErrors[field.name] = "Dato inválido";
           return;
         }
@@ -367,7 +370,6 @@ const Form_device = ({
 
     return dynamicFieldErrors;
   };
-
   const handleSaveClick = async () => {
     setSubmitted(true);
     const isTypeDeviceValid = validatePhone(formData.devices_id);
@@ -387,14 +389,13 @@ const Form_device = ({
     };
 
     const combinedErrors = { ...baseErrors, ...dynamicErrors };
-    setErrors(combinedErrors);
+    setErrors(dynamicErrors);
 
     const hasErrors = Object.values(combinedErrors).some((msg) => msg);
 
     if (!hasErrors) {
       const payload = buildPayload();
       setNewData(payload);
-      console.log(payload);
 
       if (id != null) {
         setConfirMessage(`¿Desea editar el dispositivo?`);
@@ -607,7 +608,7 @@ const Form_device = ({
                                       value={formData[field.name] || ""}
                                       onChange={handleChange}
                                     >
-                                      <option value="">
+                                      <option value="" disabled>
                                         Seleccione una opción
                                       </option>
                                       {field.optionsSource

@@ -11,11 +11,11 @@ const Confirm_aperture = ({
   setMessage,
   setStatus,
   onSuccess,
-  updateData,
   uriPost,
   typeForm,
   loading,
   setLoading,
+  updateData,
 }) => {
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -29,16 +29,8 @@ const Confirm_aperture = ({
         data: formData,
       });
       if (typeForm === "create") {
-        setTitleMessage("Intervalo creado exitosamente");
-        setMessage("El Intervalo ha sido creado correctamente.");
-        setStatus("is-true");
-        setShowMessage(true);
-        onClose();
-        onSuccess();
-        updateData();
-      } else {
-        setTitleMessage("Modificación exitosa");
-        setMessage("El Intervalo se ha modificado correctamente.");
+        setTitleMessage("Solicitud creada exitosamente");
+        setMessage("La solicitud ha sido creado correctamente.");
         setStatus("is-true");
         setShowMessage(true);
         onClose();
@@ -48,16 +40,9 @@ const Confirm_aperture = ({
     } catch (error) {
       console.log(error);
       if (typeForm === "create") {
-        setTitleMessage("Error al crear el Intervalo");
+        setTitleMessage("Error al crear la solicitud");
         setMessage(
-          "No se pudo crear el Intervalo. Por favor, inténtelo de nuevo."
-        );
-        setStatus("is-false");
-        setShowMessage(true);
-      } else {
-        setTitleMessage("Modificación fallida");
-        setMessage(
-          "No se pudo modificar el Intervalo. Por favor, inténtelo de nuevo."
+          "No se pudo crear la solicitud. Por favor, inténtelo de nuevo."
         );
         setStatus("is-false");
         setShowMessage(true);

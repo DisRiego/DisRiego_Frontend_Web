@@ -368,7 +368,7 @@ const Device = () => {
         currentPage={currentPage}
         onPageChange={setCurrentPage}
       />
-      {showForm && hasPermission("Registrar Dispositivo") && (
+      {showForm && hasPermission("Añadir dispositivo") && (
         <>
           <Form_device
             title="Añadir dispositivo"
@@ -386,7 +386,7 @@ const Device = () => {
           />
         </>
       )}
-      {showEdit && hasPermission("Editar Dispositivo") && (
+      {showEdit && hasPermission("Editar dispositivo") && (
         <>
           <Form_device
             title={title}
@@ -405,7 +405,7 @@ const Device = () => {
           />
         </>
       )}
-      {showAssign && hasPermission("Asignar Dispositivo Lote") && (
+      {showAssign && (
         <>
           <Form_assign_iot
             title={title}

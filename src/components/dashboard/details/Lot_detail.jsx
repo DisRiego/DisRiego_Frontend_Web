@@ -9,6 +9,8 @@ import Pagination from "../Pagination";
 import Form_aperture from "../forms/adds/Form_aperture";
 import Form_device from "../forms/adds/Form_device";
 import Change_status_iot from "../Status/Change_status_iot";
+import Change_status_aperture from "../Status/Change_status_aperture";
+import Message from "../../Message";
 import RobotoNormalFont from "../../../assets/fonts/Roboto-Regular.ttf";
 import RobotoBoldFont from "../../../assets/fonts/Roboto-Bold.ttf";
 import Icon from "../../../assets/icons/Disriego_title.png";
@@ -72,6 +74,7 @@ const Lot_detail = () => {
   const [dataOwner, setDataOwner] = useState(null);
   const [dataIot, setDataIot] = useState([]);
   const [showChangeStatus, setShowChangeStatus] = useState(false);
+  const [showChangeStatusOpen, setShowChangeStatusOpen] = useState(false);
   const [confirMessage, setConfirMessage] = useState();
   const [typeForm, setTypeForm] = useState();
   const {
@@ -96,7 +99,12 @@ const Lot_detail = () => {
     const request = statusRequest?.toLowerCase();
     const valve = statusValve?.toLowerCase();
 
-    if (token && hasPermission("Generar solicitud de apertura de válvula")) {
+    if (
+      token &&
+      hasPermission("Generar solicitud de apertura de válvula") &&
+      dataIot.length === 14
+    ) {
+      // Estado aprobado pero válvula aún no abierta
       if (request === "aprobada") {
         if (valve === "abierta") {
           return {
@@ -113,6 +121,8 @@ const Lot_detail = () => {
             text: "Abrir válvula",
           };
         }
+
+        // Por defecto: aprobada pero no abierta aún
         return {
           icon: "",
           class: "color-waiting",
@@ -128,12 +138,17 @@ const Lot_detail = () => {
         };
       }
 
-      return {
-        icon: "FaPlus",
-        class: "color-hover",
-        text: "Solicitar apertura",
-      };
+      // Solo permitir solicitar si no hay solicitud activa
+      if (valve === "no operativo") {
+        return {
+          icon: "FaPlus",
+          class: "color-hover",
+          text: "Solicitar apertura",
+        };
+      }
     }
+
+    return null;
   };
 
   const valveButtonData = getValveButtonData();
@@ -169,13 +184,15 @@ const Lot_detail = () => {
     }
 
     if (buttonText === "Abrir válvula") {
-      handleOpenValve();
-      // setLoading("is-loading");
+      setConfirMessage(`¿Desea abrir la válvula del lote?`);
+      setTypeForm("open");
+      setShowChangeStatusOpen(true);
     }
 
     if (buttonText === "Cerrar válvula") {
-      handleClosedValve();
-      // setLoading("is-loading");
+      setConfirMessage(`¿Desea cerrar la válvula del lote?`);
+      setTypeForm("closed");
+      setShowChangeStatusOpen(true);
     }
   };
 
@@ -575,7 +592,6 @@ const Lot_detail = () => {
       if (valve) {
         setValveID(valve.id);
       }
-      // console.log(valve.id);
       fetchRequest(valve.id);
 
       setDataIot(dataIot);
@@ -602,8 +618,9 @@ const Lot_detail = () => {
           import.meta.env.VITE_ROUTE_BACKEND_REQUEST_BY_VALVE +
           valve
       );
-      const requestBack = response.data.data.latest_request.status.name;
       const valveBack = response.data.data.status.name;
+      const requestBack = response.data.data.latest_request?.status.name;
+
       setStatusRequest(requestBack);
       setStatusVale(valveBack);
     } catch (error) {
@@ -617,36 +634,8 @@ const Lot_detail = () => {
     getDevicesByLot();
   };
 
-  const handleOpenValve = async () => {
-    try {
-      const open = {
-        device_id: valveID,
-      };
-      const response = await axios.post(
-        import.meta.env.VITE_URI_BACKEND_IOT +
-          import.meta.env.VITE_ROUTE_BACKEND_IOT_OPEN_VALVE,
-        open
-      );
-      console.log(response);
-    } catch (error) {
-      console.error("Error al abrir válvula:", error);
-    }
-  };
-
-  const handleClosedValve = async () => {
-    try {
-      const closed = {
-        device_id: valveID,
-      };
-      const response = await axios.post(
-        import.meta.env.VITE_URI_BACKEND_IOT +
-          import.meta.env.VITE_ROUTE_BACKEND_IOT_OPEN_VALVE,
-        closed
-      );
-      console.log(response);
-    } catch (error) {
-      console.error("Error al cerrar válvula:", error);
-    }
+  const updateDataRequest = async () => {
+    fetchRequest(valveID);
   };
 
   const columns = [
@@ -731,6 +720,16 @@ const Lot_detail = () => {
     startIndex,
     startIndex + itemsPerPage
   );
+
+  useEffect(() => {
+    if (showMessage) {
+      const timer = setTimeout(() => {
+        setShowMessage(false);
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [showMessage]);
 
   return (
     <>
@@ -1089,11 +1088,14 @@ const Lot_detail = () => {
         <>
           <Form_aperture
             title="Solicitar Apertura de válvula"
-            onClose={() => setShowForm(false)}
+            onClose={() => {
+              setShowForm(false);
+            }}
             setShowMessage={setShowMessage}
             setTitleMessage={setTitleMessage}
             setMessage={setMessage}
             setStatus={setStatus}
+            updateData={updateDataRequest}
             loading={loading}
             setLoading={setLoading}
             id={id}
@@ -1124,7 +1126,9 @@ const Lot_detail = () => {
       {showChangeStatus && (
         <Change_status_iot
           onClose={() => setShowChangeStatus(false)}
-          onSuccess={() => setShowChangeStatus(false)}
+          onSuccess={() => {
+            setShowChangeStatus(false);
+          }}
           id={idRow}
           confirMessage={confirMessage}
           setShowMessage={setShowMessage}
@@ -1135,6 +1139,30 @@ const Lot_detail = () => {
           typeForm={typeForm}
           loading={loading}
           setLoading={setLoading}
+        />
+      )}
+      {showChangeStatusOpen && (
+        <Change_status_aperture
+          onClose={() => setShowChangeStatusOpen(false)}
+          onSuccess={() => setShowChangeStatusOpen(false)}
+          id={valveID}
+          confirMessage={confirMessage}
+          setShowMessage={setShowMessage}
+          setTitleMessage={setTitleMessage}
+          setMessage={setMessage}
+          setStatus={setStatus}
+          updateData={updateDataRequest}
+          typeForm={typeForm}
+          loading={loading}
+          setLoading={setLoading}
+        />
+      )}
+      {showMessage && (
+        <Message
+          titleMessage={titleMessage}
+          message={message}
+          status={status}
+          onClose={() => setShowMessage(false)}
         />
       )}
     </>
@@ -1346,7 +1374,7 @@ const generateReport = (
         "Tipo de dispositivo",
         "Modelo",
         "Fecha de instalación",
-        "Fecha est. mantenimiento",
+        "Fecha estimada de mantenimiento",
         "Estado",
       ],
     ],
@@ -1354,8 +1382,8 @@ const generateReport = (
       device.id,
       device.device_type,
       device.model,
-      device.date_installation,
-      device.maintenance_date,
+      device.installation_date?.slice(0, 10),
+      device.estimated_maintenance_date?.slice(0, 10),
       device.status_name,
     ]),
     theme: "grid",
