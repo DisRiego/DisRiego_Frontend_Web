@@ -96,13 +96,13 @@ const Request_detail = () => {
       "En esta sección, puedes consultar la información de la solicitud.",
     ...(data?.status == 18 && {
       buttons: {
-        ...(hasPermission("Aprobar Solicitudes") && {
+        ...(hasPermission("Aprobar solicitud") && {
           button1: {
             class: "aprrove",
             text: "Aprobar solicitud",
           },
         }),
-        ...(hasPermission("Denegar Solicitudes") && {
+        ...(hasPermission("Denegar solicitud") && {
           button2: {
             class: "deny",
             text: "Denegar solicitud",
