@@ -53,19 +53,6 @@ function AppContent() {
           <Route path="/dashboard/device/:id" element={<Dashboard />} />
           <Route path="/dashboard/request/:id" element={<Dashboard />} />
         </Route>
-        {/* <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/dashboard/:id" element={<Dashboard />} />
-        <Route path="/dashboard/rol/:id" element={<Dashboard />} />
-        <Route path="/dashboard/user/:id" element={<Dashboard />} />
-        <Route path="/dashboard/property/:id" element={<Dashboard />} />
-        <Route path="/dashboard/property/:id/lot/:id" element={<Dashboard />} />
-        <Route path="/dashboard/properties/:id" element={<Dashboard />} />
-        <Route
-          path="/dashboard/properties/:id/lots/:id"
-          element={<Dashboard />}
-        />
-        <Route path="/dashboard/report/:id" element={<Dashboard />} />
-        <Route path="/dashboard/company/:id" element={<Dashboard />} /> */}
       </Routes>
     </>
   );

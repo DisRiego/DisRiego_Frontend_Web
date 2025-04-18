@@ -449,7 +449,7 @@ const Table = ({
                                         if (option.name === "Aprobar") {
                                           const allowedStates = [
                                             "Pendiente",
-                                            "Rechazada",
+                                            // "Rechazada",
                                           ];
                                           if (
                                             !allowedStates.includes(
@@ -462,7 +462,7 @@ const Table = ({
                                         if (option.name === "Denegar") {
                                           const allowedStates = [
                                             "Pendiente",
-                                            "Aprobada",
+                                            // "Aprobada",
                                           ];
                                           if (
                                             !allowedStates.includes(

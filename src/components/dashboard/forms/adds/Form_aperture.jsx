@@ -182,14 +182,6 @@ const Form_aperture = ({
       const openTimestamp = toLocalISOString(openDateLocal);
       const closedTimestamp = toLocalISOString(closeDateLocal);
 
-      // const openTimestamp = new Date(
-      //   `${formData.open_date}T${formData.hour_open_date}:00`
-      // ).toISOString();
-
-      // const closedTimestamp = new Date(
-      //   `${formData.close_date}T${formData.hour_closed_date}:00`
-      // ).toISOString();
-
       const dataToSend = {
         type_opening_id: formData.type_opening_id,
         lot_id: formData.lot_id,
