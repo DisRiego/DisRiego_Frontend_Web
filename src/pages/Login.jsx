@@ -1,18 +1,17 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../AuthContext.jsx";
 import axios from "axios";
 import Icon from "../assets/icons/DisRiego.svg";
-import IconGoogle from "../img/icon/iconGoogle.svg";
-import IconOutlook from "../img/icon/iconOutlook.svg";
 import { IoMdWarning } from "react-icons/io";
 import { IoArrowBack } from "react-icons/io5";
 import { validateEmail, validatePassword } from "../hooks/useValidations.jsx";
 import { jwtDecode } from "jwt-decode";
 import emailjs from "@emailjs/browser";
 import Modal from "../components/Modal.jsx";
-// import { useGoogleLogin } from "@react-oauth/google";
 
 const Login = () => {
+  const { login } = useAuth();
   const [showButton, setShowButton] = useState(window.innerWidth >= 768);
   const navigate = useNavigate();
   const [loginError, setLoginError] = useState("");
@@ -85,12 +84,13 @@ const Login = () => {
         );
 
         const token = response.data.access_token;
-        localStorage.setItem("token", token);
         const decode = jwtDecode(token);
 
         if (decode.first_login_complete === false) {
+          login(token);
           navigate("/login/update-info");
         } else {
+          login(token);
           navigate("/dashboard/profile");
         }
       } catch (error) {
@@ -162,27 +162,6 @@ const Login = () => {
     }
   };
 
-  // const login = useGoogleLogin({
-  //   onSuccess: async (response) => {
-  //     try {
-  //       const res = await axios.get(
-  //         "https://www.googleapis.com/oauth2/v3/userinfo",
-  //         {
-  //           headers: {
-  //             Authorization: `Bearer ${response.access_token}`,
-  //           },
-  //         }
-  //       );
-  //       console.log(res);
-  //     } catch (error) {
-  //       console.error("Error obteniendo datos del usuario de Google:", error);
-  //     }
-  //   },
-  //   onError: () => {
-  //     console.error("Error al iniciar sesión con Google");
-  //   },
-  // });
-
   return (
     <>
       <div className="container-login">
@@ -203,28 +182,6 @@ const Login = () => {
                 <h2 className="title has-text-centered ">Dis Riego</h2>
               </div>
 
-              {/* <div className="field">
-              <div className="buttons">
-                <button className="button is-fullwidth" onClick={login}>
-                  <span className="icon">
-                    <img src={IconGoogle} alt="Icono Club" />
-                  </span>
-                  <p>Google</p>
-                </button>
-                <button className="button is-fullwidth">
-                  <span className="icon">
-                    <img src={IconOutlook} alt="Icono Club" />
-                  </span>
-                  <p>Microsoft</p>
-                </button>
-              </div>
-            </div>
-
-            <div className="field">
-              <div className="separator">
-                <p>O</p>
-              </div>
-            </div> */}
               <div className="has-text-centered">
                 <h3 className="subtitle has-text-weight-semibold mb-2">
                   ¡Bienvenid@!

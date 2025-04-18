@@ -1,40 +1,81 @@
-// import { Navigate } from "react-router-dom";
-// import { jwtDecode } from "jwt-decode";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
+import { useMemo } from "react";
+import { useAuth } from "./AuthContext";
 
-// const ProtectedRoute = ({ children, requiredPermissions }) => {
-//   const token = localStorage.getItem("token");
+const permissionMapModules = {
+  notification: ["Ver notificaciones"],
+  request: [
+    "Ver todas las solicitudes",
+    "Ver todas las solicitudes de un usuario",
+  ],
+  rol: ["Ver todos los roles"],
+  user: ["Ver todos los usuarios"],
+  property: ["Ver todos los predios"],
+  properties: ["Ver todos los predios de un usuario"],
+  device: ["Ver todos los dispositivos"],
+  report: ["Ver reportes"],
+  company: ["Ver detalles de la empresa"],
+  profile: [], // no requiere permisos
+};
 
-//   console.log("Renderizando ProtectedRoute para:", requiredPermissions);
+const permissionMapDetails = {
+  request: ["Ver detalles de una solicitud"],
+  rol: ["Ver detalles de un rol"],
+  user: ["Ver detalles de un usuario"],
+  property: ["Ver detalles de un predio"],
+  properties: [
+    "Ver detalles del predio de un usuario",
+    "Ver detalles de un predio",
+  ],
+  device: [
+    "Ver detalles de un dispositivo",
+    "Ver detalles de los dispositivos del lote de un usuario",
+  ],
+  report: ["Ver detalles de un reporte"],
+  company: ["Ver detalles de la empresa"],
+};
 
-//   if (!token) {
-//     return <Navigate to="/login" replace />;
-//   }
+const ProtectedRoute = ({ requiredPermissions = [] }) => {
+  const { token, permissions, isLoading } = useAuth();
+  const location = useLocation();
+  const pathSegments = location.pathname.split("/").filter(Boolean);
 
-//   try {
-//     const decoded = jwtDecode(token);
-//     const permisosUsuario = decoded.rol[0].permisos.map(
-//       (permiso) => permiso.name
-//     );
+  const isDashboardRoot = location.pathname === "/dashboard";
+  const isProfileRoute = location.pathname === "/dashboard/profile";
 
-//     const hasPermission = requiredPermissions.some((permiso) =>
-//       permisosUsuario.includes(permiso)
-//     );
+  const moduleSegment = pathSegments.find((segment) =>
+    Object.keys(permissionMapModules).includes(segment)
+  );
 
-//     return hasPermission ? children : <Navigate to="/login" replace />;
-//   } catch (error) {
-//     console.error("Error al decodificar el token:", error);
-//     return <Navigate to="/login" replace />;
-//   }
-// };
+  const isDetailView =
+    !isDashboardRoot && !isProfileRoute && pathSegments.length >= 3;
 
-// export default ProtectedRoute;
+  const permissionList = useMemo(() => {
+    if (requiredPermissions.length) return requiredPermissions;
+    return isDetailView
+      ? permissionMapDetails[moduleSegment] || []
+      : permissionMapModules[moduleSegment] || [];
+  }, [requiredPermissions, isDetailView, moduleSegment]);
 
-import { Navigate, Outlet } from "react-router-dom";
+  if (isLoading) return null;
 
-const ProtectedRoute = () => {
-  const token = localStorage.getItem("token");
+  if (!token) {
+    return <Navigate to="/login" replace state={{ from: location }} />;
+  }
 
-  return token ? <Outlet /> : <Navigate to="/login" replace />;
+  if (permissionList.length === 0) {
+    return <Outlet />;
+  }
+
+  const hasPermission = permissionList.some((perm) =>
+    permissions.includes(perm)
+  );
+
+  return hasPermission ? (
+    <Outlet />
+  ) : (
+    <Navigate to="/dashboard/profile" replace />
+  );
 };
 
 export default ProtectedRoute;

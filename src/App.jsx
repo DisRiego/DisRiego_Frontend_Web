@@ -9,6 +9,7 @@ import Reset_password_confirm from "./components/Reset_password_confirm";
 import Account_activation from "./pages/Account_activation";
 import Update_info from "./pages/Update_info";
 import ProtectedRoute from "./ProtectedRoute";
+import { AuthProvider } from "./AuthContext";
 
 function AppContent() {
   return (
@@ -28,18 +29,21 @@ function AppContent() {
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/dashboard/:id" element={<Dashboard />} />
+          <Route path="/dashboard/company/:id" element={<Dashboard />} />
+          <Route path="/dashboard/request/:id" element={<Dashboard />} />
           <Route path="/dashboard/rol/:id" element={<Dashboard />} />
           <Route path="/dashboard/user/:id" element={<Dashboard />} />
           <Route path="/dashboard/property/:id" element={<Dashboard />} />
-          <Route
-            path="/dashboard/property/:id/lot/:id"
-            element={<Dashboard />}
-          />
+          <Route path="/dashboard/properties/:id" element={<Dashboard />} />
+          <Route path="/dashboard/device/:id" element={<Dashboard />} />
           <Route
             path="/dashboard/property/:id/lot/:id/device/:id"
             element={<Dashboard />}
           />
-          <Route path="/dashboard/properties/:id" element={<Dashboard />} />
+          <Route
+            path="/dashboard/property/:id/lot/:id"
+            element={<Dashboard />}
+          />
           <Route
             path="/dashboard/properties/:id/lot/:id"
             element={<Dashboard />}
@@ -47,12 +51,10 @@ function AppContent() {
           <Route
             path="/dashboard/properties/:id/lot/:id/device/:id"
             element={<Dashboard />}
-          />
-          <Route path="/dashboard/report/:id" element={<Dashboard />} />
-          <Route path="/dashboard/company/:id" element={<Dashboard />} />
-          <Route path="/dashboard/device/:id" element={<Dashboard />} />
-          <Route path="/dashboard/request/:id" element={<Dashboard />} />
+          />{" "}
         </Route>
+
+        <Route path="/dashboard/report/:id" element={<Dashboard />} />
       </Routes>
     </>
   );
@@ -61,9 +63,11 @@ function AppContent() {
 function App() {
   return (
     <>
-      <BrowserRouter>
-        <AppContent />
-      </BrowserRouter>
+      <AuthProvider>
+        <BrowserRouter>
+          <AppContent />
+        </BrowserRouter>
+      </AuthProvider>
     </>
   );
 }

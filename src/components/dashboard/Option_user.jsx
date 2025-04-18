@@ -35,7 +35,7 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
         decoded.rol?.flatMap((rol) => rol.permisos?.map((p) => p.name) || []) ||
         [];
       setPermissionsUser(permisos);
-      // console.log(permisos);
+      console.log(permisos);
 
       if (permisos.length === 0) {
         localStorage.removeItem("token");
