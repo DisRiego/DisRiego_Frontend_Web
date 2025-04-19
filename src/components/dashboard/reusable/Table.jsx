@@ -11,6 +11,27 @@ const OptionsButton = ({ onClick }) => (
   </button>
 );
 
+/*
+  Componente Table:
+  Muestra una tabla dinámica con opciones según el modulo en donde se encuentra (roles, usuarios, dispositivos, etc).
+
+  @param {Array} columns - Columnas a mostrar en la tabla.
+  @param {Array} data - Datos que se renderizan por fila.
+  @param {Array} options - Opciones disponibles por fila (Editar, Habilitar, etc).
+  @param {boolean} loadingTable - Indica si se está cargando la tabla.
+  @param {Function} setId - Establece el ID del registro seleccionado.
+  @param {Function} setTitle - Cambia el título del modal.
+  @param {Function} setShowEdit - Abre el modal de edición.
+  @param {Function} setShowEditUser - Abre el modal de edición del lote por parte de un usuario normal.
+  @param {Function} setShowAssign - Abre modal para asignar dispositivos.
+  @param {Function} setShowChangeStatus - Abre modal para cambiar estado.
+  @param {Function} setShowFormReject - Abre formulario de rechazo de solicitud.
+  @param {Function} setConfirMessage - Establece mensaje de confirmación.
+  @param {Function} setTypeForm - Define el tipo de acción (editar, habilitar, etc).
+  @param {string} parentComponent - Define el modulo en donde se encuentra (lote, user, etc).
+  @param {string} route - Ruta actual (ej. property).
+  @param {Function} setTypeAction - Define el tipo de acción para el modulo de dispositivos ("Asignar" o "Reasignar").
+*/
 const Table = ({
   columns,
   data,
@@ -32,10 +53,13 @@ const Table = ({
 }) => {
   const navigate = useNavigate();
   const { id } = useParams();
-  const [activeRow, setActiveRow] = useState(null);
-  const menuRefs = useRef({});
-  const [dots, setDots] = useState("");
+  const [activeRow, setActiveRow] = useState(null); // Almacena los datos de la fila en donde se hace clic (menú de opciones)
+  const menuRefs = useRef({}); // Referencias para detectar clics fuera
+  const [dots, setDots] = useState(""); // puntos de carga animados (...)
 
+  /*
+    Muestra puntos de carga animados mientras loadingTable está activo.
+  */
   useEffect(() => {
     let intervalId;
 
@@ -50,6 +74,9 @@ const Table = ({
     };
   }, [loadingTable]);
 
+  /*
+    Cierra el menú de opciones si se hace clic fuera del componente.
+  */
   useEffect(() => {
     const handleOutsideClick = (event) => {
       const clickedOutside =
@@ -68,10 +95,17 @@ const Table = ({
     };
   }, []);
 
+  /*
+    Cambia la fila activa al hacer clic en el botón de opciones.
+  */
   const handleClick = (rowIndex) => {
     setActiveRow((prevRow) => (prevRow === rowIndex ? null : rowIndex));
   };
 
+  /*
+    Maneja la lógica de cada opción según el modulo actual.
+    Además, permite navegar, abrir modales o establecer mensajes según el caso.
+  */
   const handleOption = async (option, row) => {
     // setIdRow(row.ID);
     setId(row.ID);
@@ -276,6 +310,9 @@ const Table = ({
     }
   };
 
+  /*
+    Normaliza el estado de algunos dispositivos para mostrar en formato legible.
+  */
   const getNormalizedStatus = (status) => {
     if (!status) return "";
 
@@ -291,6 +328,7 @@ const Table = ({
     <div className="table-container">
       <table className="table is-fullwidth is-striped is-hoverable">
         <thead>
+          {/* Muestra todas las columnas excepto la que tenga el nombre "ID" */}
           <tr>
             {columns
               .filter((column) => column !== "ID")
@@ -301,6 +339,7 @@ const Table = ({
         </thead>
         <tbody>
           {loadingTable ? (
+            // Si se está cargando la tabla, se muestra un loader animado
             <tr>
               <td colSpan={columns.length - 1} className="loader-cell">
                 <div className="loader"></div>
@@ -308,6 +347,7 @@ const Table = ({
               </td>
             </tr>
           ) : data.length === 0 ? (
+            // Si no hay datos, se muestra un mensaje indicando que no hay registros
             <tr>
               <td
                 colSpan={columns.length - 1}
@@ -317,6 +357,7 @@ const Table = ({
               </td>
             </tr>
           ) : (
+            // Si hay datos, se renderizan las filas una por una
             data.map((row, rowIndex) => (
               <tr key={rowIndex}>
                 {columns
@@ -324,6 +365,10 @@ const Table = ({
                   .map((column, colIndex) => (
                     <td key={`${rowIndex}-${colIndex}`}>
                       {column === "Permisos" ? (
+                        /*
+                          Si la columna es "Permisos", se muestran hasta 4 permisos,
+                          luego un contador indicando cuántos más hay.
+                        */
                         (() => {
                           const permisos = Array.isArray(row[column])
                             ? row[column]
@@ -352,6 +397,10 @@ const Table = ({
                           );
                         })()
                       ) : column === "Opciones" ? (
+                        /*
+                          Si la columna es "Opciones", se muestra un botón con menú desplegable
+                          con acciones específicas para ese modulo (las opciones pueden variar según la fila).
+                        */
                         <div
                           className="is-relative"
                           ref={(el) => {
@@ -366,8 +415,7 @@ const Table = ({
                             (() => {
                               const visibleOptions = options.filter(
                                 (option) => {
-                                  // ...tu lógica de filtrado de opciones ya existente...
-                                  return true; // o el resultado de cada condición
+                                  return true;
                                 }
                               );
 
