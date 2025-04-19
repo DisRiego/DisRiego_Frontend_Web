@@ -1,4 +1,4 @@
-import Icon from "../Icon";
+import Icon from "../../Icon";
 
 const Head = ({ head_data, onButtonClick, loading, buttonDisabled }) => {
   const renderButtons = () => {

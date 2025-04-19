@@ -1,11 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import Confirm_certificate from "../../confirm_view/adds/Confirm_certificate";
+import Confirm_modal from "../../reusable/Confirm_modal";
 import axios from "axios";
 import {
   validateFile,
   validatePhone,
   validateBirthdate,
-  validateIssuanceDate,
   validateExpirationDate,
 } from "../../../../hooks/useValidations";
 import { FaUpload } from "react-icons/fa6";
@@ -35,6 +34,24 @@ const Form_certificate = ({
   const [showConfirm, setShowConfirm] = useState(false);
   const startDateInputRef = useRef(null);
   const dateExpirationInputRef = useRef(null);
+
+  const feedbackMessages = {
+    create_certificate: {
+      successTitle: "Certificado creado exitosamente",
+      successMessage: "El certificado digital ha sido creado correctamente.",
+      errorTitle: "Error al crear el certificado",
+      errorMessage:
+        "No se pudo crear el certificado. Por favor, inténtelo de nuevo.",
+    },
+    edit_certificate: {
+      successTitle: "Modificación exitosa",
+      successMessage:
+        "El certificado digital ha sido actualizado correctamente.",
+      errorTitle: "Modificación fallida",
+      errorMessage:
+        "No se pudo actualizar el certificado. Por favor, inténtelo de nuevo.",
+    },
+  };
 
   const [formData, setFormData] = useState({
     serial_number: "",
@@ -361,7 +378,7 @@ const Form_certificate = ({
         </div>
       </div>
       {showConfirm && (
-        <Confirm_certificate
+        <Confirm_modal
           onClose={() => {
             setShowConfirm(false);
           }}
@@ -378,6 +395,7 @@ const Form_certificate = ({
           typeForm={typeForm}
           loading={loading}
           setLoading={setLoading}
+          feedbackMessages={feedbackMessages}
         />
       )}
     </>

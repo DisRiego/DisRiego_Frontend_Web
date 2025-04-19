@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
 import axios from "axios";
-import Confirm_interval from "../../confirm_view/adds/Confirm_interval";
+import Confirm_modal from "../../reusable/Confirm_modal";
 import {
   validatePhone,
   validateTextArea,
@@ -27,6 +26,23 @@ const Form_interval = ({
   const [uriPost, setUriPost] = useState();
   const [isLoading, setIsLoading] = useState(true);
   const [typeForm, setTypeForm] = useState();
+
+  const feedbackMessages = {
+    create: {
+      successTitle: "Intervalo creado exitosamente",
+      successMessage: "El intervalo ha sido creado correctamente.",
+      errorTitle: "Error al crear el intervalo",
+      errorMessage:
+        "No se pudo crear el intervalo. Por favor, inténtelo de nuevo.",
+    },
+    edit: {
+      successTitle: "Modificación exitosa",
+      successMessage: "El intervalo ha sido actualizado correctamente.",
+      errorTitle: "Modificación fallida",
+      errorMessage:
+        "No se pudo modificar el intervalo. Por favor, inténtelo de nuevo.",
+    },
+  };
 
   const [formData, setFormData] = useState({
     name: "",
@@ -199,7 +215,7 @@ const Form_interval = ({
         </div>
       </div>
       {showConfirm && (
-        <Confirm_interval
+        <Confirm_modal
           onClose={() => {
             setShowConfirm(false);
           }}
@@ -218,6 +234,7 @@ const Form_interval = ({
           setLoading={setLoading}
           typeForm={typeForm}
           setTypeForm={setTypeForm}
+          feedbackMessages={feedbackMessages}
         />
       )}
     </>

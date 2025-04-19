@@ -3,7 +3,7 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { Bar, Line } from "react-chartjs-2";
 import useUserPermissions from "../../../hooks/useUserPermissions";
-import Head from "../Head";
+import Head from "../reusable/Head";
 import Lot from "../Lot";
 import Form_lot from "../forms/adds/Form_lot";
 import Form_lot_user from "../forms/adds/Form_lot_user";

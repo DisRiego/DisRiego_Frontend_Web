@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import useUserPermissions from "../../hooks/useUserPermissions";
-import Head from "./Head";
-import Tab from "./Tab";
+import Head from "./reusable/Head";
+import Tab from "./reusable/Tab";
+import Confirm_modal from "./reusable/Confirm_modal";
+import Message from "../Message";
 import { SlOptions } from "react-icons/sl";
-import { BiShow } from "react-icons/bi";
 import { MdDownloadDone } from "react-icons/md";
 import { jwtDecode } from "jwt-decode";
 import {
@@ -15,8 +16,6 @@ import {
   formatDistanceToNow,
 } from "date-fns";
 import { es } from "date-fns/locale";
-import Confirm_notification from "./confirm_view/adds/Confirm_notification";
-import Message from "../Message";
 
 const formatRelativeDate = (isoDate) => {
   const date = new Date(isoDate);
@@ -75,19 +74,39 @@ const Notification = () => {
   const [typeForm, setTypeForm] = useState(true);
 
   const [notifToUpdate, setNotifToUpdate] = useState(null);
+  const [hasUnreadNotifications, setHasUnreadNotifications] = useState(false);
+
+  const feedbackMessages = {
+    read: {
+      successTitle: "Notificación marcada como leída exitosamente",
+      successMessage: "Se ha marcado como leída la notificación correctamente.",
+      errorTitle: "Error al marcar como leída la notificación",
+      errorMessage:
+        "No se pudo marcar como leída la notificación. Por favor, inténtelo de nuevo.",
+    },
+    read_all: {
+      successTitle: "Notificaciones marcadas como leídas exitosamente",
+      successMessage:
+        "Se han marcado como leídas todas las notificaciones correctamente.",
+      errorTitle: "Error al marcar como leídas las notificaciones",
+      errorMessage:
+        "No se pudo marcar como leídas las notificaciones. Por favor, inténtelo de nuevo.",
+    },
+  };
 
   const head_data_notification = {
     title: "Notificaciones",
     description:
       "En esta sección puedes gestionar las notificaciones generadas por la plataforma.",
     buttons: {
-      ...(hasPermission("Marcar como leídas todas las notificaciones") && {
-        button1: {
-          icon: "MdDownloadDone",
-          class: "color-hover",
-          text: "Marcar todo como leido",
-        },
-      }),
+      ...(hasPermission("Marcar como leídas todas las notificaciones") &&
+        hasUnreadNotifications && {
+          button1: {
+            icon: "MdDownloadDone",
+            class: "color-hover",
+            text: "Marcar todo como leido",
+          },
+        }),
     },
   };
 
@@ -213,6 +232,7 @@ const Notification = () => {
       );
 
       setData(sortedData);
+      setHasUnreadNotifications(sortedData.some((notif) => !notif.read));
       setPage(1);
       setLoadingTable(false);
     } catch (error) {
@@ -364,7 +384,7 @@ const Notification = () => {
         )}
       </div>
       {showConfirm && (
-        <Confirm_notification
+        <Confirm_modal
           onClose={() => {
             setShowConfirm(false);
           }}
@@ -383,6 +403,7 @@ const Notification = () => {
           typeForm={typeForm}
           loading={loading}
           setLoading={setLoading}
+          feedbackMessages={feedbackMessages}
         />
       )}
       {showMessage && (

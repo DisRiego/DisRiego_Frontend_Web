@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import useUserPermissions from "../../../hooks/useUserPermissions";
-import Head from "../Head";
-import Tab from "../Tab";
+import Head from "../reusable/Head";
+import Tab from "../reusable/Tab";
 import Message from "../../Message";
 import Form_edit_company_picture from "../forms/edits/Form_edit_company_picture";
 import Form_edit_company_data from "../forms/edits/Form_edit_company_data";

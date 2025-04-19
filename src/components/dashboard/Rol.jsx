@@ -1,12 +1,11 @@
 import { useState, useEffect } from "react";
 import useUserPermissions from "../../hooks/useUserPermissions";
-import Head from "./Head";
-import Search from "./Search";
-import Filter from "./Filter";
-import Table from "./Table";
-import Pagination from "./Pagination";
+import Head from "./reusable/Head";
+import Search from "./reusable/Search";
+import Filter from "./reusable/Filter";
+import Table from "./reusable/Table";
+import Pagination from "./reusable/Pagination";
 import Form_rol from "./forms/adds/Form_rol";
-import Confirm_rol from "./confirm_view/adds/Confirm_rol";
 import Change_status_rol from "./Status/Change_status_rol";
 import Filter_rol from "./filters/Filter_rol";
 import { jsPDF } from "jspdf";

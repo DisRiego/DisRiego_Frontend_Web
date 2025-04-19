@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { SlOptionsVertical } from "react-icons/sl";
-import Icon from "../Icon";
+import Icon from "../../Icon";
 import { TbPointFilled } from "react-icons/tb";
 import { IoDocument } from "react-icons/io5";
 

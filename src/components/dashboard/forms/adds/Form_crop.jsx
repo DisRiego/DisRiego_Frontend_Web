@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
 import axios from "axios";
-import Confirm_crop from "../../confirm_view/adds/Confirm_crop";
+import Confirm_modal from "../../reusable/Confirm_modal";
 import {
   validatePhone,
   validateTextArea,
@@ -28,6 +27,23 @@ const Form_crop = ({
   const [uriPost, setUriPost] = useState();
   const [isLoading, setIsLoading] = useState(true);
   const [typeForm, setTypeForm] = useState();
+
+  const feedbackMessages = {
+    create: {
+      successTitle: "Cultivo creado exitosamente",
+      successMessage: "El cultivo ha sido creado correctamente.",
+      errorTitle: "Error al crear el cultivo",
+      errorMessage:
+        "No se pudo crear el cultivo. Por favor, inténtelo de nuevo.",
+    },
+    edit: {
+      successTitle: "Modificación exitosa",
+      successMessage: "El cultivo ha sido modificado correctamente.",
+      errorTitle: "Modificación fallida",
+      errorMessage:
+        "No se pudo modificar el cultivo. Por favor, inténtelo de nuevo.",
+    },
+  };
 
   const [formData, setFormData] = useState({
     name: "",
@@ -264,7 +280,7 @@ const Form_crop = ({
         </div>
       </div>
       {showConfirm && (
-        <Confirm_crop
+        <Confirm_modal
           onClose={() => {
             setShowConfirm(false);
           }}
@@ -283,6 +299,7 @@ const Form_crop = ({
           setLoading={setLoading}
           typeForm={typeForm}
           setTypeForm={setTypeForm}
+          feedbackMessages={feedbackMessages}
         />
       )}
     </>

@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import useUserPermissions from "../../../hooks/useUserPermissions";
-import Head from "../Head";
-import Tab from "../Tab";
-import Table from "../Table";
-import Pagination from "../Pagination";
+import Head from "../reusable/Head";
+import Tab from "../reusable/Tab";
+import Table from "../reusable/Table";
+import Pagination from "../reusable/Pagination";
 import Message from "../../Message";
 
 const Company_rates = ({}) => {

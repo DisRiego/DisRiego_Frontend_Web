@@ -1,11 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
 import axios from "axios";
-import Confirm_user from "../../confirm_view/adds/Confirm_user";
+import Confirm_modal from "../../reusable/Confirm_modal";
 import {
-  validateDate,
   validatePhone,
-  validateText,
   validateTextArea,
   validateLastName,
   validateBirthdate,
@@ -40,6 +37,23 @@ const Form_user = ({
   const [uriPost, setUriPost] = useState();
   const [isLoading, setIsLoading] = useState(true);
   const [isRolesOpen, setIsRolesOpen] = useState(false);
+
+  const feedbackMessages = {
+    create: {
+      successTitle: "Usuario creado exitosamente",
+      successMessage: "El usuario ha sido creado correctamente.",
+      errorTitle: "Error al crear el usuario",
+      errorMessage:
+        "No se pudo crear el usuario, por favor, inténtelo de nuevo.",
+    },
+    edit: {
+      successTitle: "Usuario actualizado exitosamente",
+      successMessage: "El usuario ha sido actualizado correctamente.",
+      errorTitle: "Error al actualizar el usuario",
+      errorMessage:
+        "No se pudo actualizar el usuario, por favor, inténtelo de nuevo.",
+    },
+  };
 
   const [formData, setFormData] = useState({
     name: "",
@@ -276,8 +290,6 @@ const Form_user = ({
       }
     }
   };
-
-  console.log(formData);
 
   return (
     <>
@@ -586,7 +598,7 @@ const Form_user = ({
         </div>
       </div>
       {showConfirm && (
-        <Confirm_user
+        <Confirm_modal
           onClose={() => {
             setShowConfirm(false);
           }}
@@ -605,6 +617,7 @@ const Form_user = ({
           setLoading={setLoading}
           typeForm={typeForm}
           setTypeForm={setTypeForm}
+          feedbackMessages={feedbackMessages}
         />
       )}
     </>

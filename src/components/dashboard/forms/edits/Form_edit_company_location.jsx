@@ -1,11 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import Confirm_company from "../../confirm_view/Confirm_company";
-import {
-  validateAddress,
-  validatePhone,
-  validateText,
-} from "../../../../hooks/useValidations";
+import Confirm_modal from "../../reusable/Confirm_modal";
+import { validateAddress } from "../../../../hooks/useValidations";
 
 const Form_edit_company_location = ({
   title,
@@ -31,6 +27,17 @@ const Form_edit_company_location = ({
   const [typeForm, setTypeForm] = useState("");
   const [newData, setNewData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  const feedbackMessages = {
+    update_location_profile: {
+      successTitle: "Actualización exitosa",
+      successMessage:
+        "La ubicación de la empresa ha sido actualizada correctamente.",
+      errorTitle: "Error al actualizar",
+      errorMessage: `No se pudo actualizar la ubicación de la empresa. 
+      \n Por favor, inténtelo de nuevo.`,
+    },
+  };
 
   const [formData, setFormData] = useState({
     country: "",
@@ -331,7 +338,7 @@ const Form_edit_company_location = ({
         </div>
       </div>
       {showConfirm && (
-        <Confirm_company
+        <Confirm_modal
           onClose={() => {
             setShowConfirm(false);
           }}
@@ -348,6 +355,7 @@ const Form_edit_company_location = ({
           typeForm={typeForm}
           loading={loading}
           setLoading={setLoading}
+          feedbackMessages={feedbackMessages}
         />
       )}
     </>

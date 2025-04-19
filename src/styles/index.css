@@ -556,6 +556,16 @@ form > .button-login {
   margin-bottom: 0px;
 }
 
+.message > .message-body {
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+.custom-message-body .message-line {
+  line-height: 1.4;
+  display: block;
+}
+
 .navigation {
   margin-bottom: 1em;
 }

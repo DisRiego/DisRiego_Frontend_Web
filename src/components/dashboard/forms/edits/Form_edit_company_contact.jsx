@@ -1,7 +1,6 @@
 import React, { useState } from "react";
-import { FaUpload } from "react-icons/fa6";
 import { validateEmail, validatePhone } from "../../../../hooks/useValidations";
-import Confirm_company from "../../confirm_view/Confirm_company";
+import Confirm_modal from "../../reusable/Confirm_modal";
 
 const Form_edit_company_contact = ({
   title,
@@ -22,6 +21,17 @@ const Form_edit_company_contact = ({
   const [uriPost, setUriPost] = useState("");
   const [typeForm, setTypeForm] = useState("");
   const [newData, setNewData] = useState(null);
+
+  const feedbackMessages = {
+    update_contact: {
+      successTitle: "Actualización exitosa",
+      successMessage:
+        "La información de contacto ha sido actualizada correctamente.",
+      errorTitle: "Error al actualizar",
+      errorMessage: `No se pudo actualizar la información de contacto.
+        \n Por favor, inténtelo de nuevo.`,
+    },
+  };
 
   const [formData, setFormData] = useState({
     email: data?.email || "",
@@ -89,11 +99,7 @@ const Form_edit_company_contact = ({
                   <input
                     type="email"
                     className={`input ${
-                      hasSubmitted
-                        ? errors.email
-                          ? "is-false"
-                          : "is-true"
-                        : ""
+                      hasSubmitted ? (errors.email ? "is-false" : "") : ""
                     }`}
                     name="email"
                     placeholder="Ingrese el nuevo correo electrónico de la empresa"
@@ -110,11 +116,7 @@ const Form_edit_company_contact = ({
                   <input
                     type="number"
                     className={`input ${
-                      hasSubmitted
-                        ? errors.phone
-                          ? "is-false"
-                          : "is-true"
-                        : ""
+                      hasSubmitted ? (errors.phone ? "is-false" : "") : ""
                     }`}
                     name="phone"
                     placeholder="Ingresa el nuevo número de la empresa"
@@ -139,7 +141,7 @@ const Form_edit_company_contact = ({
         </div>
       </div>
       {showConfirm && (
-        <Confirm_company
+        <Confirm_modal
           onClose={() => {
             setShowConfirm(false);
           }}
@@ -156,6 +158,7 @@ const Form_edit_company_contact = ({
           typeForm={typeForm}
           loading={loading}
           setLoading={setLoading}
+          feedbackMessages={feedbackMessages}
         />
       )}
     </>

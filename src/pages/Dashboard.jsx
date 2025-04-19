@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useLocation } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
-import Navegation from "../components/dashboard/Navegation";
+import Navegation from "../components/dashboard/reusable/Navegation";
 import Notification from "../components/dashboard/Notification";
 import Fault_report from "../components/dashboard/Fault_report";
 import Invoice_detail from "../components/dashboard/details/Invoice_detail";

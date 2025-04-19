@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import useUserPermissions from "../../hooks/useUserPermissions";
-import Head from "./Head";
-import Search from "./Search";
-import Filter from "./Filter";
-import Table from "./Table";
-import Pagination from "./Pagination";
+import Head from "./reusable/Head";
+import Search from "./reusable/Search";
+import Filter from "./reusable/Filter";
+import Table from "./reusable/Table";
+import Pagination from "./reusable/Pagination";
 import Form_property from "./forms/adds/Form_property";
 import Filter_property from "./filters/Filter_property";
 import Change_status_property from "./Status/Change_status_property";

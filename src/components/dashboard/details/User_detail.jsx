@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { data, useParams } from "react-router-dom";
 import axios from "axios";
-import Head from "../Head";
+import Head from "../reusable/Head";
 import { TbPointFilled } from "react-icons/tb";
 
 const User_detail = ({ user }) => {

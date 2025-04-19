@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { FaUpload } from "react-icons/fa6";
+import Confirm_modal from "../../reusable/Confirm_modal";
 import { validateImage } from "../../../../hooks/useValidations";
-import Confirm_company from "../../confirm_view/Confirm_company";
+import { FaUpload } from "react-icons/fa6";
 
 const Form_edit_company_picture = ({
   title,
@@ -25,19 +25,30 @@ const Form_edit_company_picture = ({
   const [typeForm, setTypeForm] = useState("");
   const [newData, setNewData] = useState(null);
 
+  const feedbackMessages = {
+    update_logo_profile: {
+      successTitle: "Actualización exitosa",
+      successMessage:
+        "El logo de la empresa ha sido actualizado correctamente.",
+      errorTitle: "Error al actualizar",
+      errorMessage: `No se pudo actualizar el logo de la empresa. 
+      \n Por favor, inténtelo de nuevo.`,
+    },
+  };
+
   const [formData, setFormData] = useState({
     icon_company: null,
   });
 
-  useEffect(() => {
-    getCompany();
-  }, []);
+  // useEffect(() => {
+  //   getCompany();
+  // }, []);
 
-  const getCompany = () => {
-    setFormData({
-      icon_company: data.logo,
-    });
-  };
+  // const getCompany = () => {
+  //   setFormData({
+  //     icon_company: data.logo,
+  //   });
+  // };
 
   const [errors, setErrors] = useState({});
 
@@ -70,7 +81,8 @@ const Form_edit_company_picture = ({
   const handleSubmit = async () => {
     let newErrors = {};
     if (!formData.icon_company)
-      newErrors.icon_company = "Debe subir un logo si desea cambiarlo";
+      newErrors.icon_company =
+        "Debe de subir una imagen si desea cambiar el logo de empresa";
 
     setErrors(newErrors);
 
@@ -169,7 +181,7 @@ const Form_edit_company_picture = ({
         </div>
       </div>
       {showConfirm && (
-        <Confirm_company
+        <Confirm_modal
           onClose={() => {
             setShowConfirm(false);
           }}
@@ -186,6 +198,7 @@ const Form_edit_company_picture = ({
           typeForm={typeForm}
           loading={loading}
           setLoading={setLoading}
+          feedbackMessages={feedbackMessages}
         />
       )}
     </>

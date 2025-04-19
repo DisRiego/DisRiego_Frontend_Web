@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
+import Confirm_modal from "../../reusable/Confirm_modal";
+import { validatePassword } from "../../../../hooks/useValidations";
 import { MdError } from "react-icons/md";
 import { IoMdWarning } from "react-icons/io";
-import { validatePassword } from "../../../../hooks/useValidations";
-import Confirm_profile from "../../confirm_view/Confirm_profile";
-import axios from "axios";
 
 const Form_edit_profile_password = ({
   title,
@@ -24,7 +23,17 @@ const Form_edit_profile_password = ({
   const [method, setMethod] = useState();
   const [uriPost, setUriPost] = useState();
   const [isLoading, setIsLoading] = useState(true);
-  const [typeForm, setTypeForm] = useState(true);
+  const [typeForm, setTypeForm] = useState("");
+
+  const feedbackMessages = {
+    update_password: {
+      successTitle: "Actualización exitosa",
+      successMessage: "La contraseña ha sido actualizada correctamente.",
+      errorTitle: "Error al actualizar",
+      errorMessage: `No se pudo actualizar la contraseña.
+      \n Por favor, inténtelo de nuevo.`,
+    },
+  };
 
   const [formData, setFormData] = useState({
     old_password: "",
@@ -267,7 +276,7 @@ const Form_edit_profile_password = ({
         </div>
       </div>
       {showConfirm && (
-        <Confirm_profile
+        <Confirm_modal
           onClose={() => {
             setShowConfirm(false);
           }}
@@ -284,6 +293,7 @@ const Form_edit_profile_password = ({
           typeForm={typeForm}
           loading={loading}
           setLoading={setLoading}
+          feedbackMessages={feedbackMessages}
         />
       )}
     </>

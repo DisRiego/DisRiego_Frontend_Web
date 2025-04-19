@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
-import Confirm_rol from "../../confirm_view/adds/Confirm_rol";
+import axios from "axios";
+import Confirm_modal from "../../reusable/Confirm_modal";
 import {
   validateDescription,
   validateText,
 } from "../../../../hooks/useValidations";
-import axios from "axios";
 import { IoMdWarning } from "react-icons/io";
 
 const Form_add_rol = ({
@@ -28,7 +28,23 @@ const Form_add_rol = ({
   const [method, setMethod] = useState();
   const [uriPost, setUriPost] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-  const [typeForm, setTypeForm] = useState(true);
+  const [typeForm, setTypeForm] = useState("");
+
+  const feedbackMessages = {
+    create: {
+      successTitle: "Rol creado exitosamente",
+      successMessage: "El rol ha sido creado correctamente.",
+      errorTitle: "Error al crear el rol",
+      errorMessage: "No se pudo crear el rol. Por favor, inténtelo de nuevo.",
+    },
+    edit: {
+      successTitle: "Rol actualizado exitosamente",
+      successMessage: "El rol ha sido actualizado correctamente.",
+      errorTitle: "Error al actualizar el rol",
+      errorMessage:
+        "No se pudo actualizar el rol. Por favor, inténtelo de nuevo.",
+    },
+  };
 
   const [formData, setFormData] = useState({
     name: "",
@@ -304,10 +320,8 @@ const Form_add_rol = ({
         </div>
       </div>
       {showConfirm && (
-        <Confirm_rol
-          onClose={() => {
-            setShowConfirm(false);
-          }}
+        <Confirm_modal
+          onClose={() => setShowConfirm(false)}
           onSuccess={onClose}
           confirMessage={confirMessage}
           method={method}
@@ -321,6 +335,7 @@ const Form_add_rol = ({
           typeForm={typeForm}
           loading={loading}
           setLoading={setLoading}
+          feedbackMessages={feedbackMessages}
         />
       )}
     </>

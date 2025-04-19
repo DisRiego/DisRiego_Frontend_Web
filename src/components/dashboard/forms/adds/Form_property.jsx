@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import Confirm_property from "../../confirm_view/adds/Confirm_property";
+import Confirm_modal from "../../reusable/Confirm_modal";
 import {
   validateFile,
   validateLatitude,
@@ -40,9 +40,26 @@ const Form_property = ({
   const [method, setMethod] = useState();
   const [uriPost, setUriPost] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-  const [typeForm, setTypeForm] = useState(true);
+  const [typeForm, setTypeForm] = useState("");
   const [showConfirm, setShowConfirm] = useState(false);
   const [dataProperty, setDataProperty] = useState({});
+
+  const feedbackMessages = {
+    create_property: {
+      successTitle: "Predio creado exitosamente",
+      successMessage: "El predio se ha creado correctamente.",
+      errorTitle: "Error al crear el predio",
+      errorMessage:
+        "No se pudo crear el predio. Por favor, inténtelo de nuevo.",
+    },
+    edit_property: {
+      successTitle: "Predio actualizado exitosamente",
+      successMessage: "El predio ha sido actualizado correctamente.",
+      errorTitle: "Error al actualizar el predio",
+      errorMessage:
+        "No se pudo actualizar el predio. Por favor, inténtelo de nuevo.",
+    },
+  };
 
   const [formUser, setFormUser] = useState({
     document_type: "",
@@ -122,8 +139,6 @@ const Form_property = ({
       console.log("Error al obtener el predio:", error);
     }
   };
-
-  console.log(formData);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -659,7 +674,7 @@ const Form_property = ({
         </div>
       </div>
       {showConfirm && (
-        <Confirm_property
+        <Confirm_modal
           onClose={() => {
             setShowConfirm(false);
           }}
@@ -676,6 +691,7 @@ const Form_property = ({
           typeForm={typeForm}
           loading={loading}
           setLoading={setLoading}
+          feedbackMessages={feedbackMessages}
         />
       )}
     </>

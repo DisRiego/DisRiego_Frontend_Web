@@ -1,16 +1,16 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import useUserPermissions from "../../hooks/useUserPermissions";
-import Head from "./Head";
-import Search from "./Search";
-import Filter from "./Filter";
-import Tab from "./Tab";
-import Table from "./Table";
-import Pagination from "./Pagination";
+import Head from "./reusable/Head";
+import Search from "./reusable/Search";
+import Filter from "./reusable/Filter";
+import Tab from "./reusable/Tab";
+import Table from "./reusable/Table";
+import Pagination from "./reusable/Pagination";
 import Form_device from "./forms/adds/Form_device";
 import Filter_iot from "./filters/Filter_iot";
 import Change_status_iot from "./Status/Change_status_iot";
-import Form_assign_iot from "./forms/adds/Form_assign_iot";
+import Form_assign_device from "./forms/adds/Form_assign_device";
 import { jsPDF } from "jspdf";
 import { autoTable } from "jspdf-autotable";
 import Icon from "../../assets/icons/Disriego_title.png";
@@ -407,7 +407,7 @@ const Device = () => {
       )}
       {showAssign && (
         <>
-          <Form_assign_iot
+          <Form_assign_device
             title={title}
             onClose={() => setShowAssign(false)}
             id={id}

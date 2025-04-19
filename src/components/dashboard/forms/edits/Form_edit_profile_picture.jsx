@@ -1,8 +1,7 @@
-import axios from "axios";
 import { useState } from "react";
-import { FaUpload } from "react-icons/fa6";
+import Confirm_modal from "../../reusable/Confirm_modal";
 import { validateImage } from "../../../../hooks/useValidations";
-import Confirm_profile from "../../confirm_view/Confirm_profile";
+import { FaUpload } from "react-icons/fa6";
 
 const Form_edit_profile_picture = ({
   title,
@@ -27,6 +26,16 @@ const Form_edit_profile_picture = ({
   const [typeForm, setTypeForm] = useState("");
   const [newData, setNewData] = useState(null);
 
+  const feedbackMessages = {
+    update_picture: {
+      successTitle: "Actualización exitosa",
+      successMessage: "La foto de perfil ha sido actualizada correctamente.",
+      errorTitle: "Error al actualizar",
+      errorMessage: `No se pudo actualizar la foto de perfil.
+      \n Por favor, inténtelo de nuevo.`,
+    },
+  };
+
   const handleFileChange = (event) => {
     const selectedFile = event.target.files[0];
     const validation = validateImage(selectedFile);
@@ -45,7 +54,7 @@ const Form_edit_profile_picture = ({
 
   const handleUpload = async () => {
     if (!file) {
-      setError("Por favor, selecciona una imagen antes de subir.");
+      setError("Debe de subir una imagen si desea cambiar su foto de perfil");
       return;
     }
 
@@ -120,7 +129,7 @@ const Form_edit_profile_picture = ({
         </div>
       </div>
       {showConfirm && (
-        <Confirm_profile
+        <Confirm_modal
           onClose={() => {
             setShowConfirm(false);
           }}
@@ -138,6 +147,7 @@ const Form_edit_profile_picture = ({
           loading={loading}
           setLoading={setLoading}
           token={token}
+          feedbackMessages={feedbackMessages}
         />
       )}
     </>

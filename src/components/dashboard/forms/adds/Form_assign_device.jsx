@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
+import Confirm_modal from "../../reusable/Confirm_modal";
 import { FaSearch } from "react-icons/fa";
 import { IoMdWarning } from "react-icons/io";
 import {
@@ -7,9 +8,8 @@ import {
   validateEstimatedMaintenanceDate,
   validatePhone,
 } from "../../../../hooks/useValidations";
-import Confirm_iot from "../../confirm_view/adds/Confirm_iot";
 
-const Form_assign_iot = ({
+const Form_assign_device = ({
   title,
   onClose,
   setShowMessage,
@@ -29,7 +29,7 @@ const Form_assign_iot = ({
   const [method, setMethod] = useState();
   const [uriPost, setUriPost] = useState();
   const [isLoading, setIsLoading] = useState(true);
-  const [typeForm, setTypeForm] = useState();
+  const [typeForm, setTypeForm] = useState("");
   const [disabled, setDisabled] = useState(true);
   const [validated, setValidated] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -43,6 +43,24 @@ const Form_assign_iot = ({
     if (dateInstallationInputRef.current) {
       dateInstallationInputRef.current.showPicker();
     }
+  };
+
+  const feedbackMessages = {
+    assign_device: {
+      successTitle: "Dispositivo asignado exitosamente",
+      successMessage: "El dispositivo ha sido asignado al lote correctamente.",
+      errorTitle: "Error al asignar el dispositivo",
+      errorMessage:
+        "No se pudo asignar el dispositivo. Por favor, inténtelo de nuevo.",
+    },
+    reassing_device: {
+      successTitle: "Dispositivo reasignado exitosamente",
+      successMessage:
+        "El dispositivo ha sido reasignado al lote correctamente.",
+      errorTitle: "Error al reasignar el dispositivo",
+      errorMessage:
+        "No se pudo reasignar el dispositivo. Por favor, inténtelo de nuevo.",
+    },
   };
 
   const [data, setData] = useState({
@@ -569,7 +587,7 @@ const Form_assign_iot = ({
         </div>
       </div>
       {showConfirm && (
-        <Confirm_iot
+        <Confirm_modal
           onClose={() => {
             setShowConfirm(false);
           }}
@@ -588,10 +606,11 @@ const Form_assign_iot = ({
           setLoading={setLoading}
           typeForm={typeForm}
           setTypeForm={setTypeForm}
+          feedbackMessages={feedbackMessages}
         />
       )}
     </>
   );
 };
 
-export default Form_assign_iot;
+export default Form_assign_device;

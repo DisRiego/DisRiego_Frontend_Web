@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
 import axios from "axios";
-import Confirm_lot from "../../confirm_view/adds/Confirm_lot";
+import Confirm_modal from "../../reusable/Confirm_modal";
 import {
   validatePlaningDate,
   validatePhone,
@@ -37,6 +36,16 @@ const Form_lot_user = ({
     if (estimateDateInputRef.current) {
       estimateDateInputRef.current.showPicker();
     }
+  };
+
+  const feedbackMessages = {
+    edit_user: {
+      successTitle: "Lote actualizado exitosamente",
+      successMessage: "El lote ha sido actualizado correctamente.",
+      errorTitle: "Error al actualizar el lote",
+      errorMessage:
+        "No se pudo actualizar el lote. Por favor, inténtelo de nuevo.",
+    },
   };
 
   const [formData, setFormData] = useState({
@@ -194,7 +203,6 @@ const Form_lot_user = ({
       formData.estimated_harvest_date
     );
     const isPaymentIntervalValid = validatePhone(formData.payment_interval);
-    console.log(formData);
 
     setErrors({
       type_crop_id: isTypeCropValid
@@ -217,7 +225,14 @@ const Form_lot_user = ({
       isEstimatedHarvestValid &&
       isPaymentIntervalValid
     ) {
-      console.log("Entro!!");
+      const formLot = new FormData();
+      formLot.append("type_crop_id", formData.type_crop_id);
+      formLot.append("planting_date", formData.planting_date);
+      formLot.append("estimated_harvest_date", formData.estimated_harvest_date);
+      formLot.append("payment_interval", formData.payment_interval);
+
+      setData(formLot);
+
       setConfirMessage("¿Desea actualizar la información del lote?");
       setMethod("put");
       setUriPost(
@@ -232,7 +247,7 @@ const Form_lot_user = ({
   };
 
   const toTitleCase = (str) => {
-    if (typeof str !== "string") return str; // Evita errores con números u otros tipos
+    if (typeof str !== "string") return str;
     return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
   };
 
@@ -360,14 +375,14 @@ const Form_lot_user = ({
         </div>
       </div>
       {showConfirm && (
-        <Confirm_lot
+        <Confirm_modal
           onClose={() => {
             setShowConfirm(false);
           }}
           onSuccess={onClose}
           confirMessage={confirMessage}
           method={method}
-          formData={formData}
+          formData={data}
           setShowMessage={setShowMessage}
           setTitleMessage={setTitleMessage}
           setMessage={setMessage}
@@ -379,6 +394,7 @@ const Form_lot_user = ({
           setLoading={setLoading}
           typeForm={typeForm}
           setTypeForm={setTypeForm}
+          feedbackMessages={feedbackMessages}
         />
       )}
     </>

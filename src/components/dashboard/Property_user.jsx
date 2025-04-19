@@ -1,10 +1,10 @@
 import { useState, useEffect, useMemo } from "react";
 import useUserPermissions from "../../hooks/useUserPermissions";
-import Head from "./Head";
-import Search from "./Search";
-import Filter from "./Filter";
-import Table from "./Table";
-import Pagination from "./Pagination";
+import Head from "./reusable/Head";
+import Search from "./reusable/Search";
+import Filter from "./reusable/Filter";
+import Table from "./reusable/Table";
+import Pagination from "./reusable/Pagination";
 import Form_property from "./forms/adds/Form_property";
 import Filter_property from "./filters/Filter_property";
 import Change_status_property from "./Status/Change_status_property";
@@ -13,7 +13,6 @@ import axios from "axios";
 import RobotoNormalFont from "../../assets/fonts/Roboto-Regular.ttf";
 import RobotoBoldFont from "../../assets/fonts/Roboto-Bold.ttf";
 import Icon from "../../assets/icons/Disriego_title.png";
-import { format, subDays, subWeeks, subMonths, subYears } from "date-fns";
 import { jsPDF } from "jspdf"; // Importa jsPDF
 import { autoTable } from "jspdf-autotable"; // componentes de Chart.js usados en el componente
 import {

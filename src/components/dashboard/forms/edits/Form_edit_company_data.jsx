@@ -1,12 +1,6 @@
 import { useEffect, useState } from "react";
-import { FaUpload } from "react-icons/fa6";
-import Confirm_company from "../../confirm_view/Confirm_company";
-import {
-  validateImage,
-  validateLastName,
-  validatePhone,
-  validateText,
-} from "../../../../hooks/useValidations";
+import Confirm_modal from "../../reusable/Confirm_modal";
+import { validatePhone, validateText } from "../../../../hooks/useValidations";
 import axios from "axios";
 
 const Form_edit_company_data = ({
@@ -31,6 +25,17 @@ const Form_edit_company_data = ({
   const [isLoading, setIsLoading] = useState(true);
   const [certificateData, setCertificateData] = useState([]);
 
+  const feedbackMessages = {
+    update_basic: {
+      successTitle: "Actualización exitosa",
+      successMessage:
+        "La información de la empresa ha sido actualizada correctamente.",
+      errorTitle: "Error al actualizar",
+      errorMessage: `No se pudo actualizar la información de la empresa. 
+        Por favor, inténtelo de nuevo`,
+    },
+  };
+
   const [formData, setFormData] = useState({
     name: "",
     nit: "",
@@ -51,11 +56,9 @@ const Form_edit_company_data = ({
     setFormData({
       name: data.name,
       nit: data.nit,
-      digital_certificate_id: data.certificate.digital_certificate_id,
+      digital_certificate_id: data.certificate?.digital_certificate_id,
     });
   };
-
-  console.log(formData);
 
   const getCertificate = async () => {
     try {
@@ -113,8 +116,6 @@ const Form_edit_company_data = ({
     }
   };
 
-  console.log(formData);
-
   return (
     <>
       <div className="modal is-active">
@@ -136,7 +137,7 @@ const Form_edit_company_data = ({
                   <input
                     type="text"
                     className={`input ${
-                      hasSubmitted ? (errors.name ? "is-false" : "is-true") : ""
+                      hasSubmitted ? (errors.name ? "is-false" : "") : ""
                     }`}
                     name="name"
                     placeholder="Ingrese el nombre de la empresa"
@@ -154,7 +155,7 @@ const Form_edit_company_data = ({
                   <input
                     type="number"
                     className={`input ${
-                      hasSubmitted ? (errors.nit ? "is-false" : "is-true") : ""
+                      hasSubmitted ? (errors.nit ? "is-false" : "") : ""
                     }`}
                     name="nit"
                     placeholder="Ingrese el NIT de la empresa"
@@ -172,9 +173,9 @@ const Form_edit_company_data = ({
                     <div
                       className={`select ${
                         hasSubmitted
-                          ? errors.name
+                          ? errors.digital_certificate_id
                             ? "is-false"
-                            : "is-true"
+                            : ""
                           : ""
                       }`}
                     >
@@ -217,7 +218,7 @@ const Form_edit_company_data = ({
         </div>
       </div>
       {showConfirm && (
-        <Confirm_company
+        <Confirm_modal
           onClose={() => {
             setShowConfirm(false);
           }}
@@ -234,6 +235,7 @@ const Form_edit_company_data = ({
           typeForm={typeForm}
           loading={loading}
           setLoading={setLoading}
+          feedbackMessages={feedbackMessages}
         />
       )}
     </>

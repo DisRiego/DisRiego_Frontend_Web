@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import Confirm_lot from "../../confirm_view/adds/Confirm_lot";
+import axios from "axios";
+import Confirm_modal from "../../reusable/Confirm_modal";
 import {
   validateFile,
   validateLatitude,
@@ -8,7 +9,6 @@ import {
   validateText,
 } from "../../../../hooks/useValidations";
 import { FaUpload } from "react-icons/fa6";
-import axios from "axios";
 
 const Form_lot = ({
   title,
@@ -34,8 +34,24 @@ const Form_lot = ({
   const [confirMessage, setConfirMessage] = useState();
   const [method, setMethod] = useState();
   const [uriPost, setUriPost] = useState("");
-  const [typeForm, setTypeForm] = useState(true);
+  const [typeForm, setTypeForm] = useState("");
   const [showConfirm, setShowConfirm] = useState(false);
+
+  const feedbackMessages = {
+    create_lot: {
+      successTitle: "Lote creado exitosamente",
+      successMessage: "El lote se ha creado correctamente.",
+      errorTitle: "Error al crear el lote",
+      errorMessage: "No se pudo crear el lote. Por favor, inténtelo de nuevo.",
+    },
+    edit_lot: {
+      successTitle: "Lote actualizado exitosamente",
+      successMessage: "El lote ha sido actualizado correctamente.",
+      errorTitle: "Error al actualizar el lote",
+      errorMessage:
+        "No se pudo actualizar el lote. Por favor, inténtelo de nuevo.",
+    },
+  };
 
   const [formData, setFormData] = useState({
     property_id: parseInt(id, 10),
@@ -188,9 +204,6 @@ const Form_lot = ({
 
       setNewData(formArchive);
 
-      const formObject = Object.fromEntries(formArchive.entries());
-      console.log(formObject);
-
       if (idRow != null) {
         setConfirMessage(`¿Desea actualizar el predio?`);
         setMethod("put");
@@ -215,8 +228,6 @@ const Form_lot = ({
       }
     }
   };
-
-  console.log(formData);
 
   return (
     <>
@@ -434,7 +445,7 @@ const Form_lot = ({
         </div>
       </div>
       {showConfirm && (
-        <Confirm_lot
+        <Confirm_modal
           onClose={() => {
             setShowConfirm(false);
           }}
@@ -451,6 +462,7 @@ const Form_lot = ({
           typeForm={typeForm}
           loading={loading}
           setLoading={setLoading}
+          feedbackMessages={feedbackMessages}
         />
       )}
     </>

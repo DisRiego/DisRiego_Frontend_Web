@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import useUserPermissions from "../../../hooks/useUserPermissions";
-import Head from "../Head";
+import Head from "../reusable/Head";
 import Message from "../../Message";
 import Change_status_request from "../Status/Change_status_request";
 import Form_request_reject from "../forms/adds/Form_request_reject";

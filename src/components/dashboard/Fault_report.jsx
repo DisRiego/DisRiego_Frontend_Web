@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
-import Head from "./Head";
-import Search from "./Search";
-import Filter from "./Filter";
-import Table from "./Table";
-import Pagination from "./Pagination";
+import Head from "./reusable/Head";
+import Search from "./reusable/Search";
+import Filter from "./reusable/Filter";
+import Table from "./reusable/Table";
+import Pagination from "./reusable/Pagination";
 
 const Fault_report = () => {
   const [data, setData] = useState([]);

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
+import Confirm_modal from "../../reusable/Confirm_modal";
 import {
   validateOpenDate,
   validateCloseDate,
@@ -7,7 +8,6 @@ import {
   validateTime,
   validateCloseTime,
 } from "../../../../hooks/useValidations";
-import Confirm_aperture from "../../confirm_view/adds/Confirm_aperture";
 
 const Form_aperture = ({
   title,
@@ -30,7 +30,7 @@ const Form_aperture = ({
   const [uriPost, setUriPost] = useState("");
   const [newData, setNewData] = useState();
   const [disabled, setDisabled] = useState(true);
-  const [typeForm, setTypeForm] = useState();
+  const [typeForm, setTypeForm] = useState("");
   const [typeAperture, setTypeAperture] = useState([]);
   const [nameTypeAperture, setNameTypeAperture] = useState("");
   const [isLoading, setIsLoading] = useState(true);
@@ -61,6 +61,16 @@ const Form_aperture = ({
     if (hourClosedRef.current) {
       hourClosedRef.current.showPicker();
     }
+  };
+
+  const feedbackMessages = {
+    create: {
+      successTitle: "Solicitud creada exitosamente",
+      successMessage: "La solicitud ha sido creado correctamente.",
+      errorTitle: "Error al crear la solicitud",
+      errorMessage:
+        "No se pudo crear la solicitud. Por favor, inténtelo de nuevo.",
+    },
   };
 
   const [formData, setFormData] = useState({
@@ -455,7 +465,7 @@ const Form_aperture = ({
         </div>
       </div>
       {showConfirm && (
-        <Confirm_aperture
+        <Confirm_modal
           onClose={() => {
             setShowConfirm(false);
           }}
@@ -472,6 +482,7 @@ const Form_aperture = ({
           loading={loading}
           setLoading={setLoading}
           updateData={updateData}
+          feedbackMessages={feedbackMessages}
         />
       )}
     </>

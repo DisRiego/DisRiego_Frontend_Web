@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
+import Confirm_modal from "../../reusable/Confirm_modal";
 import {
   validatePhone,
   validateDescriptionReject,
 } from "../../../../hooks/useValidations";
-import Confirm_reject_request from "../../confirm_view/adds/Confirm_reject_request";
 
 const Form_request_reject = ({
   title,
@@ -24,9 +24,19 @@ const Form_request_reject = ({
   const [method, setMethod] = useState();
   const [uriPost, setUriPost] = useState("");
   const [disabled, setDisabled] = useState(true);
-  const [typeForm, setTypeForm] = useState();
+  const [typeForm, setTypeForm] = useState("");
   const [typeAperture, setTypeAperture] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  const feedbackMessages = {
+    reject: {
+      successTitle: "Denegación exitosa",
+      successMessage: "Se ha denegado la solicitud correctamente.",
+      errorTitle: "Error al denegar la solicitud",
+      errorMessage:
+        "No se pudo denegar la solicitud. Por favor, inténtelo de nuevo.",
+    },
+  };
 
   const [formData, setFormData] = useState({
     request_id: id,
@@ -194,7 +204,7 @@ const Form_request_reject = ({
         </div>
       </div>
       {showConfirm && (
-        <Confirm_reject_request
+        <Confirm_modal
           onClose={() => {
             setShowConfirm(false);
           }}
@@ -211,6 +221,7 @@ const Form_request_reject = ({
           loading={loading}
           setLoading={setLoading}
           updateData={updateData}
+          feedbackMessages={feedbackMessages}
         />
       )}
     </>

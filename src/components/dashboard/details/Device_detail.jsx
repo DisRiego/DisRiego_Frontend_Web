@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
-import Head from "../Head";
+import Head from "../reusable/Head";
 import { TbPointFilled } from "react-icons/tb";
 
 const Iot_detail = () => {

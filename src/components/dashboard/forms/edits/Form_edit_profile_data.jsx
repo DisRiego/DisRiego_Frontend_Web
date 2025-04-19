@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import Confirm_modal from "../../reusable/Confirm_modal";
 import {
   validateAddress,
   validatePhone,
-  validateText,
 } from "../../../../hooks/useValidations";
-import Confirm_profile from "../../confirm_view/Confirm_profile";
 
 const Form_edit_profile_data = ({
   title,
@@ -32,6 +31,17 @@ const Form_edit_profile_data = ({
   const [method, setMethod] = useState();
   const [uriPost, setUriPost] = useState("");
   const [typeForm, setTypeForm] = useState("");
+
+  const feedbackMessages = {
+    update_data: {
+      successTitle: "Actualización exitosa",
+      successMessage:
+        "La información de su usuario ha sido actualizada correctamente.",
+      errorTitle: "Error al actualizar",
+      errorMessage: `No se pudo actualizar la información de su usuario.
+      \n Por favor, inténtelo de nuevo.`,
+    },
+  };
 
   const [formData, setFormData] = useState({
     country: "",
@@ -169,7 +179,7 @@ const Form_edit_profile_data = ({
   const handleSubmit = () => {
     setHasSubmitted(true);
     if (validateForm()) {
-      setConfirMessage("¿Desea actualizar su foto de perfil?");
+      setConfirMessage("¿Desea actualizar la información de su usuario?");
       setMethod("put");
       setUriPost(
         import.meta.env.VITE_URI_BACKEND +
@@ -202,11 +212,7 @@ const Form_edit_profile_data = ({
                   <div className="control">
                     <div
                       className={`select ${
-                        hasSubmitted
-                          ? errors.country
-                            ? "is-false"
-                            : "is-true"
-                          : ""
+                        hasSubmitted ? (errors.country ? "is-false" : "") : ""
                       }`}
                     >
                       <select
@@ -241,7 +247,7 @@ const Form_edit_profile_data = ({
                         hasSubmitted
                           ? errors.department
                             ? "is-false"
-                            : "is-true"
+                            : ""
                           : ""
                       }`}
                     >
@@ -273,11 +279,7 @@ const Form_edit_profile_data = ({
                   <div className="control">
                     <div
                       className={`select ${
-                        hasSubmitted
-                          ? errors.city
-                            ? "is-false"
-                            : "is-true"
-                          : ""
+                        hasSubmitted ? (errors.city ? "is-false" : "") : ""
                       }`}
                     >
                       <select
@@ -306,11 +308,7 @@ const Form_edit_profile_data = ({
                   <div className="control">
                     <input
                       className={`input ${
-                        hasSubmitted
-                          ? errors.address
-                            ? "is-false"
-                            : "is-true"
-                          : ""
+                        hasSubmitted ? (errors.address ? "is-false" : "") : ""
                       }`}
                       type="text"
                       name="address"
@@ -359,11 +357,7 @@ const Form_edit_profile_data = ({
                   <div className="control">
                     <input
                       className={`input ${
-                        hasSubmitted
-                          ? errors.phone
-                            ? "is-false"
-                            : "is-true"
-                          : ""
+                        hasSubmitted ? (errors.phone ? "is-false" : "") : ""
                       }`}
                       type="number"
                       name="phone"
@@ -393,7 +387,7 @@ const Form_edit_profile_data = ({
         </div>
       </div>
       {showConfirm && (
-        <Confirm_profile
+        <Confirm_modal
           onClose={() => {
             setShowConfirm(false);
           }}
@@ -411,6 +405,7 @@ const Form_edit_profile_data = ({
           loading={loading}
           setLoading={setLoading}
           token={token}
+          feedbackMessages={feedbackMessages}
         />
       )}
     </>

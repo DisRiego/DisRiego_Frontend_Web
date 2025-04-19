@@ -1,3 +1,5 @@
+import React from "react";
+
 const Message = ({ onClose, status, titleMessage, message }) => {
   return (
     <>
@@ -10,7 +12,13 @@ const Message = ({ onClose, status, titleMessage, message }) => {
             aria-label="delete"
           ></button>
         </div>
-        <div className="message-body">{message}</div>
+        <div className="message-body custom-message-body">
+          {message.split("\n").map((line, index) => (
+            <span key={index} className="message-line">
+              {line}
+            </span>
+          ))}
+        </div>
       </article>
     </>
   );

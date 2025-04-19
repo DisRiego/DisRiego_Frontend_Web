@@ -1,8 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import axios from "axios";
-import Pagination from "./Pagination";
-import Table from "./Table";
-import { useLocation, useParams } from "react-router-dom";
+import Pagination from "./reusable/Pagination";
+import Table from "./reusable/Table";
 import useUserPermissions from "../../hooks/useUserPermissions";
 
 const Lot = ({

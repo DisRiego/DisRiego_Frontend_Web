@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import Head from "./Head";
+import Head from "./reusable/Head.jsx";
 import { FaEdit } from "react-icons/fa";
 import Form_edit_profile_picture from "./forms/edits/Form_edit_profile_picture.jsx";
 import Form_edit_profile_data from "./forms/edits/Form_edit_profile_data.jsx";
@@ -73,8 +73,6 @@ const Profile = () => {
       );
     } catch (error) {
       console.error("Error al obtener los permisos:", error);
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -117,26 +115,16 @@ const Profile = () => {
         state: stateRes.data.name,
         city: cityName,
       });
-
-      setIsLoading(false);
     } catch (error) {
       console.error("Error al obtener nombres de ubicación:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const toTitleCase = (str) => {
     if (typeof str !== "string") return str; // Evita errores con números u otros tipos
     return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
-  };
-
-  const toStringCase = (str) => {
-    if (typeof str !== "string") return str; // Evita errores si el input no es un string
-
-    return str
-      .toLowerCase() // Convierte todo a minúsculas primero
-      .split(" ") // Divide el texto en palabras
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1)) // Convierte la primera letra de cada palabra en mayúscula
-      .join(" "); // Une las palabras nuevamente en una sola cadena
   };
 
   return (

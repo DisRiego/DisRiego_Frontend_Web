@@ -1,14 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
+import Confirm_modal from "../../reusable/Confirm_modal";
 import {
-  validateLastName,
   validateModel,
   validateMultInput,
   validatePhone,
-  validateText,
   validateTextArea,
 } from "../../../../hooks/useValidations";
-import Confirm_iot from "../../confirm_view/adds/Confirm_iot";
 
 const Form_device = ({
   title,
@@ -36,6 +34,23 @@ const Form_device = ({
   const [uriPost, setUriPost] = useState("");
   const [newData, setNewData] = useState();
   const [disabled, setDisabled] = useState(true);
+
+  const feedbackMessages = {
+    create_device: {
+      successTitle: "Dispositivo creado exitosamente",
+      successMessage: "El dispositivo se ha creado correctamente.",
+      errorTitle: "Error al crear el dispositivo",
+      errorMessage:
+        "No se pudo crear el dispositivo. Por favor, inténtelo de nuevo.",
+    },
+    edit_device: {
+      successTitle: "Dispositivo actualizado exitosamente",
+      successMessage: "El dispositivo se ha actualizado correctamente.",
+      errorTitle: "Error al editar el dispositivo",
+      errorMessage:
+        "No se pudo editar el dispositivo. Por favor, inténtelo de nuevo.",
+    },
+  };
 
   const [formData, setFormData] = useState({
     devices_id: "",
@@ -680,7 +695,7 @@ const Form_device = ({
         </div>
       </div>
       {showConfirm && (
-        <Confirm_iot
+        <Confirm_modal
           onClose={() => {
             setShowConfirm(false);
           }}
@@ -697,6 +712,7 @@ const Form_device = ({
           typeForm={typeForm}
           loading={loading}
           setLoading={setLoading}
+          feedbackMessages={feedbackMessages}
         />
       )}
     </>
