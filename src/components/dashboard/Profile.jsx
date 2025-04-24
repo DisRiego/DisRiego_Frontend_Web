@@ -317,6 +317,7 @@ const Profile = () => {
             id={formData.id}
             loading={loading}
             setLoading={setLoading}
+            token={token}
           />
         </>
       )}

@@ -15,6 +15,7 @@ const Form_edit_profile_password = ({
   id,
   loading,
   setLoading,
+  token,
 }) => {
   const [showConfirm, setShowConfirm] = useState();
   const [loginError, setLoginError] = useState("");
@@ -293,6 +294,7 @@ const Form_edit_profile_password = ({
           typeForm={typeForm}
           loading={loading}
           setLoading={setLoading}
+          token={token}
           feedbackMessages={feedbackMessages}
         />
       )}

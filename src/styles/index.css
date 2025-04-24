@@ -1302,7 +1302,8 @@ td > td.status-finalizado {
 
   .button.detail-status.status-1,
   .button.detail-status.status-11,
-  .button.detail-status.status-17 {
+  .button.detail-status.status-17,
+  .button.detail-status.status-25 {
     background-color: #ecfdf3;
     color: #027a48;
   }
@@ -1315,7 +1316,8 @@ td > td.status-finalizado {
 
   .button.detail-status.status-3,
   .button.detail-status.status-14,
-  .button.detail-status.status-18 {
+  .button.detail-status.status-18,
+  .button.detail-status.status-23 {
     background-color: #fff7e2;
     color: #9f7700;
   }
@@ -1327,7 +1329,8 @@ td > td.status-finalizado {
     color: #b42c24;
   }
 
-  .button.detail-status.status-15 {
+  .button.detail-status.status-15,
+  .button.detail-status.status-24 {
     background-color: #dee9ff;
     color: #244ea2;
   }
@@ -1397,7 +1400,8 @@ td > td.status-finalizado {
 
   .button.detail-status.status-1,
   .button.detail-status.status-11,
-  .button.detail-status.status-17 {
+  .button.detail-status.status-17,
+  .button.detail-status.status-25 {
     color: #b3ff9e;
     border-color: #b3ff9e;
     opacity: 0.8;
@@ -1412,7 +1416,8 @@ td > td.status-finalizado {
 
   .button.detail-status.status-3,
   .button.detail-status.status-14,
-  .button.detail-status.status-18 {
+  .button.detail-status.status-18,
+  .button.detail-status.status-23 {
     color: #ffc100;
     border-color: #ffc100;
     opacity: 0.8;
@@ -1426,7 +1431,8 @@ td > td.status-finalizado {
     opacity: 0.8;
   }
 
-  .button.detail-status.status-15 {
+  .button.detail-status.status-15,
+  .button.detail-status.status-24 {
     background-color: transparent;
     color: #76a4ff;
     border-color: #76a4ff;

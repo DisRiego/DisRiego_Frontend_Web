@@ -123,7 +123,7 @@ const Form_assign_maintenance = ({
                       className="input"
                       type="text"
                       disabled
-                      value={dataReport?.property_id}
+                      value={dataReport?.property_name}
                     />
                   </div>
                 </div>
@@ -136,7 +136,7 @@ const Form_assign_maintenance = ({
                       className="input"
                       type="text"
                       disabled
-                      value={dataReport?.lot_id}
+                      value={dataReport?.lot_name}
                     />
                   </div>
                 </div>

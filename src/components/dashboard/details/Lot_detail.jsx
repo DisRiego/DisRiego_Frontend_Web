@@ -104,7 +104,25 @@ const Lot_detail = () => {
       hasPermission("Generar solicitud de apertura de válvula") &&
       dataIot.length === 14
     ) {
-      // Estado aprobado pero válvula aún no abierta
+      // ✅ Caso especial: válvula no operativa y solicitud ya fue usada (estado aún "aprobada")
+      if (valve === "no operativo" && request === "aprobada") {
+        return {
+          icon: "FaPlus",
+          class: "color-hover",
+          text: "Solicitar apertura",
+        };
+      }
+
+      // 🟨 Solicitud pendiente
+      if (request === "pendiente") {
+        return {
+          icon: "",
+          class: "color-pending",
+          text: "Pendiente de aprobación",
+        };
+      }
+
+      // 🟩 Solicitud aprobada
       if (request === "aprobada") {
         if (valve === "abierta") {
           return {
@@ -122,7 +140,6 @@ const Lot_detail = () => {
           };
         }
 
-        // Por defecto: aprobada pero no abierta aún
         return {
           icon: "",
           class: "color-waiting",
@@ -130,15 +147,7 @@ const Lot_detail = () => {
         };
       }
 
-      if (request === "pendiente") {
-        return {
-          icon: "",
-          class: "color-pending",
-          text: "Pendiente de aprobación",
-        };
-      }
-
-      // Solo permitir solicitar si no hay solicitud activa
+      // 🔁 Si no hay solicitud activa y válvula no operativa
       if (valve === "no operativo") {
         return {
           icon: "FaPlus",
@@ -152,6 +161,9 @@ const Lot_detail = () => {
   };
 
   const valveButtonData = getValveButtonData();
+
+  console.log(statusValve);
+  console.log(statusRequest);
 
   const head_data = {
     title: "Detalles del lote #" + id,
@@ -606,7 +618,7 @@ const Lot_detail = () => {
 
     const interval = setInterval(() => {
       fetchRequest(valveID); // vuelve a pedir el estado
-    }, 10000); // 10 segundos
+    }, 5000); // 10 segundos
 
     return () => clearInterval(interval); // limpiar al desmontar
   }, [valveID]);
@@ -629,6 +641,9 @@ const Lot_detail = () => {
       setIsValveStatusLoaded(true);
     }
   };
+
+  console.log(statusValve);
+  console.log(statusRequest);
 
   const updateData = async () => {
     getDevicesByLot();
