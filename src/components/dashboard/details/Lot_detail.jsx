@@ -86,8 +86,10 @@ const Lot_detail = () => {
 
   const [isValveStatusLoaded, setIsValveStatusLoaded] = useState(false);
   const [valveID, setValveID] = useState();
+  const [meterID, setMeterID] = useState();
   const [statusRequest, setStatusRequest] = useState("");
   const [statusValve, setStatusVale] = useState("");
+  const [consumptionData, setConsumptionData] = useState("");
 
   const hasValveDevice = dataIot.some((device) =>
     device.device_type?.toLowerCase().includes("válvula")
@@ -470,13 +472,13 @@ const Lot_detail = () => {
             bgColor: "rgba(252,241,210,1)",
           },
           {
-            title: "Consumo promedio de agua",
+            title: "Consumo total de agua (mensual)",
             valueUptakeWater: "245 m³",
             bgColor: "rgb(231, 239, 255)",
           },
           {
             title: "Consumo actual de agua",
-            valueUptakeWater: "265 m³",
+            valueUptakeWater: `${consumptionData} m³`,
             bgColor: "rgb(231, 239, 255)",
           },
         ]
@@ -597,11 +599,19 @@ const Lot_detail = () => {
       const valve = dataIot.find((device) =>
         device.device_type?.toLowerCase().includes("válvula")
       );
+      const meter = dataIot.find((device) =>
+        device.device_type?.toLowerCase().includes("medidor")
+      );
 
       if (valve) {
         setValveID(valve.id);
       }
       fetchRequest(valve.id);
+
+      if (meter) {
+        setMeterID(meter.id);
+      }
+      fetchConsumption(meter.id);
 
       setDataIot(dataIot);
       // setIsLoading(false);
@@ -636,6 +646,29 @@ const Lot_detail = () => {
       console.error("Error al obtener el estado de la válvula:", error);
     } finally {
       setIsValveStatusLoaded(true);
+    }
+  };
+
+  useEffect(() => {
+    if (!meterID) return;
+
+    const interval = setInterval(() => {
+      fetchConsumption(meterID);
+    }, 5000); // 10 segundos
+
+    return () => clearInterval(interval); // limpiar al desmontar
+  }, [meterID]);
+
+  const fetchConsumption = async (meterID) => {
+    try {
+      const response = await axios.get(
+        import.meta.env.VITE_URI_BACKEND_IOT +
+          import.meta.env.VITE_ROUTE_BACKEND_CURRENT_CONSUMPTION +
+          meterID
+      );
+      setConsumptionData(response.data.data.sensor_value);
+    } catch (error) {
+      console.error("Error al obtener el consumo actual de agua:", error);
     }
   };
 
