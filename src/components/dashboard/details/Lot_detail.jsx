@@ -478,7 +478,7 @@ const Lot_detail = () => {
           },
           {
             title: "Consumo actual de agua",
-            valueUptakeWater: `${consumptionData} m³`,
+            valueUptakeWater: `${consumptionData ?? "0"} m³`,
             bgColor: "rgb(231, 239, 255)",
           },
         ]
