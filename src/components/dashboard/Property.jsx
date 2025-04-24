@@ -110,7 +110,7 @@ const Property = () => {
 
   const columns = [
     "ID",
-    // "ID del predio",
+    "ID del predio",
     "Nombre",
     "Número de documento del dueño",
     "Folio de matricula inmobiliaria",
@@ -134,11 +134,12 @@ const Property = () => {
         import.meta.env.VITE_URI_BACKEND +
           import.meta.env.VITE_ROUTE_BACKEND_PROPERTY
       );
-      setData(response.data.data);
+      // setData(response.data.data);
 
-      const sortedData = response.data.data.sort((a, b) =>
-        a.name.localeCompare(b.name)
-      );
+      const sortedData = response.data.data.sort((a, b) => b.id - a.id);
+      // const sortedData = response.data.data.sort((a, b) =>
+      //   a.name.localeCompare(b.name)
+      // );
       // const sortedData = response.data.data.sort((a, b) => a.name - b.name);
 
       setData(sortedData);
@@ -180,7 +181,7 @@ const Property = () => {
         )
         .map((info) => ({
           ID: info.id,
-          // "ID del predio": info.id,
+          "ID del predio": info.id,
           Nombre: toTitleCase(info.name),
           "Número de documento del dueño": info.owner_document_number,
           "Folio de matricula inmobiliaria":

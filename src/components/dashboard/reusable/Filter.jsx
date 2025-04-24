@@ -1,6 +1,6 @@
 import { IoFilterSharp } from "react-icons/io5";
 
-/*
+/** 
   Componente Filter:
   Muestra un botón con ícono para aplicar filtros.
 
@@ -10,10 +10,10 @@ import { IoFilterSharp } from "react-icons/io5";
 const Filter = ({ onFilterClick, buttonDisabled }) => {
   return (
     <>
-      {/* Botón que muestra el ícono y el texto "Filtros" */}
+      {/** Botón que muestra el ícono y el texto "Filtros" */}
       <div className="button" onClick={onFilterClick} disabled={buttonDisabled}>
         <button className="button-filter" disabled={buttonDisabled}>
-          {/*Evita ejecutar si está desactivado*/}
+          {/**Evita ejecutar si está desactivado*/}
           <span className="icon">
             <IoFilterSharp />
           </span>

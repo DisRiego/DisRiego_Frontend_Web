@@ -1,7 +1,7 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import Names_navegation from "./Names_navegation";
 
-/*
+/**
   Componente Navegation:
   Muestra una ruta de navegación (breadcrumb) según la URL actual.
 */
@@ -24,7 +24,7 @@ const Navegation = () => {
     // Agrega este segmento a la ruta actual
     currentPath += `/${segment}`;
 
-    /*
+    /**
       Ignora el primer segmento o "dashboard" para no mostrarlo como parte del breadcrumb.
     */
     if (index === 0 || segment === "dashboard") {
@@ -35,7 +35,7 @@ const Navegation = () => {
     const parentSegment = pathSegments[index - 1]; // Segmento anterior (usado para buscar el módulo padre)
     const parentModule = Names_navegation[parentSegment]; // Encuentra el módulo padre desde la configuración
 
-    /*
+    /**
       Si es el segundo segmento y está registrado en Names_navegation, se añade como módulo principal.
     */
     if (index === 1 && Names_navegation[segment]) {
@@ -46,7 +46,7 @@ const Navegation = () => {
       return;
     }
 
-    /*
+    /**
       Si el segmento actual es un número y hay un submódulo tipo "detail",
       se reemplaza el placeholder (#) con el ID actual para mostrar algo como "Ver detalles del lote #3".
     */
@@ -64,10 +64,10 @@ const Navegation = () => {
 
   return (
     <div className="navigation">
-      {/* Recorre el breadcrumb generado y lo muestra */}
+      {/** Recorre el breadcrumb generado y lo muestra */}
       {breadcrumb.map((item, index) => (
         <span key={index} className="breadcrumb">
-          {/* Si es la ruta actual, muestra el nombre en texto plano */}
+          {/** Si es la ruta actual, muestra el nombre en texto plano */}
           {location.pathname === item.path ? (
             <span>{item.name}</span>
           ) : (

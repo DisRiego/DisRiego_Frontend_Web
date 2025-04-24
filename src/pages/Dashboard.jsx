@@ -3,8 +3,6 @@ import { useParams, useLocation } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import Navegation from "../components/dashboard/reusable/Navegation";
 import Notification from "../components/dashboard/Notification";
-import Fault_report from "../components/dashboard/Fault_report";
-import Invoice_detail from "../components/dashboard/details/Invoice_detail";
 import Property from "../components/dashboard/Property";
 import Property_user from "../components/dashboard/Property_user";
 import Property_detail from "../components/dashboard/details/Property_detail";
@@ -23,6 +21,9 @@ import Device_detail from "../components/dashboard/details/Device_detail";
 import Profile from "../components/dashboard/Profile";
 import Request from "../components/dashboard/Request";
 import Request_detail from "../components/dashboard/details/Request_detail";
+import Fault_report from "../components/dashboard/Fault_report";
+import Fault_report_detail from "../components/dashboard/details/Fault_report_detail";
+import System_fault from "../components/dashboard/System_fault";
 
 const Dashboard = () => {
   const { id } = useParams();
@@ -89,8 +90,12 @@ const Dashboard = () => {
         return <Device />;
       case `device/${id}`:
         return <Device_detail />;
+      case "system":
+        return <System_fault />;
       case "report":
         return <Fault_report />;
+      case `report/${id}`:
+        return <Fault_report_detail />;
       case "company":
         return <Company_data />;
       case `certificate`:

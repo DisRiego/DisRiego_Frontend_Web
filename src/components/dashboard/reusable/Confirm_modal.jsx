@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 
-/*
+/**
   Componente Confirm_modal:
   Muestra una ventana de confirmación antes de ejecutar una acción para luego enviar los datos al backend.
 
@@ -46,7 +46,7 @@ const Confirm_modal = ({
 }) => {
   const [isProcessing, setIsProcessing] = useState(false); // Evita repetir la acción mientras está en proceso
 
-  /*
+  /**
     Ejecuta la solicitud al backend cuando el usuario hace clic en "Sí, confirmar".
     Muestra mensajes de éxito o error según el resultado.
   */
@@ -87,6 +87,7 @@ const Confirm_modal = ({
       onSuccess?.(); // Cierra la ventana de confirmación
       updateData?.(); // Refresca la información si se pasó esta función
     } catch (error) {
+      console.log(error);
       // Muestra el mensaje de error
       const errorMsg = feedbackMessages?.[typeForm]?.errorTitle || "Error";
       const errorText =
@@ -109,13 +110,13 @@ const Confirm_modal = ({
         className="modal-background"
         onClick={!isProcessing ? onClose : undefined}
       ></div>
-      {/* Cuerpo principal del modal */}
+      {/** Cuerpo principal del modal */}
       <div className="modal-card p-5">
         <div className="modal-confirm modal-card-body">
           <p className="title has-text-centered is-5">
             ¿Está seguro de realizar la siguiente acción?
           </p>
-          {/* Mensaje personalizado, con soporte para saltos de línea */}
+          {/** Mensaje personalizado, con soporte para saltos de línea */}
           <p className="text-confirm has-text-centered mt-2">
             {confirMessage.split("\n").map((line, index) => (
               <React.Fragment key={index}>
@@ -124,17 +125,17 @@ const Confirm_modal = ({
               </React.Fragment>
             ))}
           </p>
-          {/* Botones de acción */}
+          {/** Botones de acción */}
           <div className="buttons is-centered mt-4">
             <div className="buttons">
-              {/* Botón para cancelar */}
+              {/** Botón para cancelar */}
               <button
                 className="button is-danger"
                 onClick={!isProcessing ? onClose : undefined}
               >
                 No, cancelar
               </button>
-              {/* Botón para confirmar la acción */}
+              {/** Botón para confirmar la acción */}
               <button
                 className={"button is-primary color-hover " + loading}
                 onClick={handleConfirm}

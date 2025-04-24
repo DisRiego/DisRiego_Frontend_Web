@@ -66,7 +66,7 @@ const Form_aperture = ({
   const feedbackMessages = {
     create: {
       successTitle: "Solicitud creada exitosamente",
-      successMessage: "La solicitud ha sido creado correctamente.",
+      successMessage: "La solicitud ha sido creada correctamente.",
       errorTitle: "Error al crear la solicitud",
       errorMessage:
         "No se pudo crear la solicitud. Por favor, inténtelo de nuevo.",

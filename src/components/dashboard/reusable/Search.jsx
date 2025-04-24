@@ -1,6 +1,6 @@
 import { IoSearch } from "react-icons/io5";
 
-/*
+/**
   Componente Search:
   Muestra un campo de búsqueda con ícono y envía el texto al escribir.
 
@@ -8,7 +8,7 @@ import { IoSearch } from "react-icons/io5";
   @param {boolean} buttonDisabled - Si es true, desactiva el campo de búsqueda.
 */
 const Search = ({ onSearch, buttonDisabled }) => {
-  /*
+  /**
     Esta función se ejecuta cada vez que el usuario escribe en el input.
     Toma el valor del input y lo envía a la función onSearch.
   */

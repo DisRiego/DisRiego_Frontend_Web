@@ -319,7 +319,7 @@ const Property_user = () => {
 
   const columns = [
     "ID",
-    // "ID del predio",
+    "ID del predio",
     "Nombre",
     // "Número de documento del dueño",
     "Folio de matricula inmobiliaria",
@@ -346,7 +346,7 @@ const Property_user = () => {
       );
       setData(response.data.data);
 
-      const sortedData = response.data.data.sort((a, b) => a.id - b.id);
+      const sortedData = response.data.data.sort((a, b) => b.id - a.id);
       console.log(sortedData);
 
       setData(sortedData);
@@ -388,7 +388,7 @@ const Property_user = () => {
         )
         .map((info) => ({
           ID: info.id,
-          // "ID del predio": info.id,
+          "ID del predio": info.id,
           Nombre: toTitleCase(info.name),
           // "Número de documento del dueño": info.owner_document_number,
           "Folio de matricula inmobiliaria":

@@ -12,6 +12,8 @@ import { LuUsersRound } from "react-icons/lu";
 import { IoHomeOutline } from "react-icons/io5";
 import { CgProfile } from "react-icons/cg";
 import { TbServerBolt } from "react-icons/tb";
+import { TbSettings } from "react-icons/tb";
+import { FiSettings } from "react-icons/fi";
 import { jwtDecode } from "jwt-decode";
 
 const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
@@ -122,6 +124,28 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
       icon: <TbServerBolt />,
       label: "Gestión de dispositivos",
     },
+    {
+      permission: [
+        "Ver todos los fallos autogenerados por el sistema",
+        "Ver todos los fallos autogenerados asignados a un técnico",
+        "Ver todos los reportes de fallo",
+        "Ver todos los reportes de fallos asignados a un técnico",
+      ],
+      path: "/dashboard/system",
+      selectoption: "system",
+      icon: <FiSettings />,
+      label: "Gest. mantenimientos",
+    },
+    {
+      permission: [
+        "Ver todos los fallos autogenerados para un usuario",
+        "Ver todos los reportes de fallos para un usuario",
+      ],
+      path: "/dashboard/system",
+      selectoption: "system",
+      icon: <FiSettings />,
+      label: "Mis fallos y reportes",
+    },
   ];
 
   const optionsFiltered = optionsMenu.filter((option) => {
@@ -143,6 +167,9 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
 
     const notificationdOptions = ["notification", "request"];
     if (notificationdOptions.includes(selectedOption)) return "notification";
+
+    const maintenanceOptions = ["system", "report"];
+    if (maintenanceOptions.includes(selectedOption)) return "system";
 
     const propertyRegex = /^\/dashboard\/property(\/\d+)?(\/lot\/\d+)?$/;
     if (propertyRegex.test(pathname)) return "property";

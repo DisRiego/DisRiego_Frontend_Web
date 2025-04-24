@@ -1,6 +1,6 @@
 import { IoMdArrowRoundBack } from "react-icons/io";
 
-/*
+/**
   Componente Pagination:
   Muestra botones para moverse entre páginas de datos.
 
@@ -18,7 +18,7 @@ const Pagination = ({
   // Se calcula el total de páginas dividiendo los elementos por página
   const totalPages = Math.ceil(totalItems / itemsPerPage);
 
-  /*
+  /**
     Función que va a la página anterior si no estamos en la primera.
   */
   const handlePrevious = () => {
@@ -27,7 +27,7 @@ const Pagination = ({
     }
   };
 
-  /*
+  /**
     Función que va a la página siguiente si no estamos en la última.
   */
   const handleNext = () => {
@@ -36,7 +36,7 @@ const Pagination = ({
     }
   };
 
-  /*
+  /**
     Función que permite cambiar directamente a una página específica.
   */
   const handlePageClick = (page) => {
@@ -50,7 +50,7 @@ const Pagination = ({
         role="navigation"
         aria-label="pagination"
       >
-        {/* Botón para ir a la página anterior */}
+        {/** Botón para ir a la página anterior */}
         <button
           className="pagination-previous"
           onClick={handlePrevious}
@@ -61,7 +61,7 @@ const Pagination = ({
           </span>
           <span>Atrás</span>
         </button>
-        {/* Lista de botones para cada página */}
+        {/** Lista de botones para cada página */}
         <ul className="pagination-list">
           {Array.from({ length: totalPages }, (_, index) => (
             <li key={index}>
@@ -78,7 +78,7 @@ const Pagination = ({
             </li>
           ))}
         </ul>
-        {/* Botón para ir a la página siguiente */}
+        {/** Botón para ir a la página siguiente */}
         <button
           className="pagination-next"
           onClick={handleNext}

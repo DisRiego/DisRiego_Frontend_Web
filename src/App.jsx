@@ -27,7 +27,7 @@ function AppContent() {
         <Route path="/login/update-info" element={<Update_info />} />
 
         <Route element={<ProtectedRoute />}>
-          <Route path="/dashboard" element={<Dashboard />} />
+          {/* <Route path="/dashboard" element={<Dashboard />} /> */}
           <Route path="/dashboard/:id" element={<Dashboard />} />
           <Route path="/dashboard/company/:id" element={<Dashboard />} />
           <Route path="/dashboard/request/:id" element={<Dashboard />} />
@@ -36,6 +36,7 @@ function AppContent() {
           <Route path="/dashboard/property/:id" element={<Dashboard />} />
           <Route path="/dashboard/properties/:id" element={<Dashboard />} />
           <Route path="/dashboard/device/:id" element={<Dashboard />} />
+          <Route path="/dashboard/maintenance/:id" element={<Dashboard />} />
           <Route
             path="/dashboard/property/:id/lot/:id/device/:id"
             element={<Dashboard />}
@@ -51,7 +52,15 @@ function AppContent() {
           <Route
             path="/dashboard/properties/:id/lot/:id/device/:id"
             element={<Dashboard />}
-          />{" "}
+          />
+          <Route
+            path="/dashboard/maintenance/system/:id"
+            element={<Dashboard />}
+          />
+          <Route
+            path="/dashboard/maintenance/report/:id"
+            element={<Dashboard />}
+          />
         </Route>
 
         <Route path="/dashboard/report/:id" element={<Dashboard />} />

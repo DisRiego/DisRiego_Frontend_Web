@@ -79,15 +79,14 @@ const Notification = () => {
   const feedbackMessages = {
     read: {
       successTitle: "Notificación marcada como leída exitosamente",
-      successMessage: "Se ha marcado como leída la notificación correctamente.",
+      successMessage: "Se ha marcado como leída la notificación.",
       errorTitle: "Error al marcar como leída la notificación",
       errorMessage:
         "No se pudo marcar como leída la notificación. Por favor, inténtelo de nuevo.",
     },
     read_all: {
       successTitle: "Notificaciones marcadas como leídas exitosamente",
-      successMessage:
-        "Se han marcado como leídas todas las notificaciones correctamente.",
+      successMessage: "Se han marcado como leídas todas las notificaciones.",
       errorTitle: "Error al marcar como leídas las notificaciones",
       errorMessage:
         "No se pudo marcar como leídas las notificaciones. Por favor, inténtelo de nuevo.",

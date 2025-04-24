@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 
-/*
+/**
   Componente Tab:
   Muestra una lista de pestañas (tabs) que pueden usarse mediante navegación de enlaces o para ejecutar funciones.
 
@@ -23,12 +23,12 @@ const Tab = ({ tabs = [], activeTab, setActiveTab, useLinks = false }) => {
           return (
             <li key={tab.key} className={isActive ? "is-active" : ""}>
               {useLinks ? (
-                /*
+                /**
                   Si se utiliza navegación mediante enlaces, muestra un <Link> para cambiar de ruta.
                 */
                 <Link to={tab.path}>{tab.label}</Link>
               ) : (
-                /*
+                /**
                   Si no se utiliza navegación mediante enlaces, 
                   cambia el tab para que se ejecuten funciones al hacer clic.
                 */

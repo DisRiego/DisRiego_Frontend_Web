@@ -1,8 +1,8 @@
 const Names_navegation = {
     "report": {
-      name: "Reporte de fallos",
+      name: "Gestión de mantenimiento",
       submodules: {
-        "detail": "Detalles del reporte #",
+        "detail": "Detalles del reporte de fallo #",
       },
     },
     "property": {

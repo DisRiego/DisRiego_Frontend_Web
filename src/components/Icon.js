@@ -11,7 +11,8 @@ import { TbMap2 } from "react-icons/tb";
 import { TbMapSearch } from "react-icons/tb";
 import { FaDoorOpen } from "react-icons/fa";
 import { FaDoorClosed } from "react-icons/fa";
-
+import { TbUserPlus } from "react-icons/tb";
+import { LuUserSearch } from "react-icons/lu";
 
 const Icon = {
   MdDownloadDone,
@@ -27,7 +28,9 @@ const Icon = {
   TbMap2,
   TbMapSearch,
   FaDoorOpen,
-  FaDoorClosed
+  FaDoorClosed,
+  TbUserPlus,
+  LuUserSearch
 };
 
 export default Icon;

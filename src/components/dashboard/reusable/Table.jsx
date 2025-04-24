@@ -11,7 +11,7 @@ const OptionsButton = ({ onClick }) => (
   </button>
 );
 
-/*
+/**
   Componente Table:
   Muestra una tabla dinámica con opciones según el modulo en donde se encuentra (roles, usuarios, dispositivos, etc).
 
@@ -57,7 +57,7 @@ const Table = ({
   const menuRefs = useRef({}); // Referencias para detectar clics fuera
   const [dots, setDots] = useState(""); // puntos de carga animados (...)
 
-  /*
+  /**
     Muestra puntos de carga animados mientras loadingTable está activo.
   */
   useEffect(() => {
@@ -74,7 +74,7 @@ const Table = ({
     };
   }, [loadingTable]);
 
-  /*
+  /**
     Cierra el menú de opciones si se hace clic fuera del componente.
   */
   useEffect(() => {
@@ -95,14 +95,14 @@ const Table = ({
     };
   }, []);
 
-  /*
+  /**
     Cambia la fila activa al hacer clic en el botón de opciones.
   */
   const handleClick = (rowIndex) => {
     setActiveRow((prevRow) => (prevRow === rowIndex ? null : rowIndex));
   };
 
-  /*
+  /**
     Maneja la lógica de cada opción según el modulo actual.
     Además, permite navegar, abrir modales o establecer mensajes según el caso.
   */
@@ -308,9 +308,16 @@ const Table = ({
       setTitle("Denegar solicitud");
       setShowFormReject(true);
     }
+
+    //Reportes de fallos
+    //Dispositivos
+    if (id === "report" && option.name === "Asignar responsable") {
+      setTitle("Asignar responsable");
+      setShowAssign(true);
+    }
   };
 
-  /*
+  /**
     Normaliza el estado de algunos dispositivos para mostrar en formato legible.
   */
   const getNormalizedStatus = (status) => {
@@ -328,7 +335,7 @@ const Table = ({
     <div className="table-container">
       <table className="table is-fullwidth is-striped is-hoverable">
         <thead>
-          {/* Muestra todas las columnas excepto la que tenga el nombre "ID" */}
+          {/** Muestra todas las columnas excepto la que tenga el nombre "ID" */}
           <tr>
             {columns
               .filter((column) => column !== "ID")
@@ -365,7 +372,7 @@ const Table = ({
                   .map((column, colIndex) => (
                     <td key={`${rowIndex}-${colIndex}`}>
                       {column === "Permisos" ? (
-                        /*
+                        /**
                           Si la columna es "Permisos", se muestran hasta 4 permisos,
                           luego un contador indicando cuántos más hay.
                         */
@@ -397,7 +404,7 @@ const Table = ({
                           );
                         })()
                       ) : column === "Opciones" ? (
-                        /*
+                        /**
                           Si la columna es "Opciones", se muestra un botón con menú desplegable
                           con acciones específicas para ese modulo (las opciones pueden variar según la fila).
                         */
@@ -473,7 +480,7 @@ const Table = ({
                                           return false; // ya está asignado, no muestres Asignar
                                         }
 
-                                        // Mostrar solo "Reasignar" si sí hay ID Lote
+                                        // Mostrar solo "Reasignar" si hay ID Lote
                                         const statesAllowingReassign = [
                                           "No Operativo",
                                         ];
@@ -511,6 +518,43 @@ const Table = ({
                                           const allowedStates = [
                                             "Pendiente",
                                             // "Aprobada",
+                                          ];
+                                          if (
+                                            !allowedStates.includes(
+                                              row["Estado"]
+                                            )
+                                          )
+                                            return false;
+                                        }
+
+                                        if (
+                                          option.name ===
+                                            "Asignar responsable" &&
+                                          row["Responsable del mantenimiento"]
+                                        ) {
+                                          return false; // ya está asignado, no muestres Asignar
+                                        }
+
+                                        const statesAllowingReassignFault = [
+                                          "En mantenimiento",
+                                        ];
+                                        if (
+                                          option.name ===
+                                            "Reasignar responsable" &&
+                                          !statesAllowingReassignFault.includes(
+                                            row["Estado"]
+                                          )
+                                        ) {
+                                          return false;
+                                        }
+
+                                        if (
+                                          option.name ===
+                                          "Finalizar mantenimiento"
+                                        ) {
+                                          const allowedStates = [
+                                            "En mantenimiento",
+                                            // "Rechazada",
                                           ];
                                           if (
                                             !allowedStates.includes(

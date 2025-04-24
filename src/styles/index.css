@@ -568,6 +568,7 @@ form > .button-login {
 
 .navigation {
   margin-bottom: 1em;
+  overflow: auto;
 }
 
 tbody > tr > .loader-cell {
@@ -1209,14 +1210,17 @@ td > td.status-fallo-detectado,
 td > td.status-en-mantenimiento,
 td > td.status-en-espera,
 td > td.status-aprobada,
-td > td.status-rechazada {
+td > td.status-rechazada,
+td > td.status-sin-asignar,
+td > td.status-finalizado {
   padding: 0em;
   border-bottom: none;
 }
 
 .button.status-activo,
 .button.status-operativo,
-.button.status-aprobada {
+.button.status-aprobada,
+.button.status-finalizado {
   width: 100%;
   pointer-events: none;
   cursor: text;
@@ -1271,7 +1275,8 @@ td > td.status-rechazada {
   border-radius: 2em;
 }
 
-.button.status-sin-instalar {
+.button.status-sin-instalar,
+.button.status-sin-asignar {
   width: 100%;
   pointer-events: none;
   cursor: text;
@@ -1341,7 +1346,8 @@ td > td.status-rechazada {
   }
   .button.status-activo,
   .button.status-operativo,
-  .button.status-aprobada {
+  .button.status-aprobada,
+  .button.status-finalizado {
     background-color: transparent;
     color: #b3ff9e;
     border-color: #b3ff9e;
@@ -1381,7 +1387,8 @@ td > td.status-rechazada {
     opacity: 0.8;
   }
 
-  .button.status-sin-instalar {
+  .button.status-sin-instalar,
+  .button.status-sin-asignar {
     background-color: transparent;
     color: #76a4ff;
     border-color: #76a4ff;
