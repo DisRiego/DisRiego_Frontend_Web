@@ -162,9 +162,6 @@ const Lot_detail = () => {
 
   const valveButtonData = getValveButtonData();
 
-  console.log(statusValve);
-  console.log(statusRequest);
-
   const head_data = {
     title: "Detalles del lote #" + id,
     description:
@@ -641,9 +638,6 @@ const Lot_detail = () => {
       setIsValveStatusLoaded(true);
     }
   };
-
-  console.log(statusValve);
-  console.log(statusRequest);
 
   const updateData = async () => {
     getDevicesByLot();
