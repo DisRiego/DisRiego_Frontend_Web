@@ -37,7 +37,6 @@ ChartJS.register(
   Legend
 );
 import { IoDocument } from "react-icons/io5";
-import { jwtDecode } from "jwt-decode";
 
 const Property_detail = () => {
   const { id } = useParams();
@@ -49,6 +48,7 @@ const Property_detail = () => {
   const [dataUser, setDataUser] = useState("");
   const [dataLots, setDataLots] = useState([]);
   const [loading, setLoading] = useState("");
+  const [loadingReport, setLoadingReport] = useState("");
   const [dots, setDots] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [showEdit, setShowEdit] = useState();
@@ -67,7 +67,7 @@ const Property_detail = () => {
   const [title, setTitle] = useState();
   const [confirMessage, setConfirMessage] = useState();
   const [typeForm, setTypeForm] = useState();
-  const [canCreateLote, setCanCreateLote] = useState(false);
+  const [buttonDisabled, setButtonDisabled] = useState(true);
 
   const {
     permissions: permissionsUser,
@@ -75,6 +75,17 @@ const Property_detail = () => {
     decodedToken,
   } = useUserPermissions();
   const hasPermission = (permission) => permissionsUser.includes(permission);
+
+  const api_key = import.meta.env.VITE_API_KEY;
+
+  const toTitleCase = (str) => {
+    if (typeof str !== "string") return str;
+    return str
+      .toLowerCase()
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  };
 
   useEffect(() => {
     if (!isNaN(id)) {
@@ -110,14 +121,64 @@ const Property_detail = () => {
     },
   };
 
-  const handleButtonClick = (buttonText) => {
+  const handleButtonClick = async (buttonText) => {
     if (buttonText === "Añadir lote") {
       setShowForm(true);
     }
 
     if (buttonText === "Descargar reporte") {
-      setLoading("is-loading");
-      generateReport(data, dataUser, dataLots, id, () => setLoading(""));
+      try {
+        setLoadingReport("is-loading");
+
+        // 1. Obtener datos de empresa y ubicación
+        const response = await axios.get(
+          import.meta.env.VITE_URI_BACKEND +
+            import.meta.env.VITE_ROUTE_BACKEND_COMPANY
+        );
+        const companyData = response.data.data;
+
+        const locationData = await fetchLocationNames(
+          companyData.country,
+          companyData.state,
+          companyData.city
+        );
+
+        const response_2 = await axios.get(
+          import.meta.env.VITE_URI_BACKEND +
+            import.meta.env.VITE_ROUTE_BACKEND_USERS +
+            decodedToken.id
+        );
+        const userData = response_2.data.data[0];
+
+        const locationUser = await fetchLocationNames(
+          dataUser.country,
+          dataUser.department,
+          dataUser.city
+        );
+
+        // 3. Generar reporte con los datos obtenidos
+        generateReport(
+          data,
+          () => setLoadingReport(""),
+          dataUser,
+          dataLots,
+          id,
+          companyData,
+          locationData,
+          userData,
+          toTitleCase,
+          locationUser
+        );
+      } catch (error) {
+        setTitleMessage?.("Error al generar el reporte");
+        setMessage?.(
+          `No se pudo generar el reporte debido a un problema con el servidor.
+          \n Por favor, Inténtelo de nuevo más tarde.`
+        );
+        setStatus?.("is-false");
+        setShowMessage?.(true);
+        setLoadingReport("");
+      }
     }
   };
 
@@ -519,7 +580,7 @@ const Property_detail = () => {
       // const sortedData = response.data.data.sort((a, b) => a.name - b.name);
 
       setDataLots(sortedData);
-      // setButtonDisabled(false);
+      setButtonDisabled(false);
     } catch (error) {
       console.error("Error al obtener los lotes:", error);
     } finally {
@@ -530,6 +591,44 @@ const Property_detail = () => {
 
   const updateData = async () => {
     fetchLots();
+  };
+
+  const fetchLocationNames = async (countryCode, stateCode, cityId) => {
+    try {
+      const BASE_URL = "https://api.countrystatecity.in/v1";
+
+      const [countryRes, stateRes, cityRes] = await Promise.all([
+        axios.get(`${BASE_URL}/countries/${countryCode}`, {
+          headers: { "X-CSCAPI-KEY": api_key },
+        }),
+        axios.get(`${BASE_URL}/countries/${countryCode}/states/${stateCode}`, {
+          headers: { "X-CSCAPI-KEY": api_key },
+        }),
+        axios.get(
+          `${BASE_URL}/countries/${countryCode}/states/${stateCode}/cities`,
+          {
+            headers: { "X-CSCAPI-KEY": api_key },
+          }
+        ),
+      ]);
+
+      const cityName =
+        cityRes.data.find((city) => city.id === parseInt(cityId))?.name ||
+        "Desconocido";
+
+      return {
+        country: countryRes.data.name,
+        state: stateRes.data.name,
+        city: cityName,
+      };
+    } catch (error) {
+      console.error("Error al obtener nombres de ubicación:", error);
+      return {
+        country: "Desconocido",
+        state: "Desconocido",
+        city: "Desconocido",
+      };
+    }
   };
 
   const handleTabChange = (tab) => setActiveOption(tab);
@@ -563,7 +662,8 @@ const Property_detail = () => {
       <Head
         head_data={head_data}
         onButtonClick={handleButtonClick}
-        loading={loading}
+        loading={loadingReport}
+        buttonDisabled={buttonDisabled}
       />
       {isLoading ? (
         <div className="rol-detail">
@@ -724,8 +824,17 @@ const Property_detail = () => {
                     <strong> Nombre del cliente</strong>
                   </div>
                   <div className="column is-half column-p0">
-                    {dataUser.name || ""} {dataUser.first_last_name || ""}{" "}
-                    {dataUser.second_last_name || ""}
+                    {(() => {
+                      const fullName = [
+                        dataUser?.name,
+                        dataUser?.first_last_name,
+                        dataUser?.second_last_name,
+                      ]
+                        .filter(Boolean) // elimina null, undefined y strings vacíos
+                        .join(" ");
+
+                      return fullName ? toTitleCase(fullName) : ""; // si no hay nombre, no muestra nada
+                    })()}
                   </div>
                 </div>
                 <div className="columns is-multiline is-mobile">
@@ -944,8 +1053,19 @@ const Property_detail = () => {
 
 export default Property_detail;
 
-const generateReport = (data, dataUser, dataLots, id, onFinish) => {
-  const doc = new jsPDF();
+const generateReport = (
+  data,
+  onFinish,
+  dataUser,
+  dataLots,
+  id,
+  companyData,
+  locationNames,
+  userData,
+  toTitleCase,
+  locationUser
+) => {
+  const doc = new jsPDF("landscape");
 
   // Usar los datos del predio y los lotes obtenidos de la BD
   // en lugar de currentProperty y lotsForProperty
@@ -955,11 +1075,11 @@ const generateReport = (data, dataUser, dataLots, id, onFinish) => {
   doc.addFont(RobotoBoldFont, "Roboto", "bold");
 
   // Colorear fondo
-  doc.setFillColor(243, 242, 247);
-  doc.rect(0, 0, 210, 53, "F"); // colorear una parte de la pagina
+  doc.setFillColor(243, 242, 247); // Azul claro
+  doc.rect(0, 0, 300, 53, "F"); // colorear una parte de la pagina
 
   // Agregar logo
-  doc.addImage(Icon, "PNG", 156, 10, 39, 11);
+  doc.addImage(Icon, "PNG", 246, 10, 39, 11);
   doc.setTextColor(0, 0, 0);
   doc.setFontSize(17);
   doc.setFont("Roboto", "bold");
@@ -968,7 +1088,7 @@ const generateReport = (data, dataUser, dataLots, id, onFinish) => {
   doc.text(`Fecha de generación:`, 12, 27);
   doc.text(`Generado por:`, 12, 39);
   doc.text("Datos del dueño", 12, 63);
-  doc.text("Datos del predio", 12, 100);
+  doc.text("Datos del predio", 12, 87);
 
   doc.setTextColor(94, 100, 112);
   doc.setFont("Roboto", "normal");
@@ -976,61 +1096,75 @@ const generateReport = (data, dataUser, dataLots, id, onFinish) => {
   doc.text(`${new Date().toLocaleString()}`, 12, 32);
 
   // Obtener información del usuario que genera el reporte (si está disponible)
-  const userInfo = localStorage.getItem("userInfo");
-  let userName = "[Nombre del usuario]";
-  if (userInfo) {
-    try {
-      const parsedUserInfo = JSON.parse(userInfo);
-      userName = parsedUserInfo.name || "[Nombre del usuario]";
-    } catch (error) {
-      console.error("Error al parsear userInfo:", error);
-    }
-  }
+  doc.text(
+    [userData?.name, userData?.first_last_name, userData?.second_last_name]
+      .filter(Boolean) // Elimina null, undefined y strings vacíos
+      .join(" "),
+    12,
+    44
+  );
+  doc.setTextColor(0, 0, 0);
+  doc.setFontSize(10);
+  doc.setFont("Roboto", "bold");
+  doc.text(`Dirección de la empresa:`, 285, 27, { align: "right" });
+  doc.text(`Correo electrónico de la empresa:`, 285, 39, { align: "right" });
 
-  doc.text(`${userName}`, 12, 44);
-  doc.setFontSize(11);
-  doc.text(`[Dirección de la empresa]`, 194, 27, { align: "right" });
-  doc.text(`[Ciudad, Dept. País]`, 194, 33, { align: "right" });
-  doc.text(`[Teléfono]`, 194, 39, { align: "right" });
+  doc.setTextColor(94, 100, 112);
+  doc.setFont("Roboto", "normal");
+  doc.setFontSize(10);
+  doc.text(
+    `${companyData.address}. ${locationNames.state}, ${locationNames.city}`,
+    285,
+    32,
+    { align: "right" }
+  );
 
+  doc.text(`${companyData.email}`, 285, 44, { align: "right" });
+
+  doc.setFont("Roboto", "bold");
   doc.setFontSize(10);
   doc.text("Nombre completo", 12, 70);
-  doc.text("Número de documento", 110, 70);
-  doc.text("Dirección de correspondencia", 12, 82);
-  doc.text("Teléfono", 110, 82);
+  doc.text("Número de documento", 90, 70);
+  doc.text("Dirección de correspondencia", 180, 70);
+  doc.text("Teléfono", 285, 70, { align: "right" });
 
   // Usar los datos del usuario obtenidos de la BD
-  const ownerName = dataUser
-    ? `${dataUser.name || ""} ${dataUser.first_last_name || ""} ${
-        dataUser.second_last_name || ""
-      }`
-    : "[NOMBRE]";
 
-  const documentInfo = dataUser
-    ? `${dataUser.type_document_name || ""} ${dataUser.document_number || ""}`
-    : "[No. documento]";
+  const nameUser = [
+    dataUser?.name +
+      " " +
+      dataUser?.first_last_name +
+      " " +
+      dataUser?.second_last_name,
+  ]
+    .filter(Boolean) // Elimina null, undefined y strings vacíos
+    .join(" ");
 
-  const phoneInfo = dataUser ? dataUser.phone || "[TELEFONO]" : "[TELEFONO]";
-
-  doc.text(ownerName.trim(), 12, 75);
-  doc.text(documentInfo.trim(), 110, 75);
-  doc.text("[DIRECCION]", 12, 87); // Añadir dirección si está disponible en dataUser
-  doc.text(phoneInfo, 110, 87);
-
-  const toTitleCase = (str) => {
-    if (typeof str !== "string") return str;
-    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
-  };
+  doc.setFont("Roboto", "normal");
+  doc.text(toTitleCase(nameUser), 12, 75);
+  doc.text(
+    `${dataUser.type_document_name}. ${dataUser.document_number}`,
+    90,
+    75
+  );
+  doc.text(
+    `${toTitleCase(dataUser?.address)}. ${locationUser?.state}, ${
+      locationUser?.city
+    }`,
+    180,
+    75
+  ); // Añadir dirección si está disponible en dataUser
+  doc.text(`${dataUser.phone}`, 285, 75, { align: "right" });
 
   // Tabla con los datos del predio
   autoTable(doc, {
-    startY: 105,
+    startY: 92,
     margin: { left: 12, right: 12 },
     head: [
       [
         "ID",
         "Nombre del predio",
-        "Folio matrícula inmobiliaria",
+        "Folio de matrícula inmobiliaria",
         "Extensión",
         "Latitud",
         "Longitud",
@@ -1058,11 +1192,11 @@ const generateReport = (data, dataUser, dataLots, id, onFinish) => {
     },
     bodyStyles: {
       textColor: [89, 89, 89],
-      fontSize: 9,
-      cellPadding: 4,
+      fontSize: 10,
+      cellPadding: 2,
     },
     styles: {
-      fontSize: 9,
+      fontSize: 10,
       font: "Roboto",
       lineColor: [226, 232, 240],
     },
@@ -1074,22 +1208,28 @@ const generateReport = (data, dataUser, dataLots, id, onFinish) => {
   doc.setFontSize(11);
   doc.setFont("Roboto", "bold");
   doc.setTextColor(0, 0, 0);
-  doc.text(`Lotes Asociados al predio [${id}]`, 14, currentY);
+  doc.text(`Lotes asociados al Predio #${id}`, 12, currentY);
+
+  doc.setFont("Roboto", "normal");
+  doc.setFontSize(10);
+  doc.setTextColor(94, 100, 112);
+  doc.text(`Cantidad de lotes: ${dataLots.length}`, 12, currentY + 5);
 
   // Tabla de lotes asociados usando dataLots
   autoTable(doc, {
-    startY: currentY + 5,
+    startY: currentY + 10,
     margin: { left: 12, right: 12 },
     head: [
       [
         "ID",
         "Nombre del lote",
-        "Folio matrícula inmobiliaria",
+        "Folio de matrícula inmobiliaria",
         "Extensión",
         "Latitud",
         "Longitud",
         "Tipo de cultivo",
         "Intervalo de pago",
+        "Fecha estimada de mantenimiento",
       ],
     ],
     body: dataLots.map((lot) => [
@@ -1101,6 +1241,7 @@ const generateReport = (data, dataUser, dataLots, id, onFinish) => {
       lot.longitude || "",
       toTitleCase(lot.nombre_tipo_cultivo) || "[]",
       lot.payment_interval || "[]",
+      lot.estimated_harvest_date || "[]",
     ]),
     theme: "grid",
     headStyles: {
@@ -1112,18 +1253,18 @@ const generateReport = (data, dataUser, dataLots, id, onFinish) => {
     },
     bodyStyles: {
       textColor: [89, 89, 89],
-      fontSize: 9,
-      cellPadding: 4,
+      fontSize: 10,
+      cellPadding: 2,
     },
     styles: {
-      fontSize: 9,
+      fontSize: 10,
       font: "Roboto",
       lineColor: [226, 232, 240],
     },
   });
 
   // Pie de página
-  doc.addImage(Icon, "PNG", 12, 280, 32, 9);
+  doc.addImage(Icon, "PNG", 12, 190, 32, 9);
 
   const pageCount = doc.internal.getNumberOfPages();
   for (let i = 1; i <= pageCount; i++) {

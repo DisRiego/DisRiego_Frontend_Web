@@ -27,6 +27,7 @@ const User = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   const [loading, setLoading] = useState("");
+  const [loadingReport, setLoadingReport] = useState("");
   const [loadingTable, setLoadingTable] = useState(false);
   const [showMessage, setShowMessage] = useState(false);
   const [titleMessage, setTitleMessage] = useState(false);
@@ -53,15 +54,56 @@ const User = () => {
   } = useUserPermissions();
   const hasPermission = (permission) => permissionsUser.includes(permission);
 
-  const handleButtonClick = (buttonText) => {
+  const api_key = import.meta.env.VITE_API_KEY;
+
+  const handleButtonClick = async (buttonText) => {
     if (buttonText === "Añadir usuario") {
       setShowForm(true);
     }
 
-    //Aqui es donde se debe implementar la funcionalidad del reporte
     if (buttonText === "Descargar reporte") {
-      setLoading("is-loading");
-      generateUserReport(data, filteredData, toTitleCase, () => setLoading(""));
+      try {
+        setLoadingReport("is-loading");
+
+        // 1. Obtener datos de empresa y ubicación
+        const response = await axios.get(
+          import.meta.env.VITE_URI_BACKEND +
+            import.meta.env.VITE_ROUTE_BACKEND_COMPANY
+        );
+        const companyData = response.data.data;
+
+        const locationData = await fetchLocationNames(
+          companyData.country,
+          companyData.state,
+          companyData.city
+        );
+
+        const response_2 = await axios.get(
+          import.meta.env.VITE_URI_BACKEND +
+            import.meta.env.VITE_ROUTE_BACKEND_USERS +
+            decodedToken.id
+        );
+        const userData = response_2.data.data[0];
+
+        // 3. Generar reporte con los datos obtenidos
+        generateReport(
+          filteredData,
+          toTitleCase,
+          () => setLoadingReport(""),
+          companyData,
+          locationData,
+          userDat
+        );
+      } catch (error) {
+        setTitleMessage?.("Error al generar el reporte");
+        setMessage?.(
+          `No se pudo generar el reporte debido a un problema con el servidor.
+          \n Por favor, Inténtelo de nuevo más tarde.`
+        );
+        setStatus?.("is-false");
+        setShowMessage?.(true);
+        setLoadingReport("");
+      }
     }
   };
 
@@ -138,7 +180,46 @@ const User = () => {
   };
 
   const updateData = async () => {
+    setButtonDisabled(true);
     fetchUsers();
+  };
+
+  const fetchLocationNames = async (countryCode, stateCode, cityId) => {
+    try {
+      const BASE_URL = "https://api.countrystatecity.in/v1";
+
+      const [countryRes, stateRes, cityRes] = await Promise.all([
+        axios.get(`${BASE_URL}/countries/${countryCode}`, {
+          headers: { "X-CSCAPI-KEY": api_key },
+        }),
+        axios.get(`${BASE_URL}/countries/${countryCode}/states/${stateCode}`, {
+          headers: { "X-CSCAPI-KEY": api_key },
+        }),
+        axios.get(
+          `${BASE_URL}/countries/${countryCode}/states/${stateCode}/cities`,
+          {
+            headers: { "X-CSCAPI-KEY": api_key },
+          }
+        ),
+      ]);
+
+      const cityName =
+        cityRes.data.find((city) => city.id === parseInt(cityId))?.name ||
+        "Desconocido";
+
+      return {
+        country: countryRes.data.name,
+        state: stateRes.data.name,
+        city: cityName,
+      };
+    } catch (error) {
+      console.error("Error al obtener nombres de ubicación:", error);
+      return {
+        country: "Desconocido",
+        state: "Desconocido",
+        city: "Desconocido",
+      };
+    }
   };
 
   useEffect(() => {
@@ -228,8 +309,8 @@ const User = () => {
       <Head
         head_data={head_data}
         onButtonClick={handleButtonClick}
-        loading={loading}
-        // buttonDisabled={buttonDisabled}
+        loading={loadingReport}
+        buttonDisabled={buttonDisabled}
       />
       <div className="container-search">
         <Search onSearch={setSearchTerm} buttonDisabled={buttonDisabled} />
@@ -335,7 +416,14 @@ const User = () => {
 
 export default User;
 
-const generateUserReport = (data, filteredData, toTitleCase, onFinish) => {
+const generateReport = (
+  filteredData,
+  toTitleCase,
+  onFinish,
+  companyData,
+  locationNames,
+  userData
+) => {
   const doc = new jsPDF("landscape");
 
   // Add Roboto font to the document
@@ -345,6 +433,7 @@ const generateUserReport = (data, filteredData, toTitleCase, onFinish) => {
   //colorear fondo
   doc.setFillColor(243, 242, 247); // Azul claro
   doc.rect(0, 0, 300, 53, "F"); // colorear una parte de la pagina
+
   // agregar logo (usando base 64 directamente sobre la importacion)
   doc.addImage(Icon, "PNG", 246, 10, 39, 11);
 
@@ -359,12 +448,31 @@ const generateUserReport = (data, filteredData, toTitleCase, onFinish) => {
   doc.setFont("Roboto", "normal");
   doc.setFontSize(10);
   doc.text(`${new Date().toLocaleString()}`, 12, 32);
-  doc.text(`[Nombre del usuario]`, 12, 44);
-  doc.setFontSize(11);
-  doc.text(`[Dirección de la empresa]`, 285, 27, { align: "right" });
-  doc.text(`[Ciudad, Dept. País]`, 285, 33, { align: "right" });
-  doc.text(`[Teléfono]`, 285, 39, { align: "right" });
-  doc.text(`Cantidad de usuarios: ${data.length}`, 12, 68);
+  doc.text(
+    [userData?.name, userData?.first_last_name, userData?.second_last_name]
+      .filter(Boolean) // Elimina null, undefined y strings vacíos
+      .join(" "),
+    12,
+    44
+  );
+  doc.setTextColor(0, 0, 0);
+  doc.setFontSize(10);
+  doc.setFont("Roboto", "bold");
+  doc.text(`Dirección de la empresa:`, 285, 27, { align: "right" });
+  doc.text(`Correo electrónico de la empresa:`, 285, 39, { align: "right" });
+
+  doc.setTextColor(94, 100, 112);
+  doc.setFont("Roboto", "normal");
+  doc.setFontSize(10);
+  doc.text(
+    `${companyData.address}. ${locationNames.state}, ${locationNames.city}`,
+    285,
+    32,
+    { align: "right" }
+  );
+
+  doc.text(`${companyData.email}`, 285, 44, { align: "right" });
+  doc.text(`Cantidad de usuarios: ${filteredData.length}`, 12, 68);
 
   // Agregar tabla con autoTable
   autoTable(doc, {
@@ -375,7 +483,7 @@ const generateUserReport = (data, filteredData, toTitleCase, onFinish) => {
         "Nombre",
         "Tipo de documento",
         "Numero de documento",
-        "Correo Electronico",
+        "Correo electrónico",
         "Número de Telefono",
         "Rol",
         "Estado",
@@ -401,7 +509,7 @@ const generateUserReport = (data, filteredData, toTitleCase, onFinish) => {
     },
     bodyStyles: { textColor: [89, 89, 89], font: "Roboto" },
     styles: {
-      fontSize: 9,
+      fontSize: 10,
       cellPadding: 3,
       lineColor: [234, 236, 240],
       font: "Roboto",
@@ -439,6 +547,5 @@ const generateUserReport = (data, filteredData, toTitleCase, onFinish) => {
   setTimeout(() => {
     window.open(pdfUrl, "_blank");
     onFinish();
-    setLoading("");
   }, 500);
 };

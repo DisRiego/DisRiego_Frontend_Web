@@ -62,6 +62,7 @@ const Device = () => {
       to: "",
     },
   });
+  const api_key = import.meta.env.VITE_API_KEY;
 
   const head_data = {
     title: "Gestión de dispositivos",
@@ -85,14 +86,59 @@ const Device = () => {
     },
   };
 
-  const handleButtonClick = (buttonText) => {
+  const toTitleCase = (str) => {
+    if (typeof str !== "string") return str; // Evita errores con números u otros tipos
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  };
+
+  const handleButtonClick = async (buttonText) => {
     if (buttonText === "Añadir dispositivo") {
       setShowForm(true);
     }
 
     if (buttonText === "Descargar reporte") {
-      setLoadingReport("is-loading");
-      generateReport(data, filteredData, () => setLoadingReport(""));
+      try {
+        setLoadingReport("is-loading");
+
+        // 1. Obtener datos de empresa y ubicación
+        const response = await axios.get(
+          import.meta.env.VITE_URI_BACKEND +
+            import.meta.env.VITE_ROUTE_BACKEND_COMPANY
+        );
+        const companyData = response.data.data;
+
+        const locationData = await fetchLocationNames(
+          companyData.country,
+          companyData.state,
+          companyData.city
+        );
+
+        const response_2 = await axios.get(
+          import.meta.env.VITE_URI_BACKEND +
+            import.meta.env.VITE_ROUTE_BACKEND_USERS +
+            decodedToken.id
+        );
+        const userData = response_2.data.data[0];
+
+        // 3. Generar reporte con los datos obtenidos
+        generateReport(
+          filteredData,
+          toTitleCase,
+          () => setLoadingReport(""),
+          companyData,
+          locationData,
+          userData
+        );
+      } catch (error) {
+        setTitleMessage?.("Error al generar el reporte");
+        setMessage?.(
+          `No se pudo generar el reporte debido a un problema con el servidor.
+          \n Por favor, Inténtelo de nuevo más tarde.`
+        );
+        setStatus?.("is-false");
+        setShowMessage?.(true);
+        setLoadingReport("");
+      }
     }
   };
 
@@ -217,6 +263,7 @@ const Device = () => {
   };
 
   const updateData = async () => {
+    setButtonDisabled(true);
     fetchDevices();
   };
 
@@ -229,6 +276,44 @@ const Device = () => {
       return () => clearTimeout(timer);
     }
   }, [showMessage]);
+
+  const fetchLocationNames = async (countryCode, stateCode, cityId) => {
+    try {
+      const BASE_URL = "https://api.countrystatecity.in/v1";
+
+      const [countryRes, stateRes, cityRes] = await Promise.all([
+        axios.get(`${BASE_URL}/countries/${countryCode}`, {
+          headers: { "X-CSCAPI-KEY": api_key },
+        }),
+        axios.get(`${BASE_URL}/countries/${countryCode}/states/${stateCode}`, {
+          headers: { "X-CSCAPI-KEY": api_key },
+        }),
+        axios.get(
+          `${BASE_URL}/countries/${countryCode}/states/${stateCode}/cities`,
+          {
+            headers: { "X-CSCAPI-KEY": api_key },
+          }
+        ),
+      ]);
+
+      const cityName =
+        cityRes.data.find((city) => city.id === parseInt(cityId))?.name ||
+        "Desconocido";
+
+      return {
+        country: countryRes.data.name,
+        state: stateRes.data.name,
+        city: cityName,
+      };
+    } catch (error) {
+      console.error("Error al obtener nombres de ubicación:", error);
+      return {
+        country: "Desconocido",
+        state: "Desconocido",
+        city: "Desconocido",
+      };
+    }
+  };
 
   useEffect(() => {
     if (!statusFilter) {
@@ -337,8 +422,9 @@ const Device = () => {
     <>
       <Head
         head_data={head_data}
-        loading={loadingReport}
         onButtonClick={handleButtonClick}
+        loading={loadingReport}
+        buttonDisabled={buttonDisabled}
       />
       <Tab tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab} />
       <div className="container-search">
@@ -467,7 +553,14 @@ const Device = () => {
 
 export default Device;
 
-const generateReport = (data, filteredData, onFinish) => {
+const generateReport = (
+  filteredData,
+  toTitleCase,
+  onFinish,
+  companyData,
+  locationNames,
+  userData
+) => {
   const doc = new jsPDF("landscape");
 
   // Añadir fuentes Roboto al documento
@@ -496,11 +589,32 @@ const generateReport = (data, filteredData, onFinish) => {
   doc.setFont("Roboto", "normal");
   doc.setFontSize(10);
   doc.text(`${new Date().toLocaleString()}`, 12, 32);
-  doc.text(`[Nombre del usuario]`, 12, 44);
-  doc.setFontSize(11);
-  doc.text(`[Dirección de la empresa]`, 285, 27, { align: "right" });
-  doc.text(`[Ciudad, Dept. País]`, 285, 33, { align: "right" });
-  doc.text(`[Teléfono]`, 285, 39, { align: "right" });
+
+  doc.text(
+    [userData?.name, userData?.first_last_name, userData?.second_last_name]
+      .filter(Boolean) // Elimina null, undefined y strings vacíos
+      .join(" "),
+    12,
+    44
+  );
+
+  doc.setTextColor(0, 0, 0);
+  doc.setFontSize(10);
+  doc.setFont("Roboto", "bold");
+  doc.text(`Dirección de la empresa:`, 285, 27, { align: "right" });
+  doc.text(`Correo electrónico de la empresa:`, 285, 39, { align: "right" });
+
+  doc.setTextColor(94, 100, 112);
+  doc.setFont("Roboto", "normal");
+  doc.setFontSize(10);
+  doc.text(
+    `${companyData.address}. ${locationNames.state}, ${locationNames.city}`,
+    285,
+    32,
+    { align: "right" }
+  );
+
+  doc.text(`${companyData.email}`, 285, 44, { align: "right" });
   doc.text(`Cantidad de dispositivos: ${filteredData.length}`, 12, 68);
 
   // Agregar tabla con autoTable

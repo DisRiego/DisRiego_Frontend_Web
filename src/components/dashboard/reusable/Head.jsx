@@ -30,12 +30,18 @@ const Head = ({ head_data, onButtonClick, loading, buttonDisabled }) => {
       */
       const isLoading = button.text === "Descargar reporte" ? loading : "";
 
+      /**  Deshabilita  el botón si dice Descargar reporte o Solicitar apertura */
+      const shouldDisable =
+        (button.text === "Descargar reporte" ||
+          button.text === "Solicitar apertura") &&
+        buttonDisabled;
+
       return (
         <button
           key={key}
           className={`button ${button.class} ${isLoading}`}
           onClick={() => onButtonClick(button.text)}
-          disabled={buttonDisabled}
+          disabled={shouldDisable}
         >
           {IconComponent ? (
             /** Si existe ícono, se muestra junto al texto */

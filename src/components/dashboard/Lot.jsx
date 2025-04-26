@@ -25,6 +25,8 @@ const Lot = ({
   const [filters, setFilters] = useState({ estados: {} });
   const [statusFilter, setStatusFilter] = useState(false);
 
+  console.log(dataLots);
+
   const parentComponent = "lot";
   const {
     permissions: permissionsUser,
@@ -43,6 +45,7 @@ const Lot = ({
     "Longitud",
     "Tipo de cultivo",
     "Intervalo de pago",
+    "Fecha estimada de cosecha",
     "Estado",
     "Opciones",
   ];
@@ -76,6 +79,7 @@ const Lot = ({
           Longitud: info.longitude || "",
           "Tipo de cultivo": toTitleCase(info.nombre_tipo_cultivo) || "",
           "Intervalo de pago": info.nombre_intervalo_pago || "",
+          "Fecha estimada de cosecha": info.estimated_harvest_date || "",
           Estado: info.nombre_estado || "",
         }));
 

@@ -57,16 +57,21 @@ const Fault_report = () => {
     description:
       "En esta sección puedes visualizar y generar reportes de fallos.",
     buttons: {
-      button1: {
-        icon: "FaPlus",
-        class: "color-hover",
-        text: "Reportar fallo",
-      },
-      button2: {
-        icon: "LuDownload",
-        class: "",
-        text: "Descargar reporte",
-      },
+      ...((hasPermission("Crear un reporte de fallo") ||
+        hasPermission("Crear un reporte de fallo por un usuario")) && {
+        button1: {
+          icon: "FaPlus",
+          class: "color-hover",
+          text: "Reportar fallo",
+        },
+      }),
+      ...(hasPermission("Descargar informe de un reporte de fallo") && {
+        button2: {
+          icon: "LuDownload",
+          class: "",
+          text: "Descargar reporte",
+        },
+      }),
     },
   };
 
