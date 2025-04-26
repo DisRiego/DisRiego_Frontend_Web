@@ -1,92 +1,229 @@
 import { useState, useEffect } from "react";
-import Head from "./Head";
-import Search from "./Search";
-import Filter from "./Filter";
-import Table from "./Table";
-import Pagination from "./Pagination";
+import axios from "axios";
+import useUserPermissions from "../../hooks/useUserPermissions";
+import Head from "./reusable/Head";
+import Tab from "./reusable/Tab";
+import Search from "./reusable/Search";
+import Filter from "./reusable/Filter";
+import Table from "./reusable/Table";
+import Pagination from "./reusable/Pagination";
+import Form_report from "./forms/adds/Form_report";
+import Form_assign_maintenance from "./forms/adds/Form_assign_maintenance";
+import Message from "../Message";
+import { format } from "date-fns";
 
 const Fault_report = () => {
   const [data, setData] = useState([]);
-  const [showForm, setShowForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [loading, setLoading] = useState("");
+  const [loadingTable, setLoadingTable] = useState(false);
+  const [buttonDisabled, setButtonDisabled] = useState(true);
   const itemsPerPage = 5;
+
+  const {
+    permissions: permissionsUser,
+    token,
+    decodedToken,
+  } = useUserPermissions();
+  const hasPermission = (permission) => permissionsUser.includes(permission);
+
+  const [title, setTitle] = useState();
+  const [id, setId] = useState(null);
+  const [showForm, setShowForm] = useState(false);
+  const [showAssign, setShowAssign] = useState(false);
+  const [confirMessage, setConfirMessage] = useState();
+  const [typeForm, setTypeForm] = useState();
+  const [typeAction, setTypeAction] = useState("");
+
+  const [showMessage, setShowMessage] = useState(false);
+  const [titleMessage, setTitleMessage] = useState(false);
+  const [message, setMessage] = useState(false);
+  const [status, setStatus] = useState(false);
 
   const handleButtonClick = (buttonText) => {
     if (buttonText === "Reportar fallo") {
+      setTitle("Crear reporte de fallo");
       setShowForm(true);
     }
 
-    //Aqui es donde se debe implementar la funcionalidad del reporte
     if (buttonText === "Descargar reporte") {
       console.log("Generando reporte...");
     }
   };
 
   const head_data = {
-    title: "Reportes de fallos",
+    title: "Gestión de mantenimiento",
     description:
       "En esta sección puedes visualizar y generar reportes de fallos.",
     buttons: {
-      button1: {
-        icon: "FaPlus",
-        class: "color-hover",
-        text: "Reportar fallo",
-      },
-      button2: {
-        icon: "LuDownload",
-        class: "",
-        text: "Descargar reporte",
-      },
+      ...((hasPermission("Crear un reporte de fallo") ||
+        hasPermission("Crear un reporte de fallo por un usuario")) && {
+        button1: {
+          icon: "FaPlus",
+          class: "color-hover",
+          text: "Reportar fallo",
+        },
+      }),
+      ...(hasPermission("Descargar informe de un reporte de fallo") && {
+        button2: {
+          icon: "LuDownload",
+          class: "",
+          text: "Descargar reporte",
+        },
+      }),
     },
   };
 
-  const columns = [
-    "ID Reporte",
-    "Nombre del predio",
-    "Nombre del lote",
-    "Posible fallo",
-    "Fecha de reporte del fallo",
-    "Estado",
-    "Opciones",
+  const tabs = [
+    {
+      key: "system",
+      label: "Fallos autogenerados",
+      path: "/dashboard/system",
+    },
+    {
+      key: "report",
+      label: "Reporte de fallos",
+      path: "/dashboard/report",
+    },
   ];
 
+  let columns = [];
+  if (hasPermission("Ver todos los reportes de fallo")) {
+    columns = [
+      "ID",
+      "ID del reporte",
+      "ID del predio",
+      "ID del lote",
+      "Número de documento",
+      "Tipo de fallo",
+      "Responsable del mantenimiento",
+      "Fecha del reporte",
+      "Estado",
+      "Opciones",
+    ];
+  } else if (
+    hasPermission("Ver todos los reportes de fallos asignados a un técnico")
+  ) {
+    columns = [
+      "ID",
+      "ID del reporte",
+      "ID del predio",
+      "ID del lote",
+      "Número de documento",
+      "Tipo de fallo",
+      "Fecha del reporte",
+      "Estado",
+      "Opciones",
+    ];
+  } else if (
+    hasPermission("Ver todos los reportes de fallos para un usuario")
+  ) {
+    columns = [
+      "ID",
+      "ID del reporte",
+      "Nombre del predio",
+      "Nombre del lote",
+      "Posible fallo",
+      "Fecha del reporte",
+      "Estado",
+      "Opciones",
+    ];
+  }
+
   useEffect(() => {
-    setData([
-      {
-        id: 123,
-        predio: "predio 1",
-        lote: "lote 1",
-        fallo: "daño válvula",
-        fecha: "2024-12-23",
-        estado: "1",
-      },
-      {
-        id: 123,
-        predio: "predio 1",
-        lote: "lote 1",
-        fallo: "daño medidor",
-        fecha: "2025-01-10",
-        estado: "1",
-      },
-      {
-        id: 234,
-        predio: "predio 2",
-        lote: "lote 2",
-        fallo: "daño bateria",
-        fecha: "2024-12-25",
-        estado: "0",
-      },
-      {
-        id: 345,
-        predio: "predio 3",
-        lote: "lote 3",
-        fallo: "daño controlador",
-        fecha: "2024-12-28",
-        estado: "1",
-      },
-    ]);
-  }, []);
+    if (token && hasPermission("Ver todos los reportes de fallo")) {
+      fetchFaultReport();
+    } else {
+      if (
+        token &&
+        hasPermission("Ver todos los reportes de fallos asignados a un técnico")
+      ) {
+        fetchFaultTechnician();
+      } else {
+        if (
+          token &&
+          hasPermission("Ver todos los reportes de fallos para un usuario")
+        ) {
+          fetchFaultUser();
+        }
+      }
+    }
+  }, [token, permissionsUser]);
+
+  const fetchFaultReport = async () => {
+    try {
+      setLoadingTable(true);
+      const response = await axios.get(
+        import.meta.env.VITE_URI_BACKEND_MAINTENANCE +
+          import.meta.env.VITE_ROUTE_BACKEND_REPORT
+      );
+      const sortedData = response.data.data.sort((a, b) => b.id - a.id);
+
+      setData(sortedData);
+    } catch (error) {
+      console.error("Error al obtener los reportes de fallos:", error);
+    } finally {
+      setButtonDisabled(false);
+      setLoadingTable(false);
+    }
+  };
+
+  const fetchFaultTechnician = async () => {
+    try {
+      setLoadingTable(true);
+      const response = await axios.get(
+        import.meta.env.VITE_URI_BACKEND_MAINTENANCE +
+          import.meta.env.VITE_ROUTE_BACKEND_REPORT_TECHNICIAN +
+          decodedToken.id +
+          import.meta.env.VITE_ROUTE_BACKEND_REPORT_BY_USERS
+      );
+      const sortedData = response.data.data.sort((a, b) => b.id - a.id);
+
+      setData(sortedData);
+    } catch (error) {
+      console.error(
+        "Error al obtener los reportes de fallos de un usuario:",
+        error
+      );
+    } finally {
+      setButtonDisabled(false);
+      setLoadingTable(false);
+    }
+  };
+
+  const fetchFaultUser = async () => {
+    try {
+      setLoadingTable(true);
+      const response = await axios.get(
+        import.meta.env.VITE_URI_BACKEND_MAINTENANCE +
+          import.meta.env.VITE_ROUTE_BACKEND_REPORT_USER +
+          decodedToken.id +
+          import.meta.env.VITE_ROUTE_BACKEND_REPORT_BY_USERS
+      );
+      const sortedData = response.data.data.sort((a, b) => b.id - a.id);
+
+      setData(sortedData);
+    } catch (error) {
+      console.error(
+        "Error al obtener los reportes de fallos de un usuario:",
+        error
+      );
+    } finally {
+      setButtonDisabled(false);
+      setLoadingTable(false);
+    }
+  };
+
+  const updateData = async () => {
+    fetchFaultReport();
+  };
+
+  const formatDateTime = (dateString) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    return format(date, "yyyy-MM-dd, hh:mm a").toLowerCase();
+  };
 
   const filteredData = data
     .filter((info) =>
@@ -95,20 +232,64 @@ const Fault_report = () => {
         .toLowerCase()
         .includes(searchTerm.toLowerCase())
     )
-    .map((info) => ({
-      "ID Reporte": info.id,
-      "Nombre del predio": info.predio,
-      "Nombre del lote": info.lote,
-      "Posible fallo": info.fallo,
-      "Fecha de reporte del fallo": info.fecha,
-      Estado: info.estado,
-    }));
+    .map((info) => {
+      if (hasPermission("Ver todos los reportes de fallo")) {
+        return {
+          ID: info.id,
+          "ID del reporte": info.id,
+          "ID del predio": info.property_id,
+          "ID del lote": info.lot_id,
+          "Número de documento": info.owner_document,
+          "Tipo de fallo": info.failure_type,
+          "Responsable del mantenimiento": info.technician_name,
+          "Fecha del reporte": formatDateTime(info.date),
+          Estado: info.status,
+        };
+      } else if (
+        hasPermission("Ver todos los reportes de fallos asignados a un técnico")
+      ) {
+        return {
+          ID: info.id,
+          "ID del reporte": info.id,
+          "ID del predio": info.property_id,
+          "ID del lote": info.lot_id,
+          "Número de documento": info.owner_document,
+          "Tipo de fallo": info.failure_type,
+          "Fecha del reporte": formatDateTime(info.date),
+          Estado: info.status,
+        };
+      } else {
+        return {
+          ID: info.report_id,
+          "ID del reporte": info.report_id,
+          "Nombre del predio": info.property_name,
+          "Nombre del lote": info.lot_name,
+          "Posible fallo": info.failure_type,
+          "Fecha del reporte": formatDateTime(info.report_date),
+          Estado: info.status,
+        };
+      }
+    });
 
   const options = [
-    { icon: "BiShow", name: "Ver detalles" },
-    { icon: "BiEditAlt", name: "Finalizar mantenimiento" },
-    { icon: "LuDownload", name: "Descargar" },
-  ];
+    (hasPermission("Ver detalles de un reporte de fallo") ||
+      hasPermission("Ver detalles de un reporte de fallo para un usuario")) && {
+      icon: "BiShow",
+      name: "Ver detalles",
+    },
+    hasPermission("Asignar técnico") && {
+      icon: "TbUserPlus",
+      name: "Asignar responsable",
+    },
+    hasPermission("Reasignar técnico") && {
+      icon: "LuUserSearch",
+      name: "Reasignar responsable",
+    },
+    hasPermission("Finalizar mantenimiento") && {
+      icon: "BiEditAlt",
+      name: "Finalizar mantenimiento",
+    },
+  ].filter(Boolean);
 
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedData = filteredData.slice(
@@ -116,13 +297,37 @@ const Fault_report = () => {
     startIndex + itemsPerPage
   );
 
+  useEffect(() => {
+    if (showMessage) {
+      const timer = setTimeout(() => {
+        setShowMessage(false);
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [showMessage]);
+
   return (
     <>
       <Head head_data={head_data} onButtonClick={handleButtonClick} />
+      <Tab tabs={tabs} useLinks={true}></Tab>
       <div className="container-search">
         <Search onSearch={setSearchTerm} /> <Filter />
       </div>
-      <Table columns={columns} data={paginatedData} options={options} />
+      <Table
+        columns={columns}
+        data={paginatedData}
+        options={options}
+        loadingTable={loadingTable}
+        setId={setId}
+        setTitle={setTitle}
+        // setShowEdit={setShowEdit}
+        setShowAssign={setShowAssign}
+        // setShowChangeStatus={setShowChangeStatus}
+        setConfirMessage={setConfirMessage}
+        setTypeForm={setTypeForm}
+        setTypeAction={setTypeAction}
+      />
       <Pagination
         totalItems={filteredData.length}
         itemsPerPage={itemsPerPage}
@@ -131,8 +336,43 @@ const Fault_report = () => {
       />
       {showForm && (
         <>
-          <Form title="Reportar fallo" onClose={() => setShowForm(false)} />
+          <Form_report
+            title={title}
+            onClose={() => setShowForm(false)}
+            setShowMessage={setShowMessage}
+            setTitleMessage={setTitleMessage}
+            setMessage={setMessage}
+            setStatus={setStatus}
+            updateData={updateData}
+            id={id}
+            loading={loading}
+            setLoading={setLoading}
+          />
         </>
+      )}
+      {showAssign && (
+        <>
+          <Form_assign_maintenance
+            title={title}
+            onClose={() => setShowAssign(false)}
+            setShowMessage={setShowMessage}
+            setTitleMessage={setTitleMessage}
+            setMessage={setMessage}
+            setStatus={setStatus}
+            updateData={updateData}
+            id={id}
+            loading={loading}
+            setLoading={setLoading}
+          />
+        </>
+      )}
+      {showMessage && (
+        <Message
+          titleMessage={titleMessage}
+          message={message}
+          status={status}
+          onClose={() => setShowMessage(false)}
+        />
       )}
     </>
   );

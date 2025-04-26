@@ -3,6 +3,11 @@
   --bulma-title-size: 30px;
   --text-navegation-size: 14px;
   --pagination-current-color: hsl(0, 0%, 14%);
+  --bulma-column-gap: 0em;
+}
+
+#root {
+  gap: var(--bulma-column-gap);
 }
 
 span,
@@ -196,6 +201,16 @@ p.title + p {
   background-color: #c2e96a;
 }
 
+.button.color-pending {
+  color: #624900;
+  background-color: #fcf1d2;
+}
+
+.button.color-waiting {
+  background-color: #dee9ff;
+  color: #244ea2;
+}
+
 .button.color-hover:disabled {
   color: hsl(221, 14%, 71%);
 }
@@ -233,6 +248,14 @@ p.title + p {
   transform: translateY(-100%);
 }
 
+.menu-option-notification {
+  position: absolute;
+  z-index: 1;
+  right: 0;
+  bottom: 0;
+  transform: translateY(100%);
+}
+
 .column-option .table-container {
   overflow: visible;
   overflow-y: visible;
@@ -245,23 +268,37 @@ p.title + p {
   }
 }
 
-.menu-option > .box {
+.menu-option > .box,
+.menu-option-notification > .box {
   border: 1px solid var(--bulma-border);
   padding: 5px;
 }
 
-.menu-option > .box > .button {
+.menu-option > .box > .button,
+.menu-option-notification > .box > .button {
   border-style: none;
   justify-content: flex-start;
 }
 
-.menu-option > .box > .button:hover {
+.menu-option > .box > .button:hover,
+.menu-option-notification > .box > .button:hover {
   background-color: #c2e96a;
   color: black;
 }
 
 .buttons > .button-login {
   background-color: #c2e96a;
+}
+
+form > .is-primary.button-login[disabled],
+.buttons .is-primary.button-login[disabled] {
+  background-color: #c2e96a;
+}
+
+.cont-activation > .button.color-hover[disabled],
+.container-button > .button.color-hover[disabled] {
+  background-color: #c2e96a;
+  color: black;
 }
 
 .container-login > .background-image {
@@ -375,7 +412,7 @@ form > .button-login {
 .view-filter {
   display: flex;
   flex-direction: column;
-  width: 25em;
+  width: 22em;
   height: 100vh;
   padding: 3em;
   position: fixed;
@@ -395,6 +432,20 @@ form > .button-login {
   display: flex;
   justify-content: space-between;
 }
+
+.container-date {
+  margin: 0em;
+}
+
+/* .height-device {
+  max-height: 100px;
+  overflow-y: auto;
+}
+
+.height-status-device {
+  max-height: 70px;
+  overflow-y: auto;
+} */
 
 .accordion {
   margin-bottom: 0.5em;
@@ -433,9 +484,9 @@ form > .button-login {
 
 .icon.cont-table {
   border: 2px solid var(--bulma-border);
-  padding: 0px 10px 0px 10px;
+  padding: 0em 1em 0em 1em;
   border-radius: 10px;
-  margin-left: 0.5em;
+  /* margin-left: 0.5em; */
 }
 
 /*css de filtro roles*/
@@ -474,6 +525,10 @@ form > .button-login {
   border-color: #b8332c;
 }
 
+.control > input.is-false {
+  border-color: #b8332c;
+}
+
 .modal-card > .modal-confirm {
   padding: 2em;
 }
@@ -501,8 +556,19 @@ form > .button-login {
   margin-bottom: 0px;
 }
 
+.message > .message-body {
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+.custom-message-body .message-line {
+  line-height: 1.4;
+  display: block;
+}
+
 .navigation {
   margin-bottom: 1em;
+  overflow: auto;
 }
 
 tbody > tr > .loader-cell {
@@ -558,8 +624,8 @@ tbody > tr > .loader-cell {
 }
 
 input[type="date"]::-webkit-calendar-picker-indicator {
-  filter: brightness(0) saturate(100%) invert(17%) sepia(23%) saturate(498%)
-    hue-rotate(185deg) brightness(98%) contrast(84%);
+  filter: brightness(0) saturate(100%) invert(31%) sepia(10%) saturate(898%)
+    hue-rotate(185deg) brightness(95%) contrast(90%);
 }
 
 .input-error {
@@ -604,6 +670,10 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 .notification-item {
   margin: 1.5em 0em;
+}
+
+.notification-read {
+  border-left: 0.2em solid #a8ce52;
 }
 
 div > .tabs a {
@@ -893,4 +963,525 @@ div > .tabs.is-boxed li.is-active a {
 .dot-gray {
   background-color: gray;
 }
+
 /*detalle de predio*/
+/* Estilos para el área de arrastrar y soltar archivos */
+.file-drop-area {
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 5px; /* Reducido para que el error quede más cerca */
+}
+
+.file-drop-area:hover {
+  border-color: #aaa;
+}
+
+.file-drop-area.is-false {
+  border-color: #b8332c;
+  background-color: rgba(184, 51, 44, 0.05);
+}
+
+.file-drop-area.is-true {
+  border-color: #c2e96a;
+  background-color: rgba(194, 233, 106, 0.05);
+}
+
+.file-drop-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 100px;
+}
+
+.file-drop-content svg {
+  margin-bottom: 10px;
+}
+
+.file-drop-content p {
+  margin: 0;
+}
+
+.file-drop-content span {
+  font-size: 0.8rem;
+}
+
+.file-name {
+  font-weight: bold;
+}
+
+.file-size {
+  font-size: 0.8rem;
+  color: #666;
+  display: block;
+}
+
+/* Estilos mejorados para los mensajes de error del archivo */
+.file-error {
+  color: #b8332c;
+  margin-top: 5px;
+  font-size: 0.875rem;
+  font-weight: bold;
+  display: block;
+  text-align: left;
+  margin-bottom: 10px;
+}
+
+/* Estilos para el archivo seleccionado */
+.selected-file {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #f0f0f0;
+  border-radius: 6px;
+  padding: 10px 15px;
+}
+
+.file-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.file-info > div {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.remove-file-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #b8332c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  transition: background-color 0.3s;
+}
+
+.remove-file-btn:hover {
+  background-color: rgba(184, 51, 44, 0.1);
+}
+
+.remove-file-btn svg {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+}
+
+.rol-detail > .level {
+  flex-direction: row;
+}
+
+.column > .rol-detail {
+  margin-bottom: 0em;
+}
+
+.level > .title.margin-bottom {
+  margin-bottom: 0em;
+}
+
+.media-content > .content > .margin-bottom {
+  margin-bottom: 0em;
+}
+
+/*select color icon*/
+.field .control > div.select::after {
+  border-color: hsla(
+    var(--bulma-text-h),
+    var(--bulma-text-s),
+    var(--bulma-text-strong-l),
+    0.3
+  );
+}
+
+.field .control > .select-padding > select {
+  height: 46.3px;
+}
+
+form > .columns.columns-pb {
+  margin-bottom: 0em;
+}
+
+.columns-fullheight {
+  height: 100%;
+}
+
+.column-fullheight {
+  height: 100%;
+}
+
+.container {
+  height: 98vh;
+  padding: 2em;
+}
+
+.columns > .column-p {
+  padding: 2em;
+}
+
+.button-p2 {
+  padding: 0em 2em;
+}
+
+.border {
+  bottom: 0;
+  height: 0.75em;
+  background-color: #c2e96a;
+}
+
+.image-active {
+  height: 300px;
+}
+
+.loader-cell > .cont-loader {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-top: 4px solid var(--bulma-text-strong);
+}
+
+.loader-cell > .loader-text {
+  color: var(--bulma-text-strong);
+}
+
+.color-hover:hover {
+  background-color: #e2ff9e;
+}
+
+.is-light:hover {
+  background-color: #c0eaff;
+}
+
+.rol-detail > .tag {
+  width: 3em;
+  height: 3em;
+  border: 0px solid red;
+  border-radius: 50em;
+  margin-right: 1em;
+}
+
+form > .field > .error-file {
+  margin-bottom: 0em;
+}
+
+.modal-card-body > .field > .error-file {
+  margin-bottom: 0em;
+}
+
+.icon-company {
+  cursor: pointer;
+}
+
+.icon-signup {
+  transform: rotate(90deg);
+}
+
+.column.column-validation {
+  padding-bottom: 0.5em;
+}
+
+.field > .control > .button-search {
+  height: 39.99px;
+}
+
+.modal-card > .modal-card-body > .columns-mb {
+  margin-bottom: 0em;
+}
+
+td > td.status-activo,
+td > td.status-inactivo,
+td > td.status-creado,
+td > td.status-pendiente,
+td > td.status-mantenimiento,
+td > td.status-expirado,
+td > td.status-operativo,
+td > td.status-no-operativo,
+td > td.status-sin-instalar,
+td > td.status-fallo-detectado,
+td > td.status-en-mantenimiento,
+td > td.status-en-espera,
+td > td.status-aprobada,
+td > td.status-rechazada,
+td > td.status-sin-asignar,
+td > td.status-finalizado {
+  padding: 0em;
+  border-bottom: none;
+}
+
+.button.status-activo,
+.button.status-operativo,
+.button.status-aprobada,
+.button.status-finalizado {
+  width: 100%;
+  pointer-events: none;
+  cursor: text;
+  user-select: text;
+  background-color: #ecfdf3;
+  color: #027a48;
+  border-radius: 2em;
+}
+
+.button.status-inactivo {
+  width: 100%;
+  pointer-events: none;
+  cursor: text;
+  user-select: text;
+  background-color: #f3f2f7;
+  color: black;
+  border-radius: 2em;
+}
+
+.button.status-no-operativo {
+  width: 100%;
+  pointer-events: none;
+  cursor: text;
+  user-select: text;
+  background-color: #e4daff;
+  color: #4e3985;
+  border-radius: 2em;
+}
+
+.button.status-pendiente,
+.button.status-mantenimiento,
+.button.status-en-mantenimiento {
+  width: 100%;
+  pointer-events: none;
+  cursor: text;
+  user-select: text;
+  background-color: #fff7e2;
+  color: #9f7700;
+  border-radius: 2em;
+}
+
+.button.status-suspendido,
+.button.status-expirado,
+.button.status-fallo-detectado,
+.button.status-rechazada {
+  width: 100%;
+  pointer-events: none;
+  cursor: text;
+  user-select: text;
+  background-color: #ffc6c3;
+  color: #b42c24;
+  border-radius: 2em;
+}
+
+.button.status-sin-instalar,
+.button.status-sin-asignar {
+  width: 100%;
+  pointer-events: none;
+  cursor: text;
+  user-select: text;
+  background-color: #dee9ff;
+  color: #244ea2;
+  border-radius: 2em;
+}
+
+.icon-doc {
+  margin-right: 0.2em;
+}
+
+@media (prefers-color-scheme: light) {
+  .icon-doc {
+    color: #005fad;
+  }
+
+  .link-doc {
+    color: #78ad00;
+    text-decoration: underline;
+  }
+
+  .button.detail-status.status-1,
+  .button.detail-status.status-11,
+  .button.detail-status.status-17,
+  .button.detail-status.status-25 {
+    background-color: #ecfdf3;
+    color: #027a48;
+  }
+
+  .button.detail-status.status-2,
+  .button.detail-status.status-16 {
+    background-color: #f3f2f7;
+    color: black;
+  }
+
+  .button.detail-status.status-3,
+  .button.detail-status.status-14,
+  .button.detail-status.status-18,
+  .button.detail-status.status-23 {
+    background-color: #fff7e2;
+    color: #9f7700;
+  }
+
+  .button.detail-status.status-4,
+  .button.detail-status.status-13,
+  .button.detail-status.status-19 {
+    background-color: #ffc6c3;
+    color: #b42c24;
+  }
+
+  .button.detail-status.status-15,
+  .button.detail-status.status-24 {
+    background-color: #dee9ff;
+    color: #244ea2;
+  }
+
+  .button.detail-status.status-12 {
+    background-color: #e4daff;
+    color: #4e3985;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .link-doc {
+    color: #c2e96a;
+    text-decoration: underline;
+    opacity: 0.8;
+  }
+  .button.status-activo,
+  .button.status-operativo,
+  .button.status-aprobada,
+  .button.status-finalizado {
+    background-color: transparent;
+    color: #b3ff9e;
+    border-color: #b3ff9e;
+    opacity: 0.8;
+  }
+
+  .button.status-inactivo {
+    background-color: transparent;
+    color: #f3f2f7;
+    border-color: #f3f2f7;
+    opacity: 0.8;
+  }
+
+  .button.status-no-operativo {
+    background-color: transparent;
+    color: #bfa6ff;
+    border-color: #bfa6ff;
+    opacity: 0.8;
+  }
+
+  .button.status-pendiente,
+  .button.status-mantenimiento,
+  .button.status-en-mantenimiento {
+    background-color: transparent;
+    color: #ffc100;
+    border-color: #ffc100;
+    opacity: 0.8;
+  }
+
+  .button.status-suspendido,
+  .button.status-expirado,
+  .button.status-fallo-detectado,
+  .button.status-rechazada {
+    background-color: transparent;
+    color: #ff7e77;
+    border-color: #ff7e77;
+    opacity: 0.8;
+  }
+
+  .button.status-sin-instalar,
+  .button.status-sin-asignar {
+    background-color: transparent;
+    color: #76a4ff;
+    border-color: #76a4ff;
+    opacity: 0.8;
+  }
+
+  .button.detail-status.status-1,
+  .button.detail-status.status-11,
+  .button.detail-status.status-17,
+  .button.detail-status.status-25 {
+    color: #b3ff9e;
+    border-color: #b3ff9e;
+    opacity: 0.8;
+  }
+
+  .button.detail-status.status-2,
+  .button.detail-status.status-16 {
+    color: #f3f2f7;
+    border-color: #f3f2f7;
+    opacity: 0.8;
+  }
+
+  .button.detail-status.status-3,
+  .button.detail-status.status-14,
+  .button.detail-status.status-18,
+  .button.detail-status.status-23 {
+    color: #ffc100;
+    border-color: #ffc100;
+    opacity: 0.8;
+  }
+
+  .button.detail-status.status-4,
+  .button.detail-status.status-13,
+  .button.detail-status.status-19 {
+    color: #ff7e77;
+    border-color: #ff7e77;
+    opacity: 0.8;
+  }
+
+  .button.detail-status.status-15,
+  .button.detail-status.status-24 {
+    background-color: transparent;
+    color: #76a4ff;
+    border-color: #76a4ff;
+    opacity: 0.8;
+  }
+
+  .button.detail-status.status-12 {
+    background-color: transparent;
+    color: #bfa6ff;
+    border-color: #bfa6ff;
+    opacity: 0.8;
+  }
+}
+
+.energy-consumption {
+  color: #bc9110;
+}
+
+.water-consumption {
+  color: #5b93ff;
+}
+
+.battery-production {
+  color: #418b60;
+}
+
+.energy-production {
+  color: #b55d4b;
+}
+
+.property-detail {
+  padding: 0.8em;
+}
+
+.columns > .column-p0 {
+  padding-bottom: 0px;
+}
+
+.button.aprrove {
+  color: black;
+  background-color: #c2e96a;
+}
+
+.button.deny {
+  background-color: #ffc6c3;
+  color: #940800;
+}
+
+.button.color-warning {
+  background-color: #ffc6c3;
+  color: #940800;
+}
