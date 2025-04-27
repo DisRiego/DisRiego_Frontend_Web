@@ -1,5 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
+import {
+  validateOpenDate,
+  validatePhone,
+  validateTime,
+} from "../../../../hooks/useValidations";
+import Confirm_modal from "../../reusable/Confirm_modal";
 
 const Form_assign_maintenance = ({
   title,
@@ -14,8 +20,10 @@ const Form_assign_maintenance = ({
   setLoading,
 }) => {
   const [showConfirm, setShowConfirm] = useState(false);
+  const [newData, setNewData] = useState();
   const [dataReport, setDataReport] = useState([]);
   const [dataTechnician, setDataTechnician] = useState([]);
+  const [nameTechnician, setNameTechnician] = useState([]);
   const [disabled, setDisabled] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
   const [submittedProperty, setSubmittedProperty] = useState(false);
@@ -50,6 +58,24 @@ const Form_assign_maintenance = ({
     assignment_date: "",
     assignment_hour: "",
   });
+
+  const feedbackMessages = {
+    create: {
+      successTitle: "Asignación exitosa",
+      successMessage:
+        "La asignación del técnico ha sido realizada correctamente.",
+      errorTitle: "Error al asignar el ténico",
+      errorMessage:
+        "No se pudo asignar el técnico. Por favor, inténtelo de nuevo.",
+    },
+    edit: {
+      successTitle: "Asignación actualizada exitosamente",
+      successMessage: "La asignación ha sido modificada correctamente.",
+      errorTitle: "Error al actualizar la asignación",
+      errorMessage:
+        "No se pudo editar la asignación. Por favor, inténtelo de nuevo.",
+    },
+  };
 
   useEffect(() => {
     getReportByID();
@@ -90,6 +116,18 @@ const Form_assign_maintenance = ({
   const handleChange = (e) => {
     const { name, value } = e.target;
 
+    if (name === "user_id") {
+      // Buscar el objeto completo por el ID seleccionado
+      const selectedType = dataTechnician.find(
+        (technician) => String(technician.id) === value
+      );
+
+      // Actualizar el nombre también si se encontró
+      if (selectedType) {
+        setNameTechnician(selectedType.name);
+      }
+    }
+
     setFormData({
       ...formData,
       [name]: value,
@@ -98,8 +136,66 @@ const Form_assign_maintenance = ({
 
   const handleSaveClick = () => {
     setSubmitted(true);
+
+    const isTechnicianValid = validatePhone(formData.user_id);
+    const isDateValid = validateOpenDate(formData.assignment_date);
+    const isHourValid = validateTime(formData.assignment_hour);
+
     console.log(formData);
+
+    setErrors({
+      user_id: isTechnicianValid ? "" : "Debe seleccionar una opción",
+      assignment_date: isDateValid ? "" : "Fecha inválida",
+      assignment_hour: isHourValid ? "" : "Hora inválida",
+    });
+
+    if (isTechnicianValid && isDateValid && isHourValid) {
+      const dateLocal = new Date(
+        `${formData.assignment_date}T${formData.assignment_hour}:00`
+      );
+
+      const timestamp = toLocalISOString(dateLocal);
+
+      const dataToSend = {
+        user_id: formData.user_id,
+        assignment_date: timestamp,
+      };
+      console.log(dataToSend);
+      setNewData(dataToSend);
+
+      setConfirMessage(
+        `¿Desea asignar al técnico "${nameTechnician}" para el reporte con ID "${id}"?`
+      );
+
+      setMethod("post");
+      setUriPost(
+        import.meta.env.VITE_URI_BACKEND_MAINTENANCE +
+          import.meta.env.VITE_ROUTE_BACKEND_REPORT +
+          id +
+          import.meta.env.VITE_ROUTE_BACKEND_REPORT_ASSIGN_TECHNICIAN
+      );
+      setTypeForm("create");
+      setShowConfirm(true);
+    }
   };
+
+  function toLocalISOString(date) {
+    const pad = (n) => String(n).padStart(2, "0");
+
+    return (
+      date.getFullYear() +
+      "-" +
+      pad(date.getMonth() + 1) +
+      "-" +
+      pad(date.getDate()) +
+      "T" +
+      pad(date.getHours()) +
+      ":" +
+      pad(date.getMinutes()) +
+      ":" +
+      pad(date.getSeconds())
+    );
+  }
   return (
     <>
       <div className="modal is-active">
@@ -184,9 +280,9 @@ const Form_assign_maintenance = ({
                       ref={dateInputRef}
                       className={`input ${
                         submitted
-                          ? errors.open_date
+                          ? errors.assignment_date
                             ? "is-false"
-                            : "is-true"
+                            : ""
                           : ""
                       }`}
                       type="date"
@@ -213,7 +309,7 @@ const Form_assign_maintenance = ({
                         submitted
                           ? errors.assignment_hour
                             ? "is-false"
-                            : "is-true"
+                            : ""
                           : ""
                       }`}
                       type="time"
@@ -247,6 +343,27 @@ const Form_assign_maintenance = ({
           </footer>
         </div>
       </div>
+      {showConfirm && (
+        <Confirm_modal
+          onClose={() => {
+            setShowConfirm(false);
+          }}
+          onSuccess={onClose}
+          confirMessage={confirMessage}
+          method={method}
+          formData={newData}
+          setShowMessage={setShowMessage}
+          setTitleMessage={setTitleMessage}
+          setMessage={setMessage}
+          setStatus={setStatus}
+          uriPost={uriPost}
+          typeForm={typeForm}
+          loading={loading}
+          setLoading={setLoading}
+          updateData={updateData}
+          feedbackMessages={feedbackMessages}
+        />
+      )}
     </>
   );
 };

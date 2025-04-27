@@ -98,7 +98,7 @@ const Fault_report = () => {
       "Número de documento",
       "Tipo de fallo",
       "Responsable del mantenimiento",
-      "Fecha del reporte",
+      "Fecha de generación del reporte",
       "Estado",
       "Opciones",
     ];
@@ -112,7 +112,7 @@ const Fault_report = () => {
       "ID del lote",
       "Número de documento",
       "Tipo de fallo",
-      "Fecha del reporte",
+      "Fecha de generación del reporte",
       "Estado",
       "Opciones",
     ];
@@ -125,7 +125,7 @@ const Fault_report = () => {
       "Nombre del predio",
       "Nombre del lote",
       "Posible fallo",
-      "Fecha del reporte",
+      "Fecha de generación del reporte",
       "Estado",
       "Opciones",
     ];
@@ -242,7 +242,7 @@ const Fault_report = () => {
           "Número de documento": info.owner_document,
           "Tipo de fallo": info.failure_type,
           "Responsable del mantenimiento": info.technician_name,
-          "Fecha del reporte": formatDateTime(info.date),
+          "Fecha de generación del reporte": formatDateTime(info.date),
           Estado: info.status,
         };
       } else if (
@@ -255,7 +255,7 @@ const Fault_report = () => {
           "ID del lote": info.lot_id,
           "Número de documento": info.owner_document,
           "Tipo de fallo": info.failure_type,
-          "Fecha del reporte": formatDateTime(info.date),
+          "Fecha de generación del reporte": formatDateTime(info.date),
           Estado: info.status,
         };
       } else {
@@ -265,7 +265,7 @@ const Fault_report = () => {
           "Nombre del predio": info.property_name,
           "Nombre del lote": info.lot_name,
           "Posible fallo": info.failure_type,
-          "Fecha del reporte": formatDateTime(info.report_date),
+          "Fecha de generación del reporte": formatDateTime(info.report_date),
           Estado: info.status,
         };
       }
@@ -277,13 +277,13 @@ const Fault_report = () => {
       icon: "BiShow",
       name: "Ver detalles",
     },
-    hasPermission("Asignar técnico") && {
+    hasPermission("Asignar responsable") && {
       icon: "TbUserPlus",
       name: "Asignar responsable",
     },
-    hasPermission("Reasignar técnico") && {
+    hasPermission("Editar responsable") && {
       icon: "LuUserSearch",
-      name: "Reasignar responsable",
+      name: "Editar responsable",
     },
     hasPermission("Finalizar mantenimiento") && {
       icon: "BiEditAlt",

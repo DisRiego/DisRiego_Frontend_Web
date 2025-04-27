@@ -437,12 +437,12 @@ form > .button-login {
   margin: 0em;
 }
 
-/* .height-device {
-  max-height: 100px;
+.height-device {
+  max-height: 290px;
   overflow-y: auto;
 }
 
-.height-status-device {
+/* .height-status-device {
   max-height: 70px;
   overflow-y: auto;
 } */

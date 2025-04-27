@@ -315,6 +315,10 @@ const Table = ({
       setTitle("Asignar responsable");
       setShowAssign(true);
     }
+    if (id === "report" && option.name === "Editar responsable") {
+      setTitle("Editar responsable");
+      setShowAssign(true);
+    }
   };
 
   /**
@@ -527,20 +531,25 @@ const Table = ({
                                             return false;
                                         }
 
-                                        if (
-                                          option.name ===
-                                            "Asignar responsable" &&
-                                          row["Responsable del mantenimiento"]
-                                        ) {
-                                          return false; // ya está asignado, no muestres Asignar
-                                        }
-
-                                        const statesAllowingReassignFault = [
-                                          "En mantenimiento",
+                                        const statesAllowingEditAassignFault = [
+                                          "Sin asignar",
                                         ];
                                         if (
                                           option.name ===
-                                            "Reasignar responsable" &&
+                                            "Asignar responsable" &&
+                                          !statesAllowingEditAassignFault.includes(
+                                            row["Estado"]
+                                          )
+                                        ) {
+                                          return false;
+                                        }
+
+                                        const statesAllowingReassignFault = [
+                                          "Pendiente",
+                                        ];
+                                        if (
+                                          option.name ===
+                                            "Editar responsable" &&
                                           !statesAllowingReassignFault.includes(
                                             row["Estado"]
                                           )
