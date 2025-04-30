@@ -24,6 +24,8 @@ import Request_detail from "../components/dashboard/details/Request_detail";
 import Fault_report from "../components/dashboard/Fault_report";
 import Fault_report_detail from "../components/dashboard/details/Fault_report_detail";
 import System_fault from "../components/dashboard/System_fault";
+import Billing from "../components/dashboard/Billing";
+import Billing_detail from "../components/dashboard/details/Billing_detail";
 
 const Dashboard = () => {
   const { id } = useParams();
@@ -96,6 +98,10 @@ const Dashboard = () => {
         return <Fault_report />;
       case `report/${id}`:
         return <Fault_report_detail />;
+      case `billing`:
+        return <Billing />;
+      case `billing/${id}`:
+        return <Billing_detail />;
       case "company":
         return <Company_data />;
       case `certificate`:

@@ -23,6 +23,7 @@ const Form_report = ({
   const [showForm, setShowForm] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [dataProperty, setDataProperty] = useState([]);
+  const [newData, setNewData] = useState();
   const [propertyValidate, setPropertyValidate] = useState("");
   const [dataLot, setDataLot] = useState([]);
   const [dataTypeFailure, setDataTypeFailure] = useState([]);
@@ -195,6 +196,11 @@ const Form_report = ({
     });
 
     if (isLotValid && isTypeFailureValid && isDescriptionValid) {
+      setNewData({
+        lot_id: parseInt(formData.lot_id),
+        type_failure_id: formData.type_failure_id,
+        description_failure: formData.description_failure,
+      });
       if (id != null) {
         setConfirMessage(
           `¿Desea actualizar el reporte de fallo con ID "${id}"?`
@@ -221,7 +227,6 @@ const Form_report = ({
     }
   };
 
-  console.log(dataProperty);
   return (
     <>
       <div className="modal is-active">
@@ -427,7 +432,7 @@ const Form_report = ({
           onSuccess={onClose}
           confirMessage={confirMessage}
           method={method}
-          formData={formData}
+          formData={newData}
           setShowMessage={setShowMessage}
           setTitleMessage={setTitleMessage}
           setMessage={setMessage}

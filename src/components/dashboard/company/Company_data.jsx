@@ -61,7 +61,7 @@ const Company_data = ({}) => {
     },
     hasPermission("Ver todas las tarifas") && {
       key: "rates",
-      label: "Tarifas",
+      label: "Conceptos y tarifas",
       path: "/dashboard/company/rates",
     },
   ].filter(Boolean);

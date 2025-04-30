@@ -1212,7 +1212,9 @@ td > td.status-en-espera,
 td > td.status-aprobada,
 td > td.status-rechazada,
 td > td.status-sin-asignar,
-td > td.status-finalizado {
+td > td.status-finalizado,
+td > td.status-pagada,
+td > td.status-vencida {
   padding: 0em;
   border-bottom: none;
 }
@@ -1220,7 +1222,8 @@ td > td.status-finalizado {
 .button.status-activo,
 .button.status-operativo,
 .button.status-aprobada,
-.button.status-finalizado {
+.button.status-finalizado,
+.button.status-pagada {
   width: 100%;
   pointer-events: none;
   cursor: text;
@@ -1265,7 +1268,8 @@ td > td.status-finalizado {
 .button.status-suspendido,
 .button.status-expirado,
 .button.status-fallo-detectado,
-.button.status-rechazada {
+.button.status-rechazada,
+.button.status-vencida {
   width: 100%;
   pointer-events: none;
   cursor: text;
@@ -1350,7 +1354,8 @@ td > td.status-finalizado {
   .button.status-activo,
   .button.status-operativo,
   .button.status-aprobada,
-  .button.status-finalizado {
+  .button.status-finalizado,
+  .button.status-pagada {
     background-color: transparent;
     color: #b3ff9e;
     border-color: #b3ff9e;
@@ -1383,7 +1388,8 @@ td > td.status-finalizado {
   .button.status-suspendido,
   .button.status-expirado,
   .button.status-fallo-detectado,
-  .button.status-rechazada {
+  .button.status-rechazada,
+  .button.status-vencida {
     background-color: transparent;
     color: #ff7e77;
     border-color: #ff7e77;
@@ -1484,4 +1490,38 @@ td > td.status-finalizado {
 .button.color-warning {
   background-color: #ffc6c3;
   color: #940800;
+}
+
+.container-body > .total_amount > .fixed-grid {
+  margin-bottom: 0em;
+}
+
+.marg-bottom {
+  margin-bottom: 0.25rem;
+}
+
+.column > p {
+  margin-bottom: 0.25rem;
+}
+
+.modal-card-body
+  > .bulma-steps
+  > .steps.is-horizontal
+  > .steps-segment.is-active
+  > .steps-marker {
+  background-color: #c2e96a;
+  color: black;
+}
+
+.modal-card-body
+  > .bulma-steps
+  > .steps.is-horizontal
+  > .steps-segment
+  > .steps-marker {
+  background-color: #c2e96a;
+  color: black;
+}
+
+.steps > .steps-segment:after {
+  background-color: #c2e96a;
 }

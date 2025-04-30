@@ -47,6 +47,12 @@ const Names_navegation = {
         "detail": "Detalles de la Solicitud #",
       },  
     },
+    "billing": {
+      name: "Gestión de facturación",
+      submodules: {
+        "detail": "Detalles de la factura #",
+      },  
+    },
   };
   
   export default Names_navegation;

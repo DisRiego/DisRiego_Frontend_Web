@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import {
-  validateOpenDate,
+  validateDate,
   validatePhone,
   validateTime,
 } from "../../../../hooks/useValidations";
@@ -18,6 +18,7 @@ const Form_assign_maintenance = ({
   id,
   loading,
   setLoading,
+  typeAction,
 }) => {
   const [showConfirm, setShowConfirm] = useState(false);
   const [newData, setNewData] = useState();
@@ -91,8 +92,16 @@ const Form_assign_maintenance = ({
           import.meta.env.VITE_ROUTE_BACKEND_REPORT_DETAIL
       );
       const sortedData = response.data.data;
-      console.log(sortedData);
-      setDataReport(sortedData);
+      if (typeAction == "edit") {
+        setDataReport(sortedData);
+        setFormData({
+          user_id: sortedData?.technician_id,
+          assignment_date: sortedData?.assignment_date.slice(0, 10),
+          assignment_hour: sortedData?.assignment_date.slice(11, 16),
+        });
+      } else {
+        setDataReport(sortedData);
+      }
     } catch (error) {
       console.log(error);
     }
@@ -107,7 +116,6 @@ const Form_assign_maintenance = ({
       const sortedData = response.data.data.sort((a, b) =>
         a.name.localeCompare(b.name)
       );
-      console.log(sortedData);
       setDataTechnician(sortedData);
       setIsLoading(false);
     } catch (error) {}
@@ -138,7 +146,7 @@ const Form_assign_maintenance = ({
     setSubmitted(true);
 
     const isTechnicianValid = validatePhone(formData.user_id);
-    const isDateValid = validateOpenDate(formData.assignment_date);
+    const isDateValid = validateDate(formData.assignment_date);
     const isHourValid = validateTime(formData.assignment_hour);
 
     console.log(formData);
@@ -163,19 +171,37 @@ const Form_assign_maintenance = ({
       console.log(dataToSend);
       setNewData(dataToSend);
 
-      setConfirMessage(
-        `¿Desea asignar al técnico "${nameTechnician}" para el reporte con ID "${id}"?`
-      );
+      if (typeAction == "edit") {
+        setConfirMessage(
+          `¿Desea editar la asignación del reporte con ID "${id}"?`
+        );
 
-      setMethod("post");
-      setUriPost(
-        import.meta.env.VITE_URI_BACKEND_MAINTENANCE +
-          import.meta.env.VITE_ROUTE_BACKEND_REPORT +
-          id +
-          import.meta.env.VITE_ROUTE_BACKEND_REPORT_ASSIGN_TECHNICIAN
-      );
-      setTypeForm("create");
-      setShowConfirm(true);
+        setMethod("put");
+        setUriPost(
+          import.meta.env.VITE_URI_BACKEND_MAINTENANCE +
+            import.meta.env.VITE_ROUTE_BACKEND_REPORT +
+            id +
+            import.meta.env.VITE_ROUTE_BACKEND_REPORT_ASSIGN_TECHNICIAN
+        );
+        setTypeForm("create");
+        setShowConfirm(true);
+      } else {
+        setConfirMessage(
+          `¿Desea asignar al técnico "${toTitleCase(
+            nameTechnician
+          )}" para el reporte con ID "${id}"?`
+        );
+
+        setMethod("post");
+        setUriPost(
+          import.meta.env.VITE_URI_BACKEND_MAINTENANCE +
+            import.meta.env.VITE_ROUTE_BACKEND_REPORT +
+            id +
+            import.meta.env.VITE_ROUTE_BACKEND_REPORT_ASSIGN_TECHNICIAN
+        );
+        setTypeForm("create");
+        setShowConfirm(true);
+      }
     }
   };
 
@@ -196,6 +222,16 @@ const Form_assign_maintenance = ({
       pad(date.getSeconds())
     );
   }
+
+  const toTitleCase = (str) => {
+    if (typeof str !== "string") return str;
+    return str
+      .toLowerCase()
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  };
+
   return (
     <>
       <div className="modal is-active">
@@ -259,7 +295,7 @@ const Form_assign_maintenance = ({
                         </option>
                         {dataTechnician.map((technician) => (
                           <option key={technician.id} value={technician.id}>
-                            {technician.name}
+                            {toTitleCase(technician.name)}
                           </option>
                         ))}
                       </select>

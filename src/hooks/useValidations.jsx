@@ -208,7 +208,29 @@ export const validateImage = (file) => {
     return { isValid: false, error: "No se ha seleccionado un archivo" };
 
   const allowedTypes = ["image/png", "image/jpeg", "image/jpg", "image/gif"];
-  const maxSize = 1 * 1024 * 1024; // 2 mb
+  const maxSize = 1 * 1024 * 1024;
+
+  if (!allowedTypes.includes(file.type)) {
+    return {
+      isValid: false,
+      error:
+        "Por favor, sube un archivo de imagen válido (PNG, JPG, JPEG o GIF)",
+    };
+  }
+
+  if (file.size > maxSize) {
+    return { isValid: false, error: "La imagen no debe superar los 2 MB" };
+  }
+
+  return { isValid: true, error: "" };
+};
+
+export const validateImageEvidence = (file) => {
+  if (!file)
+    return { isValid: false, error: "No se ha seleccionado un archivo" };
+
+  const allowedTypes = ["image/png", "image/jpeg", "image/jpg", "image/gif"];
+  const maxSize = 5 * 1024 * 1024; //Maximo 5 megas
 
   if (!allowedTypes.includes(file.type)) {
     return {

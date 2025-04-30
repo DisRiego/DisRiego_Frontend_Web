@@ -9,6 +9,7 @@ import Table from "./reusable/Table";
 import Pagination from "./reusable/Pagination";
 import Form_report from "./forms/adds/Form_report";
 import Form_assign_maintenance from "./forms/adds/Form_assign_maintenance";
+import Form_finalize_maintenance from "./forms/adds/Form_finalize_maintenance";
 import Message from "../Message";
 import { format } from "date-fns";
 
@@ -30,8 +31,11 @@ const Fault_report = () => {
 
   const [title, setTitle] = useState();
   const [id, setId] = useState(null);
+  const [idTechnician, setIdTechnician] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [showAssign, setShowAssign] = useState(false);
+  const [showFinalize, setShowFinalize] = useState(false);
+  const [statusName, setStatusName] = useState(false);
   const [confirMessage, setConfirMessage] = useState();
   const [typeForm, setTypeForm] = useState();
   const [typeAction, setTypeAction] = useState("");
@@ -225,6 +229,15 @@ const Fault_report = () => {
     return format(date, "yyyy-MM-dd, hh:mm a").toLowerCase();
   };
 
+  const toTitleCase = (str) => {
+    if (typeof str !== "string") return str;
+    return str
+      .toLowerCase()
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  };
+
   const filteredData = data
     .filter((info) =>
       Object.values(info)
@@ -241,7 +254,8 @@ const Fault_report = () => {
           "ID del lote": info.lot_id,
           "Número de documento": info.owner_document,
           "Tipo de fallo": info.failure_type,
-          "Responsable del mantenimiento": info.technician_name,
+          "Responsable del mantenimiento": toTitleCase(info.technician_name),
+          "ID del responsable": info.technician_id,
           "Fecha de generación del reporte": formatDateTime(info.date),
           Estado: info.status,
         };
@@ -289,6 +303,10 @@ const Fault_report = () => {
       icon: "BiEditAlt",
       name: "Finalizar mantenimiento",
     },
+    hasPermission("Finalizar mantenimiento") && {
+      icon: "BiEditAlt",
+      name: "Editar mantenimiento",
+    },
   ].filter(Boolean);
 
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -320,10 +338,11 @@ const Fault_report = () => {
         options={options}
         loadingTable={loadingTable}
         setId={setId}
+        setIdTechnician={setIdTechnician}
+        setStatusName={setStatusName}
         setTitle={setTitle}
-        // setShowEdit={setShowEdit}
         setShowAssign={setShowAssign}
-        // setShowChangeStatus={setShowChangeStatus}
+        setShowFinalize={setShowFinalize}
         setConfirMessage={setConfirMessage}
         setTypeForm={setTypeForm}
         setTypeAction={setTypeAction}
@@ -363,6 +382,26 @@ const Fault_report = () => {
             id={id}
             loading={loading}
             setLoading={setLoading}
+            typeAction={typeAction}
+          />
+        </>
+      )}
+      {showFinalize && (
+        <>
+          <Form_finalize_maintenance
+            title={title}
+            onClose={() => setShowFinalize(false)}
+            setShowMessage={setShowMessage}
+            setTitleMessage={setTitleMessage}
+            setMessage={setMessage}
+            setStatus={setStatus}
+            updateData={updateData}
+            id={id}
+            idTechnician={idTechnician}
+            statusName={statusName}
+            loading={loading}
+            setLoading={setLoading}
+            typeAction={typeAction}
           />
         </>
       )}

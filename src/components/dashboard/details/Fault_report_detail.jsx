@@ -76,7 +76,7 @@ const Fault_report_detail = () => {
             </div>
             <div className="columns mt-0">
               <div className="column">
-                <h3 className="title is-6 mb-2">Información del predio</h3>
+                <h3 className="title is-6 mb-3">Información del predio</h3>
                 <p>
                   <strong>ID del Predio: </strong>
                   {data?.property_id}
@@ -85,9 +85,13 @@ const Fault_report_detail = () => {
                   <strong>Nombre del Predio: </strong>
                   {data?.property_name}
                 </p>
+                <p>
+                  <strong>Ubicación (latitud, longitud): </strong>
+                  {data?.property_latitude}, {data?.property_longitude}
+                </p>
               </div>
               <div className="column">
-                <h3 className="title is-6 mb-2">Información del lote</h3>
+                <h3 className="title is-6 mb-3">Información del lote</h3>
                 <p>
                   <strong>ID del lote: </strong>
                   {data?.lot_id}
@@ -96,154 +100,144 @@ const Fault_report_detail = () => {
                   <strong>Nombre del lote: </strong>
                   {data?.lot_name}
                 </p>
-              </div>
-            </div>
-          </div>
-          <div className="rol-detail mt-4">
-            <div className="columns">
-              <div className="column">
-                <h3 className="title is-6 mb-2">Fecha de revisión</h3>
-                <p>{formatDateTime(data?.report_date)}</p>
-              </div>
-              <div className="column">
-                <h3 className="title is-6 mb-2">Fecha de finalización</h3>
                 <p>
-                  {formatDateTime(data?.finalization_date) || "[Sin finalizar]"}
+                  <strong>Ubicación (latitud, longitud): </strong>
+                  {data?.lot_latitude}, {data?.lot_longitude}
                 </p>
               </div>
             </div>
           </div>
-          <div className="property-detail mt-4">
-            <div className="columns is-multiline">
-              <div className="column rol-detail">
-                <div className="level">
-                  <h3 className="title is-6 margin-bottom">
-                    Información por parte del Usuario
-                  </h3>
-                </div>
-                <div className="columns is-multiline is-mobile">
-                  <div className="column is-half column-p0">
-                    <strong>Nombre</strong>
-                  </div>
-                  <div className="column is-half column-p0">
-                    {toTitleCase(data?.owner_name) || "[]"}
-                  </div>
-                </div>
-                <div className="columns is-multiline is-mobile">
-                  <div className="column is-half column-p0">
-                    <strong>Número de documento</strong>
-                  </div>
-                  <div className="column is-half column-p0">
-                    {data?.owner_document || "[]"}
-                  </div>
-                </div>
-                <div className="columns is-multiline is-mobile">
-                  <div className="column is-half column-p0">
-                    <strong>Fecha del reporte</strong>
-                  </div>
-                  <div className="column is-half column-p0">
-                    {formatDateTime(data?.report_date) || "[]"}
-                  </div>
-                </div>
-                <div className="columns is-multiline is-mobile">
-                  <div className="column is-half column-p0">
-                    <strong>Posible fallo</strong>
-                  </div>
-                  <div className="column is-half column-p0">
-                    {data?.failure_type || "[]"}
-                  </div>
-                </div>
-                <div className="columns is-multiline is-mobile">
-                  <div className="column is-half column-p0">
-                    <strong>Observaciones</strong>
-                  </div>
-                  <div className="column is-half">
-                    {data?.description_failure || "[]"}
-                  </div>
-                </div>
+          <div className="rol-detail mt-4">
+            <div className="level">
+              <h3 className="title is-6 margin-bottom">
+                Información del dueño
+              </h3>
+            </div>
+            <div className="columns">
+              <div className="column column-p0">
+                <h3 className="title is-6 mb-1">Nombres</h3>
+                <p>{toTitleCase(data?.owner_name) || "[]"}</p>
               </div>
-              <div className="mr-2 ml-2"></div>
-              <div className="column rol-detail">
-                <div className="level">
-                  <h3 className="title is-6 margin-bottom">
-                    Información por parte del Técnico
-                  </h3>
-                </div>
-                <div className="columns is-multiline is-mobile">
-                  <div className="column is-half column-p0">
-                    <strong>Nombre</strong>
-                  </div>
-                  <div className="column is-half column-p0">
-                    {toTitleCase(data?.technician_name) || "[Sin finalizar]"}
-                  </div>
-                </div>
-                <div className="columns is-multiline is-mobile">
-                  <div className="column is-half column-p0">
-                    <strong>Número de documento</strong>
-                  </div>
-                  <div className="column is-half column-p0">
-                    {data?.technician_document || "[Sin finalizar]"}
-                  </div>
-                </div>
-                <div className="columns is-multiline is-mobile">
-                  <div className="column is-half column-p0">
-                    <strong>Tipo de mantenimiento</strong>
-                  </div>
-                  <div className="column is-half column-p0">
-                    {data?.type_maintenance || "[Sin finalizar]"}
-                  </div>
-                </div>
-                <div className="columns is-multiline is-mobile">
-                  <div className="column is-half column-p0">
-                    <strong>Fallo detectado</strong>
-                  </div>
-                  <div className="column is-half column-p0">
-                    {data?.fault_remarks || "[Sin finalizar]"}
-                  </div>
-                </div>
-                <div className="columns is-multiline is-mobile">
-                  <div className="column is-half column-p0">
-                    <strong>Observaciones del fallo</strong>
-                  </div>
-                  <div className="column is-half column-p0">
-                    {data?.fault_remarks || "[Sin finalizar]"}
-                  </div>
-                </div>
-                <div className="columns is-multiline is-mobile">
-                  <div className="column is-half column-p0">
-                    <strong>Evidencia del fallo</strong>
-                  </div>
-                  <div className="column is-half column-p0">
-                    {data?.evidence_failure_url || "[Sin finalizar]"}
-                  </div>
-                </div>
-                <div className="columns is-multiline is-mobile">
-                  <div className="column is-half column-p0">
-                    <strong>Solución</strong>
-                  </div>
-                  <div className="column is-half column-p0">
-                    {data?.solution_name || "[Sin finalizar]"}
-                  </div>
-                </div>
-                <div className="columns is-multiline is-mobile">
-                  <div className="column is-half column-p0">
-                    <strong>Descripción de la solución</strong>
-                  </div>
-                  <div className="column is-half column-p0">
-                    {data?.solution_remarks || "[Sin finalizar]"}
-                  </div>
-                </div>
-                <div className="columns is-multiline is-mobile">
-                  <div className="column is-half column-p0">
-                    <strong>Evidencia de la solución</strong>
-                  </div>
-                  <div className="column is-half">
-                    {data?.evidence_solution_url || "[Sin finalizar]"}
-                  </div>
-                </div>
+              <div className="column column-p0">
+                <h3 className="title is-6 mb-1">Número de documento</h3>
+                <p>{data?.owner_document || "[]"}</p>
+              </div>
+            </div>
+            <div className="columns">
+              <div className="column">
+                <h3 className="title is-6 mb-1">Correo Eléctronico</h3>
+                <p>{data?.owner_email || "[]"}</p>
+              </div>
+              <div className="column">
+                <h3 className="title is-6 mb-1">Número de celular</h3>
+                <p>{data?.owner_phone || "[]"}</p>
               </div>
             </div>
           </div>
+          <div className="rol-detail mt-4">
+            <div className="level">
+              <h3 className="title is-6 margin-bottom">
+                Información del fallo
+              </h3>
+            </div>
+
+            <div className="columns">
+              <div className="column column-p0">
+                <strong>Posible de fallo</strong>
+                <p>{data?.failure_type || "[]"}</p>
+              </div>
+              <div className="column column-p0">
+                <strong>Fecha de generación del reporte</strong>
+                <p> {formatDateTime(data?.report_date) || "[]"}</p>
+              </div>
+            </div>
+            <div className="columns">
+              <div className="column column-p0">
+                <strong>Observaciones</strong>
+                <p>{data?.description_failure || "[]"}</p>
+              </div>
+            </div>
+            {data?.assignment_date && (
+              <div className="columns">
+                <div className="column">
+                  <h3 className="title is-6 mb-1">
+                    Fecha programada de revisión
+                  </h3>
+                  <p className="mb-0">
+                    {formatDateTime(data?.assignment_date) ||
+                      "[Sin fecha programada de revisión]"}
+                  </p>
+                </div>
+                {data?.evidence_failure_url && (
+                  <div className="column">
+                    <h3 className="title is-6 mb-1">Evidencia del fallo</h3>
+                    <a
+                      href={data?.evidence_failure_url}
+                      target="_blank"
+                      className="mb-0"
+                    >
+                      img_fallo_1
+                    </a>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {data?.fault_remarks && (
+            <div className="rol-detail mt-4">
+              <div className="level">
+                <h3 className="title is-6 margin-bottom">
+                  Información de la solución
+                </h3>
+              </div>
+              <div className="columns">
+                <div className="column column-p0">
+                  <strong>Nombre del técnico</strong>
+                  <p>{data?.failure_type || "[]"}</p>
+                </div>
+                <div className="column column-p0">
+                  <strong>Tipo de mantenimiento</strong>
+                  <p>{data?.failure_type || "[]"}</p>
+                </div>
+              </div>
+              <div className="columns">
+                <div className="column column-p0">
+                  <strong>Fallo detectado</strong>
+                  <p>{data?.failure_type || "[]"}</p>
+                </div>
+                <div className="column column-p0">
+                  <strong>Tipo de solución</strong>
+                  <p>{data?.description_failure || "[]"}</p>
+                </div>
+              </div>
+              <div className="columns">
+                <div className="column column-p0">
+                  <strong>Observaciones</strong>
+                  <p>{data?.description_failure || "[]"}</p>
+                </div>
+              </div>
+              <div className="columns">
+                <div className="column">
+                  <h3 className="title is-6 mb-1">Fecha de finalización</h3>
+                  <p className="mb-0">
+                    {formatDateTime(data?.finalization_date) ||
+                      "[Sin fecha de finalización]"}
+                  </p>
+                </div>
+                <div className="column">
+                  <h3 className="title is-6 mb-1">Evidencia de la solución</h3>
+                  <a
+                    href={data?.evidence_solution_url}
+                    target="_blank"
+                    className="mb-0"
+                  >
+                    img_solución_1
+                  </a>
+                </div>
+              </div>
+            </div>
+          )}
         </>
       )}
     </>

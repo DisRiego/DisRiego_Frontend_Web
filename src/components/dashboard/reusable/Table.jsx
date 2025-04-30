@@ -20,12 +20,14 @@ const OptionsButton = ({ onClick }) => (
   @param {Array} options - Opciones disponibles por fila (Editar, Habilitar, etc).
   @param {boolean} loadingTable - Indica si se está cargando la tabla.
   @param {Function} setId - Establece el ID del registro seleccionado.
+  @param {Function} setIdTechnician - Establece el ID del técnico asignado.
   @param {Function} setTitle - Cambia el título del modal.
   @param {Function} setShowEdit - Abre el modal de edición.
   @param {Function} setShowEditUser - Abre el modal de edición del lote por parte de un usuario normal.
   @param {Function} setShowAssign - Abre modal para asignar dispositivos.
   @param {Function} setShowChangeStatus - Abre modal para cambiar estado.
   @param {Function} setShowFormReject - Abre formulario de rechazo de solicitud.
+  @param {Function} setShowFinalize - Abre formulario de finalizar mantenimiento.
   @param {Function} setConfirMessage - Establece mensaje de confirmación.
   @param {Function} setTypeForm - Define el tipo de acción (editar, habilitar, etc).
   @param {string} parentComponent - Define el modulo en donde se encuentra (lote, user, etc).
@@ -38,12 +40,15 @@ const Table = ({
   options,
   loadingTable,
   setId,
+  setIdTechnician,
+  setStatusName,
   setTitle,
   setShowEdit,
   setShowEditUser,
   setShowAssign,
   setShowChangeStatus,
   setShowFormReject,
+  setShowFinalize,
   setConfirMessage,
   setTypeForm,
   parentComponent,
@@ -317,7 +322,20 @@ const Table = ({
     }
     if (id === "report" && option.name === "Editar responsable") {
       setTitle("Editar responsable");
+      setTypeAction("edit");
       setShowAssign(true);
+    }
+    if (id === "report" && option.name === "Finalizar mantenimiento") {
+      setTitle("Finalizar mantenimiento");
+      setIdTechnician(row["ID del responsable"]);
+      setStatusName(row["Estado"]);
+      setShowFinalize(true);
+    }
+    if (id === "report" && option.name === "Editar mantenimiento") {
+      setTitle("Editar mantenimiento");
+      setIdTechnician(row["ID del responsable"]);
+      setTypeAction("edit");
+      setShowFinalize(true);
     }
   };
 
@@ -562,7 +580,7 @@ const Table = ({
                                           "Finalizar mantenimiento"
                                         ) {
                                           const allowedStates = [
-                                            "En mantenimiento",
+                                            "Pendiente",
                                             // "Rechazada",
                                           ];
                                           if (
@@ -571,6 +589,19 @@ const Table = ({
                                             )
                                           )
                                             return false;
+                                        }
+
+                                        const statesAllowingEditFault = [
+                                          "Finalizado",
+                                        ];
+                                        if (
+                                          option.name ===
+                                            "Editar mantenimiento" &&
+                                          !statesAllowingEditFault.includes(
+                                            row["Estado"]
+                                          )
+                                        ) {
+                                          return false;
                                         }
 
                                         return true;
