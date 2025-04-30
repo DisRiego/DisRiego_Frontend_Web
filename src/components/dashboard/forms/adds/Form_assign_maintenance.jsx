@@ -96,8 +96,8 @@ const Form_assign_maintenance = ({
         setDataReport(sortedData);
         setFormData({
           user_id: sortedData?.technician_id,
-          assignment_date: sortedData?.assignment_date.slice(0, 10),
-          assignment_hour: sortedData?.assignment_date.slice(11, 16),
+          assignment_date: sortedData?.assignment_date?.slice(0, 10),
+          assignment_hour: sortedData?.assignment_date?.slice(11, 16),
         });
       } else {
         setDataReport(sortedData);

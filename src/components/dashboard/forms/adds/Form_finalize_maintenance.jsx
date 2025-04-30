@@ -123,7 +123,7 @@ const Form_finalize_maintenance = ({
         setDataReport(sortedData);
         setFormData({
           detail_id: sortedData.detail_id,
-          type_failure_id: sortedData.type_failure_id,
+          type_failure_id: sortedData.type_failure_id_detail,
           fault_remarks: sortedData.fault_remarks,
           type_maintenance_id: sortedData.type_maintenance_id,
           failure_solution_id: sortedData.failure_solution_id,
@@ -231,13 +231,11 @@ const Form_finalize_maintenance = ({
 
   const handleValidateNext = () => {
     setSubmitted(true);
-    const isEvidenceOptional = statusName === "Finalizado";
-
     const isTypeFailureValid = validatePhone(formData.type_failure_id);
     const isFailureRemarksValid = validateDescriptionReject(
       formData.fault_remarks
     );
-    const isFileValid = !!fileFailure || isEvidenceOptional;
+    const isFileValid = statusName === "Pendiente" ? !!fileFailure : true;
 
     setErrors({
       type_failure_id: isTypeFailureValid ? "" : "Debe seleccionar una opción",
@@ -257,14 +255,13 @@ const Form_finalize_maintenance = ({
 
   const handleSubmit = () => {
     setSubmitted(true);
-    const isEvidenceOptional = statusName === "Finalizado";
 
     const isTypeMaintenanceValid = validatePhone(formData.type_maintenance_id);
     const isTypeSolutionValid = validatePhone(formData.failure_solution_id);
     const isSolutionRemarksValid = validateDescriptionReject(
       formData.solution_remarks
     );
-    const isFileValid = !!fileSolution || isEvidenceOptional;
+    const isFileValid = statusName === "Pendiente" ? !!fileSolution : true;
 
     setErrors({
       type_maintenance_id: isTypeMaintenanceValid

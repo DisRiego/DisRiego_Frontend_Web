@@ -137,14 +137,14 @@ const Fault_report_detail = () => {
           <div className="rol-detail mt-4">
             <div className="level">
               <h3 className="title is-6 margin-bottom">
-                Información del fallo
+                Información del fallo reportado
               </h3>
             </div>
 
             <div className="columns">
               <div className="column column-p0">
                 <strong>Posible de fallo</strong>
-                <p>{data?.failure_type || "[]"}</p>
+                <p>{data?.failure_type_report || "[]"}</p>
               </div>
               <div className="column column-p0">
                 <strong>Fecha de generación del reporte</strong>
@@ -168,8 +168,30 @@ const Fault_report_detail = () => {
                       "[Sin fecha programada de revisión]"}
                   </p>
                 </div>
-                {data?.evidence_failure_url && (
+                {data?.technician_name && (
                   <div className="column">
+                    <strong>Nombre del técnico</strong>
+                    <p>{toTitleCase(data?.technician_name) || "[]"}</p>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+          {data?.fault_remarks && (
+            <div className="rol-detail mt-4">
+              <div className="level">
+                <h3 className="title is-6 margin-bottom">
+                  Información del fallo encontrado por el técnico
+                </h3>
+              </div>
+
+              <div className="columns">
+                <div className="column column-p0">
+                  <strong>Tipo de fallo</strong>
+                  <p>{data?.failure_type_detail || "[]"}</p>
+                </div>
+                {data?.evidence_failure_url && (
+                  <div className="column column-p0">
                     <h3 className="title is-6 mb-1">Evidencia del fallo</h3>
                     <a
                       href={data?.evidence_failure_url}
@@ -181,51 +203,33 @@ const Fault_report_detail = () => {
                   </div>
                 )}
               </div>
-            )}
-          </div>
-
+              <div className="columns">
+                <div className="column column-p0">
+                  <strong>Observaciones</strong>
+                  <p>{data?.fault_remarks || "[]"}</p>
+                </div>
+              </div>
+            </div>
+          )}
           {data?.fault_remarks && (
             <div className="rol-detail mt-4">
               <div className="level">
                 <h3 className="title is-6 margin-bottom">
-                  Información de la solución
+                  Información de la solución realizada por el técnico
                 </h3>
               </div>
               <div className="columns">
                 <div className="column column-p0">
-                  <strong>Nombre del técnico</strong>
-                  <p>{data?.failure_type || "[]"}</p>
-                </div>
-                <div className="column column-p0">
                   <strong>Tipo de mantenimiento</strong>
-                  <p>{data?.failure_type || "[]"}</p>
-                </div>
-              </div>
-              <div className="columns">
-                <div className="column column-p0">
-                  <strong>Fallo detectado</strong>
-                  <p>{data?.failure_type || "[]"}</p>
+                  <p>{data?.type_maintenance_name || "[]"}</p>
                 </div>
                 <div className="column column-p0">
                   <strong>Tipo de solución</strong>
-                  <p>{data?.description_failure || "[]"}</p>
+                  <p>{data?.solution_name || "[]"}</p>
                 </div>
               </div>
               <div className="columns">
                 <div className="column column-p0">
-                  <strong>Observaciones</strong>
-                  <p>{data?.description_failure || "[]"}</p>
-                </div>
-              </div>
-              <div className="columns">
-                <div className="column">
-                  <h3 className="title is-6 mb-1">Fecha de finalización</h3>
-                  <p className="mb-0">
-                    {formatDateTime(data?.finalization_date) ||
-                      "[Sin fecha de finalización]"}
-                  </p>
-                </div>
-                <div className="column">
                   <h3 className="title is-6 mb-1">Evidencia de la solución</h3>
                   <a
                     href={data?.evidence_solution_url}
@@ -234,6 +238,19 @@ const Fault_report_detail = () => {
                   >
                     img_solución_1
                   </a>
+                </div>
+                <div className="column column-p0">
+                  <h3 className="title is-6 mb-1">Fecha de finalización</h3>
+                  <p className="mb-0">
+                    {formatDateTime(data?.finalization_date) ||
+                      "[Sin fecha de finalización]"}
+                  </p>
+                </div>
+              </div>
+              <div className="columns">
+                <div className="column">
+                  <strong>Observaciones</strong>
+                  <p>{data?.solution_remarks || "[]"}</p>
                 </div>
               </div>
             </div>

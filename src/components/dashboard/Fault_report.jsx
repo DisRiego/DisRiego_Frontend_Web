@@ -11,7 +11,7 @@ import Form_report from "./forms/adds/Form_report";
 import Form_assign_maintenance from "./forms/adds/Form_assign_maintenance";
 import Form_finalize_maintenance from "./forms/adds/Form_finalize_maintenance";
 import Message from "../Message";
-import { format } from "date-fns";
+import { format, set } from "date-fns";
 
 const Fault_report = () => {
   const [data, setData] = useState([]);
@@ -33,6 +33,7 @@ const Fault_report = () => {
   const [id, setId] = useState(null);
   const [idTechnician, setIdTechnician] = useState(null);
   const [showForm, setShowForm] = useState(false);
+  const [showEdit, setShowEdit] = useState(false);
   const [showAssign, setShowAssign] = useState(false);
   const [showFinalize, setShowFinalize] = useState(false);
   const [statusName, setStatusName] = useState(false);
@@ -291,6 +292,10 @@ const Fault_report = () => {
       icon: "BiShow",
       name: "Ver detalles",
     },
+    {
+      icon: "LuUserSearch",
+      name: "Editar reporte",
+    },
     hasPermission("Asignar responsable") && {
       icon: "TbUserPlus",
       name: "Asignar responsable",
@@ -341,6 +346,7 @@ const Fault_report = () => {
         setIdTechnician={setIdTechnician}
         setStatusName={setStatusName}
         setTitle={setTitle}
+        setShowEdit={setShowEdit}
         setShowAssign={setShowAssign}
         setShowFinalize={setShowFinalize}
         setConfirMessage={setConfirMessage}
@@ -358,6 +364,21 @@ const Fault_report = () => {
           <Form_report
             title={title}
             onClose={() => setShowForm(false)}
+            setShowMessage={setShowMessage}
+            setTitleMessage={setTitleMessage}
+            setMessage={setMessage}
+            setStatus={setStatus}
+            updateData={updateData}
+            loading={loading}
+            setLoading={setLoading}
+          />
+        </>
+      )}
+      {showEdit && (
+        <>
+          <Form_report
+            title={title}
+            onClose={() => setShowEdit(false)}
             setShowMessage={setShowMessage}
             setTitleMessage={setTitleMessage}
             setMessage={setMessage}

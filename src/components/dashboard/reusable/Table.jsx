@@ -316,6 +316,10 @@ const Table = ({
 
     //Reportes de fallos
     //Dispositivos
+    if (id === "report" && option.name === "Editar reporte") {
+      setTitle("Editar reporte");
+      setShowEdit(true);
+    }
     if (id === "report" && option.name === "Asignar responsable") {
       setTitle("Asignar responsable");
       setShowAssign(true);
@@ -549,6 +553,18 @@ const Table = ({
                                             return false;
                                         }
 
+                                        const statesAllowingEditFault = [
+                                          "Sin asignar",
+                                        ];
+                                        if (
+                                          option.name === "Editar reporte" &&
+                                          !statesAllowingEditFault.includes(
+                                            row["Estado"]
+                                          )
+                                        ) {
+                                          return false;
+                                        }
+
                                         const statesAllowingEditAassignFault = [
                                           "Sin asignar",
                                         ];
@@ -591,13 +607,13 @@ const Table = ({
                                             return false;
                                         }
 
-                                        const statesAllowingEditFault = [
+                                        const statesAllowingEditFinalize = [
                                           "Finalizado",
                                         ];
                                         if (
                                           option.name ===
                                             "Editar mantenimiento" &&
-                                          !statesAllowingEditFault.includes(
+                                          !statesAllowingEditFinalize.includes(
                                             row["Estado"]
                                           )
                                         ) {
