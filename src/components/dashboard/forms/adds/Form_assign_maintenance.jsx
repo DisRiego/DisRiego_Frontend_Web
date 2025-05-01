@@ -1,5 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
+import {
+  validateDate,
+  validatePhone,
+  validateTime,
+} from "../../../../hooks/useValidations";
+import Confirm_modal from "../../reusable/Confirm_modal";
 
 const Form_assign_maintenance = ({
   title,
@@ -12,10 +18,14 @@ const Form_assign_maintenance = ({
   id,
   loading,
   setLoading,
+  typeAction,
+  parentComponent,
 }) => {
   const [showConfirm, setShowConfirm] = useState(false);
+  const [newData, setNewData] = useState();
   const [dataReport, setDataReport] = useState([]);
   const [dataTechnician, setDataTechnician] = useState([]);
+  const [nameTechnician, setNameTechnician] = useState([]);
   const [disabled, setDisabled] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
   const [submittedProperty, setSubmittedProperty] = useState(false);
@@ -51,13 +61,39 @@ const Form_assign_maintenance = ({
     assignment_hour: "",
   });
 
+  const feedbackMessages = {
+    create_report: {
+      successTitle: "Asignación exitosa",
+      successMessage:
+        "La asignación del técnico ha sido realizada correctamente.",
+      errorTitle: "Error al asignar el ténico",
+      errorMessage:
+        "No se pudo asignar el técnico. Por favor, inténtelo de nuevo.",
+    },
+    edit_report: {
+      successTitle: "Asignación actualizada exitosamente",
+      successMessage: "La asignación ha sido modificada correctamente.",
+      errorTitle: "Error al actualizar la asignación",
+      errorMessage:
+        "No se pudo editar la asignación. Por favor, inténtelo de nuevo.",
+    },
+  };
+
   useEffect(() => {
-    getReportByID();
+    if (parentComponent === "report") {
+      getReportByID();
+    } else {
+      if (parentComponent === "system") {
+        getSystemByID();
+      }
+    }
+
     getTechnician();
   }, []);
 
   const getReportByID = async () => {
     try {
+      console.log("Entro a report");
       const response = await axios.get(
         import.meta.env.VITE_URI_BACKEND_MAINTENANCE +
           import.meta.env.VITE_ROUTE_BACKEND_REPORT +
@@ -65,8 +101,41 @@ const Form_assign_maintenance = ({
           import.meta.env.VITE_ROUTE_BACKEND_REPORT_DETAIL
       );
       const sortedData = response.data.data;
-      console.log(sortedData);
-      setDataReport(sortedData);
+      if (typeAction == "edit") {
+        setDataReport(sortedData);
+        setFormData({
+          user_id: sortedData?.technician_id,
+          assignment_date: sortedData?.assignment_date?.slice(0, 10),
+          assignment_hour: sortedData?.assignment_date?.slice(11, 16),
+        });
+      } else {
+        setDataReport(sortedData);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const getSystemByID = async () => {
+    try {
+      console.log("Entro a system");
+      const response = await axios.get(
+        import.meta.env.VITE_URI_BACKEND_MAINTENANCE +
+          import.meta.env.VITE_ROUTE_BACKEND_SYSTEM_FAULT +
+          id +
+          import.meta.env.VITE_ROUTE_BACKEND_SYSTEM_DETAIL
+      );
+      const sortedData = response.data.data;
+      if (typeAction == "edit") {
+        setDataReport(sortedData);
+        setFormData({
+          user_id: sortedData?.technician_id,
+          assignment_date: sortedData?.assignment_date?.slice(0, 10),
+          assignment_hour: sortedData?.assignment_date?.slice(11, 16),
+        });
+      } else {
+        setDataReport(sortedData);
+      }
     } catch (error) {
       console.log(error);
     }
@@ -81,7 +150,6 @@ const Form_assign_maintenance = ({
       const sortedData = response.data.data.sort((a, b) =>
         a.name.localeCompare(b.name)
       );
-      console.log(sortedData);
       setDataTechnician(sortedData);
       setIsLoading(false);
     } catch (error) {}
@@ -89,6 +157,18 @@ const Form_assign_maintenance = ({
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
+    if (name === "user_id") {
+      // Buscar el objeto completo por el ID seleccionado
+      const selectedType = dataTechnician.find(
+        (technician) => String(technician.id) === value
+      );
+
+      // Actualizar el nombre también si se encontró
+      if (selectedType) {
+        setNameTechnician(selectedType.name);
+      }
+    }
 
     setFormData({
       ...formData,
@@ -98,8 +178,125 @@ const Form_assign_maintenance = ({
 
   const handleSaveClick = () => {
     setSubmitted(true);
+
+    const isTechnicianValid = validatePhone(formData.user_id);
+    const isDateValid = validateDate(formData.assignment_date);
+    const isHourValid = validateTime(formData.assignment_hour);
+
     console.log(formData);
+
+    setErrors({
+      user_id: isTechnicianValid ? "" : "Debe seleccionar una opción",
+      assignment_date: isDateValid ? "" : "Fecha inválida",
+      assignment_hour: isHourValid ? "" : "Hora inválida",
+    });
+
+    if (isTechnicianValid && isDateValid && isHourValid) {
+      const dateLocal = new Date(
+        `${formData.assignment_date}T${formData.assignment_hour}:00`
+      );
+
+      const timestamp = toLocalISOString(dateLocal);
+
+      const dataToSend = {
+        user_id: formData.user_id,
+        assignment_date: timestamp,
+      };
+      console.log(dataToSend);
+      setNewData(dataToSend);
+
+      if (typeAction == "edit") {
+        setMethod("put");
+        if (parentComponent === "report") {
+          setConfirMessage(
+            `¿Desea editar la asignación del reporte con ID "${id}"?`
+          );
+          setUriPost(
+            import.meta.env.VITE_URI_BACKEND_MAINTENANCE +
+              import.meta.env.VITE_ROUTE_BACKEND_REPORT +
+              id +
+              import.meta.env.VITE_ROUTE_BACKEND_REPORT_ASSIGN_TECHNICIAN
+          );
+        } else {
+          setConfirMessage(
+            `¿Desea editar la asignación del fallo con ID "${id}"?`
+          );
+          if (parentComponent === "system") {
+            setUriPost(
+              import.meta.env.VITE_URI_BACKEND_MAINTENANCE +
+                import.meta.env.VITE_ROUTE_BACKEND_SYSTEM_FAULT +
+                id +
+                import.meta.env.VITE_ROUTE_BACKEND_SYSTEM_ASSIGN_TECHNICIAN
+            );
+          }
+        }
+
+        setTypeForm("edit_report");
+        setShowConfirm(true);
+      } else {
+        setMethod("post");
+        if (parentComponent === "report") {
+          setConfirMessage(
+            `¿Desea asignar al técnico "${toTitleCase(
+              nameTechnician
+            )}" para el reporte con ID "${id}"?`
+          );
+
+          setUriPost(
+            import.meta.env.VITE_URI_BACKEND_MAINTENANCE +
+              import.meta.env.VITE_ROUTE_BACKEND_REPORT +
+              id +
+              import.meta.env.VITE_ROUTE_BACKEND_REPORT_ASSIGN_TECHNICIAN
+          );
+        } else {
+          if (parentComponent === "system") {
+            setConfirMessage(
+              `¿Desea asignar al técnico "${toTitleCase(
+                nameTechnician
+              )}" para el fallo con ID "${id}"?`
+            );
+
+            setUriPost(
+              import.meta.env.VITE_URI_BACKEND_MAINTENANCE +
+                import.meta.env.VITE_ROUTE_BACKEND_SYSTEM_FAULT +
+                id +
+                import.meta.env.VITE_ROUTE_BACKEND_SYSTEM_ASSIGN_TECHNICIAN
+            );
+          }
+        }
+        setTypeForm("create_report");
+        setShowConfirm(true);
+      }
+    }
   };
+
+  function toLocalISOString(date) {
+    const pad = (n) => String(n).padStart(2, "0");
+
+    return (
+      date.getFullYear() +
+      "-" +
+      pad(date.getMonth() + 1) +
+      "-" +
+      pad(date.getDate()) +
+      "T" +
+      pad(date.getHours()) +
+      ":" +
+      pad(date.getMinutes()) +
+      ":" +
+      pad(date.getSeconds())
+    );
+  }
+
+  const toTitleCase = (str) => {
+    if (typeof str !== "string") return str;
+    return str
+      .toLowerCase()
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  };
+
   return (
     <>
       <div className="modal is-active">
@@ -163,7 +360,7 @@ const Form_assign_maintenance = ({
                         </option>
                         {dataTechnician.map((technician) => (
                           <option key={technician.id} value={technician.id}>
-                            {technician.name}
+                            {toTitleCase(technician.name)}
                           </option>
                         ))}
                       </select>
@@ -184,9 +381,9 @@ const Form_assign_maintenance = ({
                       ref={dateInputRef}
                       className={`input ${
                         submitted
-                          ? errors.open_date
+                          ? errors.assignment_date
                             ? "is-false"
-                            : "is-true"
+                            : ""
                           : ""
                       }`}
                       type="date"
@@ -213,7 +410,7 @@ const Form_assign_maintenance = ({
                         submitted
                           ? errors.assignment_hour
                             ? "is-false"
-                            : "is-true"
+                            : ""
                           : ""
                       }`}
                       type="time"
@@ -247,6 +444,27 @@ const Form_assign_maintenance = ({
           </footer>
         </div>
       </div>
+      {showConfirm && (
+        <Confirm_modal
+          onClose={() => {
+            setShowConfirm(false);
+          }}
+          onSuccess={onClose}
+          confirMessage={confirMessage}
+          method={method}
+          formData={newData}
+          setShowMessage={setShowMessage}
+          setTitleMessage={setTitleMessage}
+          setMessage={setMessage}
+          setStatus={setStatus}
+          uriPost={uriPost}
+          typeForm={typeForm}
+          loading={loading}
+          setLoading={setLoading}
+          updateData={updateData}
+          feedbackMessages={feedbackMessages}
+        />
+      )}
     </>
   );
 };

@@ -23,6 +23,7 @@ const Form_report = ({
   const [showForm, setShowForm] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [dataProperty, setDataProperty] = useState([]);
+  const [newData, setNewData] = useState();
   const [propertyValidate, setPropertyValidate] = useState("");
   const [dataLot, setDataLot] = useState([]);
   const [dataTypeFailure, setDataTypeFailure] = useState([]);
@@ -75,6 +76,9 @@ const Form_report = ({
 
   useEffect(() => {
     getFailureType();
+    if (id != null) {
+      getFaultReport();
+    }
   }, []);
 
   const getPropertyByID = async (property_id) => {
@@ -85,7 +89,7 @@ const Form_report = ({
           property_id
       );
       const sortedData = response.data.data;
-      getLot();
+      await getLot(property_id);
       setPropertyValidate("");
       setDataProperty(sortedData);
       setShowForm(true);
@@ -104,16 +108,15 @@ const Form_report = ({
     }
   };
 
-  const getLot = async () => {
+  const getLot = async (property_id) => {
     try {
       setFormData((prev) => ({ ...prev, lot_id: "" }));
       const response = await axios.get(
         import.meta.env.VITE_URI_BACKEND +
           import.meta.env.VITE_ROUTE_BACKEND_PROPERTY +
-          formProperty.property_id +
+          property_id +
           import.meta.env.VITE_ROUTE_BACKEND_LOTS
       );
-      console.log(response.data.data);
       const sortedData = response.data.data.sort((a, b) =>
         a.name.localeCompare(b.name)
       );
@@ -139,6 +142,29 @@ const Form_report = ({
     }
   };
 
+  const getFaultReport = async () => {
+    try {
+      const response = await axios.get(
+        import.meta.env.VITE_URI_BACKEND_MAINTENANCE +
+          import.meta.env.VITE_ROUTE_BACKEND_REPORT +
+          id +
+          import.meta.env.VITE_ROUTE_BACKEND_REPORT_DETAIL
+      );
+      const sortedData = response.data.data;
+      setFormProperty({ property_id: sortedData.property_id });
+      await getPropertyByID(sortedData.property_id);
+      setFormData({
+        lot_id: sortedData.lot_id,
+        type_failure_id: sortedData.type_failure_id_report,
+        description_failure: sortedData.description_failure,
+      });
+    } catch (error) {
+      console.log("Error al obtener el reporte de fallo:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -161,6 +187,8 @@ const Form_report = ({
       [name]: value,
     });
   };
+
+  console.log(formData);
 
   const handleValidate = async () => {
     const isPropertyValid = validatePhone(formProperty.property_id);
@@ -195,6 +223,11 @@ const Form_report = ({
     });
 
     if (isLotValid && isTypeFailureValid && isDescriptionValid) {
+      setNewData({
+        lot_id: parseInt(formData.lot_id),
+        type_failure_id: formData.type_failure_id,
+        description_failure: formData.description_failure,
+      });
       if (id != null) {
         setConfirMessage(
           `¿Desea actualizar el reporte de fallo con ID "${id}"?`
@@ -202,7 +235,8 @@ const Form_report = ({
         setMethod("put");
         setUriPost(
           import.meta.env.VITE_URI_BACKEND_MAINTENANCE +
-            import.meta.env.VITE_ROUTE_BACKEND_REPORT
+            import.meta.env.VITE_ROUTE_BACKEND_REPORT +
+            id
         );
         setTypeForm("edit");
         setShowConfirm(true);
@@ -221,7 +255,6 @@ const Form_report = ({
     }
   };
 
-  console.log(dataProperty);
   return (
     <>
       <div className="modal is-active">
@@ -427,7 +460,7 @@ const Form_report = ({
           onSuccess={onClose}
           confirMessage={confirMessage}
           method={method}
-          formData={formData}
+          formData={newData}
           setShowMessage={setShowMessage}
           setTitleMessage={setTitleMessage}
           setMessage={setMessage}

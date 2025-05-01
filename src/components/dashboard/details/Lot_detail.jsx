@@ -655,16 +655,17 @@ const Lot_detail = () => {
       );
 
       if (valve) {
-        setValveID(valve.id);
+        setValveID(valve?.id);
       }
-      fetchRequest(valve.id);
+      fetchRequest(valve?.id);
 
       if (meter) {
-        setMeterID(meter.id);
+        setMeterID(meter?.id);
       }
-      fetchConsumption(meter.id);
+      fetchConsumption(meter?.id);
 
       setDataIot(dataIot);
+      console.log(dataIot);
     } catch (error) {
       console.error("Error al obtener los dispositivos del lote:", error);
     }

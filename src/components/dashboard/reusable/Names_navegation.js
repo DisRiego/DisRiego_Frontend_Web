@@ -5,6 +5,12 @@ const Names_navegation = {
         "detail": "Detalles del reporte de fallo #",
       },
     },
+    "system": {
+      name: "Gestión de mantenimiento",
+      submodules: {
+        "detail": "Detalles del fallo autogenerado #",
+      },
+    },
     "property": {
       name: "Gestión de predios",
       submodules: {
@@ -45,6 +51,12 @@ const Names_navegation = {
       name: "Solicitudes",
       submodules: {
         "detail": "Detalles de la Solicitud #",
+      },  
+    },
+    "billing": {
+      name: "Gestión de facturación",
+      submodules: {
+        "detail": "Detalles de la factura #",
       },  
     },
   };

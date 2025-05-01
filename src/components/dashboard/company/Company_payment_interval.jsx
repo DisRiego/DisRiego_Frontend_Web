@@ -80,7 +80,7 @@ const Company_payment_interval = ({}) => {
     },
     hasPermission("Ver todas las tarifas") && {
       key: "rates",
-      label: "Tarifas",
+      label: "Conceptos y tarifas",
       path: "/dashboard/company/rates",
     },
   ].filter(Boolean);

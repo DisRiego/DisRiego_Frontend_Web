@@ -39,7 +39,7 @@ const Company_rates = ({}) => {
       button1: {
         icon: "FaPlus",
         class: "color-hover",
-        text: "Añadir intervalo",
+        text: "Añadir concepto",
       },
     },
   };
@@ -73,7 +73,7 @@ const Company_rates = ({}) => {
     },
     hasPermission("Ver todas las tarifas") && {
       key: "rates",
-      label: "Tarifas",
+      label: "Conceptos y tarifas",
       path: "/dashboard/company/rates",
     },
   ].filter(Boolean);

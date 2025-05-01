@@ -1229,7 +1229,7 @@ const generateReport = (
         "Longitud",
         "Tipo de cultivo",
         "Intervalo de pago",
-        "Fecha estimada de mantenimiento",
+        "Fecha estimada de cosecha",
       ],
     ],
     body: dataLots.map((lot) => [

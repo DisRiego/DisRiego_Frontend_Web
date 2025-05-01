@@ -5,22 +5,20 @@ import { MdOutlineWaterDrop } from "react-icons/md";
 import { FiUsers } from "react-icons/fi";
 import { HiOutlineBell } from "react-icons/hi";
 import { TbMapSearch, TbReport, TbLogout } from "react-icons/tb";
-import { LuWallet } from "react-icons/lu";
 import { RiLogoutBoxRLine } from "react-icons/ri";
 import { LuUserCog } from "react-icons/lu";
 import { LuUsersRound } from "react-icons/lu";
 import { IoHomeOutline } from "react-icons/io5";
 import { CgProfile } from "react-icons/cg";
 import { TbServerBolt } from "react-icons/tb";
-import { TbSettings } from "react-icons/tb";
 import { FiSettings } from "react-icons/fi";
+import { TbWallet } from "react-icons/tb";
 import { jwtDecode } from "jwt-decode";
 
 const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
   const navigate = useNavigate();
   const [token, setToken] = useState("");
   const [permissionsUser, setPermissionsUser] = useState([]);
-  const location = useLocation();
 
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
@@ -146,6 +144,13 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
       icon: <FiSettings />,
       label: "Mis fallos y reportes",
     },
+    {
+      permission: [""],
+      path: "/dashboard/billing",
+      selectoption: "billing",
+      icon: <TbWallet />,
+      label: "Gestión de facturación",
+    },
   ];
 
   const optionsFiltered = optionsMenu.filter((option) => {
@@ -171,6 +176,9 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
     const maintenanceOptions = ["system", "report"];
     if (maintenanceOptions.includes(selectedOption)) return "system";
 
+    const billingOptions = ["billing", "transaction"];
+    if (billingOptions.includes(selectedOption)) return "billing";
+
     const propertyRegex = /^\/dashboard\/property(\/\d+)?(\/lot\/\d+)?$/;
     if (propertyRegex.test(pathname)) return "property";
 
@@ -192,7 +200,6 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
             {!isCollapsed && <span>{option.label}</span>}
           </Link>
         ))}
-
         <Link
           className={`navbar-item ${
             getSelectedOption() === "profile" ? "selected" : ""
@@ -205,7 +212,6 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
           </span>
           {!isCollapsed && <span>Mi perfil</span>}
         </Link>
-
         <div className="separator separator-sidebar"></div>
         <Link className="navbar-item" onClick={handleSignUp}>
           <span className="icon">

@@ -20,10 +20,12 @@ const Filter_request = ({
       ...new Set(
         backupData.filter((item) => item.Estado).map((item) => item.Estado)
       ),
-    ].map((estado, index) => ({
-      id: index + 1,
-      nombre: estado,
-    }));
+    ]
+      .map((estado, index) => ({
+        id: index + 1,
+        nombre: estado,
+      }))
+      .sort((a, b) => a.nombre.localeCompare(b.nombre));
 
     setStatus(uniqueStatuses);
 
@@ -34,10 +36,12 @@ const Filter_request = ({
           .filter((item) => item["Tipo de solicitud"])
           .map((item) => item["Tipo de solicitud"])
       ),
-    ].map((tipo, index) => ({
-      id: index + 1,
-      nombre: tipo,
-    }));
+    ]
+      .map((tipo, index) => ({
+        id: index + 1,
+        nombre: tipo,
+      }))
+      .sort((a, b) => a.nombre.localeCompare(b.nombre));
 
     setApertureTypes(uniqueApertureTypes);
   }, [backupData]);

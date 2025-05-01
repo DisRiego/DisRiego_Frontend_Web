@@ -5,7 +5,7 @@ import Head from "../reusable/Head";
 import { format } from "date-fns";
 import { TbPointFilled } from "react-icons/tb";
 
-const Fault_report_detail = () => {
+const System_report_detail = () => {
   const { id } = useParams();
   const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -26,20 +26,20 @@ const Fault_report_detail = () => {
     try {
       const response = await axios.get(
         import.meta.env.VITE_URI_BACKEND_MAINTENANCE +
-          import.meta.env.VITE_ROUTE_BACKEND_REPORT +
+          import.meta.env.VITE_ROUTE_BACKEND_SYSTEM_FAULT +
           id +
-          import.meta.env.VITE_ROUTE_BACKEND_REPORT_DETAIL
+          import.meta.env.VITE_ROUTE_BACKEND_SYSTEM_DETAIL
       );
       setData(response.data.data);
     } catch (error) {
-      console.log("Error al obtener el reporte de fallo:", error);
+      console.log("Error al obtener el fallo autogenerado:", error);
     } finally {
       setIsLoading(false);
     }
   };
 
   const head_data = {
-    title: "Detalles del Reporte de Fallo #" + id,
+    title: "Detalles del Fallo Autogenerado #" + id,
     description:
       "En esta sección, puedes visualizar la información del report de fallo seleccionado.",
   };
@@ -268,4 +268,4 @@ const Fault_report_detail = () => {
   );
 };
 
-export default Fault_report_detail;
+export default System_report_detail;

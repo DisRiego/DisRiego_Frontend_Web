@@ -36,7 +36,9 @@ function AppContent() {
           <Route path="/dashboard/property/:id" element={<Dashboard />} />
           <Route path="/dashboard/properties/:id" element={<Dashboard />} />
           <Route path="/dashboard/device/:id" element={<Dashboard />} />
-          <Route path="/dashboard/maintenance/:id" element={<Dashboard />} />
+          <Route path="/dashboard/system/:id" element={<Dashboard />} />
+          <Route path="/dashboard/report/:id" element={<Dashboard />} />
+          <Route path="/dashboard/billing/:id" element={<Dashboard />} />
           <Route
             path="/dashboard/property/:id/lot/:id/device/:id"
             element={<Dashboard />}
@@ -53,17 +55,7 @@ function AppContent() {
             path="/dashboard/properties/:id/lot/:id/device/:id"
             element={<Dashboard />}
           />
-          <Route
-            path="/dashboard/maintenance/system/:id"
-            element={<Dashboard />}
-          />
-          <Route
-            path="/dashboard/maintenance/report/:id"
-            element={<Dashboard />}
-          />
         </Route>
-
-        <Route path="/dashboard/report/:id" element={<Dashboard />} />
       </Routes>
     </>
   );

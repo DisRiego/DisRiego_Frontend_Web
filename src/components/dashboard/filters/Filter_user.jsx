@@ -21,10 +21,12 @@ const Filter_user = ({
       ...new Set(
         backupData.filter((item) => item.Estado).map((item) => item.Estado)
       ),
-    ].map((estado, index) => ({
-      id: index + 1,
-      nombre: estado,
-    }));
+    ]
+      .map((estado, index) => ({
+        id: index + 1,
+        nombre: estado,
+      }))
+      .sort((a, b) => a.nombre.localeCompare(b.nombre));
 
     setStatus(uniqueStatuses);
 
@@ -35,10 +37,12 @@ const Filter_user = ({
           .filter((item) => item.Rol)
           .flatMap((item) => item.Rol.split(",").map((rol) => rol.trim()))
       ),
-    ].map((rol, index) => ({
-      id: index + 1,
-      nombre: rol,
-    }));
+    ]
+      .map((rol, index) => ({
+        id: index + 1,
+        nombre: rol,
+      }))
+      .sort((a, b) => a.nombre.localeCompare(b.nombre));
 
     setRoles(uniqueRoles);
 
@@ -49,10 +53,12 @@ const Filter_user = ({
           .filter((item) => item["Tipo de documento"])
           .map((item) => item["Tipo de documento"])
       ),
-    ].map((tipo, index) => ({
-      id: index + 1,
-      nombre: tipo,
-    }));
+    ]
+      .map((tipo, index) => ({
+        id: index + 1,
+        nombre: tipo,
+      }))
+      .sort((a, b) => a.nombre.localeCompare(b.nombre));
 
     setDocumentTypes(uniqueDocumentTypes);
   }, [backupData]);

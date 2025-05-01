@@ -9,8 +9,9 @@ import Table from "./reusable/Table";
 import Pagination from "./reusable/Pagination";
 import Form_report from "./forms/adds/Form_report";
 import Form_assign_maintenance from "./forms/adds/Form_assign_maintenance";
+import Form_finalize_maintenance from "./forms/adds/Form_finalize_maintenance";
 import Message from "../Message";
-import { format } from "date-fns";
+import { format, set } from "date-fns";
 
 const Fault_report = () => {
   const [data, setData] = useState([]);
@@ -30,11 +31,17 @@ const Fault_report = () => {
 
   const [title, setTitle] = useState();
   const [id, setId] = useState(null);
+  const [idTechnician, setIdTechnician] = useState(null);
   const [showForm, setShowForm] = useState(false);
+  const [showEdit, setShowEdit] = useState(false);
   const [showAssign, setShowAssign] = useState(false);
+  const [showFinalize, setShowFinalize] = useState(false);
+  const [showEditFinalize, setShowEditFinalize] = useState(false);
+  const [statusName, setStatusName] = useState(false);
   const [confirMessage, setConfirMessage] = useState();
   const [typeForm, setTypeForm] = useState();
   const [typeAction, setTypeAction] = useState("");
+  const parentComponent = "report";
 
   const [showMessage, setShowMessage] = useState(false);
   const [titleMessage, setTitleMessage] = useState(false);
@@ -98,7 +105,7 @@ const Fault_report = () => {
       "Número de documento",
       "Tipo de fallo",
       "Responsable del mantenimiento",
-      "Fecha del reporte",
+      "Fecha de generación del reporte",
       "Estado",
       "Opciones",
     ];
@@ -112,7 +119,7 @@ const Fault_report = () => {
       "ID del lote",
       "Número de documento",
       "Tipo de fallo",
-      "Fecha del reporte",
+      "Fecha de generación del reporte",
       "Estado",
       "Opciones",
     ];
@@ -125,7 +132,7 @@ const Fault_report = () => {
       "Nombre del predio",
       "Nombre del lote",
       "Posible fallo",
-      "Fecha del reporte",
+      "Fecha de generación del reporte",
       "Estado",
       "Opciones",
     ];
@@ -225,6 +232,15 @@ const Fault_report = () => {
     return format(date, "yyyy-MM-dd, hh:mm a").toLowerCase();
   };
 
+  const toTitleCase = (str) => {
+    if (typeof str !== "string") return str;
+    return str
+      .toLowerCase()
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  };
+
   const filteredData = data
     .filter((info) =>
       Object.values(info)
@@ -241,8 +257,9 @@ const Fault_report = () => {
           "ID del lote": info.lot_id,
           "Número de documento": info.owner_document,
           "Tipo de fallo": info.failure_type,
-          "Responsable del mantenimiento": info.technician_name,
-          "Fecha del reporte": formatDateTime(info.date),
+          "Responsable del mantenimiento": toTitleCase(info.technician_name),
+          "ID del responsable": info.technician_id,
+          "Fecha de generación del reporte": formatDateTime(info.date),
           Estado: info.status,
         };
       } else if (
@@ -255,7 +272,7 @@ const Fault_report = () => {
           "ID del lote": info.lot_id,
           "Número de documento": info.owner_document,
           "Tipo de fallo": info.failure_type,
-          "Fecha del reporte": formatDateTime(info.date),
+          "Fecha de generación del reporte": formatDateTime(info.date),
           Estado: info.status,
         };
       } else {
@@ -265,7 +282,7 @@ const Fault_report = () => {
           "Nombre del predio": info.property_name,
           "Nombre del lote": info.lot_name,
           "Posible fallo": info.failure_type,
-          "Fecha del reporte": formatDateTime(info.report_date),
+          "Fecha de generación del reporte": formatDateTime(info.report_date),
           Estado: info.status,
         };
       }
@@ -277,17 +294,25 @@ const Fault_report = () => {
       icon: "BiShow",
       name: "Ver detalles",
     },
-    hasPermission("Asignar técnico") && {
+    {
+      icon: "LuUserSearch",
+      name: "Editar reporte",
+    },
+    hasPermission("Asignar responsable") && {
       icon: "TbUserPlus",
       name: "Asignar responsable",
     },
-    hasPermission("Reasignar técnico") && {
+    hasPermission("Editar responsable") && {
       icon: "LuUserSearch",
-      name: "Reasignar responsable",
+      name: "Editar responsable",
     },
     hasPermission("Finalizar mantenimiento") && {
       icon: "BiEditAlt",
       name: "Finalizar mantenimiento",
+    },
+    hasPermission("Finalizar mantenimiento") && {
+      icon: "BiEditAlt",
+      name: "Editar mantenimiento",
     },
   ].filter(Boolean);
 
@@ -312,7 +337,8 @@ const Fault_report = () => {
       <Head head_data={head_data} onButtonClick={handleButtonClick} />
       <Tab tabs={tabs} useLinks={true}></Tab>
       <div className="container-search">
-        <Search onSearch={setSearchTerm} /> <Filter />
+        <Search onSearch={setSearchTerm} buttonDisabled={buttonDisabled} />
+        <Filter buttonDisabled={buttonDisabled} />
       </div>
       <Table
         columns={columns}
@@ -320,10 +346,13 @@ const Fault_report = () => {
         options={options}
         loadingTable={loadingTable}
         setId={setId}
+        setIdTechnician={setIdTechnician}
+        setStatusName={setStatusName}
         setTitle={setTitle}
-        // setShowEdit={setShowEdit}
+        setShowEdit={setShowEdit}
         setShowAssign={setShowAssign}
-        // setShowChangeStatus={setShowChangeStatus}
+        setShowFinalize={setShowFinalize}
+        setShowEditFinalize={setShowEditFinalize}
         setConfirMessage={setConfirMessage}
         setTypeForm={setTypeForm}
         setTypeAction={setTypeAction}
@@ -339,6 +368,21 @@ const Fault_report = () => {
           <Form_report
             title={title}
             onClose={() => setShowForm(false)}
+            setShowMessage={setShowMessage}
+            setTitleMessage={setTitleMessage}
+            setMessage={setMessage}
+            setStatus={setStatus}
+            updateData={updateData}
+            loading={loading}
+            setLoading={setLoading}
+          />
+        </>
+      )}
+      {showEdit && (
+        <>
+          <Form_report
+            title={title}
+            onClose={() => setShowEdit(false)}
             setShowMessage={setShowMessage}
             setTitleMessage={setTitleMessage}
             setMessage={setMessage}
@@ -363,6 +407,48 @@ const Fault_report = () => {
             id={id}
             loading={loading}
             setLoading={setLoading}
+            typeAction={typeAction}
+            parentComponent={parentComponent}
+          />
+        </>
+      )}
+      {showFinalize && (
+        <>
+          <Form_finalize_maintenance
+            title={title}
+            onClose={() => setShowFinalize(false)}
+            setShowMessage={setShowMessage}
+            setTitleMessage={setTitleMessage}
+            setMessage={setMessage}
+            setStatus={setStatus}
+            updateData={updateData}
+            id={id}
+            idTechnician={idTechnician}
+            statusName={statusName}
+            loading={loading}
+            setLoading={setLoading}
+            typeAction={typeAction}
+            parentComponent={parentComponent}
+          />
+        </>
+      )}
+      {showEditFinalize && (
+        <>
+          <Form_finalize_maintenance
+            title={title}
+            onClose={() => setShowEditFinalize(false)}
+            setShowMessage={setShowMessage}
+            setTitleMessage={setTitleMessage}
+            setMessage={setMessage}
+            setStatus={setStatus}
+            updateData={updateData}
+            id={id}
+            idTechnician={idTechnician}
+            statusName={statusName}
+            loading={loading}
+            setLoading={setLoading}
+            typeAction={typeAction}
+            parentComponent={parentComponent}
           />
         </>
       )}

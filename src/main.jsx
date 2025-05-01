@@ -4,6 +4,7 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 import "./styles/index.css";
 import "bulma/css/bulma.min.css";
 import "bulma-carousel/dist/css/bulma-carousel.min.css";
+import "bulma-o-steps/bulma-steps.min.css";
 import App from "./App.jsx";
 
 createRoot(document.getElementById("root")).render(

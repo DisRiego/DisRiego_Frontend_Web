@@ -20,12 +20,15 @@ const OptionsButton = ({ onClick }) => (
   @param {Array} options - Opciones disponibles por fila (Editar, Habilitar, etc).
   @param {boolean} loadingTable - Indica si se está cargando la tabla.
   @param {Function} setId - Establece el ID del registro seleccionado.
+  @param {Function} setIdTechnician - Establece el ID del técnico asignado.
   @param {Function} setTitle - Cambia el título del modal.
   @param {Function} setShowEdit - Abre el modal de edición.
   @param {Function} setShowEditUser - Abre el modal de edición del lote por parte de un usuario normal.
   @param {Function} setShowAssign - Abre modal para asignar dispositivos.
   @param {Function} setShowChangeStatus - Abre modal para cambiar estado.
   @param {Function} setShowFormReject - Abre formulario de rechazo de solicitud.
+  @param {Function} setShowFinalize - Abre formulario de finalizar mantenimiento.
+  @param {Function} setShowEditFinalize - Abre formulario de editar mantenimiento finalizado.
   @param {Function} setConfirMessage - Establece mensaje de confirmación.
   @param {Function} setTypeForm - Define el tipo de acción (editar, habilitar, etc).
   @param {string} parentComponent - Define el modulo en donde se encuentra (lote, user, etc).
@@ -38,12 +41,16 @@ const Table = ({
   options,
   loadingTable,
   setId,
+  setIdTechnician,
+  setStatusName,
   setTitle,
   setShowEdit,
   setShowEditUser,
   setShowAssign,
   setShowChangeStatus,
   setShowFormReject,
+  setShowFinalize,
+  setShowEditFinalize,
   setConfirMessage,
   setTypeForm,
   parentComponent,
@@ -309,11 +316,54 @@ const Table = ({
       setShowFormReject(true);
     }
 
+    //Fallos autogenerados
+    if (id === "system" && option.name === "Asignar responsable") {
+      setTitle("Asignar responsable");
+      setShowAssign(true);
+    }
+    if (id === "system" && option.name === "Editar responsable") {
+      setTitle("Editar responsable");
+      setTypeAction("edit");
+      setShowAssign(true);
+    }
+    if (id === "system" && option.name === "Finalizar mantenimiento") {
+      setTitle("Finalizar mantenimiento");
+      // setIdTechnician(row["ID del responsable"]);
+      setStatusName(row["Estado"]);
+      setShowFinalize(true);
+    }
+    if (id === "system" && option.name === "Editar mantenimiento") {
+      setTitle("Editar mantenimiento");
+      // setIdTechnician(row["ID del responsable"]);
+      setTypeAction("edit");
+      setShowEditFinalize(true);
+    }
+
     //Reportes de fallos
-    //Dispositivos
+    if (id === "report" && option.name === "Editar reporte") {
+      setTitle("Editar reporte");
+      setShowEdit(true);
+    }
     if (id === "report" && option.name === "Asignar responsable") {
       setTitle("Asignar responsable");
       setShowAssign(true);
+    }
+    if (id === "report" && option.name === "Editar responsable") {
+      setTitle("Editar responsable");
+      setTypeAction("edit");
+      setShowAssign(true);
+    }
+    if (id === "report" && option.name === "Finalizar mantenimiento") {
+      setTitle("Finalizar mantenimiento");
+      // setIdTechnician(row["ID del responsable"]);
+      setStatusName(row["Estado"]);
+      setShowFinalize(true);
+    }
+    if (id === "report" && option.name === "Editar mantenimiento") {
+      setTitle("Editar mantenimiento");
+      // setIdTechnician(row["ID del responsable"]);
+      setTypeAction("edit");
+      setShowEditFinalize(true);
     }
   };
 
@@ -527,20 +577,37 @@ const Table = ({
                                             return false;
                                         }
 
+                                        const statesAllowingEditFault = [
+                                          "Sin asignar",
+                                        ];
                                         if (
-                                          option.name ===
-                                            "Asignar responsable" &&
-                                          row["Responsable del mantenimiento"]
+                                          option.name === "Editar reporte" &&
+                                          !statesAllowingEditFault.includes(
+                                            row["Estado"]
+                                          )
                                         ) {
-                                          return false; // ya está asignado, no muestres Asignar
+                                          return false;
                                         }
 
-                                        const statesAllowingReassignFault = [
-                                          "En mantenimiento",
+                                        const statesAllowingEditAassignFault = [
+                                          "Sin asignar",
                                         ];
                                         if (
                                           option.name ===
-                                            "Reasignar responsable" &&
+                                            "Asignar responsable" &&
+                                          !statesAllowingEditAassignFault.includes(
+                                            row["Estado"]
+                                          )
+                                        ) {
+                                          return false;
+                                        }
+
+                                        const statesAllowingReassignFault = [
+                                          "Pendiente",
+                                        ];
+                                        if (
+                                          option.name ===
+                                            "Editar responsable" &&
                                           !statesAllowingReassignFault.includes(
                                             row["Estado"]
                                           )
@@ -553,7 +620,7 @@ const Table = ({
                                           "Finalizar mantenimiento"
                                         ) {
                                           const allowedStates = [
-                                            "En mantenimiento",
+                                            "Pendiente",
                                             // "Rechazada",
                                           ];
                                           if (
@@ -562,6 +629,19 @@ const Table = ({
                                             )
                                           )
                                             return false;
+                                        }
+
+                                        const statesAllowingEditFinalize = [
+                                          "Finalizado",
+                                        ];
+                                        if (
+                                          option.name ===
+                                            "Editar mantenimiento" &&
+                                          !statesAllowingEditFinalize.includes(
+                                            row["Estado"]
+                                          )
+                                        ) {
+                                          return false;
                                         }
 
                                         return true;

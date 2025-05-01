@@ -16,20 +16,22 @@ const Filter_iot = ({
   console.log(filters);
 
   useEffect(() => {
-    const uniqueStatuses = [
-      ...new Set(backupData.map((item) => item.Estado)),
-    ].map((estado, index) => ({
-      id: index + 1,
-      nombre: estado,
-    }));
+    const uniqueStatuses = [...new Set(backupData.map((item) => item.Estado))]
+      .map((estado, index) => ({
+        id: index + 1,
+        nombre: estado,
+      }))
+      .sort((a, b) => a.nombre.localeCompare(b.nombre));
     setStatus(uniqueStatuses);
 
     const uniqueTypes = [
       ...new Set(backupData.map((item) => item["Tipo de dispositivo"])),
-    ].map((tipo, index) => ({
-      id: index + 1,
-      nombre: tipo,
-    }));
+    ]
+      .map((tipo, index) => ({
+        id: index + 1,
+        nombre: tipo,
+      }))
+      .sort((a, b) => a.nombre.localeCompare(b.nombre));
     setDeviceTypes(uniqueTypes);
   }, [backupData]);
 
