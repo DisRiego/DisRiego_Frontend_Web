@@ -28,6 +28,7 @@ const OptionsButton = ({ onClick }) => (
   @param {Function} setShowChangeStatus - Abre modal para cambiar estado.
   @param {Function} setShowFormReject - Abre formulario de rechazo de solicitud.
   @param {Function} setShowFinalize - Abre formulario de finalizar mantenimiento.
+  @param {Function} setShowEditFinalize - Abre formulario de editar mantenimiento finalizado.
   @param {Function} setConfirMessage - Establece mensaje de confirmación.
   @param {Function} setTypeForm - Define el tipo de acción (editar, habilitar, etc).
   @param {string} parentComponent - Define el modulo en donde se encuentra (lote, user, etc).
@@ -49,6 +50,7 @@ const Table = ({
   setShowChangeStatus,
   setShowFormReject,
   setShowFinalize,
+  setShowEditFinalize,
   setConfirMessage,
   setTypeForm,
   parentComponent,
@@ -314,8 +316,30 @@ const Table = ({
       setShowFormReject(true);
     }
 
+    //Fallos autogenerados
+    if (id === "system" && option.name === "Asignar responsable") {
+      setTitle("Asignar responsable");
+      setShowAssign(true);
+    }
+    if (id === "system" && option.name === "Editar responsable") {
+      setTitle("Editar responsable");
+      setTypeAction("edit");
+      setShowAssign(true);
+    }
+    if (id === "system" && option.name === "Finalizar mantenimiento") {
+      setTitle("Finalizar mantenimiento");
+      // setIdTechnician(row["ID del responsable"]);
+      setStatusName(row["Estado"]);
+      setShowFinalize(true);
+    }
+    if (id === "system" && option.name === "Editar mantenimiento") {
+      setTitle("Editar mantenimiento");
+      // setIdTechnician(row["ID del responsable"]);
+      setTypeAction("edit");
+      setShowEditFinalize(true);
+    }
+
     //Reportes de fallos
-    //Dispositivos
     if (id === "report" && option.name === "Editar reporte") {
       setTitle("Editar reporte");
       setShowEdit(true);
@@ -331,15 +355,15 @@ const Table = ({
     }
     if (id === "report" && option.name === "Finalizar mantenimiento") {
       setTitle("Finalizar mantenimiento");
-      setIdTechnician(row["ID del responsable"]);
+      // setIdTechnician(row["ID del responsable"]);
       setStatusName(row["Estado"]);
       setShowFinalize(true);
     }
     if (id === "report" && option.name === "Editar mantenimiento") {
       setTitle("Editar mantenimiento");
-      setIdTechnician(row["ID del responsable"]);
+      // setIdTechnician(row["ID del responsable"]);
       setTypeAction("edit");
-      setShowFinalize(true);
+      setShowEditFinalize(true);
     }
   };
 

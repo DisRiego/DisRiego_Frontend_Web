@@ -36,10 +36,12 @@ const Fault_report = () => {
   const [showEdit, setShowEdit] = useState(false);
   const [showAssign, setShowAssign] = useState(false);
   const [showFinalize, setShowFinalize] = useState(false);
+  const [showEditFinalize, setShowEditFinalize] = useState(false);
   const [statusName, setStatusName] = useState(false);
   const [confirMessage, setConfirMessage] = useState();
   const [typeForm, setTypeForm] = useState();
   const [typeAction, setTypeAction] = useState("");
+  const parentComponent = "report";
 
   const [showMessage, setShowMessage] = useState(false);
   const [titleMessage, setTitleMessage] = useState(false);
@@ -335,7 +337,8 @@ const Fault_report = () => {
       <Head head_data={head_data} onButtonClick={handleButtonClick} />
       <Tab tabs={tabs} useLinks={true}></Tab>
       <div className="container-search">
-        <Search onSearch={setSearchTerm} /> <Filter />
+        <Search onSearch={setSearchTerm} buttonDisabled={buttonDisabled} />
+        <Filter buttonDisabled={buttonDisabled} />
       </div>
       <Table
         columns={columns}
@@ -349,6 +352,7 @@ const Fault_report = () => {
         setShowEdit={setShowEdit}
         setShowAssign={setShowAssign}
         setShowFinalize={setShowFinalize}
+        setShowEditFinalize={setShowEditFinalize}
         setConfirMessage={setConfirMessage}
         setTypeForm={setTypeForm}
         setTypeAction={setTypeAction}
@@ -404,6 +408,7 @@ const Fault_report = () => {
             loading={loading}
             setLoading={setLoading}
             typeAction={typeAction}
+            parentComponent={parentComponent}
           />
         </>
       )}
@@ -423,6 +428,27 @@ const Fault_report = () => {
             loading={loading}
             setLoading={setLoading}
             typeAction={typeAction}
+            parentComponent={parentComponent}
+          />
+        </>
+      )}
+      {showEditFinalize && (
+        <>
+          <Form_finalize_maintenance
+            title={title}
+            onClose={() => setShowEditFinalize(false)}
+            setShowMessage={setShowMessage}
+            setTitleMessage={setTitleMessage}
+            setMessage={setMessage}
+            setStatus={setStatus}
+            updateData={updateData}
+            id={id}
+            idTechnician={idTechnician}
+            statusName={statusName}
+            loading={loading}
+            setLoading={setLoading}
+            typeAction={typeAction}
+            parentComponent={parentComponent}
           />
         </>
       )}

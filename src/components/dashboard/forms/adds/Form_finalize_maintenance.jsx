@@ -19,11 +19,12 @@ const Form_finalize_maintenance = ({
   setStatus,
   updateData,
   id,
-  idTechnician,
+  // idTechnician,
   statusName,
   loading,
   setLoading,
   typeAction,
+  parentComponent,
 }) => {
   const [showConfirm, setShowConfirm] = useState(false);
   const [step, setStep] = useState(1);
@@ -34,7 +35,7 @@ const Form_finalize_maintenance = ({
   const [fileNameSolution, setFileNameSolution] = useState("");
   const [dataReport, setDataReport] = useState([]);
   const [assignmentID, setAssignmentID] = useState("");
-  const [nameTechnician, setNameTechnician] = useState([]);
+  // const [nameTechnician, setNameTechnician] = useState([]);
   const [typeFailure, setTypeFailure] = useState([]);
   const [typeMaintenance, setTypeMaintenance] = useState([]);
   const [typeSolution, setTypeSolution] = useState([]);
@@ -90,7 +91,14 @@ const Form_finalize_maintenance = ({
   };
 
   useEffect(() => {
-    getReportByID();
+    if (parentComponent === "report") {
+      getReportByID();
+    } else {
+      if (parentComponent === "system") {
+        getSystemByID();
+      }
+    }
+
     getFailureType();
     getmMaintenanceType();
   }, []);
@@ -117,6 +125,34 @@ const Form_finalize_maintenance = ({
           import.meta.env.VITE_ROUTE_BACKEND_REPORT +
           id +
           import.meta.env.VITE_ROUTE_BACKEND_REPORT_DETAIL
+      );
+      const sortedData = response.data.data;
+      if (typeAction == "edit") {
+        setDataReport(sortedData);
+        setFormData({
+          detail_id: sortedData.detail_id,
+          type_failure_id: sortedData.type_failure_id_detail,
+          fault_remarks: sortedData.fault_remarks,
+          type_maintenance_id: sortedData.type_maintenance_id,
+          failure_solution_id: sortedData.failure_solution_id,
+          solution_remarks: sortedData.solution_remarks,
+        });
+      } else {
+        setDataReport(sortedData);
+      }
+      setAssignmentID(sortedData.technician_assignment_id);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const getSystemByID = async () => {
+    try {
+      const response = await axios.get(
+        import.meta.env.VITE_URI_BACKEND_MAINTENANCE +
+          import.meta.env.VITE_ROUTE_BACKEND_SYSTEM_FAULT +
+          id +
+          import.meta.env.VITE_ROUTE_BACKEND_SYSTEM_DETAIL
       );
       const sortedData = response.data.data;
       if (typeAction == "edit") {

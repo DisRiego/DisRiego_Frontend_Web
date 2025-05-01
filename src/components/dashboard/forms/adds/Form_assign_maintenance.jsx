@@ -19,6 +19,7 @@ const Form_assign_maintenance = ({
   loading,
   setLoading,
   typeAction,
+  parentComponent,
 }) => {
   const [showConfirm, setShowConfirm] = useState(false);
   const [newData, setNewData] = useState();
@@ -61,7 +62,7 @@ const Form_assign_maintenance = ({
   });
 
   const feedbackMessages = {
-    create: {
+    create_report: {
       successTitle: "Asignación exitosa",
       successMessage:
         "La asignación del técnico ha sido realizada correctamente.",
@@ -69,7 +70,7 @@ const Form_assign_maintenance = ({
       errorMessage:
         "No se pudo asignar el técnico. Por favor, inténtelo de nuevo.",
     },
-    edit: {
+    edit_report: {
       successTitle: "Asignación actualizada exitosamente",
       successMessage: "La asignación ha sido modificada correctamente.",
       errorTitle: "Error al actualizar la asignación",
@@ -79,17 +80,50 @@ const Form_assign_maintenance = ({
   };
 
   useEffect(() => {
-    getReportByID();
+    if (parentComponent === "report") {
+      getReportByID();
+    } else {
+      if (parentComponent === "system") {
+        getSystemByID();
+      }
+    }
+
     getTechnician();
   }, []);
 
   const getReportByID = async () => {
     try {
+      console.log("Entro a report");
       const response = await axios.get(
         import.meta.env.VITE_URI_BACKEND_MAINTENANCE +
           import.meta.env.VITE_ROUTE_BACKEND_REPORT +
           id +
           import.meta.env.VITE_ROUTE_BACKEND_REPORT_DETAIL
+      );
+      const sortedData = response.data.data;
+      if (typeAction == "edit") {
+        setDataReport(sortedData);
+        setFormData({
+          user_id: sortedData?.technician_id,
+          assignment_date: sortedData?.assignment_date?.slice(0, 10),
+          assignment_hour: sortedData?.assignment_date?.slice(11, 16),
+        });
+      } else {
+        setDataReport(sortedData);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const getSystemByID = async () => {
+    try {
+      console.log("Entro a system");
+      const response = await axios.get(
+        import.meta.env.VITE_URI_BACKEND_MAINTENANCE +
+          import.meta.env.VITE_ROUTE_BACKEND_SYSTEM_FAULT +
+          id +
+          import.meta.env.VITE_ROUTE_BACKEND_SYSTEM_DETAIL
       );
       const sortedData = response.data.data;
       if (typeAction == "edit") {
@@ -172,34 +206,65 @@ const Form_assign_maintenance = ({
       setNewData(dataToSend);
 
       if (typeAction == "edit") {
-        setConfirMessage(
-          `¿Desea editar la asignación del reporte con ID "${id}"?`
-        );
-
         setMethod("put");
-        setUriPost(
-          import.meta.env.VITE_URI_BACKEND_MAINTENANCE +
-            import.meta.env.VITE_ROUTE_BACKEND_REPORT +
-            id +
-            import.meta.env.VITE_ROUTE_BACKEND_REPORT_ASSIGN_TECHNICIAN
-        );
-        setTypeForm("create");
+        if (parentComponent === "report") {
+          setConfirMessage(
+            `¿Desea editar la asignación del reporte con ID "${id}"?`
+          );
+          setUriPost(
+            import.meta.env.VITE_URI_BACKEND_MAINTENANCE +
+              import.meta.env.VITE_ROUTE_BACKEND_REPORT +
+              id +
+              import.meta.env.VITE_ROUTE_BACKEND_REPORT_ASSIGN_TECHNICIAN
+          );
+        } else {
+          setConfirMessage(
+            `¿Desea editar la asignación del fallo con ID "${id}"?`
+          );
+          if (parentComponent === "system") {
+            setUriPost(
+              import.meta.env.VITE_URI_BACKEND_MAINTENANCE +
+                import.meta.env.VITE_ROUTE_BACKEND_SYSTEM_FAULT +
+                id +
+                import.meta.env.VITE_ROUTE_BACKEND_SYSTEM_ASSIGN_TECHNICIAN
+            );
+          }
+        }
+
+        setTypeForm("edit_report");
         setShowConfirm(true);
       } else {
-        setConfirMessage(
-          `¿Desea asignar al técnico "${toTitleCase(
-            nameTechnician
-          )}" para el reporte con ID "${id}"?`
-        );
-
         setMethod("post");
-        setUriPost(
-          import.meta.env.VITE_URI_BACKEND_MAINTENANCE +
-            import.meta.env.VITE_ROUTE_BACKEND_REPORT +
-            id +
-            import.meta.env.VITE_ROUTE_BACKEND_REPORT_ASSIGN_TECHNICIAN
-        );
-        setTypeForm("create");
+        if (parentComponent === "report") {
+          setConfirMessage(
+            `¿Desea asignar al técnico "${toTitleCase(
+              nameTechnician
+            )}" para el reporte con ID "${id}"?`
+          );
+
+          setUriPost(
+            import.meta.env.VITE_URI_BACKEND_MAINTENANCE +
+              import.meta.env.VITE_ROUTE_BACKEND_REPORT +
+              id +
+              import.meta.env.VITE_ROUTE_BACKEND_REPORT_ASSIGN_TECHNICIAN
+          );
+        } else {
+          if (parentComponent === "system") {
+            setConfirMessage(
+              `¿Desea asignar al técnico "${toTitleCase(
+                nameTechnician
+              )}" para el fallo con ID "${id}"?`
+            );
+
+            setUriPost(
+              import.meta.env.VITE_URI_BACKEND_MAINTENANCE +
+                import.meta.env.VITE_ROUTE_BACKEND_SYSTEM_FAULT +
+                id +
+                import.meta.env.VITE_ROUTE_BACKEND_SYSTEM_ASSIGN_TECHNICIAN
+            );
+          }
+        }
+        setTypeForm("create_report");
         setShowConfirm(true);
       }
     }
