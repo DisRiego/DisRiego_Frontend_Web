@@ -13,7 +13,6 @@ const Filter_maintenance = ({
   const [typeFailure, setTypeFailure] = useState([]);
   const [nameTechnician, setNameTechnician] = useState([]);
   const [status, setStatus] = useState([]);
-
   const startDateRef = useRef(null);
   const endDateRef = useRef(null);
 
@@ -27,6 +26,17 @@ const Filter_maintenance = ({
     if (endDateRef.current) {
       endDateRef.current.showPicker();
     }
+  };
+
+  const [openSections, setOpenSections] = useState({
+    fallo: false,
+    tecnico: false,
+    fecha: false,
+    estado: false,
+  });
+
+  const toggleSection = (name) => {
+    setOpenSections((prev) => ({ ...prev, [name]: !prev[name] }));
   };
 
   useEffect(() => {
@@ -47,7 +57,7 @@ const Filter_maintenance = ({
     const uniqueTechnicians = [
       ...new Set(
         backupData
-          .map((item) => item["Responsable del mantenimiento"])
+          .map((item) => item["Técnico responsable"])
           .filter((value) => value)
       ),
     ].map((t, i) => ({ id: i + 1, nombre: t }));
@@ -59,6 +69,15 @@ const Filter_maintenance = ({
     setTypeFailure(uniqueFailures);
     setNameTechnician(uniqueTechnicians);
     setStatus(uniqueStatuses);
+
+    setOpenSections({
+      fallo: hasActiveFilters(filters.typeFailure),
+      tecnico: hasActiveFilters(filters.nameTechnician),
+      fecha:
+        hasActiveFilters(filters.startDate) ||
+        hasActiveFilters(filters.endDate),
+      estado: hasActiveFilters(filters.status),
+    });
   }, [backupData]);
 
   const handleChangeCheckbox = (field) => (e) => {
@@ -113,7 +132,7 @@ const Filter_maintenance = ({
 
     if (selectedTechnicians.length > 0) {
       filtered = filtered.filter((item) =>
-        selectedTechnicians.includes(item["Responsable del mantenimiento"])
+        selectedTechnicians.includes(item["Técnico responsable"])
       );
     }
 
@@ -143,6 +162,9 @@ const Filter_maintenance = ({
     setStatusFilter(true);
   };
 
+  const hasActiveFilters = (obj) =>
+    obj && typeof obj === "object" ? Object.values(obj).some((v) => v) : !!obj;
+
   return (
     <div className="modal is-active">
       <div className="modal-background" onClick={onClose}></div>
@@ -150,13 +172,21 @@ const Filter_maintenance = ({
         <h2 className="has-text-centered title is-4">Filtros</h2>
 
         <div className="view-filter-body">
-          <div className="field mt-5">
-            {hasPermission("Ver detalles de un reporte de fallo") ? (
-              <label className="label">Tipo de fallo</label>
-            ) : (
-              <label className="label">Posible fallo</label>
-            )}
-            <div className="container-status">
+          <div className="accordion mt-4">
+            <div
+              className="accordion-header"
+              onClick={() => toggleSection("fallo")}
+            >
+              <p className="has-text-weight-bold">
+                {hasPermission("Ver detalles de un reporte de fallo")
+                  ? "Tipo de fallo"
+                  : "Posible fallo"}
+              </p>
+              <span className="icon">{openSections.fallo ? "−" : "+"}</span>
+            </div>
+            <div
+              className={`accordion-body ${openSections.fallo ? "open" : ""}`}
+            >
               {typeFailure.map((tipo) => (
                 <div className="control" key={tipo.id}>
                   <label className="checkbox">
@@ -172,10 +202,22 @@ const Filter_maintenance = ({
               ))}
             </div>
           </div>
+
+          {/* Técnico responsable */}
           {hasPermission("Ver detalles de un reporte de fallo") && (
-            <div className="field mt-3">
-              <label className="label">Responsable del mantenimiento</label>
-              <div className="container-status">
+            <div className="accordion">
+              <div
+                className="accordion-header"
+                onClick={() => toggleSection("tecnico")}
+              >
+                <p className="has-text-weight-bold">Técnico responsable</p>
+                <span className="icon">{openSections.tecnico ? "−" : "+"}</span>
+              </div>
+              <div
+                className={`accordion-body ${
+                  openSections.tecnico ? "open" : ""
+                }`}
+              >
                 {nameTechnician.map((tech) => (
                   <div className="control" key={tech.id}>
                     <label className="checkbox">
@@ -193,37 +235,57 @@ const Filter_maintenance = ({
             </div>
           )}
 
-          <div className="mt-3">
-            <label className="label">Fecha de generación</label>
-            <div className="field">
-              <label className="label">Desde</label>
-              <input
-                ref={startDateRef}
-                type="date"
-                className="input"
-                name="startDate"
-                value={filters.startDate}
-                onChange={handleDateChange}
-                onFocus={handleStartDateFocus}
-              />
+          {/* Fecha de generación */}
+          <div className="accordion">
+            <div
+              className="accordion-header"
+              onClick={() => toggleSection("fecha")}
+            >
+              <p className="has-text-weight-bold">Fecha de generación</p>
+              <span className="icon">{openSections.fecha ? "−" : "+"}</span>
             </div>
-            <div className="field">
-              <label className="label">Hasta</label>
-              <input
-                ref={endDateRef}
-                type="date"
-                className="input"
-                name="endDate"
-                value={filters.endDate}
-                onChange={handleDateChange}
-                onFocus={handleEndOpenFocus}
-              />
+            <div
+              className={`accordion-body ${openSections.fecha ? "open" : ""}`}
+            >
+              <div className="field">
+                <label className="label">Desde</label>
+                <input
+                  ref={startDateRef}
+                  type="date"
+                  className="input"
+                  name="startDate"
+                  value={filters.startDate}
+                  onChange={handleDateChange}
+                  onFocus={handleStartDateFocus}
+                />
+              </div>
+              <div className="field">
+                <label className="label">Hasta</label>
+                <input
+                  ref={endDateRef}
+                  type="date"
+                  className="input"
+                  name="endDate"
+                  value={filters.endDate}
+                  onChange={handleDateChange}
+                  onFocus={handleEndOpenFocus}
+                />
+              </div>
             </div>
           </div>
 
-          <div className="field mt-3">
-            <label className="label">Estado</label>
-            <div className="container-status">
+          {/* Estado */}
+          <div className="accordion">
+            <div
+              className="accordion-header"
+              onClick={() => toggleSection("estado")}
+            >
+              <p className="has-text-weight-bold">Estado</p>
+              <span className="icon">{openSections.estado ? "−" : "+"}</span>
+            </div>
+            <div
+              className={`accordion-body ${openSections.estado ? "open" : ""}`}
+            >
               {status.map((estado) => (
                 <div className="control" key={estado.id}>
                   <label className="checkbox">

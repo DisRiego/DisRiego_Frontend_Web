@@ -462,11 +462,11 @@ form > .button-login {
   max-height: 0;
   overflow: hidden;
   transition: max-height 0.3s ease-in-out;
-  padding-left: 1em;
+  /* padding-left: 1em; */
 }
 
 .accordion-body.open {
-  max-height: 150px;
+  max-height: 170px;
   overflow-y: auto;
 }
 

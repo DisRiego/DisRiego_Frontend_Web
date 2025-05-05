@@ -165,7 +165,7 @@ const Fault_report = () => {
       "ID del lote",
       "Número de documento",
       "Tipo de fallo",
-      "Responsable del mantenimiento",
+      "Técnico responsable",
       "Fecha de generación del reporte",
       "Estado",
       "Opciones",
@@ -358,9 +358,7 @@ const Fault_report = () => {
               "ID del lote": info.lot_id,
               "Número de documento": info.owner_document,
               "Tipo de fallo": info.failure_type,
-              "Responsable del mantenimiento": toTitleCase(
-                info.technician_name
-              ),
+              "Técnico responsable": toTitleCase(info.technician_name),
               "ID del responsable": info.technician_id,
               "Fecha de generación del reporte": formatDateTime(info.date),
               Estado: info.status,
