@@ -66,7 +66,8 @@ const Fault_report_detail = () => {
           companyData,
           locationData,
           userData,
-          id
+          id,
+          formatDateTime
         );
       } catch (error) {
         setTitleMessage?.("Error al generar el reporte");
@@ -408,84 +409,235 @@ const generateReport = (
   companyData,
   locationNames,
   userData,
-  id
+  id,
+  formatDateTime
 ) => {
-  const doc = new jsPDF();
+  try {
+    const doc = new jsPDF();
 
-  // Add Roboto font to the document
-  doc.addFont(RobotoNormalFont, "Roboto", "normal");
-  doc.addFont(RobotoBoldFont, "Roboto", "bold");
+    doc.addFont(RobotoNormalFont, "Roboto", "normal");
+    doc.addFont(RobotoBoldFont, "Roboto", "bold");
 
-  //colorear fondo
-  doc.setFillColor(243, 242, 247);
-  doc.rect(0, 0, 210, 53, "F"); // colorear una parte de la pagina
-  // agregar logo (usando base 64 directamente sobre la importacion)
+    doc.setFillColor(243, 242, 247);
+    doc.rect(0, 0, 210, 53, "F");
+    doc.addImage(Icon, "PNG", 156, 10, 39, 11);
 
-  doc.addImage(Icon, "PNG", 156, 10, 39, 11);
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(15);
+    doc.setFont("Roboto", "bold");
+    doc.text(`REPORTE DE FALLO #${id} (${data.status})`, 12, 18);
 
-  doc.setTextColor(0, 0, 0);
-  doc.setFontSize(17);
-  doc.setFont("Roboto", "bold");
-  doc.text(`REPORTE DE FALLO #${id}`, 12, 18);
-  doc.setFontSize(11);
-  doc.text(`Fecha de generación:`, 12, 27);
-  doc.text(`Generado por:`, 12, 39);
-  /*doc.setTextColor(94, 100, 112);*/
+    doc.setFontSize(11);
+    doc.text(`Fecha de generación:`, 12, 27);
+    doc.text(`Generado por:`, 12, 39);
 
-  doc.setTextColor(94, 100, 112);
-  doc.setFont("Roboto", "normal");
-  doc.setFontSize(10);
-  doc.text(`${new Date().toLocaleString()}`, 12, 32);
-  doc.text(
-    [userData?.name, userData?.first_last_name, userData?.second_last_name]
-      .filter(Boolean) // Elimina null, undefined y strings vacíos
-      .join(" "),
-    12,
-    44
-  );
-  doc.setTextColor(0, 0, 0);
-  doc.setFontSize(10);
-  doc.setFont("Roboto", "bold");
-  doc.text(`Dirección de la empresa:`, 194, 27, { align: "right" });
-  doc.text(`Correo electrónico de la empresa:`, 194, 39, { align: "right" });
-
-  doc.setTextColor(94, 100, 112);
-  doc.setFont("Roboto", "normal");
-  doc.setFontSize(10);
-  doc.text(
-    `${companyData.address}. ${locationNames.state}, ${locationNames.city}`,
-    194,
-    32,
-    { align: "right" }
-  );
-
-  doc.text(`${companyData.email}`, 194, 44, { align: "right" });
-
-  doc.addImage(Icon, "PNG", 12, 280, 32, 9);
-
-  // Agregar numeración de páginas en el pie de página
-  const pageCount = doc.internal.getNumberOfPages();
-  for (let i = 1; i <= pageCount; i++) {
-    doc.setPage(i);
+    doc.setTextColor(94, 100, 112);
+    doc.setFont("Roboto", "normal");
     doc.setFontSize(10);
+    doc.text(`${new Date().toLocaleString()}`, 12, 32);
+    doc.text(
+      [userData?.name, userData?.first_last_name, userData?.second_last_name]
+        .filter(Boolean)
+        .join(" "),
+      12,
+      44
+    );
 
-    doc.setFont("Roboto", "normal"); // Set Roboto font for page numbers
-    const pageWidth = doc.internal.pageSize.getWidth();
-    const pageHeight = doc.internal.pageSize.getHeight();
-    doc.text(`Página ${i}/${pageCount}`, pageWidth - 10, pageHeight - 10, {
-      align: "right",
+    doc.setTextColor(0, 0, 0);
+    doc.setFont("Roboto", "bold");
+    doc.text(`Dirección de la empresa:`, 194, 27, { align: "right" });
+    doc.text(`Correo electrónico de la empresa:`, 194, 39, { align: "right" });
+
+    doc.setTextColor(94, 100, 112);
+    doc.setFont("Roboto", "normal");
+    doc.text(
+      `${companyData.address}. ${locationNames.state}, ${locationNames.city}`,
+      194,
+      32,
+      { align: "right" }
+    );
+    doc.text(`${companyData.email}`, 194, 44, { align: "right" });
+
+    const labels = [
+      "Estado actual",
+      "ID predio",
+      "Nombre del predio",
+      "Número de documento",
+      "Fecha del reporte",
+      "Posible fallo",
+      "Observaciones",
+      "ID del lote",
+      "Nombre del lote",
+      "Ubicación (latitud, longitud)",
+    ];
+    doc.setFont("Roboto", "bold");
+    doc.setFontSize(9);
+    const maxLabelWidth = Math.max(
+      ...labels.map((label) => doc.getTextWidth(label))
+    );
+
+    let startY = 60;
+
+    // TITULOS PARA PREDIO Y LOTE (alineados a cada columna)
+    doc.setFont("Roboto", "bold");
+    doc.setFontSize(11);
+    doc.setTextColor(0, 0, 0);
+    doc.text("Información del predio", 12, startY + 6);
+    doc.text("Información del lote", 120, startY + 6);
+
+    // Tabla de predio (izquierda)
+    autoTable(doc, {
+      startY: startY + 10,
+      margin: { left: 12 },
+      tableWidth: "wrap",
+      head: [["Campo", "Valor"]],
+      body: [
+        ["ID predio", data.property_id || "[]"],
+        ["Nombre del predio", data.property_name || "[]"],
+        [
+          "Ubicación (latitud, longitud)",
+          `${data.property_latitude}, ${data.property_longitude}` || "[]",
+        ],
+      ],
+      styles: { fontSize: 9, font: "Roboto" },
+      headStyles: {
+        fillColor: [252, 252, 253],
+        fontStyle: "bold",
+        textColor: [0, 0, 0],
+      },
+      bodyStyles: { textColor: [89, 89, 89] },
+      columnStyles: {
+        0: { cellWidth: maxLabelWidth + 8 },
+        1: { cellWidth: "auto" },
+      },
     });
+
+    const predioY = doc.lastAutoTable.finalY;
+
+    // Tabla de lote (derecha)
+    autoTable(doc, {
+      startY: startY + 10,
+      margin: { left: 120 }, // Aquí el ESPACIO real
+      tableWidth: "wrap",
+      head: [["Campo", "Valor"]],
+      body: [
+        ["ID del lote", data.lot_id || "[]"],
+        ["Nombre del lote", data.lot_name || "[]"],
+        [
+          "Ubicación (latitud, longitud)",
+          `${data.lot_latitude}, ${data.lot_longitude}` || "[]",
+        ],
+      ],
+      styles: { fontSize: 9, font: "Roboto" },
+      headStyles: {
+        fillColor: [252, 252, 253],
+        fontStyle: "bold",
+        textColor: [0, 0, 0],
+      },
+      bodyStyles: { textColor: [89, 89, 89] },
+      columnStyles: {
+        0: { cellWidth: maxLabelWidth + 8 },
+        1: { cellWidth: "auto" },
+      },
+    });
+
+    const loteY = doc.lastAutoTable.finalY;
+
+    startY = Math.max(predioY, loteY) + 5;
+
+    // 📦 Secciones siguientes
+    const sections = {
+      "Información del dueño": [
+        ["Nombre", toTitleCase(data.owner_name)],
+        ["Documento", data.owner_document],
+        ["Correo", data.owner_email],
+        ["Teléfono", data.owner_phone],
+      ],
+      "Información del fallo reportado": [
+        ["Posible fallo", data.failure_type_report],
+        ["Observaciones", data.description_failure],
+        [
+          "Fecha de generación del reporte",
+          formatDateTime(data.assignment_date),
+        ],
+      ],
+    };
+
+    // Condicionalmente agregamos las secciones si hay contenido real
+    if (data.failure_type_detail || data.fault_remarks) {
+      sections["Información del fallo encontrado por el técnico"] = [
+        ["Tipo de fallo", data.failure_type_detail],
+        ["Observaciones", data.fault_remarks],
+      ];
+    }
+
+    if (
+      data.type_maintenance_name ||
+      data.solution_name ||
+      data.finalization_date ||
+      data.solution_remarks
+    ) {
+      sections["Información de la solución realizada por el técnico"] = [
+        ["Tipo de mantenimiento", data.type_maintenance_name],
+        ["Tipo de solución", data.solution_name],
+        ["Fecha de finalización", formatDateTime(data.finalization_date)],
+        ["Observaciones", data.solution_remarks],
+      ];
+    }
+
+    Object.entries(sections).forEach(([title, body]) => {
+      doc.setFont("Roboto", "bold");
+      doc.setFontSize(11);
+      doc.setTextColor(0, 0, 0);
+      doc.text(title, 12, startY + 6);
+
+      autoTable(doc, {
+        startY: startY + 10,
+        margin: { left: 12 },
+        head: [["Campo", "Valor"]],
+        body,
+        theme: "grid",
+        headStyles: {
+          fillColor: [252, 252, 253],
+          textColor: [0, 0, 0],
+          fontStyle: "bold",
+          font: "Roboto",
+        },
+        bodyStyles: { textColor: [89, 89, 89], font: "Roboto" },
+        styles: {
+          fontSize: 9,
+          cellPadding: 2,
+          font: "Roboto",
+        },
+        columnStyles: {
+          0: { cellWidth: maxLabelWidth + 8 },
+          1: { cellWidth: "auto" },
+        },
+      });
+
+      startY = doc.lastAutoTable.finalY + 5;
+    });
+
+    // Footer
+    doc.addImage(Icon, "PNG", 12, 280, 32, 9);
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(10);
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      doc.text(`Página ${i}/${pageCount}`, pageWidth - 10, pageHeight - 10, {
+        align: "right",
+      });
+    }
+
+    const pdfBlob = doc.output("blob");
+    const pdfUrl = URL.createObjectURL(pdfBlob);
+    setTimeout(() => {
+      window.open(pdfUrl, "_blank");
+      onFinish();
+    }, 500);
+  } catch (err) {
+    console.error(err);
   }
-
-  // Convertir el PDF a un Blob
-  const pdfBlob = doc.output("blob");
-
-  // Crear una URL del Blob
-  const pdfUrl = URL.createObjectURL(pdfBlob);
-
-  // Abrir el PDF en una nueva pestaña
-  setTimeout(() => {
-    window.open(pdfUrl, "_blank");
-    onFinish();
-  }, 500);
 };
