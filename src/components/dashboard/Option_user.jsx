@@ -132,7 +132,7 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
       path: "/dashboard/system",
       selectoption: "system",
       icon: <FiSettings />,
-      label: "Gest. mantenimientos",
+      label: "Gestión de mantenimientos",
     },
     {
       permission: [

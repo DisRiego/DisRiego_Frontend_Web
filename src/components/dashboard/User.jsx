@@ -114,7 +114,6 @@ const User = () => {
 
   const handleFilterClick = () => {
     setShowFilter(true);
-    console.log("Filtros...");
   };
 
   const head_data = {

@@ -407,7 +407,7 @@ const Table = ({
             // Si no hay datos, se muestra un mensaje indicando que no hay registros
             <tr>
               <td
-                colSpan={columns.length - 1}
+                colSpan={columns.length /*- 1*/}
                 className="no-data-cell has-text-centered is-vcentered"
               >
                 No hay datos disponibles.
@@ -415,7 +415,7 @@ const Table = ({
             </tr>
           ) : (
             // Si hay datos, se renderizan las filas una por una
-            data.map((row, rowIndex) => (
+            data?.map((row, rowIndex) => (
               <tr key={rowIndex}>
                 {columns
                   .filter((column) => !["ID", "ID Predio"].includes(column))
