@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import useUserPermissions from "../../hooks/useUserPermissions";
 import Head from "./reusable/Head";
@@ -6,6 +6,7 @@ import Tab from "./reusable/Tab";
 import Search from "./reusable/Search";
 import Filter from "./reusable/Filter";
 import Table from "./reusable/Table";
+import Pagination from "./reusable/Pagination";
 
 const Billing = () => {
   const [data, setData] = useState([]);
@@ -36,6 +37,31 @@ const Billing = () => {
   });
 
   const [id, setId] = useState(null);
+  const [dots, setDots] = useState("");
+  const totals = useMemo(() => {
+    const counts = {
+      emitidas: data.length,
+      pendientes: 0,
+      pagadas: 0,
+      vencidas: 0,
+    };
+
+    data.forEach((item) => {
+      const estado = item.status_name?.toLowerCase();
+      if (estado === "pendiente") counts.pendientes += 1;
+      else if (estado === "pagada") counts.pagadas += 1;
+      else if (estado === "vencida") counts.vencidas += 1;
+    });
+
+    return counts;
+  }, [data]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setDots((prev) => (prev.length < 3 ? prev + "." : ""));
+    }, 500);
+    return () => clearInterval(interval);
+  }, []);
 
   const head_data = {
     title: "Gestión de facturación",
@@ -133,6 +159,18 @@ const Billing = () => {
           attachment: "factura_fac-003.pdf",
           status_name: "Vencida",
         },
+        {
+          id: 3,
+          property_id: 103,
+          lot_id: 2,
+          owner_document_number: "1010115909",
+          payment_interval_name: "Anual",
+          issue_date: "2025-04-01",
+          due_date: "2025-04-15",
+          amount_due: 500000,
+          attachment: "factura_fac-004.pdf",
+          status_name: "Vencida",
+        },
       ];
 
       setData(billing);
@@ -199,50 +237,75 @@ const Billing = () => {
     <>
       <Head head_data={head_data} />
       <Tab tabs={tabs} useLinks={true}></Tab>
-      <div className="container-body">
-        <div className="total_amount">
-          <div className="fixed-grid has-4-cols-desktop has-2-cols-mobile">
-            <div className="grid">
-              <div className="cell rol-detail">
-                <p className="has-text-weight-bold mb-2">
-                  Total facturas emitidas
-                </p>
-                <p>[cantidad]</p>
-              </div>
-              <div className="cell rol-detail">
-                <p className="has-text-weight-bold mb-2">
-                  Total facturas pendientes
-                </p>
-                <p>[cantidad]</p>
-              </div>
-              <div className="cell rol-detail">
-                <p className="has-text-weight-bold mb-2">
-                  Total facturas pagadas
-                </p>
-                <p>[cantidad]</p>
-              </div>
-              <div className="cell rol-detail">
-                <p className="has-text-weight-bold mb-2">
-                  Total facturas vencidas
-                </p>
-                <p>[cantidad]</p>
-              </div>
-            </div>
+      {loadingTable ? (
+        <div className="rol-detail">
+          <div className="loader-cell">
+            <div className="loader cont-loader"></div>
+            <p className="loader-text">Cargando información{dots}</p>
           </div>
         </div>
-        <div className="rol-detail"></div>
-        <div className="container-search">
-          <Search />
-          <Filter />
-        </div>
-        <Table
-          columns={columns}
-          data={paginatedData}
-          options={options}
-          loadingTable={loadingTable}
-          setId={setId}
-        />
-      </div>
+      ) : (
+        <>
+          <div className="container-cont">
+            <div className="total_amount">
+              <div className="fixed-grid has-4-cols-desktop has-2-cols-mobile">
+                <div className="grid">
+                  <div className="cell rol-detail">
+                    <p className="has-text-weight-bold mb-2">
+                      Total facturas emitidas
+                    </p>
+                    <p className="is-size-5 has-text-weight-bold">
+                      {totals.emitidas}
+                    </p>
+                  </div>
+                  <div className="cell rol-detail">
+                    <p className="has-text-weight-bold mb-2">
+                      Total facturas pendientes
+                    </p>
+                    <p className="is-size-5 has-text-weight-bold">
+                      {totals.pendientes}
+                    </p>
+                  </div>
+                  <div className="cell rol-detail">
+                    <p className="has-text-weight-bold mb-2">
+                      Total facturas pagadas
+                    </p>
+                    <p className="is-size-5 has-text-weight-bold">
+                      {totals.pagadas}
+                    </p>
+                  </div>
+                  <div className="cell rol-detail">
+                    <p className="has-text-weight-bold mb-2">
+                      Total facturas vencidas
+                    </p>
+                    <p className="is-size-5 has-text-weight-bold">
+                      {totals.vencidas}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="rol-detail"></div>
+          </div>
+          <div className="container-search">
+            <Search onSearch={setSearchTerm} buttonDisabled={buttonDisabled} />
+            <Filter buttonDisabled={buttonDisabled} />
+          </div>
+          <Table
+            columns={columns}
+            data={paginatedData}
+            options={options}
+            loadingTable={loadingTable}
+            setId={setId}
+          />
+          <Pagination
+            totalItems={filteredData.length}
+            itemsPerPage={itemsPerPage}
+            currentPage={currentPage}
+            onPageChange={setCurrentPage}
+          />
+        </>
+      )}
     </>
   );
 };

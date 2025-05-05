@@ -16,6 +16,7 @@ import { TbWallet } from "react-icons/tb";
 import { jwtDecode } from "jwt-decode";
 
 const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
+  const location = useLocation();
   const navigate = useNavigate();
   const [token, setToken] = useState("");
   const [permissionsUser, setPermissionsUser] = useState([]);
@@ -132,7 +133,7 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
       path: "/dashboard/system",
       selectoption: "system",
       icon: <FiSettings />,
-      label: "Gest. mantenimientos",
+      label: "Gestión de mantenimientos",
     },
     {
       permission: [
@@ -166,24 +167,24 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
     }
   });
 
-  const getSelectedOption = (pathname) => {
-    const companyRelatedOptions = ["certificate", "crop", "payment", "rates"];
-    if (companyRelatedOptions.includes(selectedOption)) return "company";
+  const getSelectedOption = () => {
+    const path = location.pathname;
 
-    const notificationdOptions = ["notification", "request"];
-    if (notificationdOptions.includes(selectedOption)) return "notification";
+    if (path.startsWith("/dashboard/notification")) return "notification";
+    if (path.startsWith("/dashboard/company")) return "company";
+    if (path.startsWith("/dashboard/rol")) return "rol";
+    if (path.startsWith("/dashboard/user")) return "user";
+    if (path.startsWith("/dashboard/property")) return "property";
+    if (path.startsWith("/dashboard/properties")) return "properties";
+    if (path.startsWith("/dashboard/device")) return "device";
+    if (path.startsWith("/dashboard/system")) return "system";
+    if (path.startsWith("/dashboard/report")) return "system";
+    if (path.startsWith("/dashboard/billing")) return "billing";
+    if (path.startsWith("/dashboard/profile")) return "profile";
 
-    const maintenanceOptions = ["system", "report"];
-    if (maintenanceOptions.includes(selectedOption)) return "system";
-
-    const billingOptions = ["billing", "transaction"];
-    if (billingOptions.includes(selectedOption)) return "billing";
-
-    const propertyRegex = /^\/dashboard\/property(\/\d+)?(\/lot\/\d+)?$/;
-    if (propertyRegex.test(pathname)) return "property";
-
-    return selectedOption;
+    return null;
   };
+
   return (
     <>
       <div className="sidebar-options">
@@ -191,7 +192,9 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
           <Link
             key={index}
             className={`navbar-item ${
-              getSelectedOption() === option.selectoption ? "selected" : ""
+              getSelectedOption(location.pathname) === option.selectoption
+                ? "selected"
+                : ""
             }`}
             onClick={() => handleOptionChange(option.selectoption)}
             to={option.path}
@@ -200,6 +203,7 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
             {!isCollapsed && <span>{option.label}</span>}
           </Link>
         ))}
+
         <Link
           className={`navbar-item ${
             getSelectedOption() === "profile" ? "selected" : ""
