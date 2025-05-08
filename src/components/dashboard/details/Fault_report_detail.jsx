@@ -575,6 +575,7 @@ const generateReport = (
       data.solution_remarks
     ) {
       sections["Información de la solución realizada por el técnico"] = [
+        ["Nombre del técnico", toTitleCase(data.technician_name)],
         ["Tipo de mantenimiento", data.type_maintenance_name],
         ["Tipo de solución", data.solution_name],
         ["Fecha de finalización", formatDateTime(data.finalization_date)],
