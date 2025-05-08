@@ -70,7 +70,7 @@ const Fault_report = () => {
 
   const handleButtonClick = async (buttonText) => {
     if (buttonText === "Reportar fallo") {
-      setTitle("Crear reporte de fallo");
+      setTitle("Generar reporte de fallo");
       setShowForm(true);
     }
 

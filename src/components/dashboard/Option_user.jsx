@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { MdOutlineWaterDrop } from "react-icons/md";
 import { FiUsers } from "react-icons/fi";
 import { HiOutlineBell } from "react-icons/hi";
 import { TbMapSearch, TbReport, TbLogout } from "react-icons/tb";
@@ -11,8 +10,9 @@ import { LuUsersRound } from "react-icons/lu";
 import { IoHomeOutline } from "react-icons/io5";
 import { CgProfile } from "react-icons/cg";
 import { TbServerBolt } from "react-icons/tb";
-import { FiSettings } from "react-icons/fi";
+import { HiOutlineWrenchScrewdriver } from "react-icons/hi2";
 import { TbWallet } from "react-icons/tb";
+import { MdOutlineWaterDrop } from "react-icons/md";
 import { jwtDecode } from "jwt-decode";
 
 const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
@@ -132,8 +132,8 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
       ],
       path: "/dashboard/system",
       selectoption: "system",
-      icon: <FiSettings />,
-      label: "Gestión de mantenimientos",
+      icon: <HiOutlineWrenchScrewdriver />,
+      label: "Gestión de mantenimiento",
     },
     {
       permission: [
@@ -142,15 +142,29 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
       ],
       path: "/dashboard/system",
       selectoption: "system",
-      icon: <FiSettings />,
+      icon: <HiOutlineWrenchScrewdriver />,
       label: "Mis fallos y reportes",
     },
     {
-      permission: [""],
+      permission: ["Ver todas las facturas", "Ver todas las transacciones"],
       path: "/dashboard/billing",
       selectoption: "billing",
       icon: <TbWallet />,
       label: "Gestión de facturación",
+    },
+    {
+      permission: ["Ver todos los consumos"],
+      path: "/dashboard/consumption",
+      selectoption: "consumption",
+      icon: <MdOutlineWaterDrop />,
+      label: "Gestión de consumo",
+    },
+    {
+      permission: ["Ver todos los consumos de un usuario"],
+      path: "/dashboard/consumption",
+      selectoption: "consumption",
+      icon: <MdOutlineWaterDrop />,
+      label: "Mis consumo",
     },
   ];
 
@@ -180,6 +194,8 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
     if (path.startsWith("/dashboard/system")) return "system";
     if (path.startsWith("/dashboard/report")) return "system";
     if (path.startsWith("/dashboard/billing")) return "billing";
+    if (path.startsWith("/dashboard/transaction")) return "billing";
+    if (path.startsWith("/dashboard/consumption")) return "consumption";
     if (path.startsWith("/dashboard/profile")) return "profile";
 
     return null;

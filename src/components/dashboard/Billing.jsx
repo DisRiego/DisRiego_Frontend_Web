@@ -285,7 +285,14 @@ const Billing = () => {
                 </div>
               </div>
             </div>
-            <div className="rol-detail"></div>
+            <div className="columns mb-1">
+              <div className="column is-three-quarters">
+                <div className="rol-detail"></div>
+              </div>
+              <div className="column">
+                <div className="rol-detail"></div>
+              </div>
+            </div>
           </div>
           <div className="container-search">
             <Search onSearch={setSearchTerm} buttonDisabled={buttonDisabled} />
