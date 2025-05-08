@@ -174,8 +174,6 @@ const Form_finalize_maintenance = ({
     }
   };
 
-  console.log(formData);
-
   const getFailureType = async () => {
     try {
       const response = await axios.get(
@@ -185,7 +183,6 @@ const Form_finalize_maintenance = ({
       const sortedData = response.data.data.sort((a, b) =>
         a.name.localeCompare(b.name)
       );
-      console.log(sortedData);
       setTypeFailure(sortedData);
     } catch (error) {
       console.error("Error al obtener los tipos de fallos:", error);

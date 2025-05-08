@@ -93,7 +93,6 @@ const Form_assign_maintenance = ({
 
   const getReportByID = async () => {
     try {
-      console.log("Entro a report");
       const response = await axios.get(
         import.meta.env.VITE_URI_BACKEND_MAINTENANCE +
           import.meta.env.VITE_ROUTE_BACKEND_REPORT +
@@ -118,7 +117,6 @@ const Form_assign_maintenance = ({
 
   const getSystemByID = async () => {
     try {
-      console.log("Entro a system");
       const response = await axios.get(
         import.meta.env.VITE_URI_BACKEND_MAINTENANCE +
           import.meta.env.VITE_ROUTE_BACKEND_SYSTEM_FAULT +
@@ -183,8 +181,6 @@ const Form_assign_maintenance = ({
     const isDateValid = validateDate(formData.assignment_date);
     const isHourValid = validateTime(formData.assignment_hour);
 
-    console.log(formData);
-
     setErrors({
       user_id: isTechnicianValid ? "" : "Debe seleccionar una opción",
       assignment_date: isDateValid ? "" : "Fecha inválida",
@@ -202,7 +198,6 @@ const Form_assign_maintenance = ({
         user_id: formData.user_id,
         assignment_date: timestamp,
       };
-      console.log(dataToSend);
       setNewData(dataToSend);
 
       if (typeAction == "edit") {

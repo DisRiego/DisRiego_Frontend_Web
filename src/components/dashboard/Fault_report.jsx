@@ -372,7 +372,7 @@ const Fault_report = () => {
             )
           ) {
             return {
-              ID: info.id,
+              ID: info.report_id,
               "ID del reporte": info.report_id,
               "ID del predio": info.property_id,
               "ID del lote": info.lot_id,
