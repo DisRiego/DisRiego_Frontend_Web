@@ -67,6 +67,7 @@ const Fault_report = () => {
   const [titleMessage, setTitleMessage] = useState(false);
   const [message, setMessage] = useState(false);
   const [status, setStatus] = useState(false);
+  const [isTechnician, setIsTechnician] = useState(false);
 
   const handleButtonClick = async (buttonText) => {
     if (buttonText === "Reportar fallo") {
@@ -105,7 +106,8 @@ const Fault_report = () => {
           () => setLoadingReport(""),
           companyData,
           locationData,
-          userData
+          userData,
+          isTechnician
         );
       } catch (error) {
         setTitleMessage?.("Error al generar el reporte");
@@ -249,6 +251,7 @@ const Fault_report = () => {
       const sortedData = response.data.data.sort((a, b) => b.id - a.id);
 
       setData(sortedData);
+      setIsTechnician(true);
     } catch (error) {
       console.error(
         "Error al obtener los reportes de fallos de un usuario:",
@@ -602,6 +605,7 @@ const Fault_report = () => {
             setFilters={setFilters}
             backupData={backupData}
             hasPermission={hasPermission}
+            isTechnician={isTechnician}
           />
         </>
       )}
@@ -625,7 +629,8 @@ const generateReport = (
   onFinish,
   companyData,
   locationNames,
-  userData
+  userData,
+  isTechnician
 ) => {
   const doc = new jsPDF();
 
@@ -685,27 +690,49 @@ const generateReport = (
     startY: 80,
     margin: { left: 12 },
     head: [
-      [
-        "ID",
-        "ID del predio",
-        "ID del lote",
-        "Número de documento",
-        "Tipo de fallo",
-        "Técnico responsable",
-        "Fecha de generación del reporte",
-        "Estado",
-      ],
+      isTechnician
+        ? [
+            "ID",
+            "ID del predio",
+            "ID del lote",
+            "Número de documento",
+            "Tipo de fallo",
+            "Fecha de generación del reporte",
+            "Estado",
+          ]
+        : [
+            "ID",
+            "ID del predio",
+            "ID del lote",
+            "Número de documento",
+            "Tipo de fallo",
+            "Técnico responsable",
+            "Fecha de generación del reporte",
+            "Estado",
+          ],
     ],
-    body: filteredData.map((report) => [
-      report["ID"],
-      report["ID del predio"],
-      report["ID del lote"],
-      report["Número de documento"],
-      report["Tipo de fallo"],
-      toTitleCase(report["Técnico responsable"]),
-      report["Fecha de generación del reporte"],
-      toTitleCase(report["Estado"]),
-    ]),
+    body: filteredData.map((report) =>
+      isTechnician
+        ? [
+            report["ID"],
+            report["ID del predio"],
+            report["ID del lote"],
+            report["Número de documento"],
+            report["Tipo de fallo"],
+            report["Fecha de generación del reporte"],
+            toTitleCase(report["Estado"]),
+          ]
+        : [
+            report["ID"],
+            report["ID del predio"],
+            report["ID del lote"],
+            report["Número de documento"],
+            report["Tipo de fallo"],
+            toTitleCase(report["Técnico responsable"]),
+            report["Fecha de generación del reporte"],
+            toTitleCase(report["Estado"]),
+          ]
+    ),
 
     theme: "grid",
     headStyles: {

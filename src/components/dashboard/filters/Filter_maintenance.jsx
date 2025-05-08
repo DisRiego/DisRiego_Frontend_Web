@@ -9,6 +9,7 @@ const Filter_maintenance = ({
   setFilters,
   backupData,
   hasPermission,
+  isTechnician,
 }) => {
   const [typeFailure, setTypeFailure] = useState([]);
   const [nameTechnician, setNameTechnician] = useState([]);
@@ -204,36 +205,41 @@ const Filter_maintenance = ({
           </div>
 
           {/* Técnico responsable */}
-          {hasPermission("Ver detalles de un reporte de fallo") && (
-            <div className="accordion">
-              <div
-                className="accordion-header"
-                onClick={() => toggleSection("tecnico")}
-              >
-                <p className="has-text-weight-bold">Técnico responsable</p>
-                <span className="icon">{openSections.tecnico ? "−" : "+"}</span>
+          {hasPermission("Ver detalles de un reporte de fallo") &&
+            isTechnician === false && (
+              <div className="accordion">
+                <div
+                  className="accordion-header"
+                  onClick={() => toggleSection("tecnico")}
+                >
+                  <p className="has-text-weight-bold">Técnico responsable</p>
+                  <span className="icon">
+                    {openSections.tecnico ? "−" : "+"}
+                  </span>
+                </div>
+                <div
+                  className={`accordion-body ${
+                    openSections.tecnico ? "open" : ""
+                  }`}
+                >
+                  {nameTechnician.map((tech) => (
+                    <div className="control" key={tech.id}>
+                      <label className="checkbox">
+                        <input
+                          type="checkbox"
+                          name={tech.nombre}
+                          checked={
+                            filters.nameTechnician?.[tech.nombre] || false
+                          }
+                          onChange={handleChangeCheckbox("nameTechnician")}
+                        />{" "}
+                        {tech.nombre}
+                      </label>
+                    </div>
+                  ))}
+                </div>
               </div>
-              <div
-                className={`accordion-body ${
-                  openSections.tecnico ? "open" : ""
-                }`}
-              >
-                {nameTechnician.map((tech) => (
-                  <div className="control" key={tech.id}>
-                    <label className="checkbox">
-                      <input
-                        type="checkbox"
-                        name={tech.nombre}
-                        checked={filters.nameTechnician?.[tech.nombre] || false}
-                        onChange={handleChangeCheckbox("nameTechnician")}
-                      />{" "}
-                      {tech.nombre}
-                    </label>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+            )}
 
           {/* Fecha de generación */}
           <div className="accordion">
