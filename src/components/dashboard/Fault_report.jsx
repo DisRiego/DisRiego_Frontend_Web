@@ -653,7 +653,7 @@ const generateReport = (
   doc.text(`Fecha de generación:`, 12, 27);
   doc.text(`Generado por:`, 12, 39);
   /*doc.setTextColor(94, 100, 112);*/
-  doc.text("Roles actuales en el sistema", 12, 63);
+  doc.text("Reportes actuales en el sistema", 12, 63);
 
   doc.setTextColor(94, 100, 112);
   doc.setFont("Roboto", "normal");
@@ -683,7 +683,7 @@ const generateReport = (
   );
 
   doc.text(`${companyData.email}`, 194, 44, { align: "right" });
-  doc.text(`Cantidad de roles: ${filteredData.length}`, 12, 68);
+  doc.text(`Cantidad de reportes: ${filteredData.length}`, 12, 68);
 
   // Agregar tabla con autoTable
   autoTable(doc, {
