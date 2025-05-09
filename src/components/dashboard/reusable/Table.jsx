@@ -365,6 +365,11 @@ const Table = ({
       setTypeAction("edit");
       setShowEditFinalize(true);
     }
+
+    //Facturación
+    if (id === "billing" && option.name === "Pagar") {
+      navigate("pay/" + row.ID);
+    }
   };
 
   /**
@@ -640,6 +645,17 @@ const Table = ({
                                           !statesAllowingEditFinalize.includes(
                                             row["Estado"]
                                           )
+                                        ) {
+                                          return false;
+                                        }
+
+                                        const statesPay = [
+                                          "Vencida",
+                                          "Pendiente",
+                                        ];
+                                        if (
+                                          option.name === "Pagar" &&
+                                          !statesPay.includes(row["Estado"])
                                         ) {
                                           return false;
                                         }

@@ -108,6 +108,10 @@ const Billing = () => {
       icon: "BiShow",
       name: "Ver detalles",
     },
+    {
+      icon: "TbCoin",
+      name: "Pagar",
+    },
   ].filter(Boolean);
 
   useEffect(() => {

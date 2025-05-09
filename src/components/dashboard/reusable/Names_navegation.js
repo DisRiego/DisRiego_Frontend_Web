@@ -59,6 +59,11 @@ const Names_navegation = {
         "detail": "Detalles de la factura #",
       },  
     },
+    "pay": {
+      submodules: {
+        "detail": "Pago de factura #",
+      },  
+    },
   };
   
   export default Names_navegation;
