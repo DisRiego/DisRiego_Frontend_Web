@@ -1525,3 +1525,19 @@ td > td.status-vencida {
 .steps > .steps-segment:after {
   background-color: #c2e96a;
 }
+
+.description-pay {
+  padding-left: 17px;
+}
+
+@media (prefers-color-scheme: light) {
+  ::-ms-reveal {
+    color: black;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  ::-ms-reveal {
+    filter: invert(100%);
+  }
+}
