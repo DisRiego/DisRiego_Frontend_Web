@@ -241,7 +241,9 @@ const System_fault = () => {
           decodedToken.id +
           import.meta.env.VITE_ROUTE_BACKEND_SYSTEM_BY_USERS
       );
-      const sortedData = response.data.data.sort((a, b) => b.id - a.id);
+      const sortedData = response.data.data.sort(
+        (a, b) => b.maintenance_id - a.maintenance_id
+      );
 
       setData(sortedData);
       setIsTechnician(true);
@@ -265,7 +267,9 @@ const System_fault = () => {
           decodedToken.id +
           import.meta.env.VITE_ROUTE_BACKEND_SYSTEM_BY_USERS
       );
-      const sortedData = response.data.data.sort((a, b) => b.id - a.id);
+      const sortedData = response.data.data.sort(
+        (a, b) => b.maintenance_id - a.maintenance_id
+      );
 
       setData(sortedData);
     } catch (error) {

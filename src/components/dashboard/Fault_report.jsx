@@ -248,7 +248,9 @@ const Fault_report = () => {
           decodedToken.id +
           import.meta.env.VITE_ROUTE_BACKEND_REPORT_BY_USERS
       );
-      const sortedData = response.data.data.sort((a, b) => b.id - a.id);
+      const sortedData = response.data.data.sort(
+        (a, b) => b.report_id - a.report_id
+      );
 
       setData(sortedData);
       setIsTechnician(true);
@@ -272,7 +274,9 @@ const Fault_report = () => {
           decodedToken.id +
           import.meta.env.VITE_ROUTE_BACKEND_REPORT_BY_USERS
       );
-      const sortedData = response.data.data.sort((a, b) => b.id - a.id);
+      const sortedData = response.data.data.sort(
+        (a, b) => b.report_id - a.report_id
+      );
 
       setData(sortedData);
     } catch (error) {

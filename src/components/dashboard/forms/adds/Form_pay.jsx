@@ -193,7 +193,7 @@ const Form_pay = () => {
         para procesar tu transacción de forma rápida y segura.
       </p>
 
-      <div className="rol-detail mt-6 p-5">
+      <div className="box mt-6 p-5">
         <label className="label">Opciones de pago</label>
         {isLoading ? (
           <div className="rol-detail">
@@ -339,17 +339,17 @@ const Form_pay = () => {
                 )}
               </div>
             </div>
-            <div className="has-text-grey-light is-size-7 mt-4 has-text-centered">
-              <span className="icon is-small">
-                <FiLock />
-              </span>
-              <span>
-                Protegemos tu información de pago con tecnología de encriptación
-                avanzada para garantizar tu seguridad en todo momento.
-              </span>
-            </div>
           </>
         )}
+        <div className="has-text-grey-light is-size-7 mt-4 has-text-centered">
+          <span className="icon is-small">
+            <FiLock />
+          </span>
+          <span>
+            Protegemos tu información de pago con tecnología de encriptación
+            avanzada para garantizar tu seguridad en todo momento.
+          </span>
+        </div>
       </div>
     </div>
   );
