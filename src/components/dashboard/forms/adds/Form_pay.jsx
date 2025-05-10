@@ -312,18 +312,28 @@ const Form_pay = () => {
                   </p>
                 ) : (
                   <>
-                    <label className="label">Banco</label>
-                    <div class="select">
-                      <select>
-                        <option value="" disabled>
-                          Seleccione una opción
-                        </option>
-                        {bank.map((bank) => (
-                          <option key={bank.id} value={bank.id}>
-                            {toTitleCase(bank.description)}
-                          </option>
-                        ))}
-                      </select>
+                    <div className="mt-3">
+                      <div className="columns">
+                        <div className="column">
+                          <div className="field">
+                            <label className="label">Banco emisor</label>
+                            <div className="control">
+                              <div class="select ">
+                                <select>
+                                  <option value="" disabled>
+                                    Seleccione una opción
+                                  </option>
+                                  {bank.map((bank) => (
+                                    <option key={bank.id} value={bank.id}>
+                                      {toTitleCase(bank.description)}
+                                    </option>
+                                  ))}
+                                </select>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </>
                 )}
