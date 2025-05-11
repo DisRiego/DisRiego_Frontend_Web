@@ -28,6 +28,7 @@ import System_report_detail from "../components/dashboard/details/System_report_
 import Billing from "../components/dashboard/Billing";
 import Billing_detail from "../components/dashboard/details/Billing_detail";
 import Form_pay from "../components/dashboard/forms/adds/Form_pay";
+import Transaction from "../components/dashboard/Transaction";
 
 const Dashboard = () => {
   const { id } = useParams();
@@ -105,6 +106,10 @@ const Dashboard = () => {
       case `billing`:
         return <Billing />;
       case `billing/${id}`:
+        return <Billing_detail />;
+      case `transaction`:
+        return <Transaction />;
+      case `transaction/${id}`:
         return <Billing_detail />;
       case `pay/${id}`:
         return <Form_pay />;

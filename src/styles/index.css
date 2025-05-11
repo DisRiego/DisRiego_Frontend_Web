@@ -1541,3 +1541,7 @@ td > td.status-vencida {
     filter: invert(100%);
   }
 }
+
+.container-filter {
+  margin-bottom: 1em;
+}
