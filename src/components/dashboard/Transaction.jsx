@@ -817,12 +817,12 @@ const generateReport = (
   doc.setTextColor(0, 0, 0);
   doc.setFontSize(17);
   doc.setFont("Roboto", "bold");
-  doc.text("CONSOLIDADOS DE FACTURAS", 12, 18);
+  doc.text("CONSOLIDADOS DE TRANSACCIONES", 12, 18);
   doc.setFontSize(11);
   doc.text(`Fecha de generación:`, 12, 27);
   doc.text(`Generado por:`, 12, 39);
   /*doc.setTextColor(94, 100, 112);*/
-  doc.text("Facturas actuales en el sistema", 12, 63);
+  doc.text("Transacciones actuales", 12, 63);
 
   doc.setTextColor(94, 100, 112);
   doc.setFont("Roboto", "normal");
@@ -853,7 +853,7 @@ const generateReport = (
   );
 
   doc.text(`${companyData.email}`, 285, 44, { align: "right" });
-  doc.text(`Cantidad de facturas: ${filteredData.length}`, 12, 68);
+  doc.text(`Cantidad: ${filteredData.length}`, 12, 68);
 
   // Resto de cosas del PDF
   autoTable(doc, {
@@ -861,26 +861,22 @@ const generateReport = (
     margin: { left: 12 },
     head: [
       [
-        "N° Factura",
-        "ID del predio",
-        "ID del lote",
+        "ID de transacción",
         "Número de documento",
-        "Intervalo de pago",
-        "Fecha de emisión",
-        "Fecha de vencimiento",
-        "Valor a pagar",
+        "Referencia de pago",
+        "Metodo de pago",
+        "Valor pagado",
+        "Fecha del pago",
         "Estado",
       ],
     ],
     body: filteredData.map((bill) => [
-      bill["N° Factura"],
-      bill["ID del predio"],
-      bill["ID del lote"],
+      bill["ID de transacción"],
       bill["Número de documento"],
-      bill["Intervalo de pago"],
-      bill["Fecha de emisión"],
-      bill["Fecha de vencimiento"],
-      bill["Valor a pagar"],
+      bill["Referencia de pago"],
+      bill["Metodo de pago"],
+      bill["Valor pagado"],
+      bill["Fecha del pago"],
       bill["Estado"],
     ]),
 
