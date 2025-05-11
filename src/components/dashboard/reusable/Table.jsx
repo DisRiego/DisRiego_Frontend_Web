@@ -250,6 +250,23 @@ const Table = ({
       setShowChangeStatus(true);
     }
 
+    //Conceptos
+    if (parentComponent === "concept" && option.name === "Editar") {
+      setTitle("Editar concepto");
+      setShowEdit(true);
+    }
+
+    if (parentComponent === "concept" && option.name === "Inhabilitar") {
+      setConfirMessage(`¿Desea inhabilitar el concepto "${row["Nombre"]}"?`);
+      setTypeForm("inhabilitar");
+      setShowChangeStatus(true);
+    }
+    if (parentComponent === "concept" && option.name === "Habilitar") {
+      setConfirMessage(`¿Desea habilitar el concepto "${row["Nombre"]}"?`);
+      setTypeForm("habilitar");
+      setShowChangeStatus(true);
+    }
+
     //Dispositivos
     if (id === "device" && option.name === "Editar") {
       setTitle("Editar dispositivo");

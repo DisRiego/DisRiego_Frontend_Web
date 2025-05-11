@@ -15,7 +15,7 @@ import Company_data from "../components/dashboard/company/Company_data";
 import Company_certificate from "../components/dashboard/company/Company_certificate";
 import Company_crop from "../components/dashboard/company/Company_crop";
 import Company_payment_interval from "../components/dashboard/company/Company_payment_interval";
-import Company_rates from "../components/dashboard/company/Company_rates";
+import Company_concept from "../components/dashboard/company/Company_concept";
 import Device from "../components/dashboard/Device";
 import Device_detail from "../components/dashboard/details/Device_detail";
 import Profile from "../components/dashboard/Profile";
@@ -116,8 +116,8 @@ const Dashboard = () => {
         return <Company_crop />;
       case `payment`:
         return <Company_payment_interval />;
-      case `rates`:
-        return <Company_rates />;
+      case `concept`:
+        return <Company_concept />;
       case `profile`:
         return <Profile />;
     }

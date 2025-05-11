@@ -6,27 +6,21 @@ import Tab from "../reusable/Tab";
 import Table from "../reusable/Table";
 import Pagination from "../reusable/Pagination";
 import Message from "../../Message";
-import Form_crop from "../forms/adds/Form_crop";
-import Change_status_crop from "../Status/Change_status_crop";
+import Form_concept from "../forms/adds/Form_concept";
+import Change_status_concept from "../Status/Change_status_concept";
 
-const Company_crop = ({}) => {
-  const {
-    permissions: permissionsUser,
-    token,
-    decodedToken,
-  } = useUserPermissions();
-  const hasPermission = (permission) => permissionsUser.includes(permission);
-
+const Company_concept = ({}) => {
   const [data, setData] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+  const [buttonDisabled, setButtonDisabled] = useState(true);
   const [loadingTable, setLoadingTable] = useState(false);
   const [id, setId] = useState(null);
   const [loading, setLoading] = useState("");
-  const parentComponent = "crop";
+  const parentComponent = "concept";
   const [title, setTitle] = useState();
   const [showMessage, setShowMessage] = useState(false);
   const [titleMessage, setTitleMessage] = useState(false);
@@ -36,23 +30,28 @@ const Company_crop = ({}) => {
   const [confirMessage, setConfirMessage] = useState();
   const [typeForm, setTypeForm] = useState();
 
+  const {
+    permissions: permissionsUser,
+    token,
+    decodedToken,
+  } = useUserPermissions();
+  const hasPermission = (permission) => permissionsUser.includes(permission);
+
   const headData = {
     title: "Gestión de empresa",
     description:
-      "En esta sección podrás gestionar los tipos de cultivos registrados en la empresa.",
+      "En esta sección podrás gestionar las tarifas registradas en la empresa.",
     buttons: {
-      ...(hasPermission("Añadir tipo de cultivo") && {
-        button1: {
-          icon: "FaPlus",
-          class: "color-hover",
-          text: "Añadir cultivo",
-        },
-      }),
+      button1: {
+        icon: "FaPlus",
+        class: "color-hover",
+        text: "Añadir concepto",
+      },
     },
   };
 
   const handleButtonClick = (buttonText) => {
-    if (buttonText === "Añadir cultivo") {
+    if (buttonText === "Añadir concepto") {
       setShowForm(true);
     }
   };
@@ -95,40 +94,71 @@ const Company_crop = ({}) => {
     }
   }, [showMessage]);
 
+  const columns = [
+    "ID de Concepto",
+    "Nombre",
+    "Descripción",
+    "Valor",
+    "Tipo",
+    "Alcance",
+    "Estado",
+    "Opciones",
+  ];
+
   useEffect(() => {
-    fetchCrop();
+    fetchConcept();
   }, []);
 
-  const fetchCrop = async () => {
+  const fetchConcept = async () => {
     try {
       setLoadingTable(true);
-      const response = await axios.get(
-        import.meta.env.VITE_URI_BACKEND +
-          import.meta.env.VITE_ROUTE_BACKEND_COMPANY_CROP
-      );
-      setData(response.data.data);
-
-      const sortedData = response.data.data.sort((a, b) =>
-        a.name.localeCompare(b.name)
-      );
-      // const sortedData = response.data.data.sort((a, b) => a.name - b.name);
+      // const response = await axios.get(
+      //   import.meta.env.VITE_URI_BACKEND +
+      //     import.meta.env.VITE_ROUTE_BACKEND_COMPANY_CROP
+      // );
+      // setData(response.data.data);
+      const data = [
+        {
+          id: 2,
+          name: "Tarifa básica de agua",
+          description: "Tarifa fija mensual para uso básico de agua",
+          value: "50000",
+          type_concept: "Suma",
+          scope: "General",
+          state_name: "Activo",
+        },
+        {
+          id: 1,
+          name: "Mantenimiento de dispositivos",
+          description: "Costo por mantenimiento de los dispositivos",
+          value: "120000",
+          type_concept: "Suma",
+          scope: "General",
+          state_name: "Inactivo",
+        },
+      ];
+      const sortedData = data.sort((a, b) => a.id - b.id);
+      // const sortedData = response.data.data.sort((a, b) => a.id - b.id);
 
       setData(sortedData);
       setButtonDisabled(false);
     } catch (error) {
-      console.error("Error al obtener los certificados:", error);
+      console.error("Error al obtener los intervalos:", error);
     } finally {
       setLoadingTable(false);
     }
   };
 
   const updateData = async () => {
-    fetchCrop();
+    fetchConcept();
   };
 
-  const toTitleCase = (str) => {
-    if (typeof str !== "string") return str; // Evita errores con números u otros tipos
-    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  const formatCurrency = (value) => {
+    return new Intl.NumberFormat("es-CO", {
+      style: "currency",
+      currency: "COP",
+      minimumFractionDigits: 0,
+    }).format(value);
   };
 
   const filteredData = data
@@ -140,36 +170,20 @@ const Company_crop = ({}) => {
     )
     .map((info) => ({
       ID: info.id,
-      "Nombre del cultivo": toTitleCase(info.name) || "",
-      "Tiempo estimada de cosecha (días)": info.harvest_time || "",
-      Intervalo: info.nombre_intervalo_pago || "",
-      Estado: info.nombre_estado || "",
+      "ID de Concepto": info.id,
+      Nombre: info.name || "",
+      Descripción: info.description || "",
+      Valor: formatCurrency(info.value) || "",
+      Tipo: info.type_concept || "",
+      Alcance: info.scope || "",
+      Estado: info.state_name || "",
     }));
 
-  console.log(data);
-
-  const columns = [
-    "Nombre del cultivo",
-    "Tiempo estimada de cosecha (días)",
-    "Intervalo",
-    "Estado",
-    "Opciones",
-  ];
-
   const options = [
-    hasPermission("Editar tipo de cultivo") && {
-      icon: "BiEditAlt",
-      name: "Editar",
-    },
-    hasPermission("Habilitar tipo de cultivo") && {
-      icon: "MdOutlineCheckCircle",
-      name: "Habilitar",
-    },
-    hasPermission("Inhabilitar tipo de cultivo") && {
-      icon: "MdDisabledVisible",
-      name: "Inhabilitar",
-    },
-  ].filter(Boolean);
+    { icon: "BiEditAlt", name: "Editar" },
+    { icon: "MdOutlineCheckCircle", name: "Habilitar" },
+    { icon: "MdDisabledVisible", name: "Inhabilitar" },
+  ];
 
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedData = filteredData.slice(
@@ -179,7 +193,11 @@ const Company_crop = ({}) => {
 
   return (
     <>
-      <Head head_data={headData} onButtonClick={handleButtonClick} />
+      <Head
+        head_data={headData}
+        onButtonClick={handleButtonClick}
+        buttonDisabled={buttonDisabled}
+      />
       <Tab tabs={tabs} useLinks={true}></Tab>
       <Table
         columns={columns}
@@ -202,8 +220,8 @@ const Company_crop = ({}) => {
       />
       {showForm && (
         <>
-          <Form_crop
-            title="Añadir cultivo"
+          <Form_concept
+            title="Añadir concepto"
             onClose={() => setShowForm(false)}
             setShowMessage={setShowMessage}
             setTitleMessage={setTitleMessage}
@@ -217,7 +235,7 @@ const Company_crop = ({}) => {
       )}
       {showEdit && (
         <>
-          <Form_crop
+          <Form_concept
             title={title}
             onClose={() => setShowEdit(false)}
             setShowMessage={setShowMessage}
@@ -232,7 +250,7 @@ const Company_crop = ({}) => {
         </>
       )}
       {showChangeStatus && (
-        <Change_status_crop
+        <Change_status_concept
           onClose={() => setShowChangeStatus(false)}
           onSuccess={() => setShowChangeStatus(false)}
           id={id}
@@ -259,4 +277,4 @@ const Company_crop = ({}) => {
   );
 };
 
-export default Company_crop;
+export default Company_concept;
