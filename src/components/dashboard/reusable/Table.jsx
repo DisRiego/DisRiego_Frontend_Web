@@ -384,7 +384,11 @@ const Table = ({
     }
 
     //Facturación
-    if (id === "billing" && option.name === "Pagar") {
+    if (id === "invoice" && option.name === "Pagar") {
+      navigate("pay/" + row.ID);
+    }
+
+    if (id === "invoices" && option.name === "Pagar") {
       navigate("pay/" + row.ID);
     }
   };

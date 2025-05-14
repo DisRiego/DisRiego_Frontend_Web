@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import useUserPermissions from "../../hooks/useUserPermissions";
 import Head from "./reusable/Head";
-import Tab from "./reusable/Tab";
 import Search from "./reusable/Search";
 import Filter from "./reusable/Filter";
 import Table from "./reusable/Table";
@@ -14,7 +13,7 @@ import { autoTable } from "jspdf-autotable";
 import RobotoNormalFont from "../../assets/fonts/Roboto-Regular.ttf";
 import RobotoBoldFont from "../../assets/fonts/Roboto-Bold.ttf";
 
-const Billing = () => {
+const Billing_user = () => {
   const [data, setData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -52,23 +51,6 @@ const Billing = () => {
 
   const [id, setId] = useState(null);
   const [dots, setDots] = useState("");
-  const totals = useMemo(() => {
-    const counts = {
-      emitidas: data.length,
-      pendientes: 0,
-      pagadas: 0,
-      vencidas: 0,
-    };
-
-    data.forEach((item) => {
-      const estado = item.status_name?.toLowerCase();
-      if (estado === "pendiente") counts.pendientes += 1;
-      else if (estado === "pagada") counts.pagadas += 1;
-      else if (estado === "vencida") counts.vencidas += 1;
-    });
-
-    return counts;
-  }, [data]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -78,9 +60,9 @@ const Billing = () => {
   }, []);
 
   const head_data = {
-    title: "Gestión de facturación",
+    title: "Mis facturas y pagos",
     description:
-      "En esta sección podrás gestionar y monitorear las facturas y transacciones del sistema.",
+      "En esta sección podrás gestionar el estado de tus facturas y realizar pagos.",
     buttons: {
       button1: {
         icon: "LuDownload",
@@ -137,19 +119,6 @@ const Billing = () => {
       }
     }
   };
-
-  const tabs = [
-    {
-      key: "invoice",
-      label: "Facturas",
-      path: "/dashboard/invoice",
-    },
-    {
-      key: "transaction",
-      label: "Transacciones",
-      path: "/dashboard/transaction",
-    },
-  ].filter(Boolean);
 
   const columns = [
     "N° Factura",
@@ -361,7 +330,6 @@ const Billing = () => {
         loading={loadingReport}
         buttonDisabled={buttonDisabled}
       />
-      <Tab tabs={tabs} useLinks={true}></Tab>
       {loadingTable ? (
         <div className="rol-detail">
           <div className="loader-cell">
@@ -372,45 +340,7 @@ const Billing = () => {
       ) : (
         <>
           <div className="container-cont">
-            <div className="total_amount">
-              <div className="fixed-grid has-4-cols-desktop has-2-cols-mobile">
-                <div className="grid">
-                  <div className="cell rol-detail">
-                    <p className="has-text-weight-bold mb-2">
-                      Total facturas emitidas
-                    </p>
-                    <p className="is-size-5 has-text-weight-bold">
-                      {totals.emitidas}
-                    </p>
-                  </div>
-                  <div className="cell rol-detail">
-                    <p className="has-text-weight-bold mb-2">
-                      Total facturas pendientes
-                    </p>
-                    <p className="is-size-5 has-text-weight-bold">
-                      {totals.pendientes}
-                    </p>
-                  </div>
-                  <div className="cell rol-detail">
-                    <p className="has-text-weight-bold mb-2">
-                      Total facturas pagadas
-                    </p>
-                    <p className="is-size-5 has-text-weight-bold">
-                      {totals.pagadas}
-                    </p>
-                  </div>
-                  <div className="cell rol-detail">
-                    <p className="has-text-weight-bold mb-2">
-                      Total facturas vencidas
-                    </p>
-                    <p className="is-size-5 has-text-weight-bold">
-                      {totals.vencidas}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="columns mb-1">
+            <div className="columns mb-2">
               <div className="column is-three-quarters">
                 <div className="rol-detail"></div>
               </div>
@@ -450,7 +380,7 @@ const Billing = () => {
   );
 };
 
-export default Billing;
+export default Billing_user;
 
 const generateReport = (
   filteredData,

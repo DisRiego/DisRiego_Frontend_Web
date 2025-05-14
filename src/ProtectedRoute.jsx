@@ -17,13 +17,13 @@ const permissionMapModules = {
   system: [
     "Ver todos los fallos autogenerados por el sistema",
     "Ver todos los fallos autogenerados asignados a un técnico",
-    "Ver todos los fallos autogenerados para un usuario",
   ],
   report: [
     "Ver todos los reportes de fallo",
     "Ver todos los reportes de fallos asignados a un técnico",
-    "Ver todos los reportes de fallos para un usuario",
   ],
+  systems: ["Ver todos los fallos autogenerados para un usuario"],
+  reports: ["Ver todos los reportes de fallos para un usuario"],
   profile: [], // no requiere permisos
 };
 
@@ -40,14 +40,10 @@ const permissionMapDetails = {
     "Ver detalles de un dispositivo",
     "Ver detalles de los dispositivos del lote de un usuario",
   ],
-  system: [
-    "Ver detalles de un fallo autogenerado",
-    "Ver detalles de un fallo autogenerado para un usuario",
-  ],
-  report: [
-    "Ver detalles de un reporte de fallo",
-    "Ver detalles de un reporte de fallo para un usuario",
-  ],
+  system: ["Ver detalles de un fallo autogenerado"],
+  report: ["Ver detalles de un reporte de fallo"],
+  systems: ["Ver detalles de un fallo autogenerado para un usuario"],
+  reports: ["Ver detalles de un reporte de fallo para un usuario"],
   company: ["Ver detalles de la empresa"],
 };
 

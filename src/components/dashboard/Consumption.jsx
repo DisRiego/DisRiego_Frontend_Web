@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import useUserPermissions from "../../hooks/useUserPermissions";
 import Head from "./reusable/Head";
-import Tab from "./reusable/Tab";
 import Search from "./reusable/Search";
 import Filter from "./reusable/Filter";
 import Table from "./reusable/Table";
@@ -14,7 +13,7 @@ import { autoTable } from "jspdf-autotable";
 import RobotoNormalFont from "../../assets/fonts/Roboto-Regular.ttf";
 import RobotoBoldFont from "../../assets/fonts/Roboto-Bold.ttf";
 
-const Billing = () => {
+const Consumption = () => {
   const [data, setData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -52,23 +51,6 @@ const Billing = () => {
 
   const [id, setId] = useState(null);
   const [dots, setDots] = useState("");
-  const totals = useMemo(() => {
-    const counts = {
-      emitidas: data.length,
-      pendientes: 0,
-      pagadas: 0,
-      vencidas: 0,
-    };
-
-    data.forEach((item) => {
-      const estado = item.status_name?.toLowerCase();
-      if (estado === "pendiente") counts.pendientes += 1;
-      else if (estado === "pagada") counts.pagadas += 1;
-      else if (estado === "vencida") counts.vencidas += 1;
-    });
-
-    return counts;
-  }, [data]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -78,9 +60,9 @@ const Billing = () => {
   }, []);
 
   const head_data = {
-    title: "Gestión de facturación",
+    title: "Gestión de consumo",
     description:
-      "En esta sección podrás gestionar y monitorear las facturas y transacciones del sistema.",
+      "En esta sección podrás visualizar el consumo de agua registrado en tu distrito de riego.",
     buttons: {
       button1: {
         icon: "LuDownload",
@@ -138,31 +120,14 @@ const Billing = () => {
     }
   };
 
-  const tabs = [
-    {
-      key: "invoice",
-      label: "Facturas",
-      path: "/dashboard/invoice",
-    },
-    {
-      key: "transaction",
-      label: "Transacciones",
-      path: "/dashboard/transaction",
-    },
-  ].filter(Boolean);
-
   const columns = [
-    "N° Factura",
     "ID del predio",
     "ID del lote",
     "Número de documento",
     "Intervalo de pago",
-    "Fecha de emisión",
-    "Fecha de vencimiento",
-    "Valor a pagar",
-    "Anexo",
-    "Estado",
-    "Opciones",
+    "Fecha de inicio",
+    "Fecha de fin",
+    "Consumo registrado (m³)",
   ];
 
   const options = [
@@ -298,16 +263,13 @@ const Billing = () => {
         )
         .map((info) => ({
           ID: info.id,
-          "N° Factura": info.id,
           "ID del predio": info.property_id,
           "ID del lote": info.lot_id,
           "Número de documento": info.owner_document_number,
           "Intervalo de pago": info.payment_interval_name,
-          "Fecha de emisión": info.due_date?.slice(0, 10),
-          "Fecha de vencimiento": info.due_date?.slice(0, 10),
-          "Valor a pagar": formatCurrency(info.amount_due),
-          Anexo: info.attachment,
-          Estado: info.status_name,
+          "Fecha de inicio": info.due_date?.slice(0, 10),
+          "Fecha de fin": info.due_date?.slice(0, 10),
+          "Consumo registrado (m³)": info.amount_due,
         }));
 
       setFilteredData(filtered);
@@ -345,14 +307,6 @@ const Billing = () => {
       .join(" ");
   };
 
-  const formatCurrency = (value) => {
-    return new Intl.NumberFormat("es-CO", {
-      style: "currency",
-      currency: "COP",
-      minimumFractionDigits: 0,
-    }).format(value);
-  };
-
   return (
     <>
       <Head
@@ -361,7 +315,6 @@ const Billing = () => {
         loading={loadingReport}
         buttonDisabled={buttonDisabled}
       />
-      <Tab tabs={tabs} useLinks={true}></Tab>
       {loadingTable ? (
         <div className="rol-detail">
           <div className="loader-cell">
@@ -372,50 +325,38 @@ const Billing = () => {
       ) : (
         <>
           <div className="container-cont">
-            <div className="total_amount">
-              <div className="fixed-grid has-4-cols-desktop has-2-cols-mobile">
-                <div className="grid">
-                  <div className="cell rol-detail">
-                    <p className="has-text-weight-bold mb-2">
-                      Total facturas emitidas
-                    </p>
-                    <p className="is-size-5 has-text-weight-bold">
-                      {totals.emitidas}
-                    </p>
-                  </div>
-                  <div className="cell rol-detail">
-                    <p className="has-text-weight-bold mb-2">
-                      Total facturas pendientes
-                    </p>
-                    <p className="is-size-5 has-text-weight-bold">
-                      {totals.pendientes}
-                    </p>
-                  </div>
-                  <div className="cell rol-detail">
-                    <p className="has-text-weight-bold mb-2">
-                      Total facturas pagadas
-                    </p>
-                    <p className="is-size-5 has-text-weight-bold">
-                      {totals.pagadas}
-                    </p>
-                  </div>
-                  <div className="cell rol-detail">
-                    <p className="has-text-weight-bold mb-2">
-                      Total facturas vencidas
-                    </p>
-                    <p className="is-size-5 has-text-weight-bold">
-                      {totals.vencidas}
-                    </p>
-                  </div>
+            <div className="columns mb-2">
+              <div className="column is-three-quarters">
+                <div className="rol-detail">
+                  <p className="has-text-weight-bold">
+                    Consumo registrado (m³)
+                  </p>
                 </div>
               </div>
-            </div>
-            <div className="columns mb-1">
-              <div className="column is-three-quarters">
-                <div className="rol-detail"></div>
-              </div>
               <div className="column">
-                <div className="rol-detail"></div>
+                <div className="rol-detail">
+                  <p className="has-text-weight-bold">Detalles</p>
+                  <div className="fixed-grid has-1-cols-desktop has-1-cols-mobile">
+                    <div className="rol-detail mt-4">
+                      <p className="has-text-weight-bold mb-2">
+                        Consumo promedio mensual
+                      </p>
+                      <p className="has-text-weight-bold">[] m³</p>
+                    </div>
+                    <div className="rol-detail">
+                      <p className="is-size-6 has-text-weight-bold mb-2">
+                        Consumo promedio mensual proyectado
+                      </p>
+                      <p className="has-text-weight-bold">[] m³</p>
+                    </div>
+                    <div className="rol-detail mb-0">
+                      <p className="has-text-weight-bold mb-2">
+                        Variación esperada
+                      </p>
+                      <p className="has-text-weight-bold">[]%</p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -450,7 +391,7 @@ const Billing = () => {
   );
 };
 
-export default Billing;
+export default Consumption;
 
 const generateReport = (
   filteredData,

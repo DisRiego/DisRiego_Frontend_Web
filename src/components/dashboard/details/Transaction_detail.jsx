@@ -4,7 +4,7 @@ import axios from "axios";
 import Head from "../reusable/Head";
 import Table from "../reusable/Table";
 
-const Billing_detail = () => {
+const Transaction_detail = () => {
   const { id } = useParams();
   const [formData, setFormData] = useState({});
   const [dataConcept, setDataConcept] = useState([]);
@@ -14,18 +14,10 @@ const Billing_detail = () => {
   const [loadingTable, setLoadingTable] = useState(false);
 
   const head_data = {
-    title: `Detalles de la Factura #${id}`,
+    title: `Detalles de la Transacción #${id}`,
     description:
-      "En esta sección, encontrarás la información de la factura generada.",
+      "En esta sección, encontrarás la información detallada de la transacción.",
   };
-
-  const columns = [
-    "Concepto",
-    "Descripción",
-    "Valor unitario",
-    "Cantidad",
-    "Valor total",
-  ];
 
   const formatCurrency = (value) => {
     return new Intl.NumberFormat("es-CO", {
@@ -46,7 +38,7 @@ const Billing_detail = () => {
               <p className="is-size-5 has-text-weight-bold">[]</p>
             </div>
             <div className="cell">
-              <p className="has-text-weight-bold">Referencia de pago</p>
+              <p className="has-text-weight-bold">Nombre del titular</p>
               <p className="is-size-5 has-text-weight-bold">[]</p>
             </div>
             <div className="cell">
@@ -56,15 +48,15 @@ const Billing_detail = () => {
               </p>
             </div>
             <div className="cell">
-              <p className="has-text-weight-bold">Fecha de pago</p>
+              <p className="has-text-weight-bold">Estado</p>
               <p className="is-size-5 has-text-weight-bold">[]</p>
             </div>
           </div>
         </div>
       </div>
-      <div className="fixed-grid has-2-cols-desktop has-1-cols-mobile">
-        <div className="grid">
-          <div className="cell rol-detail">
+      <div className="rol-detail">
+        <div className="columns">
+          <div className="column">
             <div className="columns is-multiline is-mobile">
               <div className="column column-p0">No. Factura</div>
               <div className="column column-p0">[No. Factura]</div>
@@ -86,33 +78,10 @@ const Billing_detail = () => {
               <div className="column">[Total a pagar]</div>
             </div>
           </div>
-          <div className="cell rol-detail">
-            <div className="columns is-multiline is-mobile">
-              <div className="column column-p0">Nombre del usuario</div>
-              <div className="column column-p0">[Nombre del usuario]</div>
-            </div>
-            <div className="columns is-multiline is-mobile">
-              <div className="column column-p0">No. Documento</div>
-              <div className="column column-p0">[No. Documento]</div>
-            </div>
-            <div className="columns is-multiline is-mobile">
-              <div className="column column-p0">Correo electrónico</div>
-              <div className="column column-p0">[Correo electrónico]</div>
-            </div>
-            <div className="columns is-multiline is-mobile">
-              <div className="column column-p0">ID del predio</div>
-              <div className="column column-p0">[ID del predio]</div>
-            </div>
-            <div className="columns is-multiline is-mobile">
-              <div className="column">ID del lote</div>
-              <div className="column">[ID del lote]</div>
-            </div>
-          </div>
         </div>
       </div>
-      <Table columns={columns} data={dataConcept} loadingTable={loadingTable} />
     </>
   );
 };
 
-export default Billing_detail;
+export default Transaction_detail;

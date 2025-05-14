@@ -143,9 +143,9 @@ const Transaction = () => {
 
   const tabs = [
     {
-      key: "billing",
+      key: "invoice",
       label: "Facturas",
-      path: "/dashboard/billing",
+      path: "/dashboard/invoice",
     },
     {
       key: "transaction",

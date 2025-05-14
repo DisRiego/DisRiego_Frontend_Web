@@ -122,9 +122,14 @@ const System_fault = () => {
   };
 
   const head_data = {
-    title: "Gestión de mantenimiento",
+    title:
+      hasPermission(
+        "Ver todos los fallos autogenerados asignados a un técnico"
+      ) || hasPermission("Ver todos los fallos autogenerados por el sistema")
+        ? "Gestión de mantenimiento"
+        : "Mis fallos y reportes",
     description:
-      "En esta sección puedes visualizar y generar reportes de fallos.",
+      "En esta sección podrás gestionar los fallos autogenerados y los reportes de fallos.",
     buttons: {
       ...(hasPermission(
         "Descargar informe de todos los fallos autogenerados"
@@ -140,14 +145,34 @@ const System_fault = () => {
 
   const tabs = [
     {
-      key: "system",
+      key:
+        hasPermission(
+          "Ver todos los fallos autogenerados asignados a un técnico"
+        ) || hasPermission("Ver todos los fallos autogenerados por el sistema")
+          ? "system"
+          : "systems",
       label: "Fallos autogenerados",
-      path: "/dashboard/system",
+      path:
+        hasPermission(
+          "Ver todos los fallos autogenerados asignados a un técnico"
+        ) || hasPermission("Ver todos los fallos autogenerados por el sistema")
+          ? "/dashboard/system"
+          : "/dashboard/systems",
     },
     {
-      key: "report",
+      key:
+        hasPermission(
+          "Ver todos los reportes de fallos asignados a un técnico"
+        ) || hasPermission("Ver todos los reportes de fallo")
+          ? "report"
+          : "reports",
       label: "Reporte de fallos",
-      path: "/dashboard/report",
+      path:
+        hasPermission(
+          "Ver todos los reportes de fallos asignados a un técnico"
+        ) || hasPermission("Ver todos los reportes de fallo")
+          ? "/dashboard/report"
+          : "/dashboard/reports",
     },
   ];
 
