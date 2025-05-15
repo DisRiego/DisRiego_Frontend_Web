@@ -17,23 +17,31 @@ const Change_status_concept = ({
 }) => {
   const [formData, setFormData] = useState({});
   const [isProcessing, setIsProcessing] = useState(false);
+  const [typeOperation, setTypeOperation] = useState("");
   // console.log(typeForm);
   // console.log(id);
 
   useEffect(() => {
     setFormData({
-      rol_id: id,
-      new_status: typeForm === "habilitar" ? 1 : 2,
+      concept_id: typeForm === "habilitar" ? 27 : 28,
     });
+
+    if (typeForm === "habilitar") {
+      setTypeOperation("/enable");
+    } else {
+      setTypeOperation("/disable");
+    }
   }, [typeForm, id]);
 
   const handleConfirm = async () => {
     try {
       setLoading("is-loading");
       setIsProcessing(true);
-      const response = await axios.post(
-        import.meta.env.VITE_URI_BACKEND +
-          import.meta.env.VITE_ROUTE_BACKEND_ROL_CHANGE_STATUS,
+      const response = await axios.patch(
+        import.meta.env.VITE_URI_BACKEND_FACTURACTION +
+          import.meta.env.VITE_ROUTE_BACKEND_GET_CONCEPT +
+          id +
+          typeOperation,
         formData
       );
       console.log(response);

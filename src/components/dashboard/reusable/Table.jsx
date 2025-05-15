@@ -424,7 +424,7 @@ const Table = ({
           {loadingTable ? (
             // Si se está cargando la tabla, se muestra un loader animado
             <tr>
-              <td colSpan={columns.length - 1} className="loader-cell">
+              <td colSpan={columns.length /*- 1*/} className="loader-cell">
                 <div className="loader"></div>
                 <p className="loader-text">Cargando información{dots}</p>
               </td>

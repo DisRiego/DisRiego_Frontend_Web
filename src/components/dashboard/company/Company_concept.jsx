@@ -112,36 +112,16 @@ const Company_concept = ({}) => {
   const fetchConcept = async () => {
     try {
       setLoadingTable(true);
-      // const response = await axios.get(
-      //   import.meta.env.VITE_URI_BACKEND +
-      //     import.meta.env.VITE_ROUTE_BACKEND_COMPANY_CROP
-      // );
-      // setData(response.data.data);
-      const data = [
-        {
-          id: 2,
-          name: "Tarifa básica de agua",
-          description: "Tarifa fija mensual para uso básico de agua",
-          value: "50000",
-          type_concept: "Suma",
-          scope: "General",
-          state_name: "Activo",
-        },
-        {
-          id: 1,
-          name: "Mantenimiento de dispositivos",
-          description: "Costo por mantenimiento de los dispositivos",
-          value: "120000",
-          type_concept: "Suma",
-          scope: "General",
-          state_name: "Inactivo",
-        },
-      ];
-      const sortedData = data.sort((a, b) => a.id - b.id);
-      // const sortedData = response.data.data.sort((a, b) => a.id - b.id);
+      const response = await axios.get(
+        import.meta.env.VITE_URI_BACKEND_FACTURACTION +
+          import.meta.env.VITE_ROUTE_BACKEND_CONCEPT
+      );
+      setData(response.data.data);
+      // const sortedData = data.sort((a, b) => a.id - b.id);
+      const sortedData = response.data.data.sort((a, b) => b.id - a.id);
 
-      setData(sortedData);
-      setButtonDisabled(false);
+      // setData(sortedData);
+      // setButtonDisabled(false);
     } catch (error) {
       console.error("Error al obtener los intervalos:", error);
     } finally {
@@ -171,12 +151,12 @@ const Company_concept = ({}) => {
     .map((info) => ({
       ID: info.id,
       "ID de Concepto": info.id,
-      Nombre: info.name || "",
-      Descripción: info.description || "",
-      Valor: formatCurrency(info.value) || "",
-      Tipo: info.type_concept || "",
-      Alcance: info.scope || "",
-      Estado: info.state_name || "",
+      Nombre: info.nombre || "",
+      Descripción: info.descripcion || "",
+      Valor: formatCurrency(info.valor) || "",
+      Tipo: info.tipo_name || "",
+      Alcance: info.scope_name || "",
+      Estado: info.estado_name || "",
     }));
 
   const options = [
