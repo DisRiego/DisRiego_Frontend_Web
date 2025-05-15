@@ -140,17 +140,24 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
         "Ver todos los fallos autogenerados para un usuario",
         "Ver todos los reportes de fallos para un usuario",
       ],
-      path: "/dashboard/system",
-      selectoption: "system",
+      path: "/dashboard/systems",
+      selectoption: "systems",
       icon: <HiOutlineWrenchScrewdriver />,
       label: "Mis fallos y reportes",
     },
     {
       permission: ["Ver todas las facturas", "Ver todas las transacciones"],
-      path: "/dashboard/billing",
-      selectoption: "billing",
+      path: "/dashboard/invoice",
+      selectoption: "invoice",
       icon: <TbWallet />,
       label: "Gestión de facturación",
+    },
+    {
+      permission: ["Ver todas las facturas de un usuario"],
+      path: "/dashboard/invoices",
+      selectoption: "invoices",
+      icon: <TbWallet />,
+      label: "Mis facturas y pagos",
     },
     {
       permission: ["Ver todos los consumos"],
@@ -191,10 +198,13 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
     if (path.startsWith("/dashboard/property")) return "property";
     if (path.startsWith("/dashboard/properties")) return "properties";
     if (path.startsWith("/dashboard/device")) return "device";
+    if (path.startsWith("/dashboard/systems")) return "systems";
+    if (path.startsWith("/dashboard/reports")) return "systems";
     if (path.startsWith("/dashboard/system")) return "system";
     if (path.startsWith("/dashboard/report")) return "system";
-    if (path.startsWith("/dashboard/billing")) return "billing";
-    if (path.startsWith("/dashboard/transaction")) return "billing";
+    if (path.startsWith("/dashboard/invoices")) return "invoices";
+    if (path.startsWith("/dashboard/invoice")) return "invoice";
+    if (path.startsWith("/dashboard/transaction")) return "invoice";
     if (path.startsWith("/dashboard/consumption")) return "consumption";
     if (path.startsWith("/dashboard/profile")) return "profile";
 

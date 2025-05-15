@@ -6,30 +6,36 @@ import Tab from "../reusable/Tab";
 import Table from "../reusable/Table";
 import Pagination from "../reusable/Pagination";
 import Message from "../../Message";
+import Form_concept from "../forms/adds/Form_concept";
+import Change_status_concept from "../Status/Change_status_concept";
 
-const Company_rates = ({}) => {
-  const {
-    permissions: permissionsUser,
-    token,
-    decodedToken,
-  } = useUserPermissions();
-  const hasPermission = (permission) => permissionsUser.includes(permission);
-
+const Company_concept = ({}) => {
   const [data, setData] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+  const [buttonDisabled, setButtonDisabled] = useState(true);
   const [loadingTable, setLoadingTable] = useState(false);
   const [id, setId] = useState(null);
   const [loading, setLoading] = useState("");
-  const parentComponent = "crop";
+  const parentComponent = "concept";
   const [title, setTitle] = useState();
   const [showMessage, setShowMessage] = useState(false);
   const [titleMessage, setTitleMessage] = useState(false);
   const [message, setMessage] = useState(false);
   const [status, setStatus] = useState(false);
+  const [showChangeStatus, setShowChangeStatus] = useState(false);
+  const [confirMessage, setConfirMessage] = useState();
+  const [typeForm, setTypeForm] = useState();
+
+  const {
+    permissions: permissionsUser,
+    token,
+    decodedToken,
+  } = useUserPermissions();
+  const hasPermission = (permission) => permissionsUser.includes(permission);
 
   const headData = {
     title: "Gestión de empresa",
@@ -45,7 +51,7 @@ const Company_rates = ({}) => {
   };
 
   const handleButtonClick = (buttonText) => {
-    if (buttonText === "Añadir intervalo") {
+    if (buttonText === "Añadir concepto") {
       setShowForm(true);
     }
   };
@@ -72,9 +78,9 @@ const Company_rates = ({}) => {
       path: "/dashboard/company/payment",
     },
     hasPermission("Ver todas las tarifas") && {
-      key: "rates",
+      key: "concept",
       label: "Conceptos y tarifas",
-      path: "/dashboard/company/rates",
+      path: "/dashboard/company/concept",
     },
   ].filter(Boolean);
 
@@ -88,26 +94,34 @@ const Company_rates = ({}) => {
     }
   }, [showMessage]);
 
+  const columns = [
+    "ID de Concepto",
+    "Nombre",
+    "Descripción",
+    "Valor",
+    "Tipo",
+    "Alcance",
+    "Estado",
+    "Opciones",
+  ];
+
   useEffect(() => {
-    fetchCrop();
+    fetchConcept();
   }, []);
 
-  const fetchCrop = async () => {
+  const fetchConcept = async () => {
     try {
       setLoadingTable(true);
       const response = await axios.get(
-        import.meta.env.VITE_URI_BACKEND +
-          import.meta.env.VITE_ROUTE_BACKEND_COMPANY_CROP
+        import.meta.env.VITE_URI_BACKEND_FACTURACTION +
+          import.meta.env.VITE_ROUTE_BACKEND_CONCEPT
       );
       setData(response.data.data);
+      // const sortedData = data.sort((a, b) => a.id - b.id);
+      const sortedData = response.data.data.sort((a, b) => b.id - a.id);
 
-      const sortedData = response.data.data.sort((a, b) =>
-        a.name.localeCompare(b.name)
-      );
-      // const sortedData = response.data.data.sort((a, b) => a.name - b.name);
-
-      setData(sortedData);
-      setButtonDisabled(false);
+      // setData(sortedData);
+      // setButtonDisabled(false);
     } catch (error) {
       console.error("Error al obtener los intervalos:", error);
     } finally {
@@ -116,62 +130,67 @@ const Company_rates = ({}) => {
   };
 
   const updateData = async () => {
-    fetchCrop();
+    fetchConcept();
   };
 
-  // const filteredData = data
-  //   .filter((info) =>
-  //     Object.values(info)
-  //       .join(" ")
-  //       .toLowerCase()
-  //       .includes(searchTerm.toLowerCase())
-  //   )
-  //   .map((info) => ({
-  //     ID: info.id,
-  //     "Nombre del cultivo": info.name || "",
-  //     "Tiempo estimada de cosecha": info.harvest_time || "",
-  //     Intervalo: info.payment_interval_id || "",
-  //     Estado: info.state_name || "",
-  //   }));
+  const formatCurrency = (value) => {
+    return new Intl.NumberFormat("es-CO", {
+      style: "currency",
+      currency: "COP",
+      minimumFractionDigits: 0,
+    }).format(value);
+  };
 
-  // console.log(data);
+  const filteredData = data
+    .filter((info) =>
+      Object.values(info)
+        .join(" ")
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase())
+    )
+    .map((info) => ({
+      ID: info.id,
+      "ID de Concepto": info.id,
+      Nombre: info.nombre || "",
+      Descripción: info.descripcion || "",
+      Valor: formatCurrency(info.valor) || "",
+      Tipo: info.tipo_name || "",
+      Alcance: info.scope_name || "",
+      Estado: info.estado_name || "",
+    }));
 
-  // const columns = [
-  //   "Nombre del cultivo",
-  //   "Tiempo estimada de cosecha",
-  //   "Intervalo",
-  //   "Estado",
-  //   "Opciones",
-  // ];
+  const options = [
+    { icon: "BiEditAlt", name: "Editar" },
+    { icon: "MdOutlineCheckCircle", name: "Habilitar" },
+    { icon: "MdDisabledVisible", name: "Inhabilitar" },
+  ];
 
-  // const options = [
-  //   { icon: "BiEditAlt", name: "Editar" },
-  //   { icon: "MdOutlineCheckCircle", name: "Habilitar" },
-  //   { icon: "MdDisabledVisible", name: "Inhabilitar" },
-  // ];
-
-  // const startIndex = (currentPage - 1) * itemsPerPage;
-  // const paginatedData = filteredData.slice(
-  //   startIndex,
-  //   startIndex + itemsPerPage
-  // );
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedData = filteredData.slice(
+    startIndex,
+    startIndex + itemsPerPage
+  );
 
   return (
     <>
-      <Head head_data={headData} onButtonClick={handleButtonClick} />
+      <Head
+        head_data={headData}
+        onButtonClick={handleButtonClick}
+        buttonDisabled={buttonDisabled}
+      />
       <Tab tabs={tabs} useLinks={true}></Tab>
-      {/* <Table
-      columns={columns}
-      data={paginatedData}
-      options={options}
-      loadingTable={loadingTable}
-      parentComponent={parentComponent}
-      setId={setId}
-      setTitle={setTitle}
-      setShowEdit={setShowEdit}
-      setShowChangeStatus={setShowChangeStatus}
-      setConfirMessage={setConfirMessage}
-      setTypeForm={setTypeForm}
+      <Table
+        columns={columns}
+        data={paginatedData}
+        options={options}
+        loadingTable={loadingTable}
+        parentComponent={parentComponent}
+        setId={setId}
+        setTitle={setTitle}
+        setShowEdit={setShowEdit}
+        setShowChangeStatus={setShowChangeStatus}
+        setConfirMessage={setConfirMessage}
+        setTypeForm={setTypeForm}
       />
       <Pagination
         totalItems={filteredData.length}
@@ -181,8 +200,8 @@ const Company_rates = ({}) => {
       />
       {showForm && (
         <>
-          <Form_crop
-            title="Añadir cultivo"
+          <Form_concept
+            title="Añadir concepto"
             onClose={() => setShowForm(false)}
             setShowMessage={setShowMessage}
             setTitleMessage={setTitleMessage}
@@ -196,7 +215,7 @@ const Company_rates = ({}) => {
       )}
       {showEdit && (
         <>
-          <Form_crop
+          <Form_concept
             title={title}
             onClose={() => setShowEdit(false)}
             setShowMessage={setShowMessage}
@@ -209,7 +228,23 @@ const Company_rates = ({}) => {
             setLoading={setLoading}
           />
         </>
-      )} */}
+      )}
+      {showChangeStatus && (
+        <Change_status_concept
+          onClose={() => setShowChangeStatus(false)}
+          onSuccess={() => setShowChangeStatus(false)}
+          id={id}
+          confirMessage={confirMessage}
+          setShowMessage={setShowMessage}
+          setTitleMessage={setTitleMessage}
+          setMessage={setMessage}
+          setStatus={setStatus}
+          updateData={updateData}
+          typeForm={typeForm}
+          loading={loading}
+          setLoading={setLoading}
+        />
+      )}
       {showMessage && (
         <Message
           titleMessage={titleMessage}
@@ -222,4 +257,4 @@ const Company_rates = ({}) => {
   );
 };
 
-export default Company_rates;
+export default Company_concept;

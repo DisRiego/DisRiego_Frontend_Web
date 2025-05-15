@@ -15,7 +15,7 @@ import Company_data from "../components/dashboard/company/Company_data";
 import Company_certificate from "../components/dashboard/company/Company_certificate";
 import Company_crop from "../components/dashboard/company/Company_crop";
 import Company_payment_interval from "../components/dashboard/company/Company_payment_interval";
-import Company_rates from "../components/dashboard/company/Company_rates";
+import Company_concept from "../components/dashboard/company/Company_concept";
 import Device from "../components/dashboard/Device";
 import Device_detail from "../components/dashboard/details/Device_detail";
 import Profile from "../components/dashboard/Profile";
@@ -27,7 +27,11 @@ import System_fault from "../components/dashboard/System_fault";
 import System_report_detail from "../components/dashboard/details/System_report_detail";
 import Billing from "../components/dashboard/Billing";
 import Billing_detail from "../components/dashboard/details/Billing_detail";
+import Billing_user from "../components/dashboard/Billing_user";
 import Form_pay from "../components/dashboard/forms/adds/Form_pay";
+import Transaction from "../components/dashboard/Transaction";
+import Transaction_detail from "../components/dashboard/details/Transaction_detail";
+import Consumption from "../components/dashboard/Consumption";
 
 const Dashboard = () => {
   const { id } = useParams();
@@ -102,12 +106,30 @@ const Dashboard = () => {
         return <Fault_report />;
       case `report/${id}`:
         return <Fault_report_detail />;
-      case `billing`:
+      case "systems":
+        return <System_fault />;
+      case `systems/${id}`:
+        return <System_report_detail />;
+      case "reports":
+        return <Fault_report />;
+      case `reports/${id}`:
+        return <Fault_report_detail />;
+      case `invoice`:
         return <Billing />;
-      case `billing/${id}`:
+      case `invoice/${id}`:
         return <Billing_detail />;
+      case `invoices`:
+        return <Billing_user />;
+      case `invoices/${id}`:
+        return <Billing_detail />;
+      case `transaction`:
+        return <Transaction />;
+      case `transaction/${id}`:
+        return <Transaction_detail />;
       case `pay/${id}`:
         return <Form_pay />;
+      case `consumption`:
+        return <Consumption />;
       case "company":
         return <Company_data />;
       case `certificate`:
@@ -116,8 +138,8 @@ const Dashboard = () => {
         return <Company_crop />;
       case `payment`:
         return <Company_payment_interval />;
-      case `rates`:
-        return <Company_rates />;
+      case `concept`:
+        return <Company_concept />;
       case `profile`:
         return <Profile />;
     }

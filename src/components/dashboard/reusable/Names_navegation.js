@@ -5,8 +5,20 @@ const Names_navegation = {
         "detail": "Detalles del reporte de fallo #",
       },
     },
+    "reports": {
+      name: "Mis fallos y reportes",
+      submodules: {
+        "detail": "Detalles del reporte de fallo #",
+      },
+    },
     "system": {
       name: "Gestión de mantenimiento",
+      submodules: {
+        "detail": "Detalles del fallo autogenerado #",
+      },
+    },
+    "systems": {
+      name: "Mis fallos y reportes",
       submodules: {
         "detail": "Detalles del fallo autogenerado #",
       },
@@ -53,15 +65,33 @@ const Names_navegation = {
         "detail": "Detalles de la Solicitud #",
       },  
     },
-    "billing": {
+    "invoice": {
       name: "Gestión de facturación",
       submodules: {
         "detail": "Detalles de la factura #",
       },  
     },
+    "invoices": {
+      name: "Mis facturas y pagos",
+      submodules: {
+        "detail": "Detalles de la factura #",
+      },  
+    },
+    "transaction": {
+      name: "Gestión de facturación",
+      submodules: {
+        "detail": "Detalles de la transacción #",
+      },  
+    },
     "pay": {
       submodules: {
         "detail": "Pago de factura #",
+      },  
+    },
+    "consumption": {
+      name: "Gestión de consumo",
+      submodules: {
+        "detail": "Detalles de consumo del lote #",
       },  
     },
   };
