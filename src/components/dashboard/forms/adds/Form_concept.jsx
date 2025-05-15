@@ -125,7 +125,7 @@ const Form_concept = ({
       setFormData({
         nombre: sortedData.nombre,
         descripcion: sortedData.descripcion,
-        valor: sortedData.valor,
+        valor: sanitizeValor(sortedData.valor),
         tipo_id: sortedData.tipo_id,
         scope_id: sortedData.scope_id,
         predio_id: sortedData.predio_id,
@@ -255,7 +255,7 @@ const Form_concept = ({
       isTypeValid &&
       isScopeValid
     ) {
-      if (formData.scope_id === "2") {
+      if (formData.scope_id === "2" || formData.scope_id === 2) {
         if (isPropertyValid && isLotValid) {
           console.log("Entro al if");
           setNewData({
@@ -321,6 +321,17 @@ const Form_concept = ({
     if (typeof str !== "string") return str; // Evita errores con números u otros tipos
     return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
   };
+
+  const sanitizeValor = (valor) => {
+    if (typeof valor === "string") {
+      // Reemplaza ',' por '.' si es separador decimal, luego parsea
+      const numeric = parseFloat(valor.replace(",", "."));
+      return isNaN(numeric) ? "" : Math.floor(numeric); // Devuelve solo la parte entera
+    }
+    return valor;
+  };
+
+  console.log(newData);
 
   return (
     <>

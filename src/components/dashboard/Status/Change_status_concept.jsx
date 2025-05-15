@@ -37,13 +37,21 @@ const Change_status_concept = ({
     try {
       setLoading("is-loading");
       setIsProcessing(true);
+
+      console.log(
+        import.meta.env.VITE_URI_BACKEND_FACTURACTION +
+          import.meta.env.VITE_ROUTE_BACKEND_CONCEPT +
+          id +
+          typeOperation
+      );
       const response = await axios.patch(
         import.meta.env.VITE_URI_BACKEND_FACTURACTION +
-          import.meta.env.VITE_ROUTE_BACKEND_GET_CONCEPT +
+          import.meta.env.VITE_ROUTE_BACKEND_CONCEPT +
           id +
           typeOperation,
         formData
       );
+
       console.log(response);
 
       if (typeForm === "habilitar") {
