@@ -27,7 +27,7 @@ import {
   Legend,
 } from "chart.js";
 import { Bar, Doughnut } from "react-chartjs-2";
-import { format, subMonths, subYears } from "date-fns";
+import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { BiBorderRadius } from "react-icons/bi";
 
@@ -45,8 +45,14 @@ ChartJS.register(
 );
 
 const Billing = () => {
-  const [activePeriodBar, setActivePeriodBar] = useState("anual");
-  const [activePeriodDonut, setActivePeriodDonut] = useState("anual");
+  // Estado para los años disponibles y el año seleccionado
+  const [availableYears, setAvailableYears] = useState([]);
+  const [selectedYear, setSelectedYear] = useState(null);
+  
+  // Estado para los meses disponibles en el año seleccionado y el mes seleccionado
+  const [availableMonths, setAvailableMonths] = useState([]);
+  const [selectedMonth, setSelectedMonth] = useState(null);
+
   const [data, setData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -273,6 +279,77 @@ const Billing = () => {
   useEffect(() => {
     fetchBilling();
   }, []);
+  
+  // Extraer años únicos de los datos de facturación
+  useEffect(() => {
+    if (data.length > 0) {
+      // Extraer años únicos
+      const years = [...new Set(data
+        .filter(item => item.issue_date) // Filtrar elementos sin fecha
+        .map(item => {
+          const parts = item.issue_date.split('-');
+          return parseInt(parts[0], 10);
+        }))]
+        .sort((a, b) => b - a); // Ordenar de mayor a menor
+      
+      setAvailableYears(years);
+      
+      // Seleccionar el año más reciente por defecto
+      if (years.length > 0 && !selectedYear) {
+        setSelectedYear(years[0]);
+      }
+    }
+  }, [data]);
+  
+  // Actualizar meses disponibles cuando cambia el año seleccionado
+  useEffect(() => {
+    if (selectedYear && data.length > 0) {
+      // Filtrar facturas del año seleccionado
+      const facturasPorAnio = data.filter(item => {
+        if (!item.issue_date) return false;
+        const parts = item.issue_date.split('-');
+        return parseInt(parts[0], 10) === selectedYear;
+      });
+      
+      // Extraer meses únicos con datos
+      const monthsWithData = [...new Set(facturasPorAnio.map(item => {
+        const parts = item.issue_date.split('-');
+        return parseInt(parts[1], 10); // El mes está en la posición 1 (formato YYYY-MM-DD)
+      }))].sort((a, b) => a - b); // Ordenar de menor a mayor
+      
+      // Crear objetos de meses con su número y nombre para el selector
+      const monthObjects = monthsWithData.map(monthNum => {
+        // Crear una fecha con el mes para obtener su nombre
+        const date = new Date(selectedYear, monthNum - 1, 1);
+        return {
+          number: monthNum,
+          name: format(date, 'MMM', { locale: es }),
+          full: format(date, 'MMMM', { locale: es })
+        };
+      });
+      
+      setAvailableMonths(monthObjects);
+      
+      // Seleccionar el mes más reciente por defecto
+      if (monthObjects.length > 0) {
+        // Si no hay mes seleccionado o el seleccionado no está en los disponibles
+        if (!selectedMonth || !monthsWithData.includes(selectedMonth.number)) {
+          // Ordenar por fecha para encontrar el más reciente
+          const sortedFacturas = [...facturasPorAnio].sort((a, b) => 
+            new Date(b.issue_date) - new Date(a.issue_date)
+          );
+          
+          if (sortedFacturas.length > 0) {
+            const latestMonth = parseInt(sortedFacturas[0].issue_date.split('-')[1], 10);
+            const monthObj = monthObjects.find(m => m.number === latestMonth);
+            setSelectedMonth(monthObj);
+          }
+        }
+      } else {
+        setSelectedMonth(null);
+      }
+    }
+  }, [selectedYear, data]);
 
   const fetchBilling = async () => {
     try {
@@ -415,6 +492,30 @@ const Billing = () => {
           attachment: "factura_fac-014.pdf",
           status_name: "Pendiente", 
         },
+        {
+          id: 15,
+          property_id: 111, 
+          lot_id: 12,
+          owner_document_number: "1122334455",
+          payment_interval_name: "Mensual",
+          issue_date: "2023-06-15", 
+          due_date: "2023-07-15", 
+          amount_due: 155000,
+          attachment: "factura_fac-015.pdf",
+          status_name: "Pagada", 
+        },
+        {
+          id: 16,
+          property_id: 112, 
+          lot_id: 13,
+          owner_document_number: "2233445566",
+          payment_interval_name: "Bimestral",
+          issue_date: "2023-08-10", 
+          due_date: "2023-10-10", 
+          amount_due: 280000,
+          attachment: "factura_fac-016.pdf",
+          status_name: "Vencida", 
+        },
       ];
       const sortedData = billing.sort((a, b) => b.id - a.id);
 
@@ -531,134 +632,53 @@ const Billing = () => {
     }).format(value);
   };
 
-  // Función para generar etiquetas de fecha según el período seleccionado
-  const generateDateLabels = (period) => {
-    const today = new Date();
-    let labels = [];
-    let formatStr = "";
-
-    switch (period) {
-      case "trimestral":
-        formatStr = "MMM";
-        for (let i = 3; i >= 0; i--) {
-          labels.push(format(subMonths(today, i), formatStr, { locale: es }));
-        }
-        break;
-      case "semestral":
-        formatStr = "MMM";
-        for (let i = 5; i >= 0; i--) {
-          labels.push(format(subMonths(today, i), formatStr, { locale: es }));
-        }
-        break;
-      case "anual":
-        formatStr = "MMM";
-        for (let i = 11; i >= 0; i--) {
-          labels.push(format(subMonths(today, i), formatStr, { locale: es }));
-        }
-        break;
-      default:
-        return [
-          "Ene",
-          "Feb",
-          "Mar",
-          "Abr",
-          "May",
-          "Jun",
-          "Jul",
-          "Ago",
-          "Sep",
-          "Oct",
-          "Nov",
-          "Dic",
-        ];
-    }
-    return labels;
-  };
-
-  // Función para generar datos del gráfico de barras basados en los datos de facturación
-  const getBarChartData = (period) => {
-    const today = new Date();
-    const currentMonth = today.getMonth();
-    const currentYear = today.getFullYear();
-
-    // Determinar cuántos meses mostrar según el período
-    let numMeses;
-    switch (period) {
-      case "trimestral":
-        numMeses = 3;
-        break;
-      case "semestral":
-        numMeses = 6;
-        break;
-      case "anual":
-      default:
-        numMeses = 12;
-        break;
-    }
-
-    // Generar datos de los meses y etiquetas
-    const labels = [];
-    const mesesData = [];
-
-    // array con información de los meses a mostrar
-    for (let i = numMeses - 1; i >= 0; i--) {
-      let targetMonth = currentMonth - i;
-      let targetYear = currentYear;
-
-      // Ajustar si necesitamos ir al año anterior
-      while (targetMonth < 0) {
-        targetMonth += 12;
-        targetYear -= 1;
-      }
-
-      mesesData.push({
-        month: targetMonth,
-        year: targetYear,
-        pendientes: 0,
-        pagadas: 0,
-        vencidas: 0,
-      });
-
-      // Crear una fecha para obtener el nombre del mes para la etiqueta
-      const tempDate = new Date(targetYear, targetMonth, 1);
-      labels.push(format(tempDate, "MMM", { locale: es }));
-    }
-
+  // Función para generar datos del gráfico de barras basados en el año seleccionado
+  const getBarChartData = () => {
+    if (!selectedYear) return { labels: [], datasets: [] };
+    
+    // Filtrar facturas por el año seleccionado
+    const facturasPorAnio = data.filter(item => {
+      if (!item.issue_date) return false;
+      const parts = item.issue_date.split('-');
+      return parseInt(parts[0], 10) === selectedYear;
+    });
+    
+    // Inicializar array para los 12 meses del año
+    const mesesData = Array.from({ length: 12 }, (_, i) => ({
+      month: i + 1,
+      year: selectedYear,
+      pendientes: 0,
+      pagadas: 0,
+      vencidas: 0
+    }));
+    
     // Agrupar facturas por estado y mes
-    data.forEach((factura) => {
-      if (!factura.issue_date) return; 
-
-      const fechaParts = factura.issue_date.split("-");
-      if (fechaParts.length !== 3) return;
-
-      const year = parseInt(fechaParts[0], 10);
-      const month = parseInt(fechaParts[1], 10) - 1; 
-      const day = parseInt(fechaParts[2], 10);
-
-      if (isNaN(year) || isNaN(month) || isNaN(day)) return;
-
-      // Buscar si este mes/año está en nuestro rango de visualización
-      const mesIndex = mesesData.findIndex(
-        (m) => m.month === month && m.year === year
-      );
-
-      if (mesIndex !== -1) {
-        const estado = factura.status_name?.toLowerCase();
-        if (estado === "pendiente") {
-          mesesData[mesIndex].pendientes += 1;
-        } else if (estado === "pagada") {
-          mesesData[mesIndex].pagadas += 1;
-        } else if (estado === "vencida") {
-          mesesData[mesIndex].vencidas += 1;
-        }
+    facturasPorAnio.forEach((factura) => {
+      if (!factura.issue_date) return;
+      
+      const month = parseInt(factura.issue_date.split('-')[1], 10) - 1; // 0-indexed
+      const estado = factura.status_name?.toLowerCase();
+      
+      if (estado === "pendiente") {
+        mesesData[month].pendientes += 1;
+      } else if (estado === "pagada") {
+        mesesData[month].pagadas += 1;
+      } else if (estado === "vencida") {
+        mesesData[month].vencidas += 1;
       }
     });
-
+    
+    // Crear etiquetas de los meses en español
+    const labels = mesesData.map((m, i) => {
+      const date = new Date(selectedYear, i, 1);
+      return format(date, 'MMM', { locale: es });
+    });
+    
     // Extraer los datos para el gráfico
-    const pendientes = mesesData.map((m) => m.pendientes);
-    const pagadas = mesesData.map((m) => m.pagadas);
-    const vencidas = mesesData.map((m) => m.vencidas);
-
+    const pendientes = mesesData.map(m => m.pendientes);
+    const pagadas = mesesData.map(m => m.pagadas);
+    const vencidas = mesesData.map(m => m.vencidas);
+    
     return {
       labels,
       datasets: [
@@ -687,119 +707,18 @@ const Billing = () => {
     };
   };
 
-  // Función para generar datos del gráfico circular (donut)
-  const getDonutChartData = () => {
-    const mesesMap = {
-      ene: 0,
-      feb: 1,
-      mar: 2,
-      abr: 3,
-      may: 4,
-      jun: 5,
-      jul: 6,
-      ago: 7,
-      sept: 8,
-      oct: 9,
-      nov: 10,
-      dic: 11,
-    };
-
-    // Calcular montos totales por estado
-    const montosPorEstado = {
-      pendiente: 0,
-      pagada: 0,
-      vencida: 0,
-    };
-
-    // Filtrar por mes si no es "anual"
-    if (activePeriodDonut !== "anual") {
-      const mesSeleccionado = mesesMap[activePeriodDonut];
-      if (mesSeleccionado !== undefined) {
-        data.forEach((factura) => {
-          if (!factura.issue_date) return;
-
-          // Convertir string de fecha a objeto Date
-          const fechaParts = factura.issue_date.split("-");
-          if (fechaParts.length !== 3) return;
-
-          const month = parseInt(fechaParts[1], 10) - 1; 
-
-          // Sólo incluir facturas del mes seleccionado
-          if (month === mesSeleccionado) {
-            const estado = factura.status_name?.toLowerCase();
-            if (estado === "pendiente")
-              montosPorEstado.pendiente += factura.amount_due;
-            else if (estado === "pagada")
-              montosPorEstado.pagada += factura.amount_due;
-            else if (estado === "vencida")
-              montosPorEstado.vencida += factura.amount_due;
-          }
-        });
-      }
-    } else {
-      // Si es anual, incluir todas las facturas
-      data.forEach((factura) => {
-        const estado = factura.status_name?.toLowerCase();
-        if (estado === "pendiente")
-          montosPorEstado.pendiente += factura.amount_due;
-        else if (estado === "pagada")
-          montosPorEstado.pagada += factura.amount_due;
-        else if (estado === "vencida")
-          montosPorEstado.vencida += factura.amount_due;
-      });
-    }
-
-    return {
-      labels: ["Pendientes", "Pagadas", "Vencidas"],
-      datasets: [
-        {
-          data: [
-            montosPorEstado.pendiente,
-            montosPorEstado.pagada,
-            montosPorEstado.vencida,
-          ],
-          backgroundColor: [
-            "rgba(255, 214, 107, 1)",
-            "rgba(91, 147, 255, 1)",
-            "rgba(255, 143, 107, 1)",
-          ],
-          borderColor: [
-            "rgba(255, 214, 107, 1)",
-            "rgba(54, 162, 235, 1)",
-            "rgba(255, 99, 132, 1)",
-          ],
-          borderWidth: 1,
-        },
-      ],
-    };
-  };
-
   // Opciones para el gráfico de barras
-  const getBarOptions = (period) => {
-    let titleText = "Facturas generadas";
-
-    switch (period) {
-      case "trimestral":
-        titleText += " (últimos 3 meses)";
-        break;
-      case "semestral":
-        titleText += " (últimos 6 meses)";
-        break;
-      case "anual":
-        titleText += " (últimos 12 meses)";
-        break;
-    }
-
+  const getBarOptions = () => {
     return {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
         legend: {
-          display: false, 
+          display: false,
         },
         title: {
           display: true,
-          text: titleText,
+          text: `Facturas generadas (${selectedYear})`,
           font: {
             size: 14,
           },
@@ -828,6 +747,57 @@ const Billing = () => {
     };
   };
 
+  // Función para generar datos del gráfico circular (donut)
+  const getDonutChartData = () => {
+    if (!selectedYear || !selectedMonth) return { labels: [], datasets: [{ data: [0, 0, 0] }] };
+    
+    // Filtrar facturas por el año y mes seleccionados
+    const facturasFiltradas = data.filter(factura => {
+      if (!factura.issue_date) return false;
+      
+      const [year, month] = factura.issue_date.split('-').map(Number);
+      return year === selectedYear && month === selectedMonth.number;
+    });
+    
+    // Calcular montos totales por estado
+    const montosPorEstado = {
+      pendiente: 0,
+      pagada: 0,
+      vencida: 0,
+    };
+    
+    facturasFiltradas.forEach((factura) => {
+      const estado = factura.status_name?.toLowerCase();
+      if (estado === "pendiente") montosPorEstado.pendiente += factura.amount_due;
+      else if (estado === "pagada") montosPorEstado.pagada += factura.amount_due;
+      else if (estado === "vencida") montosPorEstado.vencida += factura.amount_due;
+    });
+    
+    return {
+      labels: ["Pendientes", "Pagadas", "Vencidas"],
+      datasets: [
+        {
+          data: [
+            montosPorEstado.pendiente,
+            montosPorEstado.pagada,
+            montosPorEstado.vencida,
+          ],
+          backgroundColor: [
+            "rgba(255, 214, 107, 1)",
+            "rgba(91, 147, 255, 1)",
+            "rgba(255, 143, 107, 1)",
+          ],
+          borderColor: [
+            "rgba(255, 214, 107, 1)",
+            "rgba(54, 162, 235, 1)",
+            "rgba(255, 99, 132, 1)",
+          ],
+          borderWidth: 1,
+        },
+      ],
+    };
+  };
+
   // Opciones para el gráfico circular
   const getDonutOptions = () => {
     return {
@@ -835,60 +805,35 @@ const Billing = () => {
       maintainAspectRatio: false,
       plugins: {
         legend: {
-          display: false, 
+          display: false,
         },
         title: {
-          display: false, 
+          display: false,
         },
       },
-      cutout: "80%", 
+      cutout: "80%",
     };
   };
 
   // Calcular el monto total para mostrar en el centro del donut
   const calcularMontoTotal = () => {
-    const mesesMap = {
-      ene: 0,
-      feb: 1,
-      mar: 2,
-      abr: 3,
-      may: 4,
-      jun: 5,
-      jul: 6,
-      ago: 7,
-      sept: 8,
-      oct: 9,
-      nov: 10,
-      dic: 11,
-    };
-
-    // Si es un mes específico, filtrar
-    if (activePeriodDonut !== "anual") {
-      const mesSeleccionado = mesesMap[activePeriodDonut];
-      if (mesSeleccionado !== undefined) {
-        return data.reduce((total, factura) => {
-          if (!factura.issue_date) return total;
-
-          // Convertir string de fecha a objeto Date
-          const fechaParts = factura.issue_date.split("-");
-          if (fechaParts.length !== 3) return total;
-
-          const month = parseInt(fechaParts[1], 10) - 1; // Meses en JS son 0-11
-
-          // Sólo incluir facturas del mes seleccionado
-          if (month === mesSeleccionado) {
-            return total + factura.amount_due;
-          }
-          return total;
-        }, 0);
+    if (!selectedYear || !selectedMonth) return 0;
+    
+    // Filtrar facturas por el año y mes seleccionados
+    return data.reduce((total, factura) => {
+      if (!factura.issue_date) return total;
+      
+      const [year, month] = factura.issue_date.split('-').map(Number);
+      
+      if (year === selectedYear && month === selectedMonth.number) {
+        return total + factura.amount_due;
       }
-    }
-
-    // Si es anual o el mes no es válido, mostrar el total general
-    return data.reduce((total, factura) => total + factura.amount_due, 0);
+      return total;
+    }, 0);
   };
 
   const montoTotal = formatCurrency(calcularMontoTotal());
+
   const renderCharts = () => {
     return (
       <div className="container-cont mb-5">
@@ -939,23 +884,26 @@ const Billing = () => {
                     </div>
                   </div>
 
-                  {/* Desplegable */}
+                  {/* Selector de años */}
                   <div className="select is-small">
                     <select
-                      value={activePeriodBar}
-                      onChange={(e) => setActivePeriodBar(e.target.value)}
+                      value={selectedYear || ""}
+                      onChange={(e) => setSelectedYear(parseInt(e.target.value, 10))}
+                      disabled={availableYears.length === 0}
                     >
-                      <option value="trimestral">Trimestral</option>
-                      <option value="semestral">Semestral</option>
-                      <option value="anual">Anual</option>
+                      {availableYears.map((year) => (
+                        <option key={year} value={year}>
+                          {year}
+                        </option>
+                      ))}
                     </select>
                   </div>
                 </div>
               </div>
               <div style={{ height: "300px" }}>
                 <Bar
-                  data={getBarChartData(activePeriodBar)}
-                  options={getBarOptions(activePeriodBar)}
+                  data={getBarChartData()}
+                  options={getBarOptions()}
                 />
               </div>
             </div>
@@ -964,24 +912,22 @@ const Billing = () => {
             <div ref={donutContainerRef} className="rol-detail">
               <div className="is-flex is-justify-content-space-between is-align-items-center mb-4">
                 <h3 className="subtitle is-6 mb-0">Total facturado</h3>
+                {/* Selector de meses basado en el año seleccionado */}
                 <div className="select is-small">
                   <select
-                    value={activePeriodDonut}
-                    onChange={(e) => setActivePeriodDonut(e.target.value)}
+                    value={selectedMonth?.number || ""}
+                    onChange={(e) => {
+                      const monthNum = parseInt(e.target.value, 10);
+                      const monthObj = availableMonths.find(m => m.number === monthNum);
+                      setSelectedMonth(monthObj);
+                    }}
+                    disabled={!selectedYear || availableMonths.length === 0}
                   >
-                    <option value="sept">Sept.</option>
-                    <option value="oct">Oct.</option>
-                    <option value="nov">Nov.</option>
-                    <option value="dic">Dic.</option>
-                    <option value="ene">Ene.</option>
-                    <option value="feb">Feb.</option>
-                    <option value="mar">Mar.</option>
-                    <option value="abr">Abr.</option>
-                    <option value="may">May.</option>
-                    <option value="jun">Jun.</option>
-                    <option value="jul">Jul.</option>
-                    <option value="ago">Ago.</option>
-                    <option value="anual">Anual</option>
+                    {availableMonths.map((month) => (
+                      <option key={month.number} value={month.number}>
+                        {month.full}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>
@@ -1095,7 +1041,7 @@ const Billing = () => {
                       style={{ width: "100%" }}
                     >
                       <span className="is-size-7">
-                        Transacciones rechazadas
+                        Transacciones vencidas
                       </span>
                       <span className="is-size-7">
                         {formatCurrency(
