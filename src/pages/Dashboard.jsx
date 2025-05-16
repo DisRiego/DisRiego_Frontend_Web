@@ -1,10 +1,8 @@
 import { useEffect, useState } from "react";
 import { useParams, useLocation } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
-import Navegation from "../components/dashboard/Navegation";
+import Navegation from "../components/dashboard/reusable/Navegation";
 import Notification from "../components/dashboard/Notification";
-import Fault_report from "../components/dashboard/Fault_report";
-import Invoice_detail from "../components/dashboard/details/Invoice_detail";
 import Property from "../components/dashboard/Property";
 import Property_user from "../components/dashboard/Property_user";
 import Property_detail from "../components/dashboard/details/Property_detail";
@@ -13,6 +11,27 @@ import Rol from "../components/dashboard/Rol";
 import Rol_detail from "../components/dashboard/details/Rol_detail";
 import User from "../components/dashboard/User";
 import User_detail from "../components/dashboard/details/User_detail";
+import Company_data from "../components/dashboard/company/Company_data";
+import Company_certificate from "../components/dashboard/company/Company_certificate";
+import Company_crop from "../components/dashboard/company/Company_crop";
+import Company_payment_interval from "../components/dashboard/company/Company_payment_interval";
+import Company_concept from "../components/dashboard/company/Company_concept";
+import Device from "../components/dashboard/Device";
+import Device_detail from "../components/dashboard/details/Device_detail";
+import Profile from "../components/dashboard/Profile";
+import Request from "../components/dashboard/Request";
+import Request_detail from "../components/dashboard/details/Request_detail";
+import Fault_report from "../components/dashboard/Fault_report";
+import Fault_report_detail from "../components/dashboard/details/Fault_report_detail";
+import System_fault from "../components/dashboard/System_fault";
+import System_report_detail from "../components/dashboard/details/System_report_detail";
+import Billing from "../components/dashboard/Billing";
+import Billing_detail from "../components/dashboard/details/Billing_detail";
+import Billing_user from "../components/dashboard/Billing_user";
+import Form_pay from "../components/dashboard/forms/adds/Form_pay";
+import Transaction from "../components/dashboard/Transaction";
+import Transaction_detail from "../components/dashboard/details/Transaction_detail";
+import Consumption from "../components/dashboard/Consumption";
 
 const Dashboard = () => {
   const { id } = useParams();
@@ -53,6 +72,10 @@ const Dashboard = () => {
     switch (selectedOption) {
       case "notification":
         return <Notification />;
+      case "request":
+        return <Request />;
+      case `request/${id}`:
+        return <Request_detail />;
       case "rol":
         return <Rol />;
       case `rol/${id}`:
@@ -71,10 +94,54 @@ const Dashboard = () => {
         return <Property_detail />;
       case `lot/${id}`:
         return <Lot_detail />;
+      case `device`:
+        return <Device />;
+      case `device/${id}`:
+        return <Device_detail />;
+      case "system":
+        return <System_fault />;
+      case `system/${id}`:
+        return <System_report_detail />;
       case "report":
         return <Fault_report />;
       case `report/${id}`:
-        return <Invoice_detail />;
+        return <Fault_report_detail />;
+      case "systems":
+        return <System_fault />;
+      case `systems/${id}`:
+        return <System_report_detail />;
+      case "reports":
+        return <Fault_report />;
+      case `reports/${id}`:
+        return <Fault_report_detail />;
+      case `invoice`:
+        return <Billing />;
+      case `invoice/${id}`:
+        return <Billing_detail />;
+      case `invoices`:
+        return <Billing_user />;
+      case `invoices/${id}`:
+        return <Billing_detail />;
+      case `transaction`:
+        return <Transaction />;
+      case `transaction/${id}`:
+        return <Transaction_detail />;
+      case `pay/${id}`:
+        return <Form_pay />;
+      case `consumption`:
+        return <Consumption />;
+      case "company":
+        return <Company_data />;
+      case `certificate`:
+        return <Company_certificate />;
+      case `crop`:
+        return <Company_crop />;
+      case `payment`:
+        return <Company_payment_interval />;
+      case `concept`:
+        return <Company_concept />;
+      case `profile`:
+        return <Profile />;
     }
   };
 

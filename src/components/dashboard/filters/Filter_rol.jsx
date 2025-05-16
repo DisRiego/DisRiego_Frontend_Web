@@ -1,45 +1,27 @@
 import { useState, useEffect } from "react";
 
-const Filter_rol = ({ onClose, data }) => {
-  const [permissions, setPermissions] = useState([]);
+const Filter_rol = ({
+  onClose,
+  data,
+  filteredData,
+  setFilteredData,
+  setStatusFilter,
+  filters,
+  setFilters,
+  backupData,
+}) => {
   const [status, setStatus] = useState([]);
-  const [filters, setFilters] = useState({ permisos: {}, estados: {} });
-  const [openCategories, setOpenCategories] = useState({});
-
-  console.log(filters);
 
   useEffect(() => {
-    const loadedPermissions = [
-      { id: 1, nombre: "Crear usuario", categoria: "usuario" },
-      { id: 2, nombre: "Crear rol", categoria: "rol" },
-      { id: 3, nombre: "Crear predio", categoria: "predio" },
-      { id: 4, nombre: "Editar usuario", categoria: "usuario" },
-      { id: 5, nombre: "Inhabilitar usuario", categoria: "usuario" },
-      { id: 6, nombre: "Descargar reporte de usuario", categoria: "usuario" },
-      { id: 7, nombre: "Ver detalles de un usuario", categoria: "usuario" },
-      { id: 8, nombre: "Editar rol", categoria: "rol" },
-      { id: 9, nombre: "Editar predio", categoria: "predio" },
-    ];
+    const uniqueStatuses = [...new Set(backupData.map((item) => item.Estado))]
+      .map((estado, index) => ({
+        id: index + 1,
+        nombre: estado,
+      }))
+      .sort((a, b) => a.nombre.localeCompare(b.nombre));
 
-    const loadedStatus = [
-      { id: 1, nombre: "Activo" },
-      { id: 2, nombre: "Inactivo" },
-    ];
-
-    setPermissions(loadedPermissions);
-    setStatus(loadedStatus);
-  }, []);
-
-  const handlePermissionChange = (event) => {
-    const { name, checked } = event.target;
-    setFilters((prevFilters) => ({
-      ...prevFilters,
-      permisos: {
-        ...prevFilters.permisos,
-        [name]: checked,
-      },
-    }));
-  };
+    setStatus(uniqueStatuses);
+  }, [backupData]);
 
   const handleStatusChange = (event) => {
     const { name, checked } = event.target;
@@ -53,29 +35,27 @@ const Filter_rol = ({ onClose, data }) => {
   };
 
   const handleClear = () => {
-    setFilters({ permisos: {}, estados: {} });
+    setFilters({ estados: {} });
+    setFilteredData(filteredData);
+    setStatusFilter(true);
   };
 
-  // Función para alternar categorías abiertas
-  const toggleCategory = (categoria) => {
-    setOpenCategories((prev) => ({
-      ...prev,
-      [categoria]: !prev[categoria],
-    }));
-  };
+  const applyFilters = () => {
+    const selectedStates = Object.keys(filters.estados).filter(
+      (estado) => filters.estados[estado]
+    );
 
-  // Agrupar permisos por categoría
-  const groupedPermissions = permissions.reduce((acc, permiso) => {
-    const categoria =
-      permiso.categoria.charAt(0).toUpperCase() +
-      permiso.categoria.slice(1).toLowerCase();
-
-    if (!acc[categoria]) {
-      acc[categoria] = [];
+    if (selectedStates.length === 0) {
+      setFilteredData(backupData);
+      return;
     }
-    acc[categoria].push(permiso);
-    return acc;
-  }, {});
+
+    const filtered = backupData.filter((item) =>
+      selectedStates.includes(item.Estado)
+    );
+
+    setFilteredData(filtered);
+  };
 
   return (
     <div className="modal is-active">
@@ -85,57 +65,17 @@ const Filter_rol = ({ onClose, data }) => {
 
         {/* Contenedor de Filtros */}
         <div className="view-filter-body">
-          {/* Permisos */}
-          <div className="field">
-            <label className="label">Permisos</label>
-            {Object.keys(groupedPermissions).map((categoria) => (
-              <div key={categoria} className="accordion">
-                {/* Botón de categoría */}
-                <div
-                  className="accordion-header"
-                  onClick={() => toggleCategory(categoria)}
-                >
-                  <p className="has-text-weight-bold">{categoria}</p>
-                  <span className="icon">
-                    {openCategories[categoria] ? "−" : "+"}
-                  </span>
-                </div>
-
-                {/* Lista de permisos con scroll si es necesario */}
-                <div
-                  className={`accordion-body ${
-                    openCategories[categoria] ? "open" : ""
-                  }`}
-                >
-                  {groupedPermissions[categoria].map((permiso) => (
-                    <div className="control" key={permiso.id}>
-                      <label className="checkbox">
-                        <input
-                          type="checkbox"
-                          name={permiso.id}
-                          checked={filters.permisos[permiso.id] || false}
-                          onChange={handlePermissionChange}
-                        />{" "}
-                        {permiso.nombre}
-                      </label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-
           {/* Estados */}
           <div className="field mt-5">
-            <label className="label">Estado</label>
+            <label className="label">Lista de estados</label>
             <div className="container-status">
               {status.map((estado) => (
                 <div className="control" key={estado.id}>
                   <label className="checkbox">
                     <input
                       type="checkbox"
-                      name={estado.id}
-                      checked={filters.estados[estado.id] || false}
+                      name={estado.nombre}
+                      checked={filters.estados[estado.nombre] || false}
                       onChange={handleStatusChange}
                     />{" "}
                     {estado.nombre}
@@ -154,7 +94,12 @@ const Filter_rol = ({ onClose, data }) => {
           >
             Limpiar
           </button>
-          <button className="button is-fullwidth color-hover">Aplicar</button>
+          <button
+            className="button is-fullwidth color-hover"
+            onClick={applyFilters}
+          >
+            Aplicar
+          </button>
         </div>
       </div>
     </div>

@@ -1,45 +1,67 @@
 import { useState, useEffect } from "react";
 
-const Filter_user = ({ onClose }) => {
-  const [permissions, setPermissions] = useState([]);
+const Filter_user = ({
+  onClose,
+  filteredData,
+  setFilteredData,
+  setStatusFilter,
+  filters,
+  setFilters,
+  backupData,
+}) => {
   const [status, setStatus] = useState([]);
-  const [filters, setFilters] = useState({ permisos: {}, estados: {} });
-  const [openCategories, setOpenCategories] = useState({});
-
-  console.log(filters);
+  const [roles, setRoles] = useState([]);
+  const [documentTypes, setDocumentTypes] = useState([]); // Estado para tipos de documento
 
   useEffect(() => {
-    const loadedPermissions = [
-      { id: 1, nombre: "Crear usuario", categoria: "usuario" },
-      { id: 2, nombre: "Crear rol", categoria: "rol" },
-      { id: 3, nombre: "Crear predio", categoria: "predio" },
-      { id: 4, nombre: "Editar usuario", categoria: "usuario" },
-      { id: 5, nombre: "Inhabilitar usuario", categoria: "usuario" },
-      { id: 6, nombre: "Descargar reporte de usuario", categoria: "usuario" },
-      { id: 7, nombre: "Ver detalles de un usuario", categoria: "usuario" },
-      { id: 8, nombre: "Editar rol", categoria: "rol" },
-      { id: 9, nombre: "Editar predio", categoria: "predio" },
-    ];
+    if (!backupData || !Array.isArray(backupData)) return;
 
-    const loadedStatus = [
-      { id: 1, nombre: "Activo" },
-      { id: 2, nombre: "Inactivo" },
-    ];
+    // Obtener estados únicos
+    const uniqueStatuses = [
+      ...new Set(
+        backupData.filter((item) => item.Estado).map((item) => item.Estado)
+      ),
+    ]
+      .map((estado, index) => ({
+        id: index + 1,
+        nombre: estado,
+      }))
+      .sort((a, b) => a.nombre.localeCompare(b.nombre));
 
-    setPermissions(loadedPermissions);
-    setStatus(loadedStatus);
-  }, []);
+    setStatus(uniqueStatuses);
 
-  const handlePermissionChange = (event) => {
-    const { name, checked } = event.target;
-    setFilters((prevFilters) => ({
-      ...prevFilters,
-      permisos: {
-        ...prevFilters.permisos,
-        [name]: checked,
-      },
-    }));
-  };
+    // Obtener roles únicos
+    const uniqueRoles = [
+      ...new Set(
+        backupData
+          .filter((item) => item.Rol)
+          .flatMap((item) => item.Rol.split(",").map((rol) => rol.trim()))
+      ),
+    ]
+      .map((rol, index) => ({
+        id: index + 1,
+        nombre: rol,
+      }))
+      .sort((a, b) => a.nombre.localeCompare(b.nombre));
+
+    setRoles(uniqueRoles);
+
+    // Obtener tipos de documento únicos
+    const uniqueDocumentTypes = [
+      ...new Set(
+        backupData
+          .filter((item) => item["Tipo de documento"])
+          .map((item) => item["Tipo de documento"])
+      ),
+    ]
+      .map((tipo, index) => ({
+        id: index + 1,
+        nombre: tipo,
+      }))
+      .sort((a, b) => a.nombre.localeCompare(b.nombre));
+
+    setDocumentTypes(uniqueDocumentTypes);
+  }, [backupData]);
 
   const handleStatusChange = (event) => {
     const { name, checked } = event.target;
@@ -52,131 +74,158 @@ const Filter_user = ({ onClose }) => {
     }));
   };
 
-  const handleClear = () => {
-    setFilters({ permisos: {}, estados: {} });
-  };
-
-  // Función para alternar categorías abiertas
-  const toggleCategory = (categoria) => {
-    setOpenCategories((prev) => ({
-      ...prev,
-      [categoria]: !prev[categoria],
+  const handleRoleChange = (event) => {
+    const { name, checked } = event.target;
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      roles: {
+        ...prevFilters.roles,
+        [name]: checked,
+      },
     }));
   };
 
-  // Agrupar permisos por categoría
-  const groupedPermissions = permissions.reduce((acc, permiso) => {
-    const categoria =
-      permiso.categoria.charAt(0).toUpperCase() +
-      permiso.categoria.slice(1).toLowerCase();
+  const handleDocumentTypeChange = (event) => {
+    const { name, checked } = event.target;
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      tiposDocumento: {
+        ...prevFilters.tiposDocumento,
+        [name]: checked,
+      },
+    }));
+  };
 
-    if (!acc[categoria]) {
-      acc[categoria] = [];
+  const handleClear = () => {
+    setFilters({ estados: {}, roles: {}, tiposDocumento: {} });
+    setFilteredData(backupData);
+    setStatusFilter(true);
+  };
+
+  const applyFilters = () => {
+    const selectedStates = Object.keys(filters.estados).filter(
+      (estado) => filters.estados[estado]
+    );
+
+    const selectedRoles = Object.keys(filters.roles).filter(
+      (rol) => filters.roles[rol]
+    );
+
+    const selectedDocumentTypes = Object.keys(filters.tiposDocumento).filter(
+      (tipo) => filters.tiposDocumento[tipo]
+    );
+
+    let filtered = [...backupData];
+
+    if (
+      selectedDocumentTypes.length > 0 ||
+      selectedStates.length > 0 ||
+      selectedRoles.length > 0
+    ) {
+      filtered = filtered.filter(
+        (item) =>
+          (selectedDocumentTypes.length === 0 ||
+            selectedDocumentTypes.includes(item["Tipo de documento"])) &&
+          (selectedStates.length === 0 ||
+            selectedStates.includes(item.Estado)) &&
+          (selectedRoles.length === 0 ||
+            selectedRoles.some((rol) =>
+              item.Rol
+                ? item.Rol.split(",")
+                    .map((r) => r.trim())
+                    .includes(rol)
+                : false
+            ))
+      );
     }
-    acc[categoria].push(permiso);
-    return acc;
-  }, {});
+
+    setFilteredData(filtered);
+  };
+
   return (
-    <>
-      <div className="modal is-active">
-        <div className="modal-background" onClick={onClose}></div>
-        <div className="view-filter">
-          <h2 className="has-text-centered title is-4">Filtros</h2>
+    <div className="modal is-active">
+      <div className="modal-background" onClick={onClose}></div>
+      <div className="view-filter">
+        <h2 className="has-text-centered title is-4">Filtros</h2>
 
-          {/* Contenedor de Filtros */}
-          <div className="view-filter-body">
-            {/* Tipo de documento */}
-            <div className="field mt-5">
-              <label className="label">Tipo de documento</label>
-              <div className="container-status">
-                {status.map((estado) => (
-                  <div className="control" key={estado.id}>
-                    <label className="checkbox">
-                      <input
-                        type="checkbox"
-                        name={estado.id}
-                        checked={filters.estados[estado.id] || false}
-                        onChange={handleStatusChange}
-                      />{" "}
-                      {estado.nombre}
-                    </label>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="field mt-5">
-              <label className="label">Genero</label>
-              <div className="container-status">
-                {status.map((estado) => (
-                  <div className="control" key={estado.id}>
-                    <label className="checkbox">
-                      <input
-                        type="checkbox"
-                        name={estado.id}
-                        checked={filters.estados[estado.id] || false}
-                        onChange={handleStatusChange}
-                      />{" "}
-                      {estado.nombre}
-                    </label>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="field mt-5">
-              <label className="label">Rol</label>
-              <div className="container-status">
-                {status.map((estado) => (
-                  <div className="control" key={estado.id}>
-                    <label className="checkbox">
-                      <input
-                        type="checkbox"
-                        name={estado.id}
-                        checked={filters.estados[estado.id] || false}
-                        onChange={handleStatusChange}
-                      />{" "}
-                      {estado.nombre}
-                    </label>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Estados */}
-            <div className="field mt-5">
-              <label className="label">Estado</label>
-              <div className="container-status">
-                {status.map((estado) => (
-                  <div className="control" key={estado.id}>
-                    <label className="checkbox">
-                      <input
-                        type="checkbox"
-                        name={estado.id}
-                        checked={filters.estados[estado.id] || false}
-                        onChange={handleStatusChange}
-                      />{" "}
-                      {estado.nombre}
-                    </label>
-                  </div>
-                ))}
-              </div>
+        <div className="view-filter-body">
+          {/* Tipos de documento */}
+          <div className="field mt-5">
+            <label className="label">Tipo de documento</label>
+            <div className="container-status">
+              {documentTypes.map((tipo) => (
+                <div className="control" key={tipo.id}>
+                  <label className="checkbox">
+                    <input
+                      type="checkbox"
+                      name={tipo.nombre}
+                      checked={filters.tiposDocumento?.[tipo.nombre] || false}
+                      onChange={handleDocumentTypeChange}
+                    />{" "}
+                    {tipo.nombre}
+                  </label>
+                </div>
+              ))}
             </div>
           </div>
 
-          {/* Botones */}
-          <div className="view-filter-buttons">
-            <button
-              className="button is-fullwidth is-light mr-2"
-              onClick={handleClear}
-            >
-              Limpiar
-            </button>
-            <button className="button is-fullwidth color-hover">Aplicar</button>
+          {/* Roles */}
+          <div className="field mt-5">
+            <label className="label">Lista de roles</label>
+            <div className="container-status">
+              {roles.map((rol) => (
+                <div className="control" key={rol.id}>
+                  <label className="checkbox">
+                    <input
+                      type="checkbox"
+                      name={rol.nombre}
+                      checked={filters.roles?.[rol.nombre] || false}
+                      onChange={handleRoleChange}
+                    />{" "}
+                    {rol.nombre}
+                  </label>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Estados */}
+          <div className="field mt-5">
+            <label className="label">Lista de estados</label>
+            <div className="container-status">
+              {status.map((estado) => (
+                <div className="control" key={estado.id}>
+                  <label className="checkbox">
+                    <input
+                      type="checkbox"
+                      name={estado.nombre}
+                      checked={filters.estados?.[estado.nombre] || false}
+                      onChange={handleStatusChange}
+                    />{" "}
+                    {estado.nombre}
+                  </label>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
+
+        <div className="view-filter-buttons">
+          <button
+            className="button is-fullwidth is-light mr-2"
+            onClick={handleClear}
+          >
+            Limpiar
+          </button>
+          <button
+            className="button is-fullwidth color-hover"
+            onClick={applyFilters}
+          >
+            Aplicar
+          </button>
+        </div>
       </div>
-    </>
+    </div>
   );
 };
 
