@@ -67,10 +67,11 @@ const Fault_report = () => {
   const [titleMessage, setTitleMessage] = useState(false);
   const [message, setMessage] = useState(false);
   const [status, setStatus] = useState(false);
+  const [isTechnician, setIsTechnician] = useState(false);
 
   const handleButtonClick = async (buttonText) => {
     if (buttonText === "Reportar fallo") {
-      setTitle("Crear reporte de fallo");
+      setTitle("Generar reporte de fallo");
       setShowForm(true);
     }
 
@@ -105,7 +106,8 @@ const Fault_report = () => {
           () => setLoadingReport(""),
           companyData,
           locationData,
-          userData
+          userData,
+          isTechnician
         );
       } catch (error) {
         setTitleMessage?.("Error al generar el reporte");
@@ -121,9 +123,14 @@ const Fault_report = () => {
   };
 
   const head_data = {
-    title: "Gestión de mantenimiento",
+    title:
+      hasPermission(
+        "Ver todos los reportes de fallos asignados a un técnico"
+      ) || hasPermission("Ver todos los reportes de fallo")
+        ? "Gestión de mantenimiento"
+        : "Mis fallos y reportes",
     description:
-      "En esta sección puedes visualizar y generar reportes de fallos.",
+      "En esta sección podrás gestionar los fallos autogenerados y los reportes de fallos.",
     buttons: {
       ...((hasPermission("Crear un reporte de fallo") ||
         hasPermission("Crear un reporte de fallo por un usuario")) && {
@@ -145,14 +152,34 @@ const Fault_report = () => {
 
   const tabs = [
     {
-      key: "system",
+      key:
+        hasPermission(
+          "Ver todos los fallos autogenerados asignados a un técnico"
+        ) || hasPermission("Ver todos los fallos autogenerados por el sistema")
+          ? "system"
+          : "systems",
       label: "Fallos autogenerados",
-      path: "/dashboard/system",
+      path:
+        hasPermission(
+          "Ver todos los fallos autogenerados asignados a un técnico"
+        ) || hasPermission("Ver todos los fallos autogenerados por el sistema")
+          ? "/dashboard/system"
+          : "/dashboard/systems",
     },
     {
-      key: "report",
+      key:
+        hasPermission(
+          "Ver todos los reportes de fallos asignados a un técnico"
+        ) || hasPermission("Ver todos los reportes de fallo")
+          ? "report"
+          : "reports",
       label: "Reporte de fallos",
-      path: "/dashboard/report",
+      path:
+        hasPermission(
+          "Ver todos los reportes de fallos asignados a un técnico"
+        ) || hasPermission("Ver todos los reportes de fallo")
+          ? "/dashboard/report"
+          : "/dashboard/reports",
     },
   ];
 
@@ -246,9 +273,12 @@ const Fault_report = () => {
           decodedToken.id +
           import.meta.env.VITE_ROUTE_BACKEND_REPORT_BY_USERS
       );
-      const sortedData = response.data.data.sort((a, b) => b.id - a.id);
+      const sortedData = response.data.data.sort(
+        (a, b) => b.report_id - a.report_id
+      );
 
       setData(sortedData);
+      setIsTechnician(true);
     } catch (error) {
       console.error(
         "Error al obtener los reportes de fallos de un usuario:",
@@ -269,7 +299,9 @@ const Fault_report = () => {
           decodedToken.id +
           import.meta.env.VITE_ROUTE_BACKEND_REPORT_BY_USERS
       );
-      const sortedData = response.data.data.sort((a, b) => b.id - a.id);
+      const sortedData = response.data.data.sort(
+        (a, b) => b.report_id - a.report_id
+      );
 
       setData(sortedData);
     } catch (error) {
@@ -369,7 +401,7 @@ const Fault_report = () => {
             )
           ) {
             return {
-              ID: info.id,
+              ID: info.report_id,
               "ID del reporte": info.report_id,
               "ID del predio": info.property_id,
               "ID del lote": info.lot_id,
@@ -602,6 +634,7 @@ const Fault_report = () => {
             setFilters={setFilters}
             backupData={backupData}
             hasPermission={hasPermission}
+            isTechnician={isTechnician}
           />
         </>
       )}
@@ -625,7 +658,8 @@ const generateReport = (
   onFinish,
   companyData,
   locationNames,
-  userData
+  userData,
+  isTechnician
 ) => {
   const doc = new jsPDF();
 
@@ -648,7 +682,7 @@ const generateReport = (
   doc.text(`Fecha de generación:`, 12, 27);
   doc.text(`Generado por:`, 12, 39);
   /*doc.setTextColor(94, 100, 112);*/
-  doc.text("Roles actuales en el sistema", 12, 63);
+  doc.text("Reportes actuales en el sistema", 12, 63);
 
   doc.setTextColor(94, 100, 112);
   doc.setFont("Roboto", "normal");
@@ -678,34 +712,56 @@ const generateReport = (
   );
 
   doc.text(`${companyData.email}`, 194, 44, { align: "right" });
-  doc.text(`Cantidad de roles: ${filteredData.length}`, 12, 68);
+  doc.text(`Cantidad de reportes: ${filteredData.length}`, 12, 68);
 
   // Agregar tabla con autoTable
   autoTable(doc, {
     startY: 80,
     margin: { left: 12 },
     head: [
-      [
-        "ID",
-        "ID del predio",
-        "ID del lote",
-        "Número de documento",
-        "Tipo de fallo",
-        "Responsable del mantenimiento",
-        "Fecha de generación del reporte",
-        "Estado",
-      ],
+      isTechnician
+        ? [
+            "ID",
+            "ID del predio",
+            "ID del lote",
+            "Número de documento",
+            "Tipo de fallo",
+            "Fecha de generación del reporte",
+            "Estado",
+          ]
+        : [
+            "ID",
+            "ID del predio",
+            "ID del lote",
+            "Número de documento",
+            "Tipo de fallo",
+            "Técnico responsable",
+            "Fecha de generación del reporte",
+            "Estado",
+          ],
     ],
-    body: filteredData.map((report) => [
-      report["ID"],
-      report["ID del predio"],
-      report["ID del lote"],
-      report["Número de documento"],
-      report["Tipo de fallo"],
-      toTitleCase(report["Responsable del mantenimiento"]),
-      report["Fecha de generación del reporte"],
-      toTitleCase(report["Estado"]),
-    ]),
+    body: filteredData.map((report) =>
+      isTechnician
+        ? [
+            report["ID"],
+            report["ID del predio"],
+            report["ID del lote"],
+            report["Número de documento"],
+            report["Tipo de fallo"],
+            report["Fecha de generación del reporte"],
+            toTitleCase(report["Estado"]),
+          ]
+        : [
+            report["ID"],
+            report["ID del predio"],
+            report["ID del lote"],
+            report["Número de documento"],
+            report["Tipo de fallo"],
+            toTitleCase(report["Técnico responsable"]),
+            report["Fecha de generación del reporte"],
+            toTitleCase(report["Estado"]),
+          ]
+    ),
 
     theme: "grid",
     headStyles: {

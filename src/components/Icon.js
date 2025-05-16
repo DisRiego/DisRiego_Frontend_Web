@@ -13,6 +13,7 @@ import { FaDoorOpen } from "react-icons/fa";
 import { FaDoorClosed } from "react-icons/fa";
 import { TbUserPlus } from "react-icons/tb";
 import { LuUserSearch } from "react-icons/lu";
+import { TbCoin } from "react-icons/tb";
 
 const Icon = {
   MdDownloadDone,
@@ -30,7 +31,8 @@ const Icon = {
   FaDoorOpen,
   FaDoorClosed,
   TbUserPlus,
-  LuUserSearch
+  LuUserSearch,
+  TbCoin
 };
 
 export default Icon;

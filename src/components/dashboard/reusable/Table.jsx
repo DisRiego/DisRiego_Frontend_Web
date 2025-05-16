@@ -250,6 +250,23 @@ const Table = ({
       setShowChangeStatus(true);
     }
 
+    //Conceptos
+    if (parentComponent === "concept" && option.name === "Editar") {
+      setTitle("Editar concepto");
+      setShowEdit(true);
+    }
+
+    if (parentComponent === "concept" && option.name === "Inhabilitar") {
+      setConfirMessage(`¿Desea inhabilitar el concepto "${row["Nombre"]}"?`);
+      setTypeForm("inhabilitar");
+      setShowChangeStatus(true);
+    }
+    if (parentComponent === "concept" && option.name === "Habilitar") {
+      setConfirMessage(`¿Desea habilitar el concepto "${row["Nombre"]}"?`);
+      setTypeForm("habilitar");
+      setShowChangeStatus(true);
+    }
+
     //Dispositivos
     if (id === "device" && option.name === "Editar") {
       setTitle("Editar dispositivo");
@@ -365,6 +382,15 @@ const Table = ({
       setTypeAction("edit");
       setShowEditFinalize(true);
     }
+
+    //Facturación
+    if (id === "invoice" && option.name === "Pagar") {
+      navigate("pay/" + row.ID);
+    }
+
+    if (id === "invoices" && option.name === "Pagar") {
+      navigate("pay/" + row.ID);
+    }
   };
 
   /**
@@ -398,7 +424,7 @@ const Table = ({
           {loadingTable ? (
             // Si se está cargando la tabla, se muestra un loader animado
             <tr>
-              <td colSpan={columns.length - 1} className="loader-cell">
+              <td colSpan={columns.length /*- 1*/} className="loader-cell">
                 <div className="loader"></div>
                 <p className="loader-text">Cargando información{dots}</p>
               </td>
@@ -640,6 +666,17 @@ const Table = ({
                                           !statesAllowingEditFinalize.includes(
                                             row["Estado"]
                                           )
+                                        ) {
+                                          return false;
+                                        }
+
+                                        const statesPay = [
+                                          "Vencida",
+                                          "Pendiente",
+                                        ];
+                                        if (
+                                          option.name === "Pagar" &&
+                                          !statesPay.includes(row["Estado"])
                                         ) {
                                           return false;
                                         }

@@ -471,7 +471,7 @@ const generateReport = (
       "Ubicación (latitud, longitud)",
     ];
     doc.setFont("Roboto", "bold");
-    doc.setFontSize(9);
+    doc.setFontSize(10);
     const maxLabelWidth = Math.max(
       ...labels.map((label) => doc.getTextWidth(label))
     );
@@ -499,7 +499,7 @@ const generateReport = (
           `${data.property_latitude}, ${data.property_longitude}` || "[]",
         ],
       ],
-      styles: { fontSize: 9, font: "Roboto" },
+      styles: { fontSize: 10, font: "Roboto" },
       headStyles: {
         fillColor: [252, 252, 253],
         fontStyle: "bold",
@@ -528,7 +528,7 @@ const generateReport = (
           `${data.lot_latitude}, ${data.lot_longitude}` || "[]",
         ],
       ],
-      styles: { fontSize: 9, font: "Roboto" },
+      styles: { fontSize: 10, font: "Roboto" },
       headStyles: {
         fillColor: [252, 252, 253],
         fontStyle: "bold",
@@ -556,10 +556,7 @@ const generateReport = (
       "Información del fallo reportado": [
         ["Posible fallo", data.failure_type_report],
         ["Observaciones", data.description_failure],
-        [
-          "Fecha de generación del reporte",
-          formatDateTime(data.assignment_date),
-        ],
+        ["Fecha de generación del reporte", data.report_date],
       ],
     };
 
@@ -578,6 +575,7 @@ const generateReport = (
       data.solution_remarks
     ) {
       sections["Información de la solución realizada por el técnico"] = [
+        ["Nombre del técnico", toTitleCase(data.technician_name)],
         ["Tipo de mantenimiento", data.type_maintenance_name],
         ["Tipo de solución", data.solution_name],
         ["Fecha de finalización", formatDateTime(data.finalization_date)],
@@ -605,7 +603,7 @@ const generateReport = (
         },
         bodyStyles: { textColor: [89, 89, 89], font: "Roboto" },
         styles: {
-          fontSize: 9,
+          fontSize: 10,
           cellPadding: 2,
           font: "Roboto",
         },

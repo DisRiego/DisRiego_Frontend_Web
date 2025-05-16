@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { MdOutlineWaterDrop } from "react-icons/md";
 import { FiUsers } from "react-icons/fi";
 import { HiOutlineBell } from "react-icons/hi";
 import { TbMapSearch, TbReport, TbLogout } from "react-icons/tb";
@@ -11,8 +10,9 @@ import { LuUsersRound } from "react-icons/lu";
 import { IoHomeOutline } from "react-icons/io5";
 import { CgProfile } from "react-icons/cg";
 import { TbServerBolt } from "react-icons/tb";
-import { FiSettings } from "react-icons/fi";
+import { HiOutlineWrenchScrewdriver } from "react-icons/hi2";
 import { TbWallet } from "react-icons/tb";
+import { MdOutlineWaterDrop } from "react-icons/md";
 import { jwtDecode } from "jwt-decode";
 
 const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
@@ -132,25 +132,46 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
       ],
       path: "/dashboard/system",
       selectoption: "system",
-      icon: <FiSettings />,
-      label: "Gestión de mantenimientos",
+      icon: <HiOutlineWrenchScrewdriver />,
+      label: "Gestión de mantenimiento",
     },
     {
       permission: [
         "Ver todos los fallos autogenerados para un usuario",
         "Ver todos los reportes de fallos para un usuario",
       ],
-      path: "/dashboard/system",
-      selectoption: "system",
-      icon: <FiSettings />,
+      path: "/dashboard/systems",
+      selectoption: "systems",
+      icon: <HiOutlineWrenchScrewdriver />,
       label: "Mis fallos y reportes",
     },
     {
-      permission: [""],
-      path: "/dashboard/billing",
-      selectoption: "billing",
+      permission: ["Ver todas las facturas", "Ver todas las transacciones"],
+      path: "/dashboard/invoice",
+      selectoption: "invoice",
       icon: <TbWallet />,
       label: "Gestión de facturación",
+    },
+    {
+      permission: ["Ver todas las facturas de un usuario"],
+      path: "/dashboard/invoices",
+      selectoption: "invoices",
+      icon: <TbWallet />,
+      label: "Mis facturas y pagos",
+    },
+    {
+      permission: ["Ver todos los consumos"],
+      path: "/dashboard/consumption",
+      selectoption: "consumption",
+      icon: <MdOutlineWaterDrop />,
+      label: "Gestión de consumo",
+    },
+    {
+      permission: ["Ver todos los consumos de un usuario"],
+      path: "/dashboard/consumption",
+      selectoption: "consumption",
+      icon: <MdOutlineWaterDrop />,
+      label: "Mis consumo",
     },
   ];
 
@@ -177,9 +198,14 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
     if (path.startsWith("/dashboard/property")) return "property";
     if (path.startsWith("/dashboard/properties")) return "properties";
     if (path.startsWith("/dashboard/device")) return "device";
+    if (path.startsWith("/dashboard/systems")) return "systems";
+    if (path.startsWith("/dashboard/reports")) return "systems";
     if (path.startsWith("/dashboard/system")) return "system";
     if (path.startsWith("/dashboard/report")) return "system";
-    if (path.startsWith("/dashboard/billing")) return "billing";
+    if (path.startsWith("/dashboard/invoices")) return "invoices";
+    if (path.startsWith("/dashboard/invoice")) return "invoice";
+    if (path.startsWith("/dashboard/transaction")) return "invoice";
+    if (path.startsWith("/dashboard/consumption")) return "consumption";
     if (path.startsWith("/dashboard/profile")) return "profile";
 
     return null;

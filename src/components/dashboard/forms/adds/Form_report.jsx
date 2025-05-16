@@ -188,8 +188,6 @@ const Form_report = ({
     });
   };
 
-  console.log(formData);
-
   const handleValidate = async () => {
     const isPropertyValid = validatePhone(formProperty.property_id);
     setErrors({
