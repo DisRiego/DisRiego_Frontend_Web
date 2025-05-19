@@ -62,23 +62,10 @@ const Form_pay = () => {
 
   const fetchBank = async () => {
     try {
-      const response = await axios.post(
-        import.meta.env.VITE_API_PAYU + import.meta.env.VITE_API_PAYU_GET_BANK,
-        {
-          language: "es",
-          command: "GET_BANKS_LIST",
-          merchant: {
-            apiLogin: import.meta.env.VITE_API_PAYU_LOGIN,
-            apiKey: import.meta.env.VITE_API_KEY_PAYU,
-          },
-          test: false,
-          bankListInformation: {
-            paymentMethod: "PSE",
-            paymentCountry: "CO",
-          },
-        }
+      const response = await axios.get(
+        import.meta.env.VITE_URI_BACKEND_FACTURACTION + import.meta.env.VITE_ROUTE_BACKEND_GET_BANKS_PSE
       );
-      setBank(response.data.banks.filter((b) => b.pseCode !== "0"));
+      setBank(response.data.data.filter((b) => b.pseCode !== "0"));
       setIsLoading(false);
     } catch (error) {
       console.error("Error al obtener los bancos:", error);
