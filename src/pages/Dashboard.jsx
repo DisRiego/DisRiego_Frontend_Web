@@ -27,7 +27,6 @@ import System_fault from "../components/dashboard/System_fault";
 import System_report_detail from "../components/dashboard/details/System_report_detail";
 import Billing from "../components/dashboard/Billing";
 import Billing_detail from "../components/dashboard/details/Billing_detail";
-import Billing_user from "../components/dashboard/Billing_user";
 import Form_pay from "../components/dashboard/forms/adds/Form_pay";
 import Transaction from "../components/dashboard/Transaction";
 import Transaction_detail from "../components/dashboard/details/Transaction_detail";
@@ -119,7 +118,7 @@ const Dashboard = () => {
       case `invoice/${id}`:
         return <Billing_detail />;
       case `invoices`:
-        return <Billing_user />;
+        return <Billing />;
       case `invoices/${id}`:
         return <Billing_detail />;
       case `transaction`:

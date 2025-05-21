@@ -24,6 +24,9 @@ const permissionMapModules = {
   ],
   systems: ["Ver todos los fallos autogenerados para un usuario"],
   reports: ["Ver todos los reportes de fallos para un usuario"],
+  invoice: ["Ver todas las facturas"],
+  invoices: ["Ver todas las facturas de un usuario"],
+  transaction: ["Ver todas las transacciones"],
   profile: [], // no requiere permisos
 };
 
@@ -44,6 +47,10 @@ const permissionMapDetails = {
   report: ["Ver detalles de un reporte de fallo"],
   systems: ["Ver detalles de un fallo autogenerado para un usuario"],
   reports: ["Ver detalles de un reporte de fallo para un usuario"],
+  invoice: ["Ver detalles de una factura"],
+  invoices: ["Ver detalles de una factura de un usuario"],
+  transaction: ["Ver detalles de una transacción"],
+  pay: ["Pagar una factura"],
   company: ["Ver detalles de la empresa"],
 };
 

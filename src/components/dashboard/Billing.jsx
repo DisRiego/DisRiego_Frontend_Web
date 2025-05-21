@@ -116,7 +116,14 @@ const Billing = () => {
 
     // Contar por estado
     filteredByYear.forEach((item) => {
-      const estado = item.invoice_status?.toLowerCase();
+      let estado = "";
+
+      if (hasPermission("Ver todas las facturas")) {
+        estado = item.invoice_status?.toLowerCase();
+      } else if (hasPermission("Ver todas las facturas de un usuario")) {
+        estado = item.status?.toLowerCase();
+      }
+
       if (estado === "pendiente") counts.pendientes += 1;
       else if (estado === "pagada") counts.pagadas += 1;
       else if (estado === "vencida") counts.vencidas += 1;
@@ -133,15 +140,23 @@ const Billing = () => {
   }, []);
 
   const head_data = {
-    title: "Gestión de facturación",
-    description:
-      "En esta sección podrás gestionar y monitorear las facturas y transacciones del sistema.",
+    title: hasPermission("Ver todas las facturas")
+      ? "Gestión de facturación"
+      : "Mis fallos y reportes",
+    description: hasPermission("Ver todas las facturas")
+      ? "En esta sección podrás gestionar y monitorear las facturas y transacciones del sistema."
+      : "En esta sección podrás gestionar el estado de tus facturas y realizar pagos.",
     buttons: {
-      button1: {
-        icon: "LuDownload",
-        class: "",
-        text: "Descargar reporte",
-      },
+      ...((hasPermission("Generar reporte de todas las facturas") ||
+        hasPermission(
+          "Generar reporte de todas las facturas de un usuario"
+        )) && {
+        button1: {
+          icon: "LuDownload",
+          class: "",
+          text: "Descargar reporte",
+        },
+      }),
     },
   };
 
@@ -150,95 +165,165 @@ const Billing = () => {
       try {
         setLoadingReport("is-loading");
 
-        // Verificar si tenemos todas las referencias
-        if (
-          !barContainerRef.current ||
-          !donutContainerRef.current ||
-          !cardsContainerRef.current
-        ) {
-          console.error(
-            "No se pudo obtener alguna de las referencias necesarias"
+        if (hasPermission("Generar reporte de todas las facturas")) {
+          // Verificar si tenemos todas las referencias
+          if (
+            !barContainerRef.current ||
+            !donutContainerRef.current ||
+            !cardsContainerRef.current
+          ) {
+            console.error(
+              "No se pudo obtener alguna de las referencias necesarias"
+            );
+            setLoadingReport("");
+            return;
+          }
+
+          //datos de empresa y ubicación
+          const response = await axios.get(
+            import.meta.env.VITE_URI_BACKEND +
+              import.meta.env.VITE_ROUTE_BACKEND_COMPANY
           );
-          setLoadingReport("");
-          return;
+          const companyData = response.data.data;
+
+          const locationData = await fetchLocationNames(
+            companyData.country,
+            companyData.state,
+            companyData.city
+          );
+
+          const response_2 = await axios.get(
+            import.meta.env.VITE_URI_BACKEND +
+              import.meta.env.VITE_ROUTE_BACKEND_USERS +
+              decodedToken.id
+          );
+          const userData = response_2.data.data[0];
+
+          // Capturar las imágenes de los componentes
+          const html2canvas = (await import("html2canvas")).default;
+
+          // Capturar el contenedor de tarjetas de resumen
+          const cardsCanvas = await html2canvas(cardsContainerRef.current, {
+            scale: 2,
+            useCORS: true,
+            logging: false,
+            backgroundColor: null,
+          });
+          const cardsImage = cardsCanvas.toDataURL("image/png");
+
+          // Capturar el contenedor de la gráfica de barras
+          const barCanvas = await html2canvas(barContainerRef.current, {
+            scale: 2,
+            useCORS: true,
+            logging: false,
+            backgroundColor: null,
+          });
+          const barImage = barCanvas.toDataURL("image/png");
+
+          // Capturar el contenedor de la gráfica de dona
+          const donutCanvas = await html2canvas(donutContainerRef.current, {
+            scale: 2,
+            useCORS: true,
+            logging: false,
+            backgroundColor: null,
+          });
+          const donutImage = donutCanvas.toDataURL("image/png");
+
+          // se Preparan los datos de las imágenes con sus proporciones
+          const imagesData = {
+            cards: {
+              image: cardsImage,
+              aspectRatio: cardsCanvas.width / cardsCanvas.height,
+            },
+            bar: {
+              image: barImage,
+              aspectRatio: barCanvas.width / barCanvas.height,
+            },
+            donut: {
+              image: donutImage,
+              aspectRatio: donutCanvas.width / donutCanvas.height,
+            },
+          };
+
+          // Generar el reporte con los datos obtenidos
+          generateReportWithCharts(
+            filteredData,
+            toTitleCase,
+            imagesData,
+            companyData,
+            locationData,
+            userData,
+            () => setLoadingReport("")
+          );
+        } else {
+          if (
+            hasPermission("Generar reporte de todas las facturas de un usuario")
+          ) {
+            //datos de empresa y ubicación
+            const response = await axios.get(
+              import.meta.env.VITE_URI_BACKEND +
+                import.meta.env.VITE_ROUTE_BACKEND_COMPANY
+            );
+            const companyData = response.data.data;
+
+            const locationData = await fetchLocationNames(
+              companyData.country,
+              companyData.state,
+              companyData.city
+            );
+
+            const response_2 = await axios.get(
+              import.meta.env.VITE_URI_BACKEND +
+                import.meta.env.VITE_ROUTE_BACKEND_USERS +
+                decodedToken.id
+            );
+            const userData = response_2.data.data[0];
+
+            // Capturar las imágenes de los componentes
+            const html2canvas = (await import("html2canvas")).default;
+
+            // Capturar el contenedor de la gráfica de barras
+            const barCanvas = await html2canvas(barContainerRef.current, {
+              scale: 2,
+              useCORS: true,
+              logging: false,
+              backgroundColor: null,
+            });
+            const barImage = barCanvas.toDataURL("image/png");
+
+            // Capturar el contenedor de la gráfica de dona
+            const donutCanvas = await html2canvas(donutContainerRef.current, {
+              scale: 2,
+              useCORS: true,
+              logging: false,
+              backgroundColor: null,
+            });
+            const donutImage = donutCanvas.toDataURL("image/png");
+
+            // se Preparan los datos de las imágenes con sus proporciones
+            const imagesData = {
+              bar: {
+                image: barImage,
+                aspectRatio: barCanvas.width / barCanvas.height,
+              },
+              donut: {
+                image: donutImage,
+                aspectRatio: donutCanvas.width / donutCanvas.height,
+              },
+            };
+
+            // Generar el reporte con los datos obtenidos
+            generateReportByUser(
+              filteredData,
+              toTitleCase,
+              imagesData,
+              companyData,
+              locationData,
+              userData,
+              () => setLoadingReport("")
+            );
+          }
         }
-
-        //datos de empresa y ubicación
-        const response = await axios.get(
-          import.meta.env.VITE_URI_BACKEND +
-            import.meta.env.VITE_ROUTE_BACKEND_COMPANY
-        );
-        const companyData = response.data.data;
-
-        const locationData = await fetchLocationNames(
-          companyData.country,
-          companyData.state,
-          companyData.city
-        );
-
-        const response_2 = await axios.get(
-          import.meta.env.VITE_URI_BACKEND +
-            import.meta.env.VITE_ROUTE_BACKEND_USERS +
-            decodedToken.id
-        );
-        const userData = response_2.data.data[0];
-
-        // Capturar las imágenes de los componentes
-        const html2canvas = (await import("html2canvas")).default;
-
-        // Capturar el contenedor de tarjetas de resumen
-        const cardsCanvas = await html2canvas(cardsContainerRef.current, {
-          scale: 2,
-          useCORS: true,
-          logging: false,
-          backgroundColor: null,
-        });
-        const cardsImage = cardsCanvas.toDataURL("image/png");
-
-        // Capturar el contenedor de la gráfica de barras
-        const barCanvas = await html2canvas(barContainerRef.current, {
-          scale: 2,
-          useCORS: true,
-          logging: false,
-          backgroundColor: null,
-        });
-        const barImage = barCanvas.toDataURL("image/png");
-
-        // Capturar el contenedor de la gráfica de dona
-        const donutCanvas = await html2canvas(donutContainerRef.current, {
-          scale: 2,
-          useCORS: true,
-          logging: false,
-          backgroundColor: null,
-        });
-        const donutImage = donutCanvas.toDataURL("image/png");
-
-        // se Preparan los datos de las imágenes con sus proporciones
-        const imagesData = {
-          cards: {
-            image: cardsImage,
-            aspectRatio: cardsCanvas.width / cardsCanvas.height,
-          },
-          bar: {
-            image: barImage,
-            aspectRatio: barCanvas.width / barCanvas.height,
-          },
-          donut: {
-            image: donutImage,
-            aspectRatio: donutCanvas.width / donutCanvas.height,
-          },
-        };
-
-        // Generar el reporte con los datos obtenidos
-        generateReportWithCharts(
-          filteredData,
-          toTitleCase,
-          imagesData,
-          companyData,
-          locationData,
-          userData,
-          () => setLoadingReport("")
-        );
       } catch (error) {
         console.log(error);
         setTitleMessage?.("Error al generar el reporte");
@@ -266,34 +351,99 @@ const Billing = () => {
     },
   ].filter(Boolean);
 
-  const columns = [
-    "N° Factura",
-    "ID del predio",
-    "ID del lote",
-    "Número de documento",
-    "Intervalo de pago",
-    "Fecha de emisión",
-    "Fecha de vencimiento",
-    "Valor a pagar",
-    "Anexo",
-    "Estado",
-    "Opciones",
-  ];
+  let columns = [];
+  if (hasPermission("Ver todas las facturas")) {
+    columns = [
+      "N° Factura",
+      "ID del predio",
+      "ID del lote",
+      "Número de documento",
+      "Intervalo de pago",
+      "Fecha de emisión",
+      "Fecha de vencimiento",
+      "Valor a pagar",
+      "Anexo",
+      "Estado",
+      "Opciones",
+    ];
+  } else if (hasPermission("Ver todas las facturas de un usuario")) {
+    columns = [
+      "N° Factura",
+      "Nombre del predio",
+      "Nombre del lote",
+      "Número de documento",
+      "Intervalo de pago",
+      "Fecha de emisión",
+      "Fecha de vencimiento",
+      "Valor a pagar",
+      "Anexo",
+      "Estado",
+      "Opciones",
+    ];
+  }
 
   const options = [
-    {
+    (hasPermission("Ver detalles de una factura") ||
+      hasPermission("Ver detalles de una factura de un usuario")) && {
       icon: "BiShow",
       name: "Ver detalles",
     },
-    {
+    hasPermission("Pagar una factura") && {
       icon: "TbCoin",
       name: "Pagar",
     },
   ].filter(Boolean);
 
   useEffect(() => {
-    fetchBilling();
-  }, []);
+    if (token && hasPermission("Ver todas las facturas")) {
+      fetchBilling();
+    } else {
+      if (token && hasPermission("Ver todas las facturas de un usuario")) {
+        fetchBillingUser();
+      }
+    }
+  }, [token]);
+
+  const fetchBilling = async () => {
+    try {
+      setLoadingTable(true);
+      const response = await axios.get(
+        import.meta.env.VITE_URI_BACKEND_FACTURACTION +
+          import.meta.env.VITE_ROUTE_BACKEND_GET_INVOICE
+      );
+      const sortedData = response.data.data.sort((a, b) => b.id - a.id);
+
+      setData(sortedData);
+    } catch (error) {
+      console.error("Error al obtener las facturas:", error);
+    } finally {
+      setButtonDisabled(false);
+      setLoadingTable(false);
+    }
+  };
+
+  const fetchBillingUser = async () => {
+    try {
+      setLoadingTable(true);
+      const response = await axios.get(
+        import.meta.env.VITE_URI_BACKEND_FACTURACTION +
+          import.meta.env.VITE_ROUTE_BACKEND_GET_INVOICES_BY_USER +
+          decodedToken.id +
+          import.meta.env.VITE_ROUTE_BACKEND_GET_INVOICES_BY_USER_LATEST
+      );
+
+      const sortedData = response.data.sort(
+        (a, b) => b.invoice_id - a.invoice_id
+      );
+
+      setData(sortedData);
+    } catch (error) {
+      console.error("Error al obtener las facturas:", error);
+    } finally {
+      setButtonDisabled(false);
+      setLoadingTable(false);
+    }
+  };
 
   // Extraer años únicos de los datos de facturación
   useEffect(() => {
@@ -376,24 +526,6 @@ const Billing = () => {
     }
   }, [selectedYear, data]);
 
-  const fetchBilling = async () => {
-    try {
-      setLoadingTable(true);
-      const response = await axios.get(
-        import.meta.env.VITE_URI_BACKEND_FACTURACTION +
-          import.meta.env.VITE_ROUTE_BACKEND_GET_INVOICE
-      );
-      const sortedData = response.data.data.sort((a, b) => b.id - a.id);
-
-      setData(sortedData);
-    } catch (error) {
-      console.error("Error al obtener las facturas:", error);
-    } finally {
-      setButtonDisabled(false);
-      setLoadingTable(false);
-    }
-  };
-
   const fetchLocationNames = async (countryCode, stateCode, cityId) => {
     try {
       const BASE_URL = "https://api.countrystatecity.in/v1";
@@ -441,19 +573,37 @@ const Billing = () => {
             .toLowerCase()
             .includes(searchTerm.toLowerCase())
         )
-        .map((info) => ({
-          ID: info.invoice_id,
-          "N° Factura": info.invoice_id,
-          "ID del predio": info.property_id,
-          "ID del lote": info.lot_id,
-          "Número de documento": info.client_document,
-          "Intervalo de pago": info.payment_interval,
-          "Fecha de emisión": info.issuance_date?.slice(0, 10),
-          "Fecha de vencimiento": info.expiration_date?.slice(0, 10),
-          "Valor a pagar": formatCurrency(info.amount_due),
-          Anexo: info.pdf_url,
-          Estado: toTitleCase(info.invoice_status),
-        }));
+        .map((info) => {
+          if (hasPermission("Ver todas las facturas")) {
+            return {
+              ID: info.invoice_id,
+              "N° Factura": info.invoice_id,
+              "ID del predio": info.property_id,
+              "ID del lote": info.lot_id,
+              "Número de documento": info.client_document,
+              "Intervalo de pago": info.payment_interval,
+              "Fecha de emisión": info.issuance_date?.slice(0, 10),
+              "Fecha de vencimiento": info.expiration_date?.slice(0, 10),
+              "Valor a pagar": formatCurrency(info.amount_due),
+              Anexo: info.pdf_url,
+              Estado: toTitleCase(info.invoice_status),
+            };
+          } else if (hasPermission("Ver todas las facturas de un usuario")) {
+            return {
+              ID: info?.invoice_id,
+              "N° Factura": info?.invoice_id,
+              "Nombre del predio": info?.property_name,
+              "Nombre del lote": info?.lot_name,
+              "Número de documento": info?.document_number,
+              "Intervalo de pago": info?.payment_interval,
+              "Fecha de emisión": info.issuance_date?.slice(0, 10),
+              "Fecha de vencimiento": info.expiration_date?.slice(0, 10),
+              "Valor a pagar": formatCurrency(info.total_amount),
+              Anexo: info.pdf_url,
+              Estado: toTitleCase(info.status),
+            };
+          }
+        });
 
       setFilteredData(filtered);
       setBackupData(filtered);
@@ -523,7 +673,14 @@ const Billing = () => {
       if (!factura.issuance_date) return;
 
       const month = parseInt(factura.issuance_date.split("-")[1], 10) - 1; // 0-indexed
-      const estado = factura.invoice_status?.toLowerCase();
+
+      let estado = "";
+
+      if (hasPermission("Ver todas las facturas")) {
+        estado = factura.invoice_status?.toLowerCase();
+      } else if (hasPermission("Ver todas las facturas de un usuario")) {
+        estado = factura.status?.toLowerCase();
+      }
 
       if (estado === "pendiente") {
         mesesData[month].pendientes += 1;
@@ -634,7 +791,13 @@ const Billing = () => {
     };
 
     facturasFiltradas.forEach((factura) => {
-      const estado = factura.invoice_status?.toLowerCase();
+      let estado = "";
+
+      if (hasPermission("Ver todas las facturas")) {
+        estado = factura.invoice_status?.toLowerCase();
+      } else if (hasPermission("Ver todas las facturas de un usuario")) {
+        estado = factura.status?.toLowerCase();
+      }
       if (estado === "pendiente") cantidadPorEstado.pendiente += 1;
       else if (estado === "pagada") cantidadPorEstado.pagada += 1;
       else if (estado === "vencida") cantidadPorEstado.vencida += 1;
@@ -931,7 +1094,9 @@ const Billing = () => {
         loading={loadingReport}
         buttonDisabled={buttonDisabled}
       />
-      <Tab tabs={tabs} useLinks={true}></Tab>
+      {hasPermission("Ver todas las facturas") && (
+        <Tab tabs={tabs} useLinks={true}></Tab>
+      )}
       {loadingTable ? (
         <div className="rol-detail">
           <div className="loader-cell">
@@ -941,46 +1106,48 @@ const Billing = () => {
         </div>
       ) : (
         <>
-          <div className="container-cont">
-            <div className="total_amount" ref={cardsContainerRef}>
-              <div className="fixed-grid has-4-cols-desktop has-2-cols-mobile">
-                <div className="grid">
-                  <div className="cell rol-detail">
-                    <p className="has-text-weight-bold mb-2">
-                      Total facturas emitidas
-                    </p>
-                    <p className="is-size-5 has-text-weight-bold">
-                      {totals.emitidas}
-                    </p>
-                  </div>
-                  <div className="cell rol-detail">
-                    <p className="has-text-weight-bold mb-2">
-                      Total facturas pendientes
-                    </p>
-                    <p className="is-size-5 has-text-weight-bold">
-                      {totals.pendientes}
-                    </p>
-                  </div>
-                  <div className="cell rol-detail">
-                    <p className="has-text-weight-bold mb-2">
-                      Total facturas pagadas
-                    </p>
-                    <p className="is-size-5 has-text-weight-bold">
-                      {totals.pagadas}
-                    </p>
-                  </div>
-                  <div className="cell rol-detail">
-                    <p className="has-text-weight-bold mb-2">
-                      Total facturas vencidas
-                    </p>
-                    <p className="is-size-5 has-text-weight-bold">
-                      {totals.vencidas}
-                    </p>
+          {hasPermission("Ver todas las facturas") && (
+            <div className="container-cont">
+              <div className="total_amount" ref={cardsContainerRef}>
+                <div className="fixed-grid has-4-cols-desktop has-2-cols-mobile">
+                  <div className="grid">
+                    <div className="cell rol-detail">
+                      <p className="has-text-weight-bold mb-2">
+                        Total facturas emitidas
+                      </p>
+                      <p className="is-size-5 has-text-weight-bold">
+                        {totals.emitidas}
+                      </p>
+                    </div>
+                    <div className="cell rol-detail">
+                      <p className="has-text-weight-bold mb-2">
+                        Total facturas pendientes
+                      </p>
+                      <p className="is-size-5 has-text-weight-bold">
+                        {totals.pendientes}
+                      </p>
+                    </div>
+                    <div className="cell rol-detail">
+                      <p className="has-text-weight-bold mb-2">
+                        Total facturas pagadas
+                      </p>
+                      <p className="is-size-5 has-text-weight-bold">
+                        {totals.pagadas}
+                      </p>
+                    </div>
+                    <div className="cell rol-detail">
+                      <p className="has-text-weight-bold mb-2">
+                        Total facturas vencidas
+                      </p>
+                      <p className="is-size-5 has-text-weight-bold">
+                        {totals.vencidas}
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
+          )}
           {renderCharts()}
           <div className="container-search">
             <Search onSearch={setSearchTerm} buttonDisabled={buttonDisabled} />
@@ -1116,6 +1283,239 @@ const generateReportWithCharts = (
 
   // Establecer dimensiones para las gráficas (misma altura para ambas)
   const fixedHeight = 85; // Altura fija en mm
+
+  // Calcular anchos basados en la altura fija manteniendo proporciones
+  const barImgWidth = fixedHeight * imagesData.bar.aspectRatio;
+  const donutImgWidth = fixedHeight * imagesData.donut.aspectRatio;
+
+  // Calcular espacio entre gráficas
+  const spaceBetween = 10;
+  const totalGraphWidth = barImgWidth + spaceBetween + donutImgWidth;
+
+  // Verificar si las gráficas caben lado a lado
+  if (totalGraphWidth <= availableWidth) {
+    // Centrar el conjunto de gráficas
+    const startX = margin + (availableWidth - totalGraphWidth) / 2;
+
+    // Añadir la gráfica de barras a la izquierda
+    doc.addImage(
+      imagesData.bar.image,
+      "PNG",
+      startX,
+      graphsStartY,
+      barImgWidth,
+      fixedHeight
+    );
+
+    // Añadir la gráfica de dona a la derecha
+    doc.addImage(
+      imagesData.donut.image,
+      "PNG",
+      startX + barImgWidth + spaceBetween,
+      graphsStartY,
+      donutImgWidth,
+      fixedHeight
+    );
+  } else {
+    // Si no caben lado a lado, ajustar proporcionalmente
+    const barWidthRatio = barImgWidth / totalGraphWidth;
+    const donutWidthRatio = donutImgWidth / totalGraphWidth;
+
+    const adjustedBarWidth = availableWidth * barWidthRatio;
+    const adjustedDonutWidth = availableWidth * donutWidthRatio;
+
+    const adjustedBarHeight = adjustedBarWidth / imagesData.bar.aspectRatio;
+    const adjustedDonutHeight =
+      adjustedDonutWidth / imagesData.donut.aspectRatio;
+
+    // Centrar el conjunto de gráficas
+    const startX = margin;
+
+    // Añadir las gráficas ajustadas
+    doc.addImage(
+      imagesData.bar.image,
+      "PNG",
+      startX,
+      graphsStartY,
+      adjustedBarWidth,
+      adjustedBarHeight
+    );
+
+    doc.addImage(
+      imagesData.donut.image,
+      "PNG",
+      startX + adjustedBarWidth + spaceBetween,
+      graphsStartY,
+      adjustedDonutWidth,
+      adjustedDonutHeight
+    );
+  }
+
+  // Calcular la posición Y para la tabla después de las gráficas
+  const tableStartY = graphsStartY + fixedHeight + 10;
+
+  // Añadir la tabla de facturas
+  autoTable(doc, {
+    startY: tableStartY,
+    margin: { left: margin },
+    head: [
+      [
+        "N° Factura",
+        "ID del predio",
+        "ID del lote",
+        "Número de documento",
+        "Intervalo de pago",
+        "Fecha de emisión",
+        "Fecha de vencimiento",
+        "Valor a pagar",
+        "Estado",
+      ],
+    ],
+    body: filteredData.map((bill) => [
+      bill["N° Factura"],
+      bill["ID del predio"],
+      bill["ID del lote"],
+      bill["Número de documento"],
+      bill["Intervalo de pago"],
+      bill["Fecha de emisión"],
+      bill["Fecha de vencimiento"],
+      bill["Valor a pagar"],
+      bill["Estado"],
+    ]),
+    theme: "grid",
+    headStyles: {
+      fillColor: [252, 252, 253],
+      textColor: [0, 0, 0],
+      fontStyle: "bold",
+      lineColor: [234, 236, 240],
+      lineWidth: 0.5,
+      font: "Roboto",
+    },
+    bodyStyles: {
+      textColor: [89, 89, 89],
+      font: "Roboto",
+    },
+    styles: {
+      fontSize: 10,
+      cellPadding: 3,
+      lineColor: [234, 236, 240],
+    },
+  });
+
+  // Pie de página con logo
+  doc.addImage(Icon, "PNG", 12, 190, 32, 9);
+
+  // Agregar numeración de páginas en el pie de página
+  const pageCount = doc.internal.getNumberOfPages();
+  for (let i = 1; i <= pageCount; i++) {
+    doc.setPage(i);
+    doc.setFontSize(10);
+    doc.setFont("Roboto", "normal");
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    doc.text(`Página ${i}/${pageCount}`, pageWidth - 10, pageHeight - 10, {
+      align: "right",
+    });
+  }
+
+  // Convertir el PDF a un Blob
+  const pdfBlob = doc.output("blob");
+
+  // Crear una URL del Blob
+  const pdfUrl = URL.createObjectURL(pdfBlob);
+
+  // Abrir el PDF en una nueva pestaña
+  setTimeout(() => {
+    window.open(pdfUrl, "_blank");
+    onFinish();
+  }, 500);
+};
+
+const generateReportByUser = (
+  filteredData,
+  toTitleCase,
+  imagesData,
+  companyData,
+  locationNames,
+  userData,
+  onFinish
+) => {
+  // Crear una nueva instancia de jsPDF en formato horizontal
+  const doc = new jsPDF("landscape");
+
+  // Añadir fuentes Roboto al documento
+  doc.addFont(RobotoNormalFont, "Roboto", "normal");
+  doc.addFont(RobotoBoldFont, "Roboto", "bold");
+
+  // Colorear el fondo del encabezado
+  doc.setFillColor(243, 242, 247);
+  doc.rect(0, 0, 300, 53, "F");
+
+  // Agregar logo
+  doc.addImage(Icon, "PNG", 246, 10, 39, 11);
+
+  // Título y encabezados
+  doc.setTextColor(0, 0, 0);
+  doc.setFontSize(17);
+  doc.setFont("Roboto", "bold");
+  doc.text("REPORTE DE FACTURACIÓN", 12, 18);
+
+  doc.setFontSize(11);
+  doc.text(`Fecha de generación:`, 12, 27);
+  doc.text(`Generado por:`, 12, 39);
+
+  doc.setTextColor(94, 100, 112);
+  doc.setFont("Roboto", "normal");
+  doc.setFontSize(10);
+  doc.text(`${new Date().toLocaleString()}`, 12, 32);
+  doc.text(
+    [
+      toTitleCase(userData?.name),
+      toTitleCase(userData?.first_last_name),
+      toTitleCase(userData?.second_last_name),
+    ]
+      .filter(Boolean)
+      .join(" "),
+    12,
+    44
+  );
+
+  // Información de la empresa
+  doc.setTextColor(0, 0, 0);
+  doc.setFontSize(10);
+  doc.setFont("Roboto", "bold");
+  doc.text(`Dirección de la empresa:`, 285, 27, { align: "right" });
+  doc.text(`Correo electrónico de la empresa:`, 285, 39, { align: "right" });
+
+  doc.setTextColor(94, 100, 112);
+  doc.setFont("Roboto", "normal");
+  doc.setFontSize(10);
+  doc.text(
+    `${companyData.address}. ${locationNames.state}, ${locationNames.city}`,
+    285,
+    32,
+    { align: "right" }
+  );
+  doc.text(`${companyData.email}`, 285, 44, { align: "right" });
+
+  // Título de la sección de gráficas
+  doc.setTextColor(0, 0, 0);
+  doc.setFont("Roboto", "bold");
+  doc.text("Resumen de facturación", 12, 63);
+  doc.setTextColor(94, 100, 112);
+  doc.setFont("Roboto", "normal");
+  doc.text(`Cantidad de facturas: ${filteredData.length}`, 12, 68);
+
+  // Añadir las tarjetas de resumen
+  const margin = 12;
+  const pdfWidth = doc.internal.pageSize.getWidth();
+  const availableWidth = pdfWidth - 2 * margin;
+
+  // Calcular posición para las gráficas
+  const graphsStartY = 72;
+
+  // Establecer dimensiones para las gráficas (misma altura para ambas)
+  const fixedHeight = 72; // Altura fija en mm
 
   // Calcular anchos basados en la altura fija manteniendo proporciones
   const barImgWidth = fixedHeight * imagesData.bar.aspectRatio;

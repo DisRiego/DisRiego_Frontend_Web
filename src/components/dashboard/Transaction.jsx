@@ -115,11 +115,13 @@ const Transaction = () => {
     description:
       "En esta sección podrás gestionar y monitorear las facturas y transacciones del sistema.",
     buttons: {
-      button1: {
-        icon: "LuDownload",
-        class: "",
-        text: "Descargar reporte",
-      },
+      ...(hasPermission("Generar reporte de todas las transacciones") && {
+        button1: {
+          icon: "LuDownload",
+          class: "",
+          text: "Descargar reporte",
+        },
+      }),
     },
   };
 
@@ -255,13 +257,9 @@ const Transaction = () => {
   ];
 
   const options = [
-    {
+    hasPermission("Ver detalles de una transacción") && {
       icon: "BiShow",
       name: "Ver detalles",
-    },
-    {
-      icon: "TbCoin",
-      name: "Pagar",
     },
   ].filter(Boolean);
 
