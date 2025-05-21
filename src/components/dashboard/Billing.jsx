@@ -442,7 +442,7 @@ const Billing = () => {
         )
         .map((info) => ({
           ID: info.invoice_id,
-          "N° Factura": info.invoice_number,
+          "N° Factura": info.invoice_id,
           "ID del predio": info.property_id,
           "ID del lote": info.lot_id,
           "Número de documento": info.client_document,

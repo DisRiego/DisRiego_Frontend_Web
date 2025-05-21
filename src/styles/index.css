@@ -1214,7 +1214,9 @@ td > td.status-rechazada,
 td > td.status-sin-asignar,
 td > td.status-finalizado,
 td > td.status-pagada,
-td > td.status-vencida {
+td > td.status-vencida,
+td > td.status-aprobado,
+td > td.status-rechazado {
   padding: 0em;
   border-bottom: none;
 }
@@ -1222,6 +1224,7 @@ td > td.status-vencida {
 .button.status-activo,
 .button.status-operativo,
 .button.status-aprobada,
+.button.status-aprobado,
 .button.status-finalizado,
 .button.status-pagada {
   width: 100%;
@@ -1269,6 +1272,7 @@ td > td.status-vencida {
 .button.status-expirado,
 .button.status-fallo-detectado,
 .button.status-rechazada,
+.button.status-rechazado,
 .button.status-vencida {
   width: 100%;
   pointer-events: none;
@@ -1343,6 +1347,18 @@ td > td.status-vencida {
     background-color: #e4daff;
     color: #4e3985;
   }
+
+  .status-aprobado{
+    color: #027a48;
+  }
+
+  .status-pendiente{
+    color: #9f7700;
+  }
+
+  .status-rechazado{
+    color: #b42c24;
+  }
 }
 
 @media (prefers-color-scheme: dark) {
@@ -1354,6 +1370,7 @@ td > td.status-vencida {
   .button.status-activo,
   .button.status-operativo,
   .button.status-aprobada,
+  .button.status-aprobado,
   .button.status-finalizado,
   .button.status-pagada {
     background-color: transparent;
@@ -1389,6 +1406,7 @@ td > td.status-vencida {
   .button.status-expirado,
   .button.status-fallo-detectado,
   .button.status-rechazada,
+  .button.status-rechazado,
   .button.status-vencida {
     background-color: transparent;
     color: #ff7e77;
@@ -1407,7 +1425,8 @@ td > td.status-vencida {
   .button.detail-status.status-1,
   .button.detail-status.status-11,
   .button.detail-status.status-17,
-  .button.detail-status.status-25 {
+  .button.detail-status.status-25,
+  .button.detail-status.status-aprobado {
     color: #b3ff9e;
     border-color: #b3ff9e;
     opacity: 0.8;
@@ -1423,7 +1442,7 @@ td > td.status-vencida {
   .button.detail-status.status-3,
   .button.detail-status.status-14,
   .button.detail-status.status-18,
-  .button.detail-status.status-23 {
+  .button.detail-status.status-23  {
     color: #ffc100;
     border-color: #ffc100;
     opacity: 0.8;
@@ -1431,7 +1450,8 @@ td > td.status-vencida {
 
   .button.detail-status.status-4,
   .button.detail-status.status-13,
-  .button.detail-status.status-19 {
+  .button.detail-status.status-19,
+  .button.detail-status.status-rechazado {
     color: #ff7e77;
     border-color: #ff7e77;
     opacity: 0.8;
@@ -1449,6 +1469,21 @@ td > td.status-vencida {
     background-color: transparent;
     color: #bfa6ff;
     border-color: #bfa6ff;
+    opacity: 0.8;
+  }
+
+  .status-aprobado{
+    color: #b3ff9e;
+    opacity: 0.8;
+  }
+
+  .status-pendiente{
+     color: #ffc100;
+    opacity: 0.8;
+  }
+
+  .status-rechazado{
+    color: #ff7e77;
     opacity: 0.8;
   }
 }

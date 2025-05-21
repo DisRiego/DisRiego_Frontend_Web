@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { validatePhone } from "../../../../hooks/useValidations";
 import useUserPermissions from "../../../../hooks/useUserPermissions";
@@ -46,6 +46,7 @@ const formatCardNumber = (value) => {
 
 const Form_pay = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [showConfirm, setShowConfirm] = useState(false);
   const [selectedOption, setSelectedOption] = useState("");
   const [expiry, setExpiry] = useState("");
@@ -62,7 +63,7 @@ const Form_pay = () => {
   const [confirMessage, setConfirMessage] = useState();
   const [method, setMethod] = useState();
   const [uriPost, setUriPost] = useState("");
-  const [disabled, setDisabled] = useState(true);
+  const [urlPse, setUrlPse] = useState(null);
 
   // Message
   const [showMessage, setShowMessage] = useState(false);
@@ -78,7 +79,7 @@ const Form_pay = () => {
   const hasPermission = (permission) => permissionsUser.includes(permission);
 
   const feedbackMessages = {
-    create_device: {
+    create_pay: {
       errorTitle: "Error al realizar el pago",
       errorMessage:
         "No se pudo realizar el pago. Por favor, inténtelo de nuevo.",
@@ -109,6 +110,26 @@ const Form_pay = () => {
       }));
     }
   }, [token]);
+
+  useEffect(() => {
+    if (urlPse) {
+      let isValidUrl = false;
+
+      try {
+        const parsedUrl = new URL(urlPse);
+        isValidUrl =
+          parsedUrl.protocol === "http:" || parsedUrl.protocol === "https:";
+      } catch (e) {
+        // No es una URL válida, se mantiene isValidUrl en false
+      }
+
+      if (isValidUrl) {
+        window.open(urlPse, "_blank"); // Abre en nueva pestaña
+      }
+
+      navigate("/dashboard/invoice"); // Siempre redirige esta pestaña
+    }
+  }, [urlPse, navigate]);
 
   useEffect(() => {
     fetchBank();
@@ -257,7 +278,7 @@ const Form_pay = () => {
         import.meta.env.VITE_URI_BACKEND_FACTURACTION +
           import.meta.env.VITE_ROUTE_BACKEND_PAY_PSE
       );
-      setTypeForm("create");
+      setTypeForm("create_pay");
       setShowConfirm(true);
     }
   };
@@ -490,6 +511,7 @@ const Form_pay = () => {
           loading={isLoadingModal}
           setLoading={setIsLoadingModal}
           feedbackMessages={feedbackMessages}
+          setUrlPse={setUrlPse}
         />
       )}
     </>

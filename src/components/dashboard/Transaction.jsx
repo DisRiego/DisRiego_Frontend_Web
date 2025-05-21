@@ -129,8 +129,11 @@ const Transaction = () => {
         setLoadingReport("is-loading");
 
         // Verificar si tenemos todas las referencias
-        if (!barContainerRef.current || !donutContainerRef.current ||
-          !cardsContainerRef.current) {
+        if (
+          !barContainerRef.current ||
+          !donutContainerRef.current ||
+          !cardsContainerRef.current
+        ) {
           console.error(
             "No se pudo obtener alguna de las referencias necesarias"
           );
@@ -178,18 +181,18 @@ const Transaction = () => {
           backgroundColor: null,
         });
         const donutImage = donutCanvas.toDataURL("image/png");
-                // Capturar el contenedor de tarjetas de resumen
+        // Capturar el contenedor de tarjetas de resumen
         const cardsCanvas = await html2canvas(cardsContainerRef.current, {
           scale: 2,
           useCORS: true,
           logging: false,
-          backgroundColor: null, 
+          backgroundColor: null,
         });
         const cardsImage = cardsCanvas.toDataURL("image/png");
 
         // Preparar los datos de las imágenes con sus proporciones
         const imagesData = {
-            cards: { 
+          cards: {
             image: cardsImage,
             aspectRatio: cardsCanvas.width / cardsCanvas.height,
           },
@@ -269,196 +272,11 @@ const Transaction = () => {
   const fetchBilling = async () => {
     try {
       setLoadingTable(true);
-      //   const response = await axios.get(
-      //     import.meta.env.VITE_URI_BACKEND_MAINTENANCE +
-      //       import.meta.env.VITE_ROUTE_BACKEND_REPORT
-      //   );
-      //   const sortedData = response.data.data.sort((a, b) => b.id - a.id);
-      const transfer = [
-        {
-          id: 1,
-          owner_document_number: "9876543210",
-          payment_reference: "REF00001",
-          payment_method: "Tarjeta",
-          value: 180000,
-          date_payment: "2023-03-15 14:32:00",
-          status_name: "Aprobada",
-        },
-        {
-          id: 2,
-          owner_document_number: "1234567890",
-          payment_reference: "REF00002",
-          payment_method: "PSE",
-          value: 245000,
-          date_payment: "2023-06-21 10:15:00",
-          status_name: "Pendiente",
-        },
-        {
-          id: 3,
-          owner_document_number: "1098765432",
-          payment_reference: "REF00003",
-          payment_method: "Tarjeta",
-          value: 320000,
-          date_payment: "2024-01-05 08:40:00",
-          status_name: "Aprobada",
-        },
-        {
-          id: 4,
-          owner_document_number: "2223334445",
-          payment_reference: "REF00004",
-          payment_method: "PSE",
-          value: 150000,
-          date_payment: "2025-02-28 12:00:00",
-          status_name: "Aprobada",
-        },
-        {
-          id: 5,
-          owner_document_number: "9988776655",
-          payment_reference: "REF00005",
-          payment_method: "Tarjeta",
-          value: 275000,
-          date_payment: "2024-08-10 16:45:00",
-          status_name: "Rechazada",
-        },
-        {
-          id: 6,
-          owner_document_number: "8765432109",
-          payment_reference: "REF00006",
-          payment_method: "PSE",
-          value: 220000,
-          date_payment: "2023-12-19 09:30:00",
-          status_name: "Pendiente",
-        },
-        {
-          id: 7,
-          owner_document_number: "1122334455",
-          payment_reference: "REF00007",
-          payment_method: "Tarjeta",
-          value: 310000,
-          date_payment: "2025-04-10 11:10:00",
-          status_name: "Aprobada",
-        },
-        {
-          id: 8,
-          owner_document_number: "4433221100",
-          payment_reference: "REF00008",
-          payment_method: "PSE",
-          value: 195000,
-          date_payment: "2024-05-14 13:00:00",
-          status_name: "Pendiente",
-        },
-        {
-          id: 9,
-          owner_document_number: "3216549870",
-          payment_reference: "REF00009",
-          payment_method: "Tarjeta",
-          value: 360000,
-          date_payment: "2025-07-22 07:20:00",
-          status_name: "Aprobada",
-        },
-        {
-          id: 10,
-          owner_document_number: "7891234560",
-          payment_reference: "REF00010",
-          payment_method: "PSE",
-          value: 200000,
-          date_payment: "2023-09-17 18:05:00",
-          status_name: "Pendiente",
-        },
-        {
-          id: 11,
-          owner_document_number: "6547893210",
-          payment_reference: "REF00011",
-          payment_method: "Tarjeta",
-          value: 245500,
-          date_payment: "2025-01-26 15:30:00",
-          status_name: "Aprobada",
-        },
-        {
-          id: 12,
-          owner_document_number: "1010101010",
-          payment_reference: "REF00012",
-          payment_method: "PSE",
-          value: 289000,
-          date_payment: "2024-03-30 14:10:00",
-          status_name: "Rechazada",
-        },
-        {
-          id: 13,
-          owner_document_number: "2020202020",
-          payment_reference: "REF00013",
-          payment_method: "Tarjeta",
-          value: 275500,
-          date_payment: "2025-06-12 09:50:00",
-          status_name: "Pendiente",
-        },
-        {
-          id: 14,
-          owner_document_number: "3030303030",
-          payment_reference: "REF00014",
-          payment_method: "PSE",
-          value: 330000,
-          date_payment: "2023-10-25 08:00:00",
-          status_name: "Aprobada",
-        },
-        {
-          id: 15,
-          owner_document_number: "4040404040",
-          payment_reference: "REF00015",
-          payment_method: "Tarjeta",
-          value: 198000,
-          date_payment: "2024-07-07 17:40:00",
-          status_name: "Rechazada",
-        },
-        {
-          id: 16,
-          owner_document_number: "5050505050",
-          payment_reference: "REF00016",
-          payment_method: "PSE",
-          value: 215000,
-          date_payment: "2024-09-13 10:25:00",
-          status_name: "Aprobada",
-        },
-        {
-          id: 17,
-          owner_document_number: "6060606060",
-          payment_reference: "REF00017",
-          payment_method: "Tarjeta",
-          value: 248000,
-          date_payment: "2023-11-01 11:45:00",
-          status_name: "Pendiente",
-        },
-        {
-          id: 18,
-          owner_document_number: "7070707070",
-          payment_reference: "REF00018",
-          payment_method: "PSE",
-          value: 220000,
-          date_payment: "2025-03-03 07:55:00",
-          status_name: "Rechazada",
-        },
-        {
-          id: 19,
-          owner_document_number: "8080808080",
-          payment_reference: "REF00019",
-          payment_method: "Tarjeta",
-          value: 290000,
-          date_payment: "2023-04-04 19:00:00",
-          status_name: "Aprobada",
-        },
-        {
-          id: 20,
-          owner_document_number: "9090909090",
-          payment_reference: "REF00020",
-          payment_method: "PSE",
-          value: 180000,
-          date_payment: "2024-02-11 06:30:00",
-          status_name: "Rechazada",
-        },
-      ];
-
-      const sortedData = transfer.sort((a, b) => b.id - a.id);
-
+      const response = await axios.get(
+        import.meta.env.VITE_URI_BACKEND_FACTURACTION +
+          import.meta.env.VITE_ROUTE_BACKEND_GET_PAYMENT
+      );
+      const sortedData = response.data.data.sort((a, b) => b.id - a.id);
       setData(sortedData);
     } catch (error) {
       console.error("Error al obtener las facturas:", error);
@@ -509,7 +327,7 @@ const Transaction = () => {
   useEffect(() => {
     if (data.length > 0) {
       const sortedDates = data
-        .map((item) => new Date(item.date_payment))
+        .map((item) => new Date(item.payment_date))
         .sort((a, b) => b - a);
 
       const latestYear = sortedDates[0].getFullYear();
@@ -535,14 +353,14 @@ const Transaction = () => {
 
     if (yearFilter && yearFilter !== "ALL") {
       filtered = filtered.filter((item) => {
-        const date = new Date(item.date_payment);
+        const date = new Date(item.payment_date);
         return date.getFullYear() === parseInt(yearFilter);
       });
     }
 
     if (monthFilter && monthFilter !== "" && yearFilter !== "ALL") {
       filtered = filtered.filter((item) => {
-        const date = new Date(item.date_payment);
+        const date = new Date(item.payment_date);
         return date.getMonth() + 1 === parseInt(monthFilter);
       });
     }
@@ -555,20 +373,21 @@ const Transaction = () => {
 
     if (statusFilterValue && statusFilterValue !== "ALL") {
       filtered = filtered.filter(
-        (item) => item.status_name === statusFilterValue
+        (item) => item.payment_status_name === statusFilterValue
       );
     }
 
     const formatted = filtered.map((info) => ({
       ID: info.id,
-      "ID de transacción": info.id,
-      "Número de documento": info.owner_document_number,
-      "Referencia de pago": info.payment_reference,
-      "Metodo de pago": info.payment_method,
-      "Valor pagado": formatCurrency(info.value),
-      "Fecha del pago": formatDateTime(info.date_payment),
-      Estado: info.status_name,
+      "ID de transacción": info?.id,
+      "Número de documento": info?.payer_document,
+      "Referencia de pago": info?.transaction_id,
+      "Metodo de pago": info?.payment_method,
+      "Valor pagado": formatCurrency(info?.paid_amount),
+      "Fecha del pago": formatDateTime(info?.payment_date),
+      Estado: info.payment_status_name,
     }));
+    console.log(formatted);
 
     setFilteredData(formatted);
   }, [data, yearFilter, monthFilter, methodFilter, statusFilterValue]);
@@ -581,7 +400,7 @@ const Transaction = () => {
 
   const availableYears = useMemo(() => {
     return [
-      ...new Set(data.map((item) => new Date(item.date_payment).getFullYear())),
+      ...new Set(data.map((item) => new Date(item.payment_date).getFullYear())),
     ].sort((a, b) => a - b);
   }, [data]);
 
@@ -591,9 +410,9 @@ const Transaction = () => {
     const monthsInYear = data
       .filter(
         (item) =>
-          new Date(item.date_payment).getFullYear() === parseInt(yearFilter)
+          new Date(item.payment_date).getFullYear() === parseInt(yearFilter)
       )
-      .map((item) => new Date(item.date_payment).getMonth());
+      .map((item) => new Date(item.payment_date).getMonth());
 
     const uniqueMonths = Array.from(new Set(monthsInYear)).sort(
       (a, b) => a - b
@@ -606,8 +425,8 @@ const Transaction = () => {
   }, [data]);
 
   const availableStatuses = useMemo(() => {
-    return [...new Set(data.map((item) => item.status_name))].sort((a, b) =>
-      a.localeCompare(b)
+    return [...new Set(data.map((item) => item.payment_status_name))].sort(
+      (a, b) => a.localeCompare(b)
     );
   }, [data]);
 
@@ -617,7 +436,7 @@ const Transaction = () => {
 
     // Filtros para las estadísticas generales
     const filtered = data.filter((item) => {
-      const date = new Date(item.date_payment);
+      const date = new Date(item.payment_date);
       const yearMatch =
         !yearFilter ||
         yearFilter === "ALL" ||
@@ -633,14 +452,14 @@ const Transaction = () => {
       const statusMatch =
         !statusFilterValue ||
         statusFilterValue === "ALL" ||
-        item.status_name === statusFilterValue;
+        item.payment_status_name === statusFilterValue;
       return yearMatch && monthMatch && methodMatch && statusMatch;
     });
 
     // Cálculo específico de ingresos anuales (sin filtro de mes)
     const annualIncome = data
       .filter((item) => {
-        const date = new Date(item.date_payment);
+        const date = new Date(item.payment_date);
         const yearMatch =
           !yearFilter ||
           yearFilter === "ALL" ||
@@ -652,23 +471,23 @@ const Transaction = () => {
         const statusMatch =
           !statusFilterValue ||
           statusFilterValue === "ALL" ||
-          item.status_name === statusFilterValue;
+          item.payment_status_name === statusFilterValue;
         return yearMatch && methodMatch && statusMatch;
       })
-      .reduce((sum, item) => sum + item.value, 0);
+      .reduce((sum, item) => sum + item.paid_amount, 0);
 
     const monthlyIncome = filtered
       .filter((item) => {
-        const date = new Date(item.date_payment);
+        const date = new Date(item.payment_date);
         return (
           (yearFilter === "ALL" || date.getFullYear() === selectedYear) &&
           (monthFilter === "" || date.getMonth() + 1 === selectedMonth)
         );
       })
-      .reduce((sum, item) => sum + item.value, 0);
+      .reduce((sum, item) => sum + item.paid_amount, 0);
 
     const monthlyTransactions = filtered.filter((item) => {
-      const date = new Date(item.date_payment);
+      const date = new Date(item.payment_date);
       return (
         (yearFilter === "ALL" || date.getFullYear() === selectedYear) &&
         (monthFilter === "" || date.getMonth() + 1 === selectedMonth)
@@ -676,7 +495,7 @@ const Transaction = () => {
     });
 
     const rejectedTransactions = monthlyTransactions.filter(
-      (item) => item.status_name === "Rechazada"
+      (item) => item.payment_status_name === "Rechazado"
     );
 
     const rejectionRate = monthlyTransactions.length
@@ -692,7 +511,7 @@ const Transaction = () => {
   }, [data, yearFilter, monthFilter, methodFilter, statusFilterValue]);
 
   const totalIncome = useMemo(() => {
-    return data.reduce((sum, item) => sum + item.value, 0);
+    return data.reduce((sum, item) => sum + item.paid_amount, 0);
   }, [data]);
 
   const toTitleCase = (str) => {
@@ -734,17 +553,17 @@ const Transaction = () => {
 
     // Agrupar transacciones por mes y estado
     transactionsToProcess.forEach((transaction) => {
-      const date = new Date(transaction.date_payment);
+      const date = new Date(transaction.payment_date);
       const month = date.getMonth(); // 0-indexed
-      const status = transaction.status_name.toLowerCase();
+      const status = transaction.payment_status_name.toLowerCase();
 
       // Sumar los montos según el estado
-      if (status === "aprobada") {
-        monthlyData[month].aprobadas += transaction.value;
+      if (status === "aprobado") {
+        monthlyData[month].aprobadas += 1;
       } else if (status === "pendiente") {
-        monthlyData[month].pendientes += transaction.value;
-      } else if (status === "rechazada") {
-        monthlyData[month].rechazadas += transaction.value;
+        monthlyData[month].pendientes += 1;
+      } else if (status === "rechazado") {
+        monthlyData[month].rechazadas += 1;
       }
     });
 
@@ -772,7 +591,7 @@ const Transaction = () => {
         {
           label: "Transacciones pendientes",
           data: pendientes,
-          backgroundColor: "rgba(255,214,107, 0.6)",
+          backgroundColor: "rgba(255, 214, 107, 1)",
           stack: "Stack 0",
           borderRadius: 6,
         },
@@ -812,13 +631,11 @@ const Transaction = () => {
           beginAtZero: true,
           stacked: true,
           ticks: {
-            callback: function (value) {
-              return formatCurrency(value).replace(/\D00(?=\D*$)/, "");
-            },
+            beginAtZero: true,
           },
           title: {
             display: true,
-            text: "Monto",
+            text: "Cantidad de transacciones",
           },
         },
         x: {
@@ -844,19 +661,16 @@ const Transaction = () => {
     // Calcular montos totales por estado
     const montosPorEstado = {
       pendiente: 0,
-      aprobada: 0,
-      rechazada: 0,
+      aprobado: 0,
+      rechazado: 0,
     };
 
     // Sumar montos según el estado
     filteredStats.filteredTransactions.forEach((transaction) => {
-      const status = transaction.status_name.toLowerCase();
-      if (status === "pendiente")
-        montosPorEstado.pendiente += transaction.value;
-      else if (status === "aprobada")
-        montosPorEstado.aprobada += transaction.value;
-      else if (status === "rechazada")
-        montosPorEstado.rechazada += transaction.value;
+      const status = transaction.payment_status_name.toLowerCase();
+      if (status === "pendiente") montosPorEstado.pendiente += 1;
+      else if (status === "aprobado") montosPorEstado.aprobado += 1;
+      else if (status === "rechazado") montosPorEstado.rechazado += 1;
     });
 
     return {
@@ -865,8 +679,8 @@ const Transaction = () => {
         {
           data: [
             montosPorEstado.pendiente,
-            montosPorEstado.aprobada,
-            montosPorEstado.rechazada,
+            montosPorEstado.aprobado,
+            montosPorEstado.rechazado,
           ],
           backgroundColor: [
             "rgba(255, 214, 107, 1)",
@@ -906,7 +720,7 @@ const Transaction = () => {
     if (!filteredStats.filteredTransactions) return 0;
 
     return filteredStats.filteredTransactions.reduce((total, transaction) => {
-      return total + transaction.value;
+      return total + transaction.paid_amount;
     }, 0);
   };
 
@@ -944,7 +758,7 @@ const Transaction = () => {
                           display: "inline-block",
                           width: "12px",
                           height: "12px",
-                          backgroundColor: "rgba(255,214,107, 0.6)",
+                          backgroundColor: "rgba(255, 214, 107, 1)",
                           marginRight: "5px",
                         }}
                       />
@@ -1006,7 +820,7 @@ const Transaction = () => {
                   >
                     <p className="is-size-6 mb-0">Total</p>
                     <p className="is-size-5 has-text-weight-bold">
-                      {montoTotal}
+                      {filteredStats.filteredTransactions.length}
                     </p>
                   </div>
                 </div>
@@ -1037,9 +851,7 @@ const Transaction = () => {
                     >
                       <span className="is-size-7">Transacciones aprobadas</span>
                       <span className="is-size-7">
-                        {formatCurrency(
-                          getDonutChartData().datasets[0].data[1]
-                        )}
+                        {getDonutChartData().datasets[0].data[1]}
                       </span>
                     </div>
                   </div>
@@ -1064,9 +876,7 @@ const Transaction = () => {
                         Transacciones pendientes
                       </span>
                       <span className="is-size-7">
-                        {formatCurrency(
-                          getDonutChartData().datasets[0].data[0]
-                        )}
+                        {getDonutChartData().datasets[0].data[0]}
                       </span>
                     </div>
                   </div>
@@ -1091,9 +901,7 @@ const Transaction = () => {
                         Transacciones rechazadas
                       </span>
                       <span className="is-size-7">
-                        {formatCurrency(
-                          getDonutChartData().datasets[0].data[2]
-                        )}
+                        {getDonutChartData().datasets[0].data[2]}
                       </span>
                     </div>
                   </div>
@@ -1160,7 +968,7 @@ const Transaction = () => {
                             onChange={(e) => setMonthFilter(e.target.value)}
                             disabled={yearFilter === "ALL"}
                           >
-                            <option value="">Mes</option>
+                            <option value="">Todos los meses</option>
                             {availableMonths.map((monthIndex) => (
                               <option
                                 key={monthIndex + 1}
@@ -1220,8 +1028,8 @@ const Transaction = () => {
               </div>
             </div>
           </div>
-          <div className="container-cont" >
-            <div className="total_amount" >
+          <div className="container-cont">
+            <div className="total_amount">
               <div className="fixed-grid has-4-cols-desktop has-2-cols-mobile">
                 <div className="grid" ref={cardsContainerRef}>
                   <div className="cell rol-detail">
@@ -1295,15 +1103,15 @@ export default Transaction;
 
 const generateReportWithCharts = (
   filteredData,
-  toTitleCase, 
+  toTitleCase,
   onFinish,
   companyData,
   locationNames,
   userData,
-  imagesData 
+  imagesData
 ) => {
   const doc = new jsPDF("landscape");
-  const margin = 12; 
+  const margin = 12;
 
   doc.addFont(RobotoNormalFont, "Roboto", "normal");
   doc.addFont(RobotoBoldFont, "Roboto", "bold");
@@ -1350,8 +1158,7 @@ const generateReportWithCharts = (
   );
   doc.text(`${companyData.email}`, 285, 44, { align: "right" });
 
-  
-  let currentY = 60; 
+  let currentY = 60;
 
   doc.setTextColor(0, 0, 0);
   doc.setFont("Roboto", "bold");
@@ -1363,7 +1170,11 @@ const generateReportWithCharts = (
   doc.setFont("Roboto", "normal");
   doc.setFontSize(10);
 
-  doc.text(`Total de transacciones mostradas: ${filteredData.length}`, margin, currentY);
+  doc.text(
+    `Total de transacciones mostradas: ${filteredData.length}`,
+    margin,
+    currentY
+  );
   currentY += 8; // Espacio después del texto de cantidad
 
   // Añadir las tarjetas de resumen
@@ -1371,7 +1182,11 @@ const generateReportWithCharts = (
   const availableWidthForCards = pdfWidth - 2 * margin; // Renombrado para claridad
 
   // Asegúrate de que imagesData.cards y sus propiedades existen antes de usarlas
-  if (imagesData.cards && imagesData.cards.image && imagesData.cards.aspectRatio) {
+  if (
+    imagesData.cards &&
+    imagesData.cards.image &&
+    imagesData.cards.aspectRatio
+  ) {
     const cardsAspectRatio = imagesData.cards.aspectRatio;
     const cardsWidth = availableWidthForCards;
     const cardsHeight = cardsWidth / cardsAspectRatio;
@@ -1386,22 +1201,25 @@ const generateReportWithCharts = (
     );
     currentY += cardsHeight + 7; // Actualizar Y para las gráficas, con un poco más de espacio
   } else {
-    console.error("Datos de imagen de tarjetas no encontrados o incompletos en imagesData.");
-
+    console.error(
+      "Datos de imagen de tarjetas no encontrados o incompletos en imagesData."
+    );
   }
-  
-
 
   // Añadir las gráficas al PDF
   const graphsStartY = currentY; // Usar la Y actualizada
   const fixedHeight = 75; // Altura fija en mm para las gráficas (puedes ajustar)
-  const availableWidthForGraphs = pdfWidth - 2 * margin; 
-
+  const availableWidthForGraphs = pdfWidth - 2 * margin;
 
   // Asegúrate de que imagesData.bar y imagesData.donut y sus propiedades existen
-  if (imagesData.bar && imagesData.bar.image && imagesData.bar.aspectRatio &&
-      imagesData.donut && imagesData.donut.image && imagesData.donut.aspectRatio) {
-
+  if (
+    imagesData.bar &&
+    imagesData.bar.image &&
+    imagesData.bar.aspectRatio &&
+    imagesData.donut &&
+    imagesData.donut.image &&
+    imagesData.donut.aspectRatio
+  ) {
     const barImgWidth = fixedHeight * imagesData.bar.aspectRatio;
     const donutImgWidth = fixedHeight * imagesData.donut.aspectRatio;
     const spaceBetween = 10;
@@ -1409,16 +1227,32 @@ const generateReportWithCharts = (
 
     if (totalGraphWidth <= availableWidthForGraphs) {
       const startX = margin + (availableWidthForGraphs - totalGraphWidth) / 2;
-      doc.addImage(imagesData.bar.image, "PNG", startX, graphsStartY, barImgWidth, fixedHeight);
-      doc.addImage(imagesData.donut.image, "PNG", startX + barImgWidth + spaceBetween, graphsStartY, donutImgWidth, fixedHeight);
+      doc.addImage(
+        imagesData.bar.image,
+        "PNG",
+        startX,
+        graphsStartY,
+        barImgWidth,
+        fixedHeight
+      );
+      doc.addImage(
+        imagesData.donut.image,
+        "PNG",
+        startX + barImgWidth + spaceBetween,
+        graphsStartY,
+        donutImgWidth,
+        fixedHeight
+      );
     } else {
-      const scaleFactor = availableWidthForGraphs / (totalGraphWidth + spaceBetween); // Un intento de ajuste
+      const scaleFactor =
+        availableWidthForGraphs / (totalGraphWidth + spaceBetween); // Un intento de ajuste
       let adjustedBarWidth = barImgWidth * scaleFactor;
       let adjustedDonutWidth = donutImgWidth * scaleFactor;
-      
+
       // Asegurar que el aspect ratio se mantenga
       let adjustedBarHeight = adjustedBarWidth / imagesData.bar.aspectRatio;
-      let adjustedDonutHeight = adjustedDonutWidth / imagesData.donut.aspectRatio;
+      let adjustedDonutHeight =
+        adjustedDonutWidth / imagesData.donut.aspectRatio;
 
       // Si la altura ajustada es mayor que fixedHeight, reescalar por altura
       if (adjustedBarHeight > fixedHeight) {
@@ -1429,20 +1263,37 @@ const generateReportWithCharts = (
         adjustedDonutHeight = fixedHeight;
         adjustedDonutWidth = adjustedDonutHeight * imagesData.donut.aspectRatio;
       }
-      
-      const actualTotalGraphWidth = adjustedBarWidth + spaceBetween + adjustedDonutWidth;
-      const startX = margin + (availableWidthForGraphs - actualTotalGraphWidth) / 2;
 
-      doc.addImage(imagesData.bar.image, "PNG", startX, graphsStartY, adjustedBarWidth, adjustedBarHeight);
-      doc.addImage(imagesData.donut.image, "PNG", startX + adjustedBarWidth + spaceBetween, graphsStartY, adjustedDonutWidth, adjustedDonutHeight);
+      const actualTotalGraphWidth =
+        adjustedBarWidth + spaceBetween + adjustedDonutWidth;
+      const startX =
+        margin + (availableWidthForGraphs - actualTotalGraphWidth) / 2;
+
+      doc.addImage(
+        imagesData.bar.image,
+        "PNG",
+        startX,
+        graphsStartY,
+        adjustedBarWidth,
+        adjustedBarHeight
+      );
+      doc.addImage(
+        imagesData.donut.image,
+        "PNG",
+        startX + adjustedBarWidth + spaceBetween,
+        graphsStartY,
+        adjustedDonutWidth,
+        adjustedDonutHeight
+      );
     }
-    currentY = graphsStartY + fixedHeight + 10; 
+    currentY = graphsStartY + fixedHeight + 10;
   } else {
-     console.error("Datos de imagen de gráficos (barra o dona) no encontrados o incompletos en imagesData.");
-     // currentY se mantiene, la tabla empezará después del espacio de las tarjetas
-     currentY += 10; // Añadir un pequeño espacio si los gráficos fallan
+    console.error(
+      "Datos de imagen de gráficos (barra o dona) no encontrados o incompletos en imagesData."
+    );
+    // currentY se mantiene, la tabla empezará después del espacio de las tarjetas
+    currentY += 10; // Añadir un pequeño espacio si los gráficos fallan
   }
-
 
   // Calcular la posición Y para la tabla después de las gráficas
   const tableStartY = currentY;
@@ -1492,7 +1343,14 @@ const generateReportWithCharts = (
   });
 
   //Pie de pagina
-  doc.addImage(Icon, "PNG", margin, doc.internal.pageSize.getHeight() - 20, 32, 9);
+  doc.addImage(
+    Icon,
+    "PNG",
+    margin,
+    doc.internal.pageSize.getHeight() - 20,
+    32,
+    9
+  );
 
   const pageCount = doc.internal.getNumberOfPages();
   for (let i = 1; i <= pageCount; i++) {
