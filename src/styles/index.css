@@ -1214,9 +1214,7 @@ td > td.status-rechazada,
 td > td.status-sin-asignar,
 td > td.status-finalizado,
 td > td.status-pagada,
-td > td.status-vencida,
-td > td.status-aprobado,
-td > td.status-rechazado {
+td > td.status-vencida td > td.status-aprobado td > td.status-rechazado {
   padding: 0em;
   border-bottom: none;
 }
@@ -1224,9 +1222,9 @@ td > td.status-rechazado {
 .button.status-activo,
 .button.status-operativo,
 .button.status-aprobada,
-.button.status-aprobado,
 .button.status-finalizado,
-.button.status-pagada {
+.button.status-pagada,
+.button.status-aprobado {
   width: 100%;
   pointer-events: none;
   cursor: text;
@@ -1272,8 +1270,8 @@ td > td.status-rechazado {
 .button.status-expirado,
 .button.status-fallo-detectado,
 .button.status-rechazada,
-.button.status-rechazado,
-.button.status-vencida {
+.button.status-vencida,
+.button.status-rechazado {
   width: 100%;
   pointer-events: none;
   cursor: text;
@@ -1325,7 +1323,8 @@ td > td.status-rechazado {
   .button.detail-status.status-3,
   .button.detail-status.status-14,
   .button.detail-status.status-18,
-  .button.detail-status.status-23 {
+  .button.detail-status.status-23,
+  .button.detail-status.status-pendiente {
     background-color: #fff7e2;
     color: #9f7700;
   }
@@ -1348,15 +1347,30 @@ td > td.status-rechazado {
     color: #4e3985;
   }
 
-  .status-aprobado{
+  .button.detail-status-pagada {
+    background-color: #ecfdf3;
     color: #027a48;
   }
 
-  .status-pendiente{
+  .button.detail-status-pendiente {
+    background-color: #fff7e2;
     color: #9f7700;
   }
 
-  .status-rechazado{
+  .button.detail-status-vencida {
+    background-color: #ffc6c3;
+    color: #b42c24;
+  }
+
+  .status-aprobado {
+    color: #027a48;
+  }
+
+  .status-pendiente {
+    color: #9f7700;
+  }
+
+  .status-rechazado {
     color: #b42c24;
   }
 }
@@ -1370,9 +1384,9 @@ td > td.status-rechazado {
   .button.status-activo,
   .button.status-operativo,
   .button.status-aprobada,
-  .button.status-aprobado,
   .button.status-finalizado,
-  .button.status-pagada {
+  .button.status-pagada,
+  .button.status-aprobado {
     background-color: transparent;
     color: #b3ff9e;
     border-color: #b3ff9e;
@@ -1406,8 +1420,8 @@ td > td.status-rechazado {
   .button.status-expirado,
   .button.status-fallo-detectado,
   .button.status-rechazada,
-  .button.status-rechazado,
-  .button.status-vencida {
+  .button.status-vencida,
+  .button.status-rechazado {
     background-color: transparent;
     color: #ff7e77;
     border-color: #ff7e77;
@@ -1425,8 +1439,7 @@ td > td.status-rechazado {
   .button.detail-status.status-1,
   .button.detail-status.status-11,
   .button.detail-status.status-17,
-  .button.detail-status.status-25,
-  .button.detail-status.status-aprobado {
+  .button.detail-status.status-25 {
     color: #b3ff9e;
     border-color: #b3ff9e;
     opacity: 0.8;
@@ -1442,7 +1455,8 @@ td > td.status-rechazado {
   .button.detail-status.status-3,
   .button.detail-status.status-14,
   .button.detail-status.status-18,
-  .button.detail-status.status-23  {
+  .button.detail-status.status-23,
+  .button.detail-status.status-pendiente {
     color: #ffc100;
     border-color: #ffc100;
     opacity: 0.8;
@@ -1450,8 +1464,7 @@ td > td.status-rechazado {
 
   .button.detail-status.status-4,
   .button.detail-status.status-13,
-  .button.detail-status.status-19,
-  .button.detail-status.status-rechazado {
+  .button.detail-status.status-19 {
     color: #ff7e77;
     border-color: #ff7e77;
     opacity: 0.8;
@@ -1472,17 +1485,35 @@ td > td.status-rechazado {
     opacity: 0.8;
   }
 
-  .status-aprobado{
+  .button.detail-status-pagada {
+    color: #b3ff9e;
+    border-color: #b3ff9e;
+    opacity: 0.8;
+  }
+
+  .button.detail-status-pendiente {
+    color: #ffc100;
+    border-color: #ffc100;
+    opacity: 0.8;
+  }
+
+  .button.detail-status-vencida {
+    color: #ff7e77;
+    border-color: #ff7e77;
+    opacity: 0.8;
+  }
+
+  .status-aprobado {
     color: #b3ff9e;
     opacity: 0.8;
   }
 
-  .status-pendiente{
-     color: #ffc100;
+  .status-pendiente {
+    color: #ffc100;
     opacity: 0.8;
   }
 
-  .status-rechazado{
+  .status-rechazado {
     color: #ff7e77;
     opacity: 0.8;
   }

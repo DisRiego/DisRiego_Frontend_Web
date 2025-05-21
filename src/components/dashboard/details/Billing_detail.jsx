@@ -3,6 +3,7 @@ import { data, useParams } from "react-router-dom";
 import axios from "axios";
 import Head from "../reusable/Head";
 import Table from "../reusable/Table";
+import { TbPointFilled } from "react-icons/tb";
 
 const Billing_detail = () => {
   const { id } = useParams();
@@ -135,6 +136,17 @@ const Billing_detail = () => {
         </div>
       ) : (
         <>
+          <div className="rol-detail mb-4">
+            <div className="is-flex is-justify-content-space-between is-align-items-center">
+              <h3 className="title is-6 mb-0">Estado actual</h3>
+              <span
+                className={`button detail-status-${dataInvoice?.invoice_status_name}`}
+              >
+                <TbPointFilled />
+                {toTitleCase(dataInvoice?.invoice_status_name)}
+              </span>
+            </div>
+          </div>
           <div className="rol-detail mb-4">
             <div className="fixed-grid has-4-cols-desktop has-2-cols-mobile">
               <div className="grid">

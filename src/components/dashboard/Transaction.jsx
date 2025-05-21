@@ -1134,7 +1134,11 @@ const generateReportWithCharts = (
   doc.setFontSize(10);
   doc.text(`${new Date().toLocaleString()}`, margin, 32);
   doc.text(
-    [userData?.name, userData?.first_last_name, userData?.second_last_name]
+    [
+      toTitleCase(userData?.name),
+      toTitleCase(userData?.first_last_name),
+      toTitleCase(userData?.second_last_name),
+    ]
       .filter(Boolean)
       .join(" "),
     margin,

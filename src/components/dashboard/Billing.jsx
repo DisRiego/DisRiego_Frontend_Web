@@ -232,6 +232,7 @@ const Billing = () => {
         // Generar el reporte con los datos obtenidos
         generateReportWithCharts(
           filteredData,
+          toTitleCase,
           imagesData,
           companyData,
           locationData,
@@ -705,7 +706,9 @@ const Billing = () => {
           <div className="column is-8">
             <div className="rol-detail" ref={barContainerRef}>
               <div className="is-flex is-justify-content-space-between is-align-items-center mb-2">
-                <h3 className="subtitle is-6 mb-2">Facturas generadas</h3>
+                <h3 className="subtitle is-6 mb-2">
+                  Facturas generadas (Anual)
+                </h3>
                 <div className="is-flex is-align-items-center">
                   <div className="is-flex is-align-items-center mr-4">
                     <div className="is-flex is-align-items-center mr-3">
@@ -774,7 +777,9 @@ const Billing = () => {
           <div className="column is-4">
             <div ref={donutContainerRef} className="rol-detail">
               <div className="is-flex is-justify-content-space-between is-align-items-center mb-4">
-                <h3 className="subtitle is-6 mb-0">Total facturado</h3>
+                <h3 className="subtitle is-6 mb-0">
+                  Facturas generadas (Mensual)
+                </h3>
                 {/* Selector de meses basado en el año seleccionado */}
                 <div className="select is-small">
                   <select
@@ -822,7 +827,12 @@ const Billing = () => {
                       textAlign: "center",
                     }}
                   >
-                    <p className="is-size-6 mb-0">Total facturas</p>
+                    <p
+                      className="is-size-6 mb-0"
+                      style={{ whiteSpace: "pre-line" }}
+                    >
+                      {"Total de\nfacturas:"}
+                    </p>
                     <p className="is-size-5 has-text-weight-bold">
                       {totalFacturas}
                     </p>
@@ -1004,8 +1014,10 @@ const Billing = () => {
 };
 
 export default Billing;
+
 const generateReportWithCharts = (
   filteredData,
+  toTitleCase,
   imagesData,
   companyData,
   locationNames,
@@ -1041,7 +1053,11 @@ const generateReportWithCharts = (
   doc.setFontSize(10);
   doc.text(`${new Date().toLocaleString()}`, 12, 32);
   doc.text(
-    [userData?.name, userData?.first_last_name, userData?.second_last_name]
+    [
+      toTitleCase(userData?.name),
+      toTitleCase(userData?.first_last_name),
+      toTitleCase(userData?.second_last_name),
+    ]
       .filter(Boolean)
       .join(" "),
     12,
