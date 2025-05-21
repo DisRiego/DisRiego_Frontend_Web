@@ -95,13 +95,27 @@ const Billing = () => {
   const [dots, setDots] = useState("");
   const totals = useMemo(() => {
     const counts = {
-      emitidas: data.length,
+      emitidas: 0,
       pendientes: 0,
       pagadas: 0,
       vencidas: 0,
     };
 
-    data.forEach((item) => {
+    // Si no hay año seleccionado, devolvemos 0 en todos los contadores
+    if (!selectedYear) return counts;
+
+    // Filtrar datos por el año seleccionado
+    const filteredByYear = data.filter(item => {
+      if (!item.issue_date) return false;
+      const year = parseInt(item.issue_date.split('-')[0], 10);
+      return year === selectedYear;
+    });
+
+    // Actualizar el contador de emitidas
+    counts.emitidas = filteredByYear.length;
+
+    // Contar por estado
+    filteredByYear.forEach((item) => {
       const estado = item.status_name?.toLowerCase();
       if (estado === "pendiente") counts.pendientes += 1;
       else if (estado === "pagada") counts.pagadas += 1;
@@ -109,7 +123,7 @@ const Billing = () => {
     });
 
     return counts;
-  }, [data]);
+  }, [data, selectedYear]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -240,9 +254,9 @@ const Billing = () => {
 
   const tabs = [
     {
-      key: "invoice",
+      key: "billing",
       label: "Facturas",
-      path: "/dashboard/invoice",
+      path: "/dashboard/billing",
     },
     {
       key: "transaction",
@@ -759,8 +773,8 @@ const Billing = () => {
       return year === selectedYear && month === selectedMonth.number;
     });
     
-    // Calcular montos totales por estado
-    const montosPorEstado = {
+    // Contar facturas por estado
+    const cantidadPorEstado = {
       pendiente: 0,
       pagada: 0,
       vencida: 0,
@@ -768,9 +782,9 @@ const Billing = () => {
     
     facturasFiltradas.forEach((factura) => {
       const estado = factura.status_name?.toLowerCase();
-      if (estado === "pendiente") montosPorEstado.pendiente += factura.amount_due;
-      else if (estado === "pagada") montosPorEstado.pagada += factura.amount_due;
-      else if (estado === "vencida") montosPorEstado.vencida += factura.amount_due;
+      if (estado === "pendiente") cantidadPorEstado.pendiente += 1;
+      else if (estado === "pagada") cantidadPorEstado.pagada += 1;
+      else if (estado === "vencida") cantidadPorEstado.vencida += 1;
     });
     
     return {
@@ -778,9 +792,9 @@ const Billing = () => {
       datasets: [
         {
           data: [
-            montosPorEstado.pendiente,
-            montosPorEstado.pagada,
-            montosPorEstado.vencida,
+            cantidadPorEstado.pendiente,
+            cantidadPorEstado.pagada,
+            cantidadPorEstado.vencida,
           ],
           backgroundColor: [
             "rgba(255, 214, 107, 1)",
@@ -815,24 +829,22 @@ const Billing = () => {
     };
   };
 
-  // Calcular el monto total para mostrar en el centro del donut
-  const calcularMontoTotal = () => {
+  // Calcular el total de facturas para mostrar en el centro del donut
+  const calcularTotalFacturas = () => {
     if (!selectedYear || !selectedMonth) return 0;
     
     // Filtrar facturas por el año y mes seleccionados
-    return data.reduce((total, factura) => {
-      if (!factura.issue_date) return total;
+    const facturasFiltradas = data.filter(factura => {
+      if (!factura.issue_date) return false;
       
       const [year, month] = factura.issue_date.split('-').map(Number);
-      
-      if (year === selectedYear && month === selectedMonth.number) {
-        return total + factura.amount_due;
-      }
-      return total;
-    }, 0);
+      return year === selectedYear && month === selectedMonth.number;
+    });
+    
+    return facturasFiltradas.length;
   };
 
-  const montoTotal = formatCurrency(calcularMontoTotal());
+  const totalFacturas = calcularTotalFacturas();
 
   const renderCharts = () => {
     return (
@@ -957,9 +969,9 @@ const Billing = () => {
                       textAlign: "center",
                     }}
                   >
-                    <p className="is-size-6 mb-0">Total</p>
+                    <p className="is-size-6 mb-0">Total facturas</p>
                     <p className="is-size-5 has-text-weight-bold">
-                      {montoTotal}
+                      {totalFacturas}
                     </p>
                   </div>
                 </div>
@@ -988,11 +1000,9 @@ const Billing = () => {
                       className="is-flex is-justify-content-space-between"
                       style={{ width: "100%" }}
                     >
-                      <span className="is-size-7">Transacciones aprobadas</span>
+                      <span className="is-size-7">Facturas pagadas</span>
                       <span className="is-size-7">
-                        {formatCurrency(
-                          getDonutChartData().datasets[0].data[1]
-                        )}
+                        {getDonutChartData().datasets[0].data[1]}
                       </span>
                     </div>
                   </div>
@@ -1014,12 +1024,10 @@ const Billing = () => {
                       style={{ width: "100%" }}
                     >
                       <span className="is-size-7">
-                        Transacciones pendientes
+                        Facturas pendientes
                       </span>
                       <span className="is-size-7">
-                        {formatCurrency(
-                          getDonutChartData().datasets[0].data[0]
-                        )}
+                        {getDonutChartData().datasets[0].data[0]}
                       </span>
                     </div>
                   </div>
@@ -1041,12 +1049,10 @@ const Billing = () => {
                       style={{ width: "100%" }}
                     >
                       <span className="is-size-7">
-                        Transacciones vencidas
+                        Facturas vencidas
                       </span>
                       <span className="is-size-7">
-                        {formatCurrency(
-                          getDonutChartData().datasets[0].data[2]
-                        )}
+                          {getDonutChartData().datasets[0].data[2]}
                       </span>
                     </div>
                   </div>
