@@ -451,7 +451,7 @@ const Billing = () => {
           "Fecha de vencimiento": info.expiration_date?.slice(0, 10),
           "Valor a pagar": formatCurrency(info.amount_due),
           Anexo: info.pdf_url,
-          Estado: info.invoice_status,
+          Estado: toTitleCase(info.invoice_status),
         }));
 
       setFilteredData(filtered);
@@ -557,7 +557,7 @@ const Billing = () => {
         {
           label: "Facturas pendientes",
           data: pendientes,
-          backgroundColor: "rgba(255,214,107, 0.6)",
+          backgroundColor: "rgba(255, 214, 107, 1)",
           stack: "Stack 0",
           borderRadius: 6,
         },
@@ -727,7 +727,7 @@ const Billing = () => {
                           display: "inline-block",
                           width: "12px",
                           height: "12px",
-                          backgroundColor: "rgba(255,214,107, 0.6)",
+                          backgroundColor: "rgba(255, 214, 107, 1)",
                           marginRight: "5px",
                         }}
                       />
@@ -790,7 +790,7 @@ const Billing = () => {
                   >
                     {availableMonths.map((month) => (
                       <option key={month.number} value={month.number}>
-                        {month.full}
+                        {toTitleCase(month.full)}
                       </option>
                     ))}
                   </select>
