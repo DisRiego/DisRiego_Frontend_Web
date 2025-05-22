@@ -124,7 +124,14 @@ const Table = ({
         navigate(`device/${row.ID}`);
       } else {
         if (option.name === "Ver detalles") {
-          navigate(`${row.ID}`);
+          navigate(`${row["ID del lote"]}`);
+        } else {
+          if (
+            option.name === "Ver detalles" &&
+            parentComponent === "consumption"
+          ) {
+            navigate(`${row.ID}`);
+          }
         }
       }
     }
@@ -391,6 +398,8 @@ const Table = ({
     if (id === "invoices" && option.name === "Pagar") {
       navigate("payment/" + row.ID);
     }
+
+    //Consumo
   };
 
   /**

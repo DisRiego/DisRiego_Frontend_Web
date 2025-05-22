@@ -101,7 +101,18 @@ const Confirm_modal = ({
         "Ocurrió un error inesperado.";
 
       setTitleMessage?.(errorMsg);
-      setMessage?.(errorText);
+
+      if (typeForm === "create_pay") {
+        if (error.status === 400) {
+          setMessage?.(
+            `No se pudo completar el pago porque ya se ha generado uno
+            \nrecientemente. Por favor, inténtelo de nuevo en 5 o 10 minutos.`
+          );
+        }
+      } else {
+        setMessage?.(errorText);
+      }
+
       setStatus?.("is-false");
       setShowMessage?.(true);
     } finally {

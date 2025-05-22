@@ -585,6 +585,16 @@ tbody > tr > .loader-cell {
   margin: 0 auto;
 }
 
+.loader-cell > .loader.loader-graph {
+  width: 1em;
+  height: 1em;
+  border: 2px solid rgba(0, 0, 0, 0.1);
+  border-top: 2px solid var(--bulma-table-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto;
+}
+
 .loader-text {
   text-align: center;
   color: var(--bulma-table-color);
@@ -1149,6 +1159,11 @@ form > .columns.columns-pb {
   border-top: 4px solid var(--bulma-text-strong);
 }
 
+.loader-cell > .cont-loader.loader-graph {
+  border: 2px solid rgba(0, 0, 0, 0.1);
+  border-top: 2px solid var(--bulma-text-strong);
+}
+
 .loader-cell > .loader-text {
   color: var(--bulma-text-strong);
 }
@@ -1610,4 +1625,8 @@ td > td.status-vencida td > td.status-aprobado td > td.status-rechazado {
 
 .container-filter {
   margin-bottom: 1em;
+}
+
+.graph-consumption {
+  height: 100%;
 }

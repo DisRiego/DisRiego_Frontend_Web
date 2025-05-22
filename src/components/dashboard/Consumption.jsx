@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import axios from "axios";
 import useUserPermissions from "../../hooks/useUserPermissions";
 import Head from "./reusable/Head";
@@ -12,6 +12,35 @@ import Icon from "../../assets/icons/Disriego_title.png";
 import { autoTable } from "jspdf-autotable";
 import RobotoNormalFont from "../../assets/fonts/Roboto-Regular.ttf";
 import RobotoBoldFont from "../../assets/fonts/Roboto-Bold.ttf";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
+import { Bar, Doughnut } from "react-chartjs-2";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
+import { BiBorderRadius } from "react-icons/bi";
+
+// Registrar los componentes de Chart.js
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 const Consumption = () => {
   const [data, setData] = useState([]);
@@ -20,6 +49,7 @@ const Consumption = () => {
   const [loading, setLoading] = useState("");
   const [loadingTable, setLoadingTable] = useState(false);
   const [loadingReport, setLoadingReport] = useState("");
+  const [loadingPrediction, setLoadingPrediction] = useState("");
   const [buttonDisabled, setButtonDisabled] = useState(true);
   const itemsPerPage = 5;
 
@@ -30,6 +60,8 @@ const Consumption = () => {
   } = useUserPermissions();
   const hasPermission = (permission) => permissionsUser.includes(permission);
   const api_key = import.meta.env.VITE_API_KEY;
+
+  const parentComponent = "consumption";
 
   const [filteredData, setFilteredData] = useState([]);
   const [backupData, setBackupData] = useState([]);
@@ -51,6 +83,13 @@ const Consumption = () => {
 
   const [id, setId] = useState(null);
   const [dots, setDots] = useState("");
+
+  const [availableYears, setAvailableYears] = useState([]);
+  const [selectedYear, setSelectedYear] = useState(null);
+  const [availableMonths, setAvailableMonths] = useState([]);
+  const [selectedMonth, setSelectedMonth] = useState(null);
+  const [projectedMonthlyAvg, setProjectedMonthlyAvg] = useState({});
+  const barContainerRef = useRef(null); // gráfica de barrass
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -125,19 +164,15 @@ const Consumption = () => {
     "ID del lote",
     "Número de documento",
     "Intervalo de pago",
-    "Fecha de inicio",
-    "Fecha de fin",
+    "Fecha de lectura",
     "Consumo registrado (m³)",
+    "Opciones",
   ];
 
   const options = [
     {
       icon: "BiShow",
       name: "Ver detalles",
-    },
-    {
-      icon: "TbCoin",
-      name: "Pagar",
     },
   ].filter(Boolean);
 
@@ -148,62 +183,14 @@ const Consumption = () => {
   const fetchBilling = async () => {
     try {
       setLoadingTable(true);
-      //   const response = await axios.get(
-      //     import.meta.env.VITE_URI_BACKEND_MAINTENANCE +
-      //       import.meta.env.VITE_ROUTE_BACKEND_REPORT
-      //   );
-      //   const sortedData = response.data.data.sort((a, b) => b.id - a.id);
-      const billing = [
-        {
-          id: 1,
-          property_id: 101,
-          lot_id: 5,
-          owner_document_number: "1234567890",
-          payment_interval_name: "Mensual",
-          issue_date: "2025-04-01",
-          due_date: "2025-04-30",
-          amount_due: 150000,
-          attachment: "factura_fac-001.pdf",
-          status_name: "Pendiente",
-        },
-        {
-          id: 2,
-          property_id: 102,
-          lot_id: 8,
-          owner_document_number: "9876543210",
-          payment_interval_name: "Bimestral",
-          issue_date: "2025-04-05",
-          due_date: "2025-06-05",
-          amount_due: 300000,
-          attachment: "factura_fac-002.pdf",
-          status_name: "Pagada",
-        },
-        {
-          id: 3,
-          property_id: 103,
-          lot_id: 2,
-          owner_document_number: "1122334455",
-          payment_interval_name: "Trimestral",
-          issue_date: "2025-03-15",
-          due_date: "2025-06-15",
-          amount_due: 450000,
-          attachment: "factura_fac-003.pdf",
-          status_name: "Vencida",
-        },
-        {
-          id: 4,
-          property_id: 103,
-          lot_id: 2,
-          owner_document_number: "1010115909",
-          payment_interval_name: "Anual",
-          issue_date: "2025-04-01",
-          due_date: "2025-04-15",
-          amount_due: 50000,
-          attachment: "factura_fac-004.pdf",
-          status_name: "Vencida",
-        },
-      ];
-      const sortedData = billing.sort((a, b) => b.id - a.id);
+      const response = await axios.get(
+        import.meta.env.VITE_URI_BACKEND_FACTURACTION +
+          import.meta.env.VITE_ROUTE_BACKEND_GET_CONSUMPTION
+      );
+
+      const sortedData = response.data.sort(
+        (a, b) => new Date(b.measurement_date) - new Date(a.measurement_date)
+      );
 
       setData(sortedData);
     } catch (error) {
@@ -262,14 +249,12 @@ const Consumption = () => {
             .includes(searchTerm.toLowerCase())
         )
         .map((info) => ({
-          ID: info.id,
-          "ID del predio": info.property_id,
-          "ID del lote": info.lot_id,
-          "Número de documento": info.owner_document_number,
-          "Intervalo de pago": info.payment_interval_name,
-          "Fecha de inicio": info.due_date?.slice(0, 10),
-          "Fecha de fin": info.due_date?.slice(0, 10),
-          "Consumo registrado (m³)": info.amount_due,
+          "ID del predio": info?.property_id,
+          "ID del lote": info?.lot_id,
+          "Número de documento": info?.document_number,
+          "Intervalo de pago": info?.payment_interval,
+          "Fecha de lectura": info?.measurement_date?.slice(0, 10),
+          "Consumo registrado (m³)": info?.final_volume,
         }));
 
       setFilteredData(filtered);
@@ -298,6 +283,284 @@ const Consumption = () => {
     startIndex + itemsPerPage
   );
 
+  useEffect(() => {
+    if (data.length > 0) {
+      // Extraer años únicos
+      const years = [
+        ...new Set(
+          data
+            .filter((item) => item.measurement_date) // Filtrar elementos sin fecha
+            .map((item) => {
+              const parts = item.measurement_date.split("-");
+              return parseInt(parts[0], 10);
+            })
+        ),
+      ].sort((a, b) => b - a); // Ordenar de mayor a menor
+
+      setAvailableYears(years);
+
+      // Seleccionar el año más reciente por defecto
+      if (years.length > 0 && !selectedYear) {
+        setSelectedYear(years[0]);
+      }
+    }
+  }, [data]);
+
+  // Actualizar meses disponibles cuando cambia el año seleccionado
+  useEffect(() => {
+    if (selectedYear && data.length > 0) {
+      // Filtrar facturas del año seleccionado
+      const facturasPorAnio = data.filter((item) => {
+        if (!item.measurement_date) return false;
+        const parts = item.measurement_date.split("-");
+        return parseInt(parts[0], 10) === selectedYear;
+      });
+
+      // Extraer meses únicos con datos
+      const monthsWithData = [
+        ...new Set(
+          facturasPorAnio.map((item) => {
+            const parts = item.measurement_date.split("-");
+            return parseInt(parts[1], 10); // El mes está en la posición 1 (formato YYYY-MM-DD)
+          })
+        ),
+      ].sort((a, b) => a - b); // Ordenar de menor a mayor
+
+      // Crear objetos de meses con su número y nombre para el selector
+      const monthObjects = monthsWithData.map((monthNum) => {
+        // Crear una fecha con el mes para obtener su nombre
+        const date = new Date(selectedYear, monthNum - 1, 1);
+        return {
+          number: monthNum,
+          name: format(date, "MMM", { locale: es }),
+          full: format(date, "MMMM", { locale: es }),
+        };
+      });
+
+      setAvailableMonths(monthObjects);
+
+      // Seleccionar el mes más reciente por defecto
+      if (monthObjects.length > 0) {
+        // Si no hay mes seleccionado o el seleccionado no está en los disponibles
+        if (!selectedMonth || !monthsWithData.includes(selectedMonth.number)) {
+          // Ordenar por fecha para encontrar el más reciente
+          const sortedFacturas = [...facturasPorAnio].sort(
+            (a, b) =>
+              new Date(b.measurement_date) - new Date(a.measurement_date)
+          );
+
+          if (sortedFacturas.length > 0) {
+            const latestMonth = parseInt(
+              sortedFacturas[0].measurement_date.split("-")[1],
+              10
+            );
+            const monthObj = monthObjects.find((m) => m.number === latestMonth);
+            setSelectedMonth(monthObj);
+          }
+        }
+      } else {
+        setSelectedMonth(null);
+      }
+    }
+  }, [selectedYear, data]);
+
+  const averageMonthlyConsumption = useMemo(() => {
+    if (!data.length || !selectedYear) return 0;
+
+    // Agrupar consumos por mes del año seleccionado
+    const consumosPorMes = {};
+
+    data.forEach((item) => {
+      const date = new Date(item.measurement_date);
+      const year = date.getFullYear();
+      const month = date.getMonth(); // 0-indexed
+
+      if (year === selectedYear) {
+        if (!consumosPorMes[month]) {
+          consumosPorMes[month] = {
+            total: 0,
+            count: 0,
+          };
+        }
+
+        consumosPorMes[month].total += item.final_volume;
+        consumosPorMes[month].count += 1;
+      }
+    });
+
+    // Calcular promedio mensual para cada mes con datos
+    const monthlyAverages = Object.values(consumosPorMes).map(
+      (mes) => mes.total / mes.count
+    );
+
+    if (!monthlyAverages.length) return 0;
+
+    // Promedio de todos los promedios mensuales
+    const totalPromedios = monthlyAverages.reduce((sum, val) => sum + val, 0);
+    const promedioFinal = totalPromedios / monthlyAverages.length;
+
+    return parseFloat(promedioFinal.toFixed(2));
+  }, [data, selectedYear]);
+
+  useEffect(() => {
+    const fetchProjectedData = async () => {
+      if (!selectedYear) return;
+
+      setLoadingPrediction("is-loading");
+
+      try {
+        const response = await axios.get(
+          import.meta.env.VITE_URI_BACKEND_FACTURACTION +
+            import.meta.env.VITE_ROUTE_BACKEND_PREDICTION_CONSUMPTION_MONTH +
+            selectedYear
+        );
+
+        if (response?.data?.projected_monthly_avg) {
+          setProjectedMonthlyAvg(response.data.projected_monthly_avg);
+        } else {
+          console.warn("Respuesta inesperada:", response.data);
+          setProjectedMonthlyAvg({});
+        }
+      } catch (error) {
+        console.error("Error al obtener consumo proyectado mensual:", error);
+        setProjectedMonthlyAvg({});
+      } finally {
+        setLoadingPrediction("");
+      }
+    };
+
+    fetchProjectedData();
+  }, [selectedYear]);
+
+  const averageProjectedConsumption = useMemo(() => {
+    const values = Object.values(projectedMonthlyAvg).filter((v) => v > 0);
+    if (values.length === 0) return 0;
+
+    const total = values.reduce((acc, val) => acc + val, 0);
+    return parseFloat((total / values.length).toFixed(2));
+  }, [projectedMonthlyAvg]);
+
+  const projectedVariation = useMemo(() => {
+    if (averageMonthlyConsumption === 0 || averageProjectedConsumption === 0)
+      return 0;
+
+    return parseFloat(
+      (
+        ((averageProjectedConsumption - averageMonthlyConsumption) /
+          averageMonthlyConsumption) *
+        100
+      ).toFixed(2)
+    );
+  }, [averageProjectedConsumption, averageMonthlyConsumption]);
+
+  // Función para generar datos del gráfico de barras basados en el año seleccionado
+  const getBarChartData = () => {
+    if (!selectedYear) return { labels: [], datasets: [] };
+
+    // Agrupar consumos por mes para el año seleccionado
+    const consumosPorMes = {};
+
+    data.forEach((item) => {
+      const date = new Date(item.measurement_date);
+      const year = date.getFullYear();
+      const month = date.getMonth(); // 0-based
+
+      if (year === selectedYear) {
+        const key = month;
+        if (!consumosPorMes[key]) {
+          consumosPorMes[key] = { total: 0, count: 0 };
+        }
+        consumosPorMes[key].total += item.final_volume;
+        consumosPorMes[key].count += 1;
+      }
+    });
+
+    const labels = Array.from({ length: 12 }, (_, i) =>
+      format(new Date(selectedYear, i, 1), "MMM", { locale: es })
+    );
+
+    const promedioMensual = Array.from({ length: 12 }, (_, i) => {
+      const entry = consumosPorMes[i];
+      return entry ? parseFloat((entry.total / entry.count).toFixed(2)) : 0;
+    });
+
+    const proyectadoMensual = Array.from({ length: 12 }, (_, i) => {
+      const mes = i + 1;
+      return projectedMonthlyAvg[mes] ?? 0;
+    });
+
+    return {
+      labels,
+      datasets: [
+        {
+          label: "Consumo promedio",
+          data: promedioMensual,
+          backgroundColor: "rgba(124, 168, 255, 1)",
+          borderRadius: 6,
+        },
+        {
+          label: "Consumo proyectado",
+          data: proyectadoMensual,
+          backgroundColor: "rgba(255, 214, 107, 1)",
+          borderRadius: 6,
+        },
+      ],
+    };
+  };
+
+  // Opciones para el gráfico de barras
+  const getBarOptions = () => {
+    return {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false,
+        },
+        title: {
+          display: true,
+          text: `Consumos (${selectedYear})`,
+          font: {
+            size: 14,
+          },
+        },
+        tooltip: {
+          callbacks: {
+            title: (tooltipItems) => {
+              const monthIndex = tooltipItems[0].dataIndex;
+              const date = new Date(selectedYear, monthIndex, 1);
+              const fullMonth = format(date, "MMMM", { locale: es }); // ej: "abril"
+              return toTitleCase(fullMonth);
+            },
+            label: (tooltipItem) => {
+              return `Consumo promedio: ${tooltipItem.formattedValue} m³`;
+            },
+          },
+        },
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          stacked: true,
+          ticks: {
+            precision: 0,
+          },
+          title: {
+            display: true,
+            text: "Cantidad (m³)",
+          },
+        },
+        x: {
+          stacked: true,
+          title: {
+            display: true,
+            text: "Meses",
+          },
+        },
+      },
+    };
+  };
+
   const toTitleCase = (str) => {
     if (typeof str !== "string") return str;
     return str
@@ -307,6 +570,135 @@ const Consumption = () => {
       .join(" ");
   };
 
+  const renderCharts = () => {
+    return (
+      <div className="container-cont mb-5">
+        <div className="columns is-align-stretch">
+          <div className="column is-three-quarters is-flex is-flex-direction-column">
+            <div
+              className="rol-detail graph-consumption is-flex is-flex-direction-column"
+              ref={barContainerRef}
+            >
+              <div className="is-flex is-justify-content-space-between is-align-items-center mb-2">
+                <h3 className="has-text-weight-bold mb-2">
+                  Consumos totales (m³)
+                </h3>
+                <div className="is-flex is-align-items-center">
+                  <div className="is-flex is-align-items-center mr-4">
+                    {loadingPrediction === "" && (
+                      <div className="is-flex is-align-items-center mr-3">
+                        <span
+                          style={{
+                            display: "inline-block",
+                            width: "12px",
+                            height: "12px",
+                            backgroundColor: "rgba(255, 214, 107, 1)",
+                            marginRight: "5px",
+                          }}
+                        />
+                        <span className="is-size-7">Consumo proyectado</span>
+                      </div>
+                    )}
+
+                    <div className="is-flex is-align-items-center">
+                      <span
+                        style={{
+                          display: "inline-block",
+                          width: "12px",
+                          height: "12px",
+                          backgroundColor: "rgba(124, 168, 255, 1)",
+                          marginRight: "5px",
+                        }}
+                      />
+                      <span className="is-size-7">Consumo promedio</span>
+                    </div>
+                  </div>
+
+                  {/* Selector de años */}
+                  <div className="select is-small">
+                    <select
+                      value={selectedYear || ""}
+                      onChange={(e) =>
+                        setSelectedYear(parseInt(e.target.value, 10))
+                      }
+                      disabled={availableYears.length === 0}
+                    >
+                      {availableYears.map((year) => (
+                        <option key={year} value={year}>
+                          {year}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div className="is-flex-grow-1 is-flex">
+                <Bar data={getBarChartData()} options={getBarOptions()} />
+              </div>
+            </div>
+          </div>
+          <div className="column is-flex is-flex-direction-column">
+            <div className="rol-detail">
+              <p className="has-text-weight-bold">
+                Detalles del año {selectedYear}
+              </p>
+              <div className="fixed-grid has-1-cols-desktop has-1-cols-mobile">
+                <div className="rol-detail mt-4">
+                  <p className="has-text-weight-bold mb-2">
+                    Consumo promedio mensual
+                  </p>
+                  <p className="has-text-weight-bold">
+                    {averageMonthlyConsumption} m³
+                  </p>
+                </div>
+                {loadingPrediction ? (
+                  <>
+                    <div className="rol-detail">
+                      <div className="loader-cell">
+                        <p className="is-size-6 has-text-weight-bold mb-2">
+                          Consumo promedio mensual proyectado
+                        </p>
+                        <div className="loader cont-loader loader-graph"></div>
+                        <p className="loader-text"></p>
+                      </div>
+                    </div>
+                    <div className="rol-detail">
+                      <div className="loader-cell">
+                        <p className="has-text-weight-bold mb-2">
+                          Variación esperada
+                        </p>
+                        <div className="loader cont-loader loader-graph"></div>
+                        <p className="loader-text"></p>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="rol-detail">
+                      <p className="is-size-6 has-text-weight-bold mb-2">
+                        Consumo promedio mensual proyectado
+                      </p>
+                      <p className="has-text-weight-bold">
+                        {averageProjectedConsumption} m³
+                      </p>
+                    </div>
+                    <div className="rol-detail mb-0">
+                      <p className="has-text-weight-bold mb-2">
+                        Variación esperada
+                      </p>
+                      <p className="has-text-weight-bold">
+                        {projectedVariation}%
+                      </p>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
   return (
     <>
       <Head
@@ -324,42 +716,7 @@ const Consumption = () => {
         </div>
       ) : (
         <>
-          <div className="container-cont">
-            <div className="columns mb-2">
-              <div className="column is-three-quarters">
-                <div className="rol-detail">
-                  <p className="has-text-weight-bold">
-                    Consumo registrado (m³)
-                  </p>
-                </div>
-              </div>
-              <div className="column">
-                <div className="rol-detail">
-                  <p className="has-text-weight-bold">Detalles</p>
-                  <div className="fixed-grid has-1-cols-desktop has-1-cols-mobile">
-                    <div className="rol-detail mt-4">
-                      <p className="has-text-weight-bold mb-2">
-                        Consumo promedio mensual
-                      </p>
-                      <p className="has-text-weight-bold">[] m³</p>
-                    </div>
-                    <div className="rol-detail">
-                      <p className="is-size-6 has-text-weight-bold mb-2">
-                        Consumo promedio mensual proyectado
-                      </p>
-                      <p className="has-text-weight-bold">[] m³</p>
-                    </div>
-                    <div className="rol-detail mb-0">
-                      <p className="has-text-weight-bold mb-2">
-                        Variación esperada
-                      </p>
-                      <p className="has-text-weight-bold">[]%</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <div className="container-cont">{renderCharts()}</div>
           <div className="container-search">
             <Search onSearch={setSearchTerm} buttonDisabled={buttonDisabled} />
             <Filter buttonDisabled={buttonDisabled} />
@@ -370,6 +727,7 @@ const Consumption = () => {
             options={options}
             loadingTable={loadingTable}
             setId={setId}
+            parentComponent={parentComponent}
           />
           <Pagination
             totalItems={filteredData.length}
@@ -461,27 +819,21 @@ const generateReport = (
     margin: { left: 12 },
     head: [
       [
-        "N° Factura",
         "ID del predio",
         "ID del lote",
         "Número de documento",
         "Intervalo de pago",
-        "Fecha de emisión",
-        "Fecha de vencimiento",
-        "Valor a pagar",
-        "Estado",
+        "Fecha de lectura",
+        "Consumo registrado (m³)",
       ],
     ],
     body: filteredData.map((bill) => [
-      bill["N° Factura"],
       bill["ID del predio"],
       bill["ID del lote"],
       bill["Número de documento"],
       bill["Intervalo de pago"],
-      bill["Fecha de emisión"],
-      bill["Fecha de vencimiento"],
-      bill["Valor a pagar"],
-      bill["Estado"],
+      bill["Fecha de lectura"],
+      bill["Consumo registrado (m³)"],
     ]),
 
     theme: "grid",

@@ -81,8 +81,7 @@ const Form_pay = () => {
   const feedbackMessages = {
     create_pay: {
       errorTitle: "Error al realizar el pago",
-      errorMessage:
-        "No se pudo realizar el pago. Por favor, inténtelo de nuevo.",
+      errorMessage: `No se pudo realizar el pago. Por favor, inténtelo de nuevo.`,
     },
   };
 
@@ -101,6 +100,16 @@ const Form_pay = () => {
       invoice_id: id,
     },
   });
+
+  useEffect(() => {
+    if (showMessage) {
+      const timer = setTimeout(() => {
+        setShowMessage(false);
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [showMessage]);
 
   useEffect(() => {
     if (token) {
@@ -125,9 +134,8 @@ const Form_pay = () => {
 
       if (isValidUrl) {
         window.open(urlPse, "_blank"); // Abre en nueva pestaña
+        navigate("/dashboard/invoice"); // Siempre redirige esta pestaña
       }
-
-      navigate("/dashboard/invoice"); // Siempre redirige esta pestaña
     }
   }, [urlPse, navigate]);
 
@@ -512,6 +520,14 @@ const Form_pay = () => {
           setLoading={setIsLoadingModal}
           feedbackMessages={feedbackMessages}
           setUrlPse={setUrlPse}
+        />
+      )}
+      {showMessage && (
+        <Message
+          titleMessage={titleMessage}
+          message={message}
+          status={status}
+          onClose={() => setShowMessage(false)}
         />
       )}
     </>
