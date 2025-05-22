@@ -168,8 +168,8 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
     },
     {
       permission: ["Ver todos los consumos de un usuario"],
-      path: "/dashboard/consumption",
-      selectoption: "consumption",
+      path: "/dashboard/consumptions",
+      selectoption: "consumptions",
       icon: <MdOutlineWaterDrop />,
       label: "Mis consumo",
     },

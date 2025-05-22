@@ -26,7 +26,8 @@ const permissionMapModules = {
   reports: ["Ver todos los reportes de fallos para un usuario"],
   invoice: ["Ver todas las facturas"],
   invoices: ["Ver todas las facturas de un usuario"],
-  transaction: ["Ver todas las transacciones"],
+  consumptions: ["Ver todos los consumos de un usuario"],
+  consumption: ["Ver todos los consumos"],
   profile: [], // no requiere permisos
 };
 
@@ -52,6 +53,8 @@ const permissionMapDetails = {
   invoice: ["Ver detalles de una factura"],
   invoices: ["Ver detalles de una factura de un usuario"],
   transaction: ["Ver detalles de una transacción"],
+  consumptions: ["Ver detalles de un consumo de un usuario"],
+  consumption: ["Ver detalles de un consumo"],
   company: ["Ver detalles de la empresa"],
 };
 

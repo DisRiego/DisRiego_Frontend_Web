@@ -142,7 +142,7 @@ const Billing = () => {
   const head_data = {
     title: hasPermission("Ver todas las facturas")
       ? "Gestión de facturación"
-      : "Mis fallos y reportes",
+      : "Mis facturas y pagos",
     description: hasPermission("Ver todas las facturas")
       ? "En esta sección podrás gestionar y monitorear las facturas y transacciones del sistema."
       : "En esta sección podrás gestionar el estado de tus facturas y realizar pagos.",

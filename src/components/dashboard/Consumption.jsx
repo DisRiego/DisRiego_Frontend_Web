@@ -61,8 +61,6 @@ const Consumption = () => {
   const hasPermission = (permission) => permissionsUser.includes(permission);
   const api_key = import.meta.env.VITE_API_KEY;
 
-  const parentComponent = "consumption";
-
   const [filteredData, setFilteredData] = useState([]);
   const [backupData, setBackupData] = useState([]);
 
@@ -99,15 +97,21 @@ const Consumption = () => {
   }, []);
 
   const head_data = {
-    title: "Gestión de consumo",
-    description:
-      "En esta sección podrás visualizar el consumo de agua registrado en tu distrito de riego.",
+    title: hasPermission("Ver todos los consumos")
+      ? "Gestión de consumo"
+      : "Mis consumos",
+    description: hasPermission("Ver todos los consumos")
+      ? "En esta sección podrás visualizar el consumo de agua registrado del distrito de riego."
+      : "En esta sección podrás visualizar el consumo de agua registrado en tus lotes.",
     buttons: {
-      button1: {
-        icon: "LuDownload",
-        class: "",
-        text: "Descargar reporte",
-      },
+      ...((hasPermission("Generar reporte de todos los consumos") ||
+        hasPermission("Generar reporte de un consumo de usuario")) && {
+        button1: {
+          icon: "LuDownload",
+          class: "",
+          text: "Descargar reporte",
+        },
+      }),
     },
   };
 
@@ -159,15 +163,15 @@ const Consumption = () => {
     }
   };
 
-  const columns = [
-    "ID del predio",
-    "ID del lote",
-    "Número de documento",
-    "Intervalo de pago",
-    "Fecha de lectura",
-    "Consumo registrado (m³)",
-    "Opciones",
-  ];
+  let parentComponent = "";
+
+  if (hasPermission("Ver todos los consumos")) {
+    parentComponent = "consumption";
+  } else {
+    if (hasPermission("Ver todos los consumos de un usuario")) {
+      parentComponent = "consumptions";
+    }
+  }
 
   const options = [
     {
@@ -176,16 +180,69 @@ const Consumption = () => {
     },
   ].filter(Boolean);
 
-  useEffect(() => {
-    fetchBilling();
-  }, []);
+  let columns = [];
+  if (hasPermission("Ver todos los consumos")) {
+    columns = [
+      "ID del predio",
+      "ID del lote",
+      "Número de documento",
+      "Intervalo de pago",
+      "Fecha de lectura",
+      "Consumo registrado (m³)",
+      "Opciones",
+    ];
+  } else {
+    if (hasPermission("Ver todos los consumos de un usuario")) {
+      columns = [
+        "Nombre del predio",
+        "Nombre del lote",
+        "Intervalo de pago",
+        "Fecha de lectura",
+        "Consumo registrado (m³)",
+        "Opciones",
+      ];
+    }
+  }
 
-  const fetchBilling = async () => {
+  useEffect(() => {
+    if (token && hasPermission("Ver detalles de un consumo")) {
+      getConsumption();
+    } else {
+      if (token && hasPermission("Ver detalles de un consumo de un usuario")) {
+        getConsumptionUser();
+      }
+    }
+  }, [token]);
+
+  const getConsumption = async () => {
     try {
       setLoadingTable(true);
       const response = await axios.get(
         import.meta.env.VITE_URI_BACKEND_FACTURACTION +
           import.meta.env.VITE_ROUTE_BACKEND_GET_CONSUMPTION
+      );
+
+      const sortedData = response.data.sort(
+        (a, b) => new Date(b.measurement_date) - new Date(a.measurement_date)
+      );
+
+      setData(sortedData);
+    } catch (error) {
+      console.error("Error al obtener las facturas:", error);
+    } finally {
+      setButtonDisabled(false);
+      setLoadingTable(false);
+    }
+  };
+
+  const getConsumptionUser = async () => {
+    try {
+      setLoadingTable(true);
+      const response = await axios.get(
+        import.meta.env.VITE_URI_BACKEND_FACTURACTION +
+          import.meta.env.VITE_ROUTE_BACKEND_GET_CONSUMPTION_USER +
+          decodedToken.id +
+          import.meta.env.VITE_ROUTE_BACKEND_GET_CONSUMPTION_USER_LOT
       );
 
       const sortedData = response.data.sort(
@@ -248,14 +305,29 @@ const Consumption = () => {
             .toLowerCase()
             .includes(searchTerm.toLowerCase())
         )
-        .map((info) => ({
-          "ID del predio": info?.property_id,
-          "ID del lote": info?.lot_id,
-          "Número de documento": info?.document_number,
-          "Intervalo de pago": info?.payment_interval,
-          "Fecha de lectura": info?.measurement_date?.slice(0, 10),
-          "Consumo registrado (m³)": info?.final_volume,
-        }));
+        .map((info) => {
+          if (hasPermission("Ver detalles de un consumo")) {
+            return {
+              "ID del predio": info?.property_id,
+              "ID del lote": info?.lot_id,
+              "Número de documento": info?.document_number,
+              "Intervalo de pago": info?.payment_interval,
+              "Fecha de lectura": info?.measurement_date?.slice(0, 10),
+              "Consumo registrado (m³)": info?.final_volume,
+            };
+          } else {
+            if (hasPermission("Ver detalles de un consumo de un usuario")) {
+              return {
+                ID: info?.lot_id,
+                "Nombre del predio": info?.property_name,
+                "Nombre del lote": info?.lot_name,
+                "Intervalo de pago": info?.payment_interval,
+                "Fecha de lectura": info?.measurement_date?.slice(0, 10),
+                "Consumo registrado (m³)": info?.final_volume,
+              };
+            }
+          }
+        });
 
       setFilteredData(filtered);
       setBackupData(filtered);
@@ -409,11 +481,25 @@ const Consumption = () => {
       setLoadingPrediction("is-loading");
 
       try {
-        const response = await axios.get(
-          import.meta.env.VITE_URI_BACKEND_FACTURACTION +
-            import.meta.env.VITE_ROUTE_BACKEND_PREDICTION_CONSUMPTION_MONTH +
-            selectedYear
-        );
+        let response = [];
+        if (hasPermission("Ver todos los consumos")) {
+          response = await axios.get(
+            import.meta.env.VITE_URI_BACKEND_FACTURACTION +
+              import.meta.env.VITE_ROUTE_BACKEND_PREDICTION_CONSUMPTION_MONTH +
+              selectedYear
+          );
+        } else {
+          if (hasPermission("Ver todos los consumos de un usuario")) {
+            response = await axios.get(
+              import.meta.env.VITE_URI_BACKEND_FACTURACTION +
+                import.meta.env.VITE_ROUTE_BACKEND_GET_CONSUMPTION_USER +
+                decodedToken.id +
+                import.meta.env
+                  .VITE_ROUTE_BACKEND_PREDICTION_CONSUMPTION_MONTH_USER +
+                selectedYear
+            );
+          }
+        }
 
         if (response?.data?.projected_monthly_avg) {
           setProjectedMonthlyAvg(response.data.projected_monthly_avg);

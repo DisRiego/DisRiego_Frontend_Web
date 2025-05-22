@@ -131,6 +131,8 @@ const Dashboard = () => {
         return <Form_pay />;
       case `consumption`:
         return <Consumption />;
+      case `consumptions`:
+        return <Consumption />;
       case "company":
         return <Company_data />;
       case `certificate`:
