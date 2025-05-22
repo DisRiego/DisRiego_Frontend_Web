@@ -127,6 +127,8 @@ const Dashboard = () => {
         return <Transaction_detail />;
       case `pay/${id}`:
         return <Form_pay />;
+      case `payment/${id}`:
+        return <Form_pay />;
       case `consumption`:
         return <Consumption />;
       case "company":

@@ -85,7 +85,12 @@ const Names_navegation = {
     },
     "pay": {
       submodules: {
-        "detail": "Pago de factura #",
+        "detail": "Pago de la factura #",
+      },  
+    },
+    "payment": {
+      submodules: {
+        "detail": "Pago de la factura #",
       },  
     },
     "consumption": {

@@ -61,7 +61,10 @@ function AppContent() {
             element={<Dashboard />}
           />
           <Route path="/dashboard/invoice/pay/:id" element={<Dashboard />} />
-          <Route path="/dashboard/invoices/pay/:id" element={<Dashboard />} />
+          <Route
+            path="/dashboard/invoices/payment/:id"
+            element={<Dashboard />}
+          />
         </Route>
       </Routes>
     </>

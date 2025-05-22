@@ -388,7 +388,8 @@ const Billing = () => {
       icon: "BiShow",
       name: "Ver detalles",
     },
-    hasPermission("Pagar una factura") && {
+    (hasPermission("Pagar una factura") ||
+      hasPermission("Pagar una factura de un usuario")) && {
       icon: "TbCoin",
       name: "Pagar",
     },
