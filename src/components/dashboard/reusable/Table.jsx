@@ -123,15 +123,8 @@ const Table = ({
       if (option.name === "Ver detalles" && parentComponent === "device") {
         navigate(`device/${row.ID}`);
       } else {
-        if (
-          option.name === "Ver detalles" &&
-          parentComponent === "consumption"
-        ) {
-          navigate(`${row["ID del lote"]}`);
-        } else {
-          if (option.name === "Ver detalles") {
-            navigate(`${row.ID}`);
-          }
+        if (option.name === "Ver detalles") {
+          navigate(`${row.ID}`);
         }
       }
     }

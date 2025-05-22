@@ -183,6 +183,7 @@ const Consumption = () => {
   let columns = [];
   if (hasPermission("Ver todos los consumos")) {
     columns = [
+      "ID",
       "ID del predio",
       "ID del lote",
       "Número de documento",
@@ -194,6 +195,7 @@ const Consumption = () => {
   } else {
     if (hasPermission("Ver todos los consumos de un usuario")) {
       columns = [
+        "ID",
         "Nombre del predio",
         "Nombre del lote",
         "Intervalo de pago",
@@ -222,9 +224,21 @@ const Consumption = () => {
           import.meta.env.VITE_ROUTE_BACKEND_GET_CONSUMPTION
       );
 
-      const sortedData = response.data.sort(
-        (a, b) => new Date(b.measurement_date) - new Date(a.measurement_date)
-      );
+      const sortedData = response.data.sort((a, b) => {
+        const dateA = new Date(a.measurement_date);
+        const dateB = new Date(b.measurement_date);
+
+        // Comparar solo año-mes-día
+        const dateStrA = dateA.toISOString().split("T")[0];
+        const dateStrB = dateB.toISOString().split("T")[0];
+
+        if (dateStrA !== dateStrB) {
+          return dateStrB.localeCompare(dateStrA); // fecha descendente
+        }
+
+        // Si la fecha es igual (ignorando hora), ordenar por measurement_id descendente
+        return b.measurement_id - a.measurement_id;
+      });
 
       setData(sortedData);
     } catch (error) {
@@ -245,9 +259,21 @@ const Consumption = () => {
           import.meta.env.VITE_ROUTE_BACKEND_GET_CONSUMPTION_USER_LOT
       );
 
-      const sortedData = response.data.sort(
-        (a, b) => new Date(b.measurement_date) - new Date(a.measurement_date)
-      );
+      const sortedData = response.data.sort((a, b) => {
+        const dateA = new Date(a.measurement_date);
+        const dateB = new Date(b.measurement_date);
+
+        // Comparar solo año-mes-día
+        const dateStrA = dateA.toISOString().split("T")[0];
+        const dateStrB = dateB.toISOString().split("T")[0];
+
+        if (dateStrA !== dateStrB) {
+          return dateStrB.localeCompare(dateStrA); // fecha descendente
+        }
+
+        // Si la fecha es igual (ignorando hora), ordenar por measurement_id descendente
+        return b.measurement_id - a.measurement_id;
+      });
 
       setData(sortedData);
     } catch (error) {
@@ -308,6 +334,7 @@ const Consumption = () => {
         .map((info) => {
           if (hasPermission("Ver detalles de un consumo")) {
             return {
+              ID: info?.measurement_id,
               "ID del predio": info?.property_id,
               "ID del lote": info?.lot_id,
               "Número de documento": info?.document_number,
@@ -318,7 +345,7 @@ const Consumption = () => {
           } else {
             if (hasPermission("Ver detalles de un consumo de un usuario")) {
               return {
-                ID: info?.lot_id,
+                ID: info?.measurement_id,
                 "Nombre del predio": info?.property_name,
                 "Nombre del lote": info?.lot_name,
                 "Intervalo de pago": info?.payment_interval,

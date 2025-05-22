@@ -205,6 +205,7 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
     if (path.startsWith("/dashboard/invoices")) return "invoices";
     if (path.startsWith("/dashboard/invoice")) return "invoice";
     if (path.startsWith("/dashboard/transaction")) return "invoice";
+    if (path.startsWith("/dashboard/consumptions")) return "consumptions";
     if (path.startsWith("/dashboard/consumption")) return "consumption";
     if (path.startsWith("/dashboard/profile")) return "profile";
 
