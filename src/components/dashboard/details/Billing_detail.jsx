@@ -70,7 +70,6 @@ const Billing_detail = () => {
           id
       );
       const sortedData = response.data.data;
-      console.log(sortedData);
       setDataInvoice(sortedData.invoice);
       setDataPayment(sortedData.payment);
       setDataConcept(sortedData.concepts);
@@ -147,30 +146,32 @@ const Billing_detail = () => {
               </span>
             </div>
           </div>
-          <div className="rol-detail mb-4">
-            <div className="fixed-grid has-4-cols-desktop has-2-cols-mobile">
-              <div className="grid">
-                <div className="cell">
-                  <p className="has-text-weight-bold">Método de pago</p>
-                  <p>{dataPayment?.payment_method}</p>
-                </div>
-                <div className="cell">
-                  <p className="has-text-weight-bold">Referencia de pago</p>
-                  <p>{dataPayment?.transaction_id}</p>
-                </div>
-                <div className="cell">
-                  <p className="has-text-weight-bold">
-                    Valor de la transacción
-                  </p>
-                  <p>{formatCurrency(dataPayment?.transaction_amount)}</p>
-                </div>
-                <div className="cell">
-                  <p className="has-text-weight-bold">Fecha de pago</p>
-                  <p>{dataPayment?.payment_date?.slice(0, 10)}</p>
+          {["pagada", "Pagada"].includes(dataInvoice?.invoice_status_name) && (
+            <div className="rol-detail mb-4">
+              <div className="fixed-grid has-4-cols-desktop has-2-cols-mobile">
+                <div className="grid">
+                  <div className="cell">
+                    <p className="has-text-weight-bold">Método de pago</p>
+                    <p>{dataPayment?.payment_method}</p>
+                  </div>
+                  <div className="cell">
+                    <p className="has-text-weight-bold">Referencia de pago</p>
+                    <p>{dataPayment?.transaction_id}</p>
+                  </div>
+                  <div className="cell">
+                    <p className="has-text-weight-bold">
+                      Valor de la transacción
+                    </p>
+                    <p>{formatCurrency(dataPayment?.transaction_amount)}</p>
+                  </div>
+                  <div className="cell">
+                    <p className="has-text-weight-bold">Fecha de pago</p>
+                    <p>{dataPayment?.payment_date?.slice(0, 10)}</p>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          )}
           <div className="fixed-grid has-2-cols-desktop has-1-cols-mobile">
             <div className="grid">
               <div className="cell rol-detail">

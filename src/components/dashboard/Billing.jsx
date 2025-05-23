@@ -60,7 +60,7 @@ const Billing = () => {
   const [loadingTable, setLoadingTable] = useState(false);
   const [loadingReport, setLoadingReport] = useState("");
   const [buttonDisabled, setButtonDisabled] = useState(true);
-  const itemsPerPage = 5;
+  const itemsPerPage = 6;
   const barContainerRef = useRef(null); // gráfica de barrass
   const donutContainerRef = useRef(null); // grafica pastel
   const cardsContainerRef = useRef(null); // tarjetas de resumen
@@ -209,7 +209,7 @@ const Billing = () => {
             logging: false,
             backgroundColor: null,
           });
-          const cardsImage = cardsCanvas.toDataURL("image/png");
+          const cardsImage = cardsCanvas.toDataURL("image/png", 1.0);
 
           // Capturar el contenedor de la gráfica de barras
           const barCanvas = await html2canvas(barContainerRef.current, {
@@ -218,7 +218,7 @@ const Billing = () => {
             logging: false,
             backgroundColor: null,
           });
-          const barImage = barCanvas.toDataURL("image/png");
+          const barImage = barCanvas.toDataURL("image/png", 1.0);
 
           // Capturar el contenedor de la gráfica de dona
           const donutCanvas = await html2canvas(donutContainerRef.current, {
@@ -289,7 +289,7 @@ const Billing = () => {
               logging: false,
               backgroundColor: null,
             });
-            const barImage = barCanvas.toDataURL("image/png");
+            const barImage = barCanvas.toDataURL("image/png", 1.0);
 
             // Capturar el contenedor de la gráfica de dona
             const donutCanvas = await html2canvas(donutContainerRef.current, {
@@ -298,7 +298,7 @@ const Billing = () => {
               logging: false,
               backgroundColor: null,
             });
-            const donutImage = donutCanvas.toDataURL("image/png");
+            const donutImage = donutCanvas.toDataURL("image/png", 1.0);
 
             // se Preparan los datos de las imágenes con sus proporciones
             const imagesData = {
@@ -354,7 +354,8 @@ const Billing = () => {
   let columns = [];
   if (hasPermission("Ver todas las facturas")) {
     columns = [
-      "N° Factura",
+      "ID",
+      "Código de la factura",
       "ID del predio",
       "ID del lote",
       "Número de documento",
@@ -368,7 +369,8 @@ const Billing = () => {
     ];
   } else if (hasPermission("Ver todas las facturas de un usuario")) {
     columns = [
-      "N° Factura",
+      "ID",
+      "Código de la factura",
       "Nombre del predio",
       "Nombre del lote",
       "Número de documento",
@@ -577,31 +579,32 @@ const Billing = () => {
         .map((info) => {
           if (hasPermission("Ver todas las facturas")) {
             return {
-              ID: info.invoice_id,
-              "N° Factura": info.invoice_id,
-              "ID del predio": info.property_id,
-              "ID del lote": info.lot_id,
-              "Número de documento": info.client_document,
-              "Intervalo de pago": info.payment_interval,
-              "Fecha de emisión": info.issuance_date?.slice(0, 10),
-              "Fecha de vencimiento": info.expiration_date?.slice(0, 10),
-              "Valor a pagar": formatCurrency(info.amount_due),
-              Anexo: info.pdf_url,
-              Estado: toTitleCase(info.invoice_status),
+              ID: info?.invoice_id,
+              "Código de la factura": info?.invoice_number,
+              "N° Factura": info?.invoice_id,
+              "ID del predio": info?.property_id,
+              "ID del lote": info?.lot_id,
+              "Número de documento": info?.client_document,
+              "Intervalo de pago": info?.payment_interval,
+              "Fecha de emisión": info?.issuance_date?.slice(0, 10),
+              "Fecha de vencimiento": info?.expiration_date?.slice(0, 10),
+              "Valor a pagar": formatCurrency(info?.amount_due),
+              Anexo: info?.pdf_url,
+              Estado: toTitleCase(info?.invoice_status),
             };
           } else if (hasPermission("Ver todas las facturas de un usuario")) {
             return {
               ID: info?.invoice_id,
-              "N° Factura": info?.invoice_id,
+              "Código de la factura": info?.reference_code,
               "Nombre del predio": info?.property_name,
               "Nombre del lote": info?.lot_name,
               "Número de documento": info?.document_number,
               "Intervalo de pago": info?.payment_interval,
-              "Fecha de emisión": info.issuance_date?.slice(0, 10),
-              "Fecha de vencimiento": info.expiration_date?.slice(0, 10),
-              "Valor a pagar": formatCurrency(info.total_amount),
-              Anexo: info.pdf_url,
-              Estado: toTitleCase(info.status),
+              "Fecha de emisión": info?.issuance_date?.slice(0, 10),
+              "Fecha de vencimiento": info?.expiration_date?.slice(0, 10),
+              "Valor a pagar": formatCurrency(info?.total_amount),
+              Anexo: info?.pdf_url,
+              Estado: toTitleCase(info?.status),
             };
           }
         });
@@ -1361,7 +1364,7 @@ const generateReportWithCharts = (
     margin: { left: margin },
     head: [
       [
-        "N° Factura",
+        "Código de la factura",
         "ID del predio",
         "ID del lote",
         "Número de documento",
@@ -1373,7 +1376,7 @@ const generateReportWithCharts = (
       ],
     ],
     body: filteredData.map((bill) => [
-      bill["N° Factura"],
+      bill["Código de la factura"],
       bill["ID del predio"],
       bill["ID del lote"],
       bill["Número de documento"],

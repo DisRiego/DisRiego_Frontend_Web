@@ -50,7 +50,7 @@ const Transaction = () => {
   const [loadingTable, setLoadingTable] = useState(false);
   const [loadingReport, setLoadingReport] = useState("");
   const [buttonDisabled, setButtonDisabled] = useState(true);
-  const itemsPerPage = 5;
+  const itemsPerPage = 6;
   const barContainerRef = useRef(null); // Referencia para la gráfica de barras
   const donutContainerRef = useRef(null); // Referencia para la gráfica de dona
   const cardsContainerRef = useRef(null); // <--- AÑADIR ESTA LÍNEA
@@ -102,6 +102,7 @@ const Transaction = () => {
     "Noviembre",
     "Diciembre",
   ];
+  const tableRef = useRef(null);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -246,7 +247,8 @@ const Transaction = () => {
   ].filter(Boolean);
 
   const columns = [
-    "ID de transacción",
+    "ID de la transacción",
+    "Código de la factura",
     "Número de documento",
     "Referencia de pago",
     "Metodo de pago",
@@ -322,6 +324,15 @@ const Transaction = () => {
     }
   };
 
+  const getUniqueTransactionsByInvoice = (transactions) => {
+    const seen = new Set();
+    return transactions.filter((tx) => {
+      if (seen.has(tx.reference_code)) return false;
+      seen.add(tx.reference_code);
+      return true;
+    });
+  };
+
   useEffect(() => {
     if (data.length > 0) {
       const sortedDates = data
@@ -377,7 +388,8 @@ const Transaction = () => {
 
     const formatted = filtered.map((info) => ({
       ID: info.id,
-      "ID de transacción": info?.id,
+      "ID de la transacción": info?.id,
+      "Código de la factura": info?.reference_code,
       "Número de documento": info?.payer_document,
       "Referencia de pago": info?.transaction_id,
       "Metodo de pago": info?.payment_method,
@@ -432,63 +444,45 @@ const Transaction = () => {
     const selectedYear = parseInt(yearFilter);
     const selectedMonth = parseInt(monthFilter);
 
-    // Filtros para las estadísticas generales
-    const filtered = data.filter((item) => {
-      const date = new Date(item.payment_date);
-      const yearMatch =
-        !yearFilter ||
-        yearFilter === "ALL" ||
-        date.getFullYear() === selectedYear;
-      const monthMatch =
-        !monthFilter ||
-        monthFilter === "" ||
-        date.getMonth() + 1 === selectedMonth;
-      const methodMatch =
-        !methodFilter ||
-        methodFilter === "ALL" ||
-        item.payment_method === methodFilter;
-      const statusMatch =
-        !statusFilterValue ||
-        statusFilterValue === "ALL" ||
-        item.payment_status_name === statusFilterValue;
-      return yearMatch && monthMatch && methodMatch && statusMatch;
-    });
+    const uniqueTransactions = getUniqueTransactionsByInvoice(data);
 
-    // Cálculo específico de ingresos anuales (sin filtro de mes)
-    const annualIncome = data
-      .filter((item) => {
-        const date = new Date(item.payment_date);
-        const yearMatch =
-          !yearFilter ||
-          yearFilter === "ALL" ||
-          date.getFullYear() === selectedYear;
-        const methodMatch =
-          !methodFilter ||
-          methodFilter === "ALL" ||
-          item.payment_method === methodFilter;
-        const statusMatch =
-          !statusFilterValue ||
-          statusFilterValue === "ALL" ||
-          item.payment_status_name === statusFilterValue;
-        return yearMatch && methodMatch && statusMatch;
-      })
-      .reduce((sum, item) => sum + item.paid_amount, 0);
-
-    const monthlyIncome = filtered
+    const annualIncome = uniqueTransactions
       .filter((item) => {
         const date = new Date(item.payment_date);
         return (
-          (yearFilter === "ALL" || date.getFullYear() === selectedYear) &&
-          (monthFilter === "" || date.getMonth() + 1 === selectedMonth)
+          (!yearFilter ||
+            yearFilter === "ALL" ||
+            date.getFullYear() === selectedYear) &&
+          (!methodFilter ||
+            methodFilter === "ALL" ||
+            item.payment_method === methodFilter)
         );
       })
       .reduce((sum, item) => sum + item.paid_amount, 0);
 
-    const monthlyTransactions = filtered.filter((item) => {
+    const monthlyIncome = uniqueTransactions
+      .filter((item) => {
+        const date = new Date(item.payment_date);
+        return (
+          (!yearFilter ||
+            yearFilter === "ALL" ||
+            date.getFullYear() === selectedYear) &&
+          (!monthFilter ||
+            monthFilter === "" ||
+            date.getMonth() + 1 === selectedMonth)
+        );
+      })
+      .reduce((sum, item) => sum + item.paid_amount, 0);
+
+    const monthlyTransactions = uniqueTransactions.filter((item) => {
       const date = new Date(item.payment_date);
       return (
-        (yearFilter === "ALL" || date.getFullYear() === selectedYear) &&
-        (monthFilter === "" || date.getMonth() + 1 === selectedMonth)
+        (!yearFilter ||
+          yearFilter === "ALL" ||
+          date.getFullYear() === selectedYear) &&
+        (!monthFilter ||
+          monthFilter === "" ||
+          date.getMonth() + 1 === selectedMonth)
       );
     });
 
@@ -504,13 +498,56 @@ const Transaction = () => {
       annualIncome,
       monthlyIncome,
       rejectionRate,
-      filteredTransactions: filtered,
+      filteredTransactions: uniqueTransactions, // sin filtro de estado
     };
-  }, [data, yearFilter, monthFilter, methodFilter, statusFilterValue]);
+  }, [data, yearFilter, monthFilter, methodFilter]);
 
   const totalIncome = useMemo(() => {
-    return data.reduce((sum, item) => sum + item.paid_amount, 0);
+    const uniqueTransactions = getUniqueTransactionsByInvoice(data);
+    return uniqueTransactions.reduce((sum, tx) => sum + tx.paid_amount, 0);
   }, [data]);
+
+  useEffect(() => {
+    let base = getUniqueTransactionsByInvoice(data);
+
+    if (yearFilter && yearFilter !== "ALL") {
+      base = base.filter(
+        (item) =>
+          new Date(item.payment_date).getFullYear() === parseInt(yearFilter)
+      );
+    }
+
+    if (monthFilter && monthFilter !== "") {
+      base = base.filter(
+        (item) =>
+          new Date(item.payment_date).getMonth() + 1 === parseInt(monthFilter)
+      );
+    }
+
+    if (methodFilter && methodFilter !== "ALL") {
+      base = base.filter((item) => item.payment_method === methodFilter);
+    }
+
+    if (statusFilterValue && statusFilterValue !== "ALL") {
+      base = base.filter(
+        (item) => item.payment_status_name === statusFilterValue
+      );
+    }
+
+    const formatted = base.map((info) => ({
+      ID: info.id,
+      "ID de la transacción": info?.id,
+      "Código de la factura": info?.reference_code,
+      "Número de documento": info?.payer_document,
+      "Referencia de pago": info?.transaction_id,
+      "Metodo de pago": info?.payment_method,
+      "Valor pagado": formatCurrency(info?.paid_amount),
+      "Fecha del pago": formatDateTime(info?.payment_date),
+      Estado: info.payment_status_name,
+    }));
+
+    setFilteredData(formatted);
+  }, [data, yearFilter, monthFilter, methodFilter, statusFilterValue]);
 
   const toTitleCase = (str) => {
     if (typeof str !== "string") return str;
@@ -1007,9 +1044,15 @@ const Transaction = () => {
                         <div class="select ">
                           <select
                             value={statusFilterValue}
-                            onChange={(e) =>
-                              setStatusFilterValue(e.target.value)
-                            }
+                            onChange={(e) => {
+                              setStatusFilterValue(e.target.value);
+                              setTimeout(() => {
+                                tableRef.current?.scrollIntoView({
+                                  behavior: "smooth",
+                                  block: "start",
+                                });
+                              }, 100); // pequeño delay para asegurar que se renderice primero
+                            }}
                           >
                             <option value="ALL">Todos los estados</option>
                             {availableStatuses.map((status) => (
@@ -1070,13 +1113,15 @@ const Transaction = () => {
           <div className="container-search">
             <Search onSearch={setSearchTerm} buttonDisabled={buttonDisabled} />
           </div>
-          <Table
-            columns={columns}
-            data={paginatedData}
-            options={options}
-            loadingTable={loadingTable}
-            setId={setId}
-          />
+          <div ref={tableRef}>
+            <Table
+              columns={columns}
+              data={paginatedData}
+              options={options}
+              loadingTable={loadingTable}
+              setId={setId}
+            />
+          </div>
           <Pagination
             totalItems={filteredData.length}
             itemsPerPage={itemsPerPage}
@@ -1305,7 +1350,7 @@ const generateReportWithCharts = (
     margin: { left: margin },
     head: [
       [
-        "ID de transacción",
+        "ID de la transacción",
         "Número de documento",
         "Referencia de pago",
         "Metodo de pago",
@@ -1315,7 +1360,7 @@ const generateReportWithCharts = (
       ],
     ],
     body: filteredData.map((bill) => [
-      bill["ID de transacción"],
+      bill["ID de la transacción"],
       bill["Número de documento"],
       bill["Referencia de pago"],
       bill["Metodo de pago"],
