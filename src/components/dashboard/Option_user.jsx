@@ -173,6 +173,13 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
       icon: <MdOutlineWaterDrop />,
       label: "Mis consumo",
     },
+    {
+      permission: ["Ver todos los eventos"],
+      path: "/dashboard/audit",
+      selectoption: "audit",
+      icon: <TbReport />,
+      label: "Auditoria",
+    },
   ];
 
   const optionsFiltered = optionsMenu.filter((option) => {
@@ -207,6 +214,7 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
     if (path.startsWith("/dashboard/transaction")) return "invoice";
     if (path.startsWith("/dashboard/consumptions")) return "consumptions";
     if (path.startsWith("/dashboard/consumption")) return "consumption";
+    if (path.startsWith("/dashboard/audit")) return "audit";
     if (path.startsWith("/dashboard/profile")) return "profile";
 
     return null;

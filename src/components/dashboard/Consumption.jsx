@@ -28,6 +28,7 @@ import { Bar, Doughnut } from "react-chartjs-2";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { BiBorderRadius } from "react-icons/bi";
+import Filter_consumption from "./filters/Filter_consumption";
 
 // Registrar los componentes de Chart.js
 ChartJS.register(
@@ -69,14 +70,17 @@ const Consumption = () => {
   const [message, setMessage] = useState(false);
   const [status, setStatus] = useState(false);
 
+  const [showFilter, setShowFilter] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [statusFilter, setStatusFilter] = useState(false);
   const [filters, setFilters] = useState({
-    type_devices: {},
-    estados: {},
-    installation_date: {
-      from: "",
-      to: "",
-    },
+    typeInterval: {},
+    property: {},
+    lot: {},
+    startDate: "",
+    endDate: "",
+    consumptionMin: "",
+    consumptionMax: "",
   });
 
   const [id, setId] = useState(null);
@@ -173,6 +177,10 @@ const Consumption = () => {
     }
   }
 
+  const handleFilterClick = () => {
+    setShowFilter(true);
+  };
+
   const options = [
     {
       icon: "BiShow",
@@ -240,6 +248,7 @@ const Consumption = () => {
         return b.measurement_id - a.measurement_id;
       });
 
+      setIsAdmin(true);
       setData(sortedData);
     } catch (error) {
       console.error("Error al obtener las facturas:", error);
@@ -832,7 +841,11 @@ const Consumption = () => {
           <div className="container-cont">{renderCharts()}</div>
           <div className="container-search">
             <Search onSearch={setSearchTerm} buttonDisabled={buttonDisabled} />
-            <Filter buttonDisabled={buttonDisabled} />
+            <Filter
+              onFilterClick={handleFilterClick}
+              data={data}
+              buttonDisabled={buttonDisabled}
+            />
           </div>
           <Table
             columns={columns}
@@ -847,6 +860,22 @@ const Consumption = () => {
             itemsPerPage={itemsPerPage}
             currentPage={currentPage}
             onPageChange={setCurrentPage}
+          />
+        </>
+      )}
+      {showFilter && (
+        <>
+          <Filter_consumption
+            onClose={() => setShowFilter(false)}
+            data={data}
+            filteredData={filteredData}
+            setFilteredData={setFilteredData}
+            setStatusFilter={setStatusFilter}
+            filters={filters}
+            setFilters={setFilters}
+            backupData={backupData}
+            hasPermission={hasPermission}
+            isAdmin={isAdmin}
           />
         </>
       )}

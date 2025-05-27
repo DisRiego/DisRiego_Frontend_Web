@@ -29,7 +29,7 @@ import {
 import { Bar, Doughnut } from "react-chartjs-2";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { BiBorderRadius } from "react-icons/bi";
+import Filter_billing from "./filters/Filter_billing";
 
 // Registrar los componentes de Chart.js
 ChartJS.register(
@@ -60,6 +60,7 @@ const Billing = () => {
   const [loadingTable, setLoadingTable] = useState(false);
   const [loadingReport, setLoadingReport] = useState("");
   const [buttonDisabled, setButtonDisabled] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
   const itemsPerPage = 6;
   const barContainerRef = useRef(null); // gráfica de barrass
   const donutContainerRef = useRef(null); // grafica pastel
@@ -81,14 +82,16 @@ const Billing = () => {
   const [message, setMessage] = useState(false);
   const [status, setStatus] = useState(false);
 
+  const [showFilter, setShowFilter] = useState(false);
   const [statusFilter, setStatusFilter] = useState(false);
   const [filters, setFilters] = useState({
-    type_devices: {},
-    estados: {},
-    installation_date: {
-      from: "",
-      to: "",
-    },
+    typeInterval: {},
+    lot: {},
+    startEmission: "",
+    endEmission: "",
+    startExpiration: "",
+    endExpiration: "",
+    status: {},
   });
 
   const [id, setId] = useState(null);
@@ -384,6 +387,10 @@ const Billing = () => {
     ];
   }
 
+  const handleFilterClick = () => {
+    setShowFilter(true);
+  };
+
   const options = [
     (hasPermission("Ver detalles de una factura") ||
       hasPermission("Ver detalles de una factura de un usuario")) && {
@@ -417,6 +424,7 @@ const Billing = () => {
       const sortedData = response.data.data.sort((a, b) => b.id - a.id);
 
       setData(sortedData);
+      setIsAdmin(true);
     } catch (error) {
       console.error("Error al obtener las facturas:", error);
     } finally {
@@ -604,7 +612,7 @@ const Billing = () => {
               "Fecha de vencimiento": info?.expiration_date?.slice(0, 10),
               "Valor a pagar": formatCurrency(info?.total_amount),
               Anexo: info?.pdf_url,
-              Estado: toTitleCase(info?.status),
+              Estado: toTitleCase(info?.invoice_status),
             };
           }
         });
@@ -1155,7 +1163,11 @@ const Billing = () => {
           {renderCharts()}
           <div className="container-search">
             <Search onSearch={setSearchTerm} buttonDisabled={buttonDisabled} />
-            <Filter buttonDisabled={buttonDisabled} />
+            <Filter
+              onFilterClick={handleFilterClick}
+              data={data}
+              buttonDisabled={buttonDisabled}
+            />
           </div>
           <Table
             columns={columns}
@@ -1169,6 +1181,22 @@ const Billing = () => {
             itemsPerPage={itemsPerPage}
             currentPage={currentPage}
             onPageChange={setCurrentPage}
+          />
+        </>
+      )}
+      {showFilter && (
+        <>
+          <Filter_billing
+            onClose={() => setShowFilter(false)}
+            data={data}
+            filteredData={filteredData}
+            setFilteredData={setFilteredData}
+            setStatusFilter={setStatusFilter}
+            filters={filters}
+            setFilters={setFilters}
+            backupData={backupData}
+            hasPermission={hasPermission}
+            isAdmin={isAdmin}
           />
         </>
       )}

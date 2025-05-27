@@ -61,18 +61,18 @@ const Form_concept = ({
 
   const feedbackMessages = {
     create: {
-      successTitle: "Cultivo creado exitosamente",
-      successMessage: "El cultivo ha sido creado correctamente.",
-      errorTitle: "Error al crear el cultivo",
+      successTitle: "Concepto creado exitosamente",
+      successMessage: "El concepto ha sido creado correctamente.",
+      errorTitle: "Error al crear el concepto",
       errorMessage:
-        "No se pudo crear el cultivo. Por favor, inténtelo de nuevo.",
+        "No se pudo crear el concepto. Por favor, inténtelo de nuevo.",
     },
     edit: {
       successTitle: "Modificación exitosa",
-      successMessage: "El cultivo ha sido modificado correctamente.",
+      successMessage: "El concepto ha sido modificado correctamente.",
       errorTitle: "Modificación fallida",
       errorMessage:
-        "No se pudo modificar el cultivo. Por favor, inténtelo de nuevo.",
+        "No se pudo modificar el concepto. Por favor, inténtelo de nuevo.",
     },
   };
 
