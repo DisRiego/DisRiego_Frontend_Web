@@ -124,7 +124,7 @@ const Billing = () => {
       if (hasPermission("Ver todas las facturas")) {
         estado = item.invoice_status?.toLowerCase();
       } else if (hasPermission("Ver todas las facturas de un usuario")) {
-        estado = item.status?.toLowerCase();
+        estado = item.invoice_status?.toLowerCase();
       }
 
       if (estado === "pendiente") counts.pendientes += 1;
@@ -691,7 +691,7 @@ const Billing = () => {
       if (hasPermission("Ver todas las facturas")) {
         estado = factura.invoice_status?.toLowerCase();
       } else if (hasPermission("Ver todas las facturas de un usuario")) {
-        estado = factura.status?.toLowerCase();
+        estado = factura.invoice_status?.toLowerCase();
       }
 
       if (estado === "pendiente") {
@@ -808,7 +808,7 @@ const Billing = () => {
       if (hasPermission("Ver todas las facturas")) {
         estado = factura.invoice_status?.toLowerCase();
       } else if (hasPermission("Ver todas las facturas de un usuario")) {
-        estado = factura.status?.toLowerCase();
+        estado = factura.invoice_status?.toLowerCase();
       }
       if (estado === "pendiente") cantidadPorEstado.pendiente += 1;
       else if (estado === "pagada") cantidadPorEstado.pagada += 1;
@@ -1160,7 +1160,7 @@ const Billing = () => {
               </div>
             </div>
           )}
-          {renderCharts()}
+          <div className="container-cont">{renderCharts()}</div>
           <div className="container-search">
             <Search onSearch={setSearchTerm} buttonDisabled={buttonDisabled} />
             <Filter
