@@ -126,112 +126,123 @@ const Transaction = () => {
     },
   };
 
-  const handleButtonClick = async (buttonText) => {
-    if (buttonText === "Descargar reporte") {
-      try {
-        setLoadingReport("is-loading");
+const handleButtonClick = async (buttonText) => {
+  if (buttonText === "Descargar reporte") {
+    try {
+      setLoadingReport("is-loading");
 
-        // Verificar si tenemos todas las referencias
-        if (
-          !barContainerRef.current ||
-          !donutContainerRef.current ||
-          !cardsContainerRef.current
-        ) {
-          console.error(
-            "No se pudo obtener alguna de las referencias necesarias"
-          );
-          setLoadingReport("");
-          return;
-        }
-
-        // 1. Obtener datos de empresa y ubicación
-        const response = await axios.get(
-          import.meta.env.VITE_URI_BACKEND +
-            import.meta.env.VITE_ROUTE_BACKEND_COMPANY
+      // Verificar si tenemos todas las referencias
+      if (
+        !barContainerRef.current ||
+        !donutContainerRef.current ||
+        !cardsContainerRef.current
+      ) {
+        console.error(
+          "No se pudo obtener alguna de las referencias necesarias"
         );
-        const companyData = response.data.data;
-
-        const locationData = await fetchLocationNames(
-          companyData.country,
-          companyData.state,
-          companyData.city
-        );
-
-        const response_2 = await axios.get(
-          import.meta.env.VITE_URI_BACKEND +
-            import.meta.env.VITE_ROUTE_BACKEND_USERS +
-            decodedToken.id
-        );
-        const userData = response_2.data.data[0];
-
-        // Capturar las imágenes de los componentes
-        const html2canvas = (await import("html2canvas")).default;
-
-        // Capturar el contenedor de la gráfica de barras
-        const barCanvas = await html2canvas(barContainerRef.current, {
-          scale: 2,
-          useCORS: true,
-          logging: false,
-          backgroundColor: null,
-        });
-        const barImage = barCanvas.toDataURL("image/png");
-
-        // Capturar el contenedor de la gráfica de dona
-        const donutCanvas = await html2canvas(donutContainerRef.current, {
-          scale: 2,
-          useCORS: true,
-          logging: false,
-          backgroundColor: null,
-        });
-        const donutImage = donutCanvas.toDataURL("image/png");
-        // Capturar el contenedor de tarjetas de resumen
-        const cardsCanvas = await html2canvas(cardsContainerRef.current, {
-          scale: 2,
-          useCORS: true,
-          logging: false,
-          backgroundColor: null,
-        });
-        const cardsImage = cardsCanvas.toDataURL("image/png");
-
-        // Preparar los datos de las imágenes con sus proporciones
-        const imagesData = {
-          cards: {
-            image: cardsImage,
-            aspectRatio: cardsCanvas.width / cardsCanvas.height,
-          },
-          bar: {
-            image: barImage,
-            aspectRatio: barCanvas.width / barCanvas.height,
-          },
-          donut: {
-            image: donutImage,
-            aspectRatio: donutCanvas.width / donutCanvas.height,
-          },
-        };
-
-        // 3. Generar reporte con los datos obtenidos
-        generateReportWithCharts(
-          filteredData,
-          toTitleCase,
-          () => setLoadingReport(""),
-          companyData,
-          locationData,
-          userData,
-          imagesData
-        );
-      } catch (error) {
-        console.log(error);
-        setTitleMessage?.("Error al generar el reporte");
-        setMessage?.(
-          `No se pudo generar el reporte debido a un problema con el servidor.
-          \n Por favor, Inténtelo de nuevo más tarde.`
-        );
-        setStatus?.("is-false");
-        setShowMessage?.(true);
         setLoadingReport("");
+        return;
       }
+
+      // 1. Obtener datos de empresa y ubicación
+      const response = await axios.get(
+        import.meta.env.VITE_URI_BACKEND +
+          import.meta.env.VITE_ROUTE_BACKEND_COMPANY
+      );
+      const companyData = response.data.data;
+
+      const locationData = await fetchLocationNames(
+        companyData.country,
+        companyData.state,
+        companyData.city
+      );
+
+      const response_2 = await axios.get(
+        import.meta.env.VITE_URI_BACKEND +
+          import.meta.env.VITE_ROUTE_BACKEND_USERS +
+          decodedToken.id
+      );
+      const userData = response_2.data.data[0];
+
+      // Capturar las imágenes de los componentes
+      const html2canvas = (await import("html2canvas")).default;
+
+      // SOLUCIÓN: Configuración mejorada para html2canvas
+      const captureOptions = {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: null,
+        // Añadir estas opciones para mejor compatibilidad móvil
+        windowWidth: 1200, // Forzar un ancho de ventana consistente
+        windowHeight: 800,
+        // Importante: estas opciones ayudan en dispositivos móviles
+        onclone: (clonedElement) => {
+          // Buscar el canvas dentro del elemento clonado
+          const canvas = clonedElement.querySelector('canvas');
+          if (canvas && canvas.parentElement) {
+            // Asegurar que el padre directo del canvas tenga 100% de ancho
+            canvas.parentElement.style.width = '100%';
+            
+            // Asegurar que el canvas mismo ocupe el 100% de su padre
+            canvas.style.display = 'block';
+            canvas.style.width = '100%';
+            canvas.style.height = '100%';
+          }
+        }
+      };
+
+      // Capturar el contenedor de la gráfica de barras
+      const barCanvas = await html2canvas(barContainerRef.current, captureOptions);
+      const barImage = barCanvas.toDataURL("image/png", 1.0);
+
+      // Capturar el contenedor de la gráfica de dona
+      const donutCanvas = await html2canvas(donutContainerRef.current, captureOptions);
+      const donutImage = donutCanvas.toDataURL("image/png", 1.0);
+      
+      // Capturar el contenedor de tarjetas de resumen
+      const cardsCanvas = await html2canvas(cardsContainerRef.current, captureOptions);
+      const cardsImage = cardsCanvas.toDataURL("image/png", 1.0);
+
+      // Preparar los datos de las imágenes con sus proporciones
+      const imagesData = {
+        cards: {
+          image: cardsImage,
+          aspectRatio: cardsCanvas.width / cardsCanvas.height,
+        },
+        bar: {
+          image: barImage,
+          aspectRatio: barCanvas.width / barCanvas.height,
+        },
+        donut: {
+          image: donutImage,
+          aspectRatio: donutCanvas.width / donutCanvas.height,
+        },
+      };
+
+      // 3. Generar reporte con los datos obtenidos
+      generateReportWithCharts(
+        filteredData,
+        toTitleCase,
+        () => setLoadingReport(""),
+        companyData,
+        locationData,
+        userData,
+        imagesData
+      );
+    } catch (error) {
+      console.log(error);
+      setTitleMessage?.("Error al generar el reporte");
+      setMessage?.(
+        `No se pudo generar el reporte debido a un problema con el servidor.
+        \n Por favor, Inténtelo de nuevo más tarde.`
+      );
+      setStatus?.("is-false");
+      setShowMessage?.(true);
+      setLoadingReport("");
     }
-  };
+  }
+};
 
   const tabs = [
     {
@@ -642,47 +653,75 @@ const Transaction = () => {
   };
 
   // Opciones para el gráfico de barras
-  const getBarOptions = () => {
-    return {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          display: false,
+const getBarOptions = () => {
+  return {
+    responsive: true,
+    maintainAspectRatio: false,
+    // NUEVO: Deshabilitar animaciones para captura más consistente
+    animation: {
+      duration: 0
+    },
+    plugins: {
+      legend: {
+        display: false,
+        labels: {
+          font: { family: "Roboto" }
+        }
+      },
+      title: {
+        display: true,
+        text:
+          yearFilter !== "ALL"
+            ? `Transacciones por mes (${yearFilter})`
+            : "Transacciones por mes (Todos los años)",
+        font: {
+          size: 14,
+          family: "Roboto",
+        },
+      },
+      tooltip: {
+        bodyFont: { family: "Roboto" },
+        titleFont: { family: "Roboto" }
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        stacked: true,
+        ticks: {
+          beginAtZero: true,
+          font: { family: "Roboto" }
         },
         title: {
           display: true,
-          text:
-            yearFilter !== "ALL"
-              ? `Transacciones por mes (${yearFilter})`
-              : "Transacciones por mes (Todos los años)",
-          font: {
-            size: 14,
-          },
+          text: "Cantidad de transacciones",
+          font: { family: "Roboto" }
         },
       },
-      scales: {
-        y: {
-          beginAtZero: true,
-          stacked: true,
-          ticks: {
-            beginAtZero: true,
-          },
-          title: {
-            display: true,
-            text: "Cantidad de transacciones",
-          },
+      x: {
+        stacked: true,
+        title: {
+          display: true,
+          text: "Mes",
+          font: { family: "Roboto" }
         },
-        x: {
-          stacked: true,
-          title: {
-            display: true,
-            text: "Mes",
-          },
-        },
+        ticks: {
+          font: { family: "Roboto" }
+        }
       },
-    };
+    },
+    // NUEVO: Configuración para mejor renderizado en dispositivos móviles
+    devicePixelRatio: 2,
+    layout: {
+      padding: {
+        left: 0,
+        right: 0,
+        top: 0,
+        bottom: 0
+      }
+    }
   };
+};
 
   // Función para generar datos del gráfico circular (donut)
   const getDonutChartData = () => {
@@ -734,21 +773,28 @@ const Transaction = () => {
   };
 
   // Opciones para el gráfico circular
-  const getDonutOptions = () => {
-    return {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          display: false,
-        },
-        title: {
-          display: false,
-        },
+const getDonutOptions = () => {
+  return {
+    responsive: true,
+    maintainAspectRatio: false,
+    // NUEVO: Deshabilitar animaciones
+    animation: {
+      duration: 0
+    },
+    plugins: {
+      legend: {
+        display: false,
       },
-      cutout: "80%",
-    };
+      title: {
+        display: false,
+      },
+    },
+    cutout: "80%",
+    // NUEVO: Configuración para mejor renderizado
+    devicePixelRatio: 2
   };
+};
+
 
   // Calcular el total de transacciones
   const calcularMontoTotal = () => {
@@ -817,7 +863,7 @@ const Transaction = () => {
                   </div>
                 </div>
               </div>
-              <div style={{ height: "300px" }}>
+              <div style={{ height: "300px", width: "100%" }}>
                 <Bar data={getBarChartData()} options={getBarOptions()} />
               </div>
             </div>
@@ -1209,9 +1255,9 @@ const generateReportWithCharts = (
 
   doc.setTextColor(0, 0, 0);
   doc.setFont("Roboto", "bold");
-  doc.setFontSize(12); // Puedes ajustar el tamaño del título
+  doc.setFontSize(12);
   doc.text("Resumen de transacciones", margin, currentY);
-  currentY += 6; // Espacio después del título
+  currentY += 6;
 
   doc.setTextColor(94, 100, 112);
   doc.setFont("Roboto", "normal");
@@ -1222,43 +1268,59 @@ const generateReportWithCharts = (
     margin,
     currentY
   );
-  currentY += 8; // Espacio después del texto de cantidad
+  currentY += 8;
 
-  // Añadir las tarjetas de resumen
+  // CAMBIOS APLICADOS: Configuración de dimensiones con límites máximos
   const pdfWidth = doc.internal.pageSize.getWidth();
-  const availableWidthForCards = pdfWidth - 2 * margin; // Renombrado para claridad
+  const availableWidth = pdfWidth - 2 * margin;
 
-  // Asegúrate de que imagesData.cards y sus propiedades existen antes de usarlas
+  // Añadir las tarjetas de resumen con límite de altura
   if (
     imagesData.cards &&
     imagesData.cards.image &&
     imagesData.cards.aspectRatio
   ) {
+    const maxCardsHeight = 40; // Altura máxima para las tarjetas
     const cardsAspectRatio = imagesData.cards.aspectRatio;
-    const cardsWidth = availableWidthForCards;
-    const cardsHeight = cardsWidth / cardsAspectRatio;
+    let cardsWidth = availableWidth;
+    let cardsHeight = cardsWidth / cardsAspectRatio;
 
-    doc.addImage(
-      imagesData.cards.image,
-      "PNG",
-      margin,
-      currentY,
-      cardsWidth,
-      cardsHeight
-    );
-    currentY += cardsHeight + 7; // Actualizar Y para las gráficas, con un poco más de espacio
+    // Si la altura calculada es muy grande, limitarla
+    if (cardsHeight > maxCardsHeight) {
+      cardsHeight = maxCardsHeight;
+      cardsWidth = cardsHeight * cardsAspectRatio;
+      // Centrar horizontalmente si el ancho es menor que el disponible
+      const xOffset = (availableWidth - cardsWidth) / 2;
+      doc.addImage(
+        imagesData.cards.image,
+        "PNG",
+        margin + xOffset,
+        currentY,
+        cardsWidth,
+        cardsHeight
+      );
+    } else {
+      doc.addImage(
+        imagesData.cards.image,
+        "PNG",
+        margin,
+        currentY,
+        cardsWidth,
+        cardsHeight
+      );
+    }
+    currentY += cardsHeight + 7;
   } else {
     console.error(
       "Datos de imagen de tarjetas no encontrados o incompletos en imagesData."
     );
   }
 
-  // Añadir las gráficas al PDF
-  const graphsStartY = currentY; // Usar la Y actualizada
-  const fixedHeight = 75; // Altura fija en mm para las gráficas (puedes ajustar)
-  const availableWidthForGraphs = pdfWidth - 2 * margin;
+  // CAMBIOS APLICADOS: Control de dimensiones para las gráficas
+  const graphsStartY = currentY;
+  const maxGraphHeight = 70; // Altura máxima para las gráficas
+  const spaceBetween = 10;
 
-  // Asegúrate de que imagesData.bar y imagesData.donut y sus propiedades existen
   if (
     imagesData.bar &&
     imagesData.bar.image &&
@@ -1267,82 +1329,56 @@ const generateReportWithCharts = (
     imagesData.donut.image &&
     imagesData.donut.aspectRatio
   ) {
-    const barImgWidth = fixedHeight * imagesData.bar.aspectRatio;
-    const donutImgWidth = fixedHeight * imagesData.donut.aspectRatio;
-    const spaceBetween = 10;
-    const totalGraphWidth = barImgWidth + spaceBetween + donutImgWidth;
+    // Calcular dimensiones óptimas para las gráficas
+    let barHeight = maxGraphHeight;
+    let barWidth = barHeight * imagesData.bar.aspectRatio;
+    
+    let donutHeight = maxGraphHeight;
+    let donutWidth = donutHeight * imagesData.donut.aspectRatio;
 
-    if (totalGraphWidth <= availableWidthForGraphs) {
-      const startX = margin + (availableWidthForGraphs - totalGraphWidth) / 2;
-      doc.addImage(
-        imagesData.bar.image,
-        "PNG",
-        startX,
-        graphsStartY,
-        barImgWidth,
-        fixedHeight
-      );
-      doc.addImage(
-        imagesData.donut.image,
-        "PNG",
-        startX + barImgWidth + spaceBetween,
-        graphsStartY,
-        donutImgWidth,
-        fixedHeight
-      );
-    } else {
-      const scaleFactor =
-        availableWidthForGraphs / (totalGraphWidth + spaceBetween); // Un intento de ajuste
-      let adjustedBarWidth = barImgWidth * scaleFactor;
-      let adjustedDonutWidth = donutImgWidth * scaleFactor;
-
-      // Asegurar que el aspect ratio se mantenga
-      let adjustedBarHeight = adjustedBarWidth / imagesData.bar.aspectRatio;
-      let adjustedDonutHeight =
-        adjustedDonutWidth / imagesData.donut.aspectRatio;
-
-      // Si la altura ajustada es mayor que fixedHeight, reescalar por altura
-      if (adjustedBarHeight > fixedHeight) {
-        adjustedBarHeight = fixedHeight;
-        adjustedBarWidth = adjustedBarHeight * imagesData.bar.aspectRatio;
-      }
-      if (adjustedDonutHeight > fixedHeight) {
-        adjustedDonutHeight = fixedHeight;
-        adjustedDonutWidth = adjustedDonutHeight * imagesData.donut.aspectRatio;
-      }
-
-      const actualTotalGraphWidth =
-        adjustedBarWidth + spaceBetween + adjustedDonutWidth;
-      const startX =
-        margin + (availableWidthForGraphs - actualTotalGraphWidth) / 2;
-
-      doc.addImage(
-        imagesData.bar.image,
-        "PNG",
-        startX,
-        graphsStartY,
-        adjustedBarWidth,
-        adjustedBarHeight
-      );
-      doc.addImage(
-        imagesData.donut.image,
-        "PNG",
-        startX + adjustedBarWidth + spaceBetween,
-        graphsStartY,
-        adjustedDonutWidth,
-        adjustedDonutHeight
-      );
+    // Verificar si caben lado a lado
+    const totalWidth = barWidth + spaceBetween + donutWidth;
+    
+    if (totalWidth > availableWidth) {
+      // Escalar proporcionalmente para que quepan
+      const scaleFactor = availableWidth / totalWidth;
+      barWidth *= scaleFactor;
+      barHeight *= scaleFactor;
+      donutWidth *= scaleFactor;
+      donutHeight *= scaleFactor;
     }
-    currentY = graphsStartY + fixedHeight + 10;
+
+    // Centrar el conjunto de gráficas
+    const startX = margin + (availableWidth - (barWidth + spaceBetween + donutWidth)) / 2;
+
+    // Añadir las gráficas con las dimensiones controladas
+    doc.addImage(
+      imagesData.bar.image,
+      "PNG",
+      startX,
+      graphsStartY,
+      barWidth,
+      barHeight
+    );
+
+    doc.addImage(
+      imagesData.donut.image,
+      "PNG",
+      startX + barWidth + spaceBetween,
+      graphsStartY,
+      donutWidth,
+      donutHeight
+    );
+    
+    currentY = graphsStartY + Math.max(barHeight, donutHeight) + 10;
   } else {
     console.error(
       "Datos de imagen de gráficos (barra o dona) no encontrados o incompletos en imagesData."
     );
-    // currentY se mantiene, la tabla empezará después del espacio de las tarjetas
-    currentY += 10; // Añadir un pequeño espacio si los gráficos fallan
+    currentY += 10;
   }
 
-  // Calcular la posición Y para la tabla después de las gráficas
+  // Calcular la posición Y para la tabla
   const tableStartY = currentY;
 
   autoTable(doc, {
@@ -1389,7 +1425,7 @@ const generateReportWithCharts = (
     },
   });
 
-  //Pie de pagina
+  // Pie de página con logo
   doc.addImage(
     Icon,
     "PNG",
