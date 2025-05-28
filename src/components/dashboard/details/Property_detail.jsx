@@ -631,32 +631,6 @@ const Property_detail = () => {
     }
   };
 
-  const handleTabChange = (tab) => setActiveOption(tab);
-
-  const renderContent = () => {
-    switch (activeOption) {
-      case "lot":
-        return (
-          <Lot
-            id={id}
-            dataLots={dataLots}
-            loadingTable={loadingTable}
-            setIdRow={setIdRow}
-            setTitle={setTitle}
-            setShowEdit={setShowEdit}
-            setShowEditUser={setShowEditUser}
-            setShowChangeStatus={setShowChangeStatus}
-            setConfirMessage={setConfirMessage}
-            setTypeForm={setTypeForm}
-            route={route}
-          />
-        );
-
-      default:
-        return null;
-    }
-  };
-
   return (
     <>
       <Head
@@ -954,22 +928,22 @@ const Property_detail = () => {
               onButtonClick={handleButtonClick}
               loading={loading}
             />
-            <div className="tabs is-boxed">
-              <ul className="mt-0">
-                {["lot", "iot"].map((tab) => (
-                  <li
-                    key={tab}
-                    className={activeOption === tab ? "is-active" : ""}
-                  >
-                    <a onClick={() => handleTabChange(tab)}>
-                      {tab === "lot" && "Lotes Vinculados"}
-                      {tab === "iot" && "Dispositivos de energía"}
-                    </a>
-                  </li>
-                ))}
-              </ul>
+
+            <div>
+              <Lot
+                id={id}
+                dataLots={dataLots}
+                loadingTable={loadingTable}
+                setIdRow={setIdRow}
+                setTitle={setTitle}
+                setShowEdit={setShowEdit}
+                setShowEditUser={setShowEditUser}
+                setShowChangeStatus={setShowChangeStatus}
+                setConfirMessage={setConfirMessage}
+                setTypeForm={setTypeForm}
+                route={route}
+              />
             </div>
-            <div>{renderContent()}</div>
           </div>
         </>
       )}
