@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import html2canvas from "html2canvas";
 import axios from "axios";
 import useUserPermissions from "../../hooks/useUserPermissions";
 import Head from "./reusable/Head";
@@ -91,7 +92,8 @@ const Consumption = () => {
   const [availableMonths, setAvailableMonths] = useState([]);
   const [selectedMonth, setSelectedMonth] = useState(null);
   const [projectedMonthlyAvg, setProjectedMonthlyAvg] = useState({});
-  const barContainerRef = useRef(null); // gráfica de barrass
+  const barContainerRef = useRef(null);
+  const summaryContainerRef = useRef(null);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -124,7 +126,6 @@ const Consumption = () => {
       try {
         setLoadingReport("is-loading");
 
-        // 1. Obtener datos de empresa y ubicación
         const response = await axios.get(
           import.meta.env.VITE_URI_BACKEND +
             import.meta.env.VITE_ROUTE_BACKEND_COMPANY
@@ -144,19 +145,51 @@ const Consumption = () => {
         );
         const userData = response_2.data.data[0];
 
-        // 3. Generar reporte con los datos obtenidos
         if (hasPermission("Generar reporte de todos los consumos")) {
+          if (!barContainerRef.current || !summaryContainerRef.current) {
+            console.error(
+              "No se pudo obtener alguna de las referencias necesarias para los gráficos"
+            );
+            setLoadingReport("");
+            return;
+          }
+
+          const captureOptions = {
+            scale: 2,
+            useCORS: true,
+            logging: false,
+            backgroundColor: null,
+            windowWidth: 1200,
+            windowHeight: 800,
+          };
+
+          const barCanvas = await html2canvas(barContainerRef.current, captureOptions);
+          const barImage = barCanvas.toDataURL("image/png", 1.0);
+
+          const summaryCanvas = await html2canvas(summaryContainerRef.current, captureOptions);
+          const summaryImage = summaryCanvas.toDataURL("image/png", 1.0);
+
+          const imagesData = {
+            bar: {
+              image: barImage,
+              aspectRatio: barCanvas.width / barCanvas.height,
+            },
+            summary: {
+              image: summaryImage,
+              aspectRatio: summaryCanvas.width / summaryCanvas.height,
+            },
+          };
+
           generateReport(
             filteredData,
             toTitleCase,
             () => setLoadingReport(""),
             companyData,
             locationData,
-            userData
+            userData,
+            imagesData
           );
-        } else {
-          if (hasPermission("Generar reporte de un consumo de usuario")) {
-          }
+        } else if (hasPermission("Generar reporte de un consumo de usuario")) {
           generateReportByUser(
             filteredData,
             toTitleCase,
@@ -249,15 +282,13 @@ const Consumption = () => {
         const dateA = new Date(a.measurement_date);
         const dateB = new Date(b.measurement_date);
 
-        // Comparar solo año-mes-día
         const dateStrA = dateA.toISOString().split("T")[0];
         const dateStrB = dateB.toISOString().split("T")[0];
 
         if (dateStrA !== dateStrB) {
-          return dateStrB.localeCompare(dateStrA); // fecha descendente
+          return dateStrB.localeCompare(dateStrA);
         }
 
-        // Si la fecha es igual (ignorando hora), ordenar por measurement_id descendente
         return b.measurement_id - a.measurement_id;
       });
 
@@ -285,15 +316,13 @@ const Consumption = () => {
         const dateA = new Date(a.measurement_date);
         const dateB = new Date(b.measurement_date);
 
-        // Comparar solo año-mes-día
         const dateStrA = dateA.toISOString().split("T")[0];
         const dateStrB = dateB.toISOString().split("T")[0];
 
         if (dateStrA !== dateStrB) {
-          return dateStrB.localeCompare(dateStrA); // fecha descendente
+          return dateStrB.localeCompare(dateStrA);
         }
 
-        // Si la fecha es igual (ignorando hora), ordenar por measurement_id descendente
         return b.measurement_id - a.measurement_id;
       });
 
@@ -406,50 +435,43 @@ const Consumption = () => {
 
   useEffect(() => {
     if (data.length > 0) {
-      // Extraer años únicos
       const years = [
         ...new Set(
           data
-            .filter((item) => item.measurement_date) // Filtrar elementos sin fecha
+            .filter((item) => item.measurement_date)
             .map((item) => {
               const parts = item.measurement_date.split("-");
               return parseInt(parts[0], 10);
             })
         ),
-      ].sort((a, b) => b - a); // Ordenar de mayor a menor
+      ].sort((a, b) => b - a);
 
       setAvailableYears(years);
 
-      // Seleccionar el año más reciente por defecto
       if (years.length > 0 && !selectedYear) {
         setSelectedYear(years[0]);
       }
     }
   }, [data]);
 
-  // Actualizar meses disponibles cuando cambia el año seleccionado
   useEffect(() => {
     if (selectedYear && data.length > 0) {
-      // Filtrar facturas del año seleccionado
       const facturasPorAnio = data.filter((item) => {
         if (!item.measurement_date) return false;
         const parts = item.measurement_date.split("-");
         return parseInt(parts[0], 10) === selectedYear;
       });
 
-      // Extraer meses únicos con datos
       const monthsWithData = [
         ...new Set(
           facturasPorAnio.map((item) => {
             const parts = item.measurement_date.split("-");
-            return parseInt(parts[1], 10); // El mes está en la posición 1 (formato YYYY-MM-DD)
+            return parseInt(parts[1], 10);
           })
         ),
-      ].sort((a, b) => a - b); // Ordenar de menor a mayor
+      ].sort((a, b) => a - b);
 
-      // Crear objetos de meses con su número y nombre para el selector
       const monthObjects = monthsWithData.map((monthNum) => {
-        // Crear una fecha con el mes para obtener su nombre
         const date = new Date(selectedYear, monthNum - 1, 1);
         return {
           number: monthNum,
@@ -460,11 +482,8 @@ const Consumption = () => {
 
       setAvailableMonths(monthObjects);
 
-      // Seleccionar el mes más reciente por defecto
       if (monthObjects.length > 0) {
-        // Si no hay mes seleccionado o el seleccionado no está en los disponibles
         if (!selectedMonth || !monthsWithData.includes(selectedMonth.number)) {
-          // Ordenar por fecha para encontrar el más reciente
           const sortedFacturas = [...facturasPorAnio].sort(
             (a, b) =>
               new Date(b.measurement_date) - new Date(a.measurement_date)
@@ -488,13 +507,12 @@ const Consumption = () => {
   const averageMonthlyConsumption = useMemo(() => {
     if (!data.length || !selectedYear) return 0;
 
-    // Agrupar consumos por mes del año seleccionado
     const consumosPorMes = {};
 
     data.forEach((item) => {
       const date = new Date(item.measurement_date);
       const year = date.getFullYear();
-      const month = date.getMonth(); // 0-indexed
+      const month = date.getMonth();
 
       if (year === selectedYear) {
         if (!consumosPorMes[month]) {
@@ -509,14 +527,12 @@ const Consumption = () => {
       }
     });
 
-    // Calcular promedio mensual para cada mes con datos
     const monthlyAverages = Object.values(consumosPorMes).map(
       (mes) => mes.total / mes.count
     );
 
     if (!monthlyAverages.length) return 0;
 
-    // Promedio de todos los promedios mensuales
     const totalPromedios = monthlyAverages.reduce((sum, val) => sum + val, 0);
     const promedioFinal = totalPromedios / monthlyAverages.length;
 
@@ -588,17 +604,15 @@ const Consumption = () => {
     );
   }, [averageProjectedConsumption, averageMonthlyConsumption]);
 
-  // Función para generar datos del gráfico de barras basados en el año seleccionado
   const getBarChartData = () => {
     if (!selectedYear) return { labels: [], datasets: [] };
 
-    // Agrupar consumos por mes para el año seleccionado
     const consumosPorMes = {};
 
     data.forEach((item) => {
       const date = new Date(item.measurement_date);
       const year = date.getFullYear();
-      const month = date.getMonth(); // 0-based
+      const month = date.getMonth();
 
       if (year === selectedYear) {
         const key = month;
@@ -643,7 +657,6 @@ const Consumption = () => {
     };
   };
 
-  // Opciones para el gráfico de barras
   const getBarOptions = () => {
     return {
       responsive: true,
@@ -664,7 +677,7 @@ const Consumption = () => {
             title: (tooltipItems) => {
               const monthIndex = tooltipItems[0].dataIndex;
               const date = new Date(selectedYear, monthIndex, 1);
-              const fullMonth = format(date, "MMMM", { locale: es }); // ej: "abril"
+              const fullMonth = format(date, "MMMM", { locale: es });
               return toTitleCase(fullMonth);
             },
             label: (tooltipItem) => {
@@ -749,7 +762,6 @@ const Consumption = () => {
                     </div>
                   </div>
 
-                  {/* Selector de años */}
                   <div className="select is-small">
                     <select
                       value={selectedYear || ""}
@@ -773,7 +785,7 @@ const Consumption = () => {
             </div>
           </div>
           <div className="column is-flex is-flex-direction-column">
-            <div className="rol-detail">
+            <div className="rol-detail" ref={summaryContainerRef}>
               <p className="has-text-weight-bold">
                 Detalles del año {selectedYear}
               </p>
@@ -912,19 +924,17 @@ const generateReport = (
   onFinish,
   companyData,
   locationNames,
-  userData
+  userData,
+  imagesData
 ) => {
   const doc = new jsPDF("landscape");
 
-  // Add Roboto font to the document
   doc.addFont(RobotoNormalFont, "Roboto", "normal");
   doc.addFont(RobotoBoldFont, "Roboto", "bold");
 
-  //colorear fondo
   doc.setFillColor(243, 242, 247);
-  doc.rect(0, 0, 300, 53, "F"); // Colorear una parte de la página
+  doc.rect(0, 0, 300, 53, "F");
 
-  // Agregar logo
   doc.addImage(Icon, "PNG", 246, 10, 39, 11);
 
   doc.setTextColor(0, 0, 0);
@@ -934,16 +944,18 @@ const generateReport = (
   doc.setFontSize(11);
   doc.text(`Fecha de generación:`, 12, 27);
   doc.text(`Generado por:`, 12, 39);
-  /*doc.setTextColor(94, 100, 112);*/
-  doc.text("Consumos actuales en el sistema", 12, 63);
 
   doc.setTextColor(94, 100, 112);
   doc.setFont("Roboto", "normal");
   doc.setFontSize(10);
   doc.text(`${new Date().toLocaleString()}`, 12, 32);
   doc.text(
-    [userData?.name, userData?.first_last_name, userData?.second_last_name]
-      .filter(Boolean) // Elimina null, undefined y strings vacíos
+    [
+      toTitleCase(userData?.name),
+      toTitleCase(userData?.first_last_name),
+      toTitleCase(userData?.second_last_name),
+    ]
+      .filter(Boolean)
       .join(" "),
     12,
     44
@@ -964,13 +976,63 @@ const generateReport = (
     32,
     { align: "right" }
   );
-
   doc.text(`${companyData.email}`, 285, 44, { align: "right" });
+
+  doc.setTextColor(0, 0, 0);
+  doc.setFont("Roboto", "bold");
+  doc.text("Resumen de consumo", 12, 63);
+  doc.setTextColor(94, 100, 112);
+  doc.setFont("Roboto", "normal");
   doc.text(`Cantidad de consumos: ${filteredData.length}`, 12, 68);
 
-  // Resto de cosas del PDF
+  const margin = 12;
+  const pdfWidth = doc.internal.pageSize.getWidth();
+  const availableWidth = pdfWidth - 2 * margin;
+  const graphsStartY = 72;
+  const maxGraphHeight = 70;
+  const spaceBetween = 10;
+
+  let barHeight = maxGraphHeight;
+  let barWidth = barHeight * imagesData.bar.aspectRatio;
+
+  let summaryHeight = maxGraphHeight;
+  let summaryWidth = summaryHeight * imagesData.summary.aspectRatio;
+
+  const totalWidth = barWidth + spaceBetween + summaryWidth;
+
+  if (totalWidth > availableWidth) {
+    const scaleFactor = availableWidth / totalWidth;
+    barWidth *= scaleFactor;
+    barHeight *= scaleFactor;
+    summaryWidth *= scaleFactor;
+    summaryHeight *= scaleFactor;
+  }
+
+  const startX =
+    margin + (availableWidth - (barWidth + spaceBetween + summaryWidth)) / 2;
+
+  doc.addImage(
+    imagesData.bar.image,
+    "PNG",
+    startX,
+    graphsStartY,
+    barWidth,
+    barHeight
+  );
+
+  doc.addImage(
+    imagesData.summary.image,
+    "PNG",
+    startX + barWidth + spaceBetween,
+    graphsStartY,
+    summaryWidth,
+    summaryHeight
+  );
+
+  const tableStartY = graphsStartY + Math.max(barHeight, summaryHeight) + 10;
+
   autoTable(doc, {
-    startY: 80,
+    startY: tableStartY,
     margin: { left: 12 },
     head: [
       [
@@ -990,7 +1052,6 @@ const generateReport = (
       bill["Fecha de lectura"],
       bill["Consumo registrado (m³)"],
     ]),
-
     theme: "grid",
     headStyles: {
       fillColor: [252, 252, 253],
@@ -998,11 +1059,11 @@ const generateReport = (
       fontStyle: "bold",
       lineColor: [234, 236, 240],
       lineWidth: 0.5,
-      font: "Roboto", // Add Roboto font to table headers
+      font: "Roboto",
     },
     bodyStyles: {
       textColor: [89, 89, 89],
-      font: "Roboto", // Add Roboto font to table body
+      font: "Roboto",
     },
     styles: {
       fontSize: 10,
@@ -1011,16 +1072,13 @@ const generateReport = (
     },
   });
 
-  //Pie de pagina
   doc.addImage(Icon, "PNG", 12, 190, 32, 9);
 
-  // Agregar numeración de páginas en el pie de página
   const pageCount = doc.internal.getNumberOfPages();
   for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i);
     doc.setFontSize(10);
-
-    doc.setFont("Roboto", "normal"); // Set Roboto font for page numbers
+    doc.setFont("Roboto", "normal");
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
     doc.text(`Página ${i}/${pageCount}`, pageWidth - 10, pageHeight - 10, {
@@ -1028,13 +1086,9 @@ const generateReport = (
     });
   }
 
-  // Convertir el PDF a un Blob
   const pdfBlob = doc.output("blob");
-
-  // Crear una URL del Blob
   const pdfUrl = URL.createObjectURL(pdfBlob);
 
-  // Abrir el PDF en una nueva pestaña
   setTimeout(() => {
     window.open(pdfUrl, "_blank");
     onFinish();
@@ -1051,15 +1105,12 @@ const generateReportByUser = (
 ) => {
   const doc = new jsPDF("landscape");
 
-  // Add Roboto font to the document
   doc.addFont(RobotoNormalFont, "Roboto", "normal");
   doc.addFont(RobotoBoldFont, "Roboto", "bold");
 
-  //colorear fondo
   doc.setFillColor(243, 242, 247);
-  doc.rect(0, 0, 300, 53, "F"); // Colorear una parte de la página
+  doc.rect(0, 0, 300, 53, "F");
 
-  // Agregar logo
   doc.addImage(Icon, "PNG", 246, 10, 39, 11);
 
   doc.setTextColor(0, 0, 0);
@@ -1069,7 +1120,6 @@ const generateReportByUser = (
   doc.setFontSize(11);
   doc.text(`Fecha de generación:`, 12, 27);
   doc.text(`Generado por:`, 12, 39);
-  /*doc.setTextColor(94, 100, 112);*/
   doc.text("Consumos actuales", 12, 63);
 
   doc.setTextColor(94, 100, 112);
@@ -1077,8 +1127,12 @@ const generateReportByUser = (
   doc.setFontSize(10);
   doc.text(`${new Date().toLocaleString()}`, 12, 32);
   doc.text(
-    [userData?.name, userData?.first_last_name, userData?.second_last_name]
-      .filter(Boolean) // Elimina null, undefined y strings vacíos
+    [
+      toTitleCase(userData?.name),
+      toTitleCase(userData?.first_last_name),
+      toTitleCase(userData?.second_last_name),
+    ]
+      .filter(Boolean)
       .join(" "),
     12,
     44
@@ -1103,7 +1157,6 @@ const generateReportByUser = (
   doc.text(`${companyData.email}`, 285, 44, { align: "right" });
   doc.text(`Cantidad de consumos: ${filteredData.length}`, 12, 68);
 
-  // Resto de cosas del PDF
   autoTable(doc, {
     startY: 80,
     margin: { left: 12 },
@@ -1123,7 +1176,6 @@ const generateReportByUser = (
       bill["Fecha de lectura"],
       bill["Consumo registrado (m³)"],
     ]),
-
     theme: "grid",
     headStyles: {
       fillColor: [252, 252, 253],
@@ -1131,11 +1183,11 @@ const generateReportByUser = (
       fontStyle: "bold",
       lineColor: [234, 236, 240],
       lineWidth: 0.5,
-      font: "Roboto", // Add Roboto font to table headers
+      font: "Roboto",
     },
     bodyStyles: {
       textColor: [89, 89, 89],
-      font: "Roboto", // Add Roboto font to table body
+      font: "Roboto",
     },
     styles: {
       fontSize: 10,
@@ -1144,16 +1196,13 @@ const generateReportByUser = (
     },
   });
 
-  //Pie de pagina
   doc.addImage(Icon, "PNG", 12, 190, 32, 9);
 
-  // Agregar numeración de páginas en el pie de página
   const pageCount = doc.internal.getNumberOfPages();
   for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i);
     doc.setFontSize(10);
-
-    doc.setFont("Roboto", "normal"); // Set Roboto font for page numbers
+    doc.setFont("Roboto", "normal");
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
     doc.text(`Página ${i}/${pageCount}`, pageWidth - 10, pageHeight - 10, {
@@ -1161,13 +1210,9 @@ const generateReportByUser = (
     });
   }
 
-  // Convertir el PDF a un Blob
   const pdfBlob = doc.output("blob");
-
-  // Crear una URL del Blob
   const pdfUrl = URL.createObjectURL(pdfBlob);
 
-  // Abrir el PDF en una nueva pestaña
   setTimeout(() => {
     window.open(pdfUrl, "_blank");
     onFinish();
