@@ -1625,10 +1625,9 @@ const generateReportByUser = (
     margin: { left: margin },
     head: [
       [
-        "N° Factura",
-        "ID del predio",
-        "ID del lote",
-        "Número de documento",
+        "Código de la factura",
+        "Nombre del predio",
+        "Nombre del lote",
         "Intervalo de pago",
         "Fecha de emisión",
         "Fecha de vencimiento",
@@ -1637,10 +1636,9 @@ const generateReportByUser = (
       ],
     ],
     body: filteredData.map((bill) => [
-      bill["N° Factura"],
-      bill["ID del predio"],
-      bill["ID del lote"],
-      bill["Número de documento"],
+      bill["Código de la factura"],
+      bill["Nombre del predio"],
+      bill["Nombre del lote"],
       bill["Intervalo de pago"],
       bill["Fecha de emisión"],
       bill["Fecha de vencimiento"],

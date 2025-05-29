@@ -145,14 +145,27 @@ const Consumption = () => {
         const userData = response_2.data.data[0];
 
         // 3. Generar reporte con los datos obtenidos
-        generateReport(
-          filteredData,
-          toTitleCase,
-          () => setLoadingReport(""),
-          companyData,
-          locationData,
-          userData
-        );
+        if (hasPermission("Generar reporte de todos los consumos")) {
+          generateReport(
+            filteredData,
+            toTitleCase,
+            () => setLoadingReport(""),
+            companyData,
+            locationData,
+            userData
+          );
+        } else {
+          if (hasPermission("Generar reporte de un consumo de usuario")) {
+          }
+          generateReportByUser(
+            filteredData,
+            toTitleCase,
+            () => setLoadingReport(""),
+            companyData,
+            locationData,
+            userData
+          );
+        }
       } catch (error) {
         console.log(error);
         setTitleMessage?.("Error al generar el reporte");
@@ -917,7 +930,7 @@ const generateReport = (
   doc.setTextColor(0, 0, 0);
   doc.setFontSize(17);
   doc.setFont("Roboto", "bold");
-  doc.text("CONSOLIDADOS DE FACTURAS", 12, 18);
+  doc.text("CONSOLIDADOS DE CONSUMOS", 12, 18);
   doc.setFontSize(11);
   doc.text(`Fecha de generación:`, 12, 27);
   doc.text(`Generado por:`, 12, 39);
@@ -973,6 +986,139 @@ const generateReport = (
       bill["ID del predio"],
       bill["ID del lote"],
       bill["Número de documento"],
+      bill["Intervalo de pago"],
+      bill["Fecha de lectura"],
+      bill["Consumo registrado (m³)"],
+    ]),
+
+    theme: "grid",
+    headStyles: {
+      fillColor: [252, 252, 253],
+      textColor: [0, 0, 0],
+      fontStyle: "bold",
+      lineColor: [234, 236, 240],
+      lineWidth: 0.5,
+      font: "Roboto", // Add Roboto font to table headers
+    },
+    bodyStyles: {
+      textColor: [89, 89, 89],
+      font: "Roboto", // Add Roboto font to table body
+    },
+    styles: {
+      fontSize: 10,
+      cellPadding: 3,
+      lineColor: [234, 236, 240],
+    },
+  });
+
+  //Pie de pagina
+  doc.addImage(Icon, "PNG", 12, 190, 32, 9);
+
+  // Agregar numeración de páginas en el pie de página
+  const pageCount = doc.internal.getNumberOfPages();
+  for (let i = 1; i <= pageCount; i++) {
+    doc.setPage(i);
+    doc.setFontSize(10);
+
+    doc.setFont("Roboto", "normal"); // Set Roboto font for page numbers
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    doc.text(`Página ${i}/${pageCount}`, pageWidth - 10, pageHeight - 10, {
+      align: "right",
+    });
+  }
+
+  // Convertir el PDF a un Blob
+  const pdfBlob = doc.output("blob");
+
+  // Crear una URL del Blob
+  const pdfUrl = URL.createObjectURL(pdfBlob);
+
+  // Abrir el PDF en una nueva pestaña
+  setTimeout(() => {
+    window.open(pdfUrl, "_blank");
+    onFinish();
+  }, 500);
+};
+
+const generateReportByUser = (
+  filteredData,
+  toTitleCase,
+  onFinish,
+  companyData,
+  locationNames,
+  userData
+) => {
+  const doc = new jsPDF("landscape");
+
+  // Add Roboto font to the document
+  doc.addFont(RobotoNormalFont, "Roboto", "normal");
+  doc.addFont(RobotoBoldFont, "Roboto", "bold");
+
+  //colorear fondo
+  doc.setFillColor(243, 242, 247);
+  doc.rect(0, 0, 300, 53, "F"); // Colorear una parte de la página
+
+  // Agregar logo
+  doc.addImage(Icon, "PNG", 246, 10, 39, 11);
+
+  doc.setTextColor(0, 0, 0);
+  doc.setFontSize(17);
+  doc.setFont("Roboto", "bold");
+  doc.text("CONSOLIDADOS DE CONSUMOS", 12, 18);
+  doc.setFontSize(11);
+  doc.text(`Fecha de generación:`, 12, 27);
+  doc.text(`Generado por:`, 12, 39);
+  /*doc.setTextColor(94, 100, 112);*/
+  doc.text("Facturas actuales en el sistema", 12, 63);
+
+  doc.setTextColor(94, 100, 112);
+  doc.setFont("Roboto", "normal");
+  doc.setFontSize(10);
+  doc.text(`${new Date().toLocaleString()}`, 12, 32);
+  doc.text(
+    [userData?.name, userData?.first_last_name, userData?.second_last_name]
+      .filter(Boolean) // Elimina null, undefined y strings vacíos
+      .join(" "),
+    12,
+    44
+  );
+
+  doc.setTextColor(0, 0, 0);
+  doc.setFontSize(10);
+  doc.setFont("Roboto", "bold");
+  doc.text(`Dirección de la empresa:`, 285, 27, { align: "right" });
+  doc.text(`Correo electrónico de la empresa:`, 285, 39, { align: "right" });
+
+  doc.setTextColor(94, 100, 112);
+  doc.setFont("Roboto", "normal");
+  doc.setFontSize(10);
+  doc.text(
+    `${companyData.address}. ${locationNames.state}, ${locationNames.city}`,
+    285,
+    32,
+    { align: "right" }
+  );
+
+  doc.text(`${companyData.email}`, 285, 44, { align: "right" });
+  doc.text(`Cantidad de facturas: ${filteredData.length}`, 12, 68);
+
+  // Resto de cosas del PDF
+  autoTable(doc, {
+    startY: 80,
+    margin: { left: 12 },
+    head: [
+      [
+        "Nombre del predio",
+        "Nombre del lote",
+        "Intervalo de pago",
+        "Fecha de lectura",
+        "Consumo registrado (m³)",
+      ],
+    ],
+    body: filteredData.map((bill) => [
+      bill["Nombre del predio"],
+      bill["Nombre del lote"],
       bill["Intervalo de pago"],
       bill["Fecha de lectura"],
       bill["Consumo registrado (m³)"],
