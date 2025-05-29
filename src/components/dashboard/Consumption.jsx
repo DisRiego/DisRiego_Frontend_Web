@@ -989,7 +989,7 @@ const generateReport = (
   const pdfWidth = doc.internal.pageSize.getWidth();
   const availableWidth = pdfWidth - 2 * margin;
   const graphsStartY = 72;
-  const maxGraphHeight = 70;
+  const maxGraphHeight = 90;
   const spaceBetween = 10;
 
   let barHeight = maxGraphHeight;
