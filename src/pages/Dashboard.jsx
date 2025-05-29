@@ -32,6 +32,8 @@ import Transaction from "../components/dashboard/Transaction";
 import Transaction_detail from "../components/dashboard/details/Transaction_detail";
 import Consumption from "../components/dashboard/Consumption";
 import Consumption_detail from "../components/dashboard/details/Consumption_detail";
+import Audit from "../components/dashboard/Audit";
+import Audit_detail from "../components/dashboard/details/Audit_detail";
 
 const Dashboard = () => {
   const { id } = useParams();
@@ -138,6 +140,10 @@ const Dashboard = () => {
         return <Consumption />;
       case `consumptions/${id}`:
         return <Consumption_detail />;
+      case `audit`:
+        return <Audit />;
+      case `audit/${id}`:
+        return <Audit_detail />;
       case "company":
         return <Company_data />;
       case `certificate`:

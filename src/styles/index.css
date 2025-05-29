@@ -1630,3 +1630,11 @@ td > td.status-vencida td > td.status-aprobado td > td.status-rechazado {
 .graph-consumption {
   height: 100%;
 }
+
+.rol-detail > .rol-detail {
+  margin-bottom: 0em;
+}
+
+.accordion > .accordion-body.accordion-columns {
+  overflow-y: hidden;
+}

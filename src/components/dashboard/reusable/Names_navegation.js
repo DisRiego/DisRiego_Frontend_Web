@@ -99,6 +99,18 @@ const Names_navegation = {
         "detail": "Detalles de consumo del lote #",
       },  
     },
+    "consumptions": {
+      name: "Gestión de consumo",
+      submodules: {
+        "detail": "Detalles de consumo del lote #",
+      },  
+    },
+    "audit": {
+      name: "Auditoría",
+      submodules: {
+        "detail": "Detalles del evento #",
+      },  
+    },
   };
   
   export default Names_navegation;

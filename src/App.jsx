@@ -45,6 +45,7 @@ function AppContent() {
           <Route path="/dashboard/transaction/:id" element={<Dashboard />} />
           <Route path="/dashboard/consumption/:id" element={<Dashboard />} />
           <Route path="/dashboard/consumptions/:id" element={<Dashboard />} />
+          <Route path="/dashboard/audit/:id" element={<Dashboard />} />
           <Route
             path="/dashboard/property/:id/lot/:id/device/:id"
             element={<Dashboard />}

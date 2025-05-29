@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { data, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import axios from "axios";
 import Head from "../reusable/Head";
 import Table from "../reusable/Table";

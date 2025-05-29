@@ -29,7 +29,7 @@ import {
 import { Bar, Doughnut } from "react-chartjs-2";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { BiBorderRadius } from "react-icons/bi";
+import Filter_billing from "./filters/Filter_billing";
 
 // Registrar los componentes de Chart.js
 ChartJS.register(
@@ -60,6 +60,7 @@ const Billing = () => {
   const [loadingTable, setLoadingTable] = useState(false);
   const [loadingReport, setLoadingReport] = useState("");
   const [buttonDisabled, setButtonDisabled] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
   const itemsPerPage = 6;
   const barContainerRef = useRef(null); // gráfica de barrass
   const donutContainerRef = useRef(null); // grafica pastel
@@ -81,14 +82,16 @@ const Billing = () => {
   const [message, setMessage] = useState(false);
   const [status, setStatus] = useState(false);
 
+  const [showFilter, setShowFilter] = useState(false);
   const [statusFilter, setStatusFilter] = useState(false);
   const [filters, setFilters] = useState({
-    type_devices: {},
-    estados: {},
-    installation_date: {
-      from: "",
-      to: "",
-    },
+    typeInterval: {},
+    lot: {},
+    startEmission: "",
+    endEmission: "",
+    startExpiration: "",
+    endExpiration: "",
+    status: {},
   });
 
   const [id, setId] = useState(null);
@@ -121,7 +124,7 @@ const Billing = () => {
       if (hasPermission("Ver todas las facturas")) {
         estado = item.invoice_status?.toLowerCase();
       } else if (hasPermission("Ver todas las facturas de un usuario")) {
-        estado = item.status?.toLowerCase();
+        estado = item.invoice_status?.toLowerCase();
       }
 
       if (estado === "pendiente") counts.pendientes += 1;
@@ -398,6 +401,10 @@ const handleButtonClick = async (buttonText) => {
     ];
   }
 
+  const handleFilterClick = () => {
+    setShowFilter(true);
+  };
+
   const options = [
     (hasPermission("Ver detalles de una factura") ||
       hasPermission("Ver detalles de una factura de un usuario")) && {
@@ -431,6 +438,7 @@ const handleButtonClick = async (buttonText) => {
       const sortedData = response.data.data.sort((a, b) => b.id - a.id);
 
       setData(sortedData);
+      setIsAdmin(true);
     } catch (error) {
       console.error("Error al obtener las facturas:", error);
     } finally {
@@ -618,7 +626,7 @@ const handleButtonClick = async (buttonText) => {
               "Fecha de vencimiento": info?.expiration_date?.slice(0, 10),
               "Valor a pagar": formatCurrency(info?.total_amount),
               Anexo: info?.pdf_url,
-              Estado: toTitleCase(info?.status),
+              Estado: toTitleCase(info?.invoice_status),
             };
           }
         });
@@ -697,7 +705,7 @@ const handleButtonClick = async (buttonText) => {
       if (hasPermission("Ver todas las facturas")) {
         estado = factura.invoice_status?.toLowerCase();
       } else if (hasPermission("Ver todas las facturas de un usuario")) {
-        estado = factura.status?.toLowerCase();
+        estado = factura.invoice_status?.toLowerCase();
       }
 
       if (estado === "pendiente") {
@@ -828,7 +836,7 @@ const handleButtonClick = async (buttonText) => {
       if (hasPermission("Ver todas las facturas")) {
         estado = factura.invoice_status?.toLowerCase();
       } else if (hasPermission("Ver todas las facturas de un usuario")) {
-        estado = factura.status?.toLowerCase();
+        estado = factura.invoice_status?.toLowerCase();
       }
       if (estado === "pendiente") cantidadPorEstado.pendiente += 1;
       else if (estado === "pagada") cantidadPorEstado.pagada += 1;
@@ -1180,10 +1188,14 @@ const handleButtonClick = async (buttonText) => {
               </div>
             </div>
           )}
-          {renderCharts()}
+          <div className="container-cont">{renderCharts()}</div>
           <div className="container-search">
             <Search onSearch={setSearchTerm} buttonDisabled={buttonDisabled} />
-            <Filter buttonDisabled={buttonDisabled} />
+            <Filter
+              onFilterClick={handleFilterClick}
+              data={data}
+              buttonDisabled={buttonDisabled}
+            />
           </div>
           <Table
             columns={columns}
@@ -1197,6 +1209,22 @@ const handleButtonClick = async (buttonText) => {
             itemsPerPage={itemsPerPage}
             currentPage={currentPage}
             onPageChange={setCurrentPage}
+          />
+        </>
+      )}
+      {showFilter && (
+        <>
+          <Filter_billing
+            onClose={() => setShowFilter(false)}
+            data={data}
+            filteredData={filteredData}
+            setFilteredData={setFilteredData}
+            setStatusFilter={setStatusFilter}
+            filters={filters}
+            setFilters={setFilters}
+            backupData={backupData}
+            hasPermission={hasPermission}
+            isAdmin={isAdmin}
           />
         </>
       )}
@@ -1591,10 +1619,9 @@ const generateReportByUser = (
     margin: { left: margin },
     head: [
       [
-        "N° Factura",
-        "ID del predio",
-        "ID del lote",
-        "Número de documento",
+        "Código de la factura",
+        "Nombre del predio",
+        "Nombre del lote",
         "Intervalo de pago",
         "Fecha de emisión",
         "Fecha de vencimiento",
@@ -1603,10 +1630,9 @@ const generateReportByUser = (
       ],
     ],
     body: filteredData.map((bill) => [
-      bill["N° Factura"],
-      bill["ID del predio"],
-      bill["ID del lote"],
-      bill["Número de documento"],
+      bill["Código de la factura"],
+      bill["Nombre del predio"],
+      bill["Nombre del lote"],
       bill["Intervalo de pago"],
       bill["Fecha de emisión"],
       bill["Fecha de vencimiento"],
