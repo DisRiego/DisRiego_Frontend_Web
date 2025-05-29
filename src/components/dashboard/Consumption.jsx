@@ -145,40 +145,46 @@ const Consumption = () => {
         );
         const userData = response_2.data.data[0];
 
+        const captureOptions = {
+          scale: 2,
+          useCORS: true,
+          logging: false,
+          backgroundColor: null,
+          windowWidth: 1200,
+          windowHeight: 800,
+        };
+
+        const barCanvas = await html2canvas(
+          barContainerRef.current,
+          captureOptions
+        );
+        const barImage = barCanvas.toDataURL("image/png", 1.0);
+
+        const summaryCanvas = await html2canvas(
+          summaryContainerRef.current,
+          captureOptions
+        );
+        const summaryImage = summaryCanvas.toDataURL("image/png", 1.0);
+
+        const imagesData = {
+          bar: {
+            image: barImage,
+            aspectRatio: barCanvas.width / barCanvas.height,
+          },
+          summary: {
+            image: summaryImage,
+            aspectRatio: summaryCanvas.width / summaryCanvas.height,
+          },
+        };
+
         if (hasPermission("Generar reporte de todos los consumos")) {
-          if (!barContainerRef.current || !summaryContainerRef.current) {
-            console.error(
-              "No se pudo obtener alguna de las referencias necesarias para los gráficos"
-            );
-            setLoadingReport("");
-            return;
-          }
-
-          const captureOptions = {
-            scale: 2,
-            useCORS: true,
-            logging: false,
-            backgroundColor: null,
-            windowWidth: 1200,
-            windowHeight: 800,
-          };
-
-          const barCanvas = await html2canvas(barContainerRef.current, captureOptions);
-          const barImage = barCanvas.toDataURL("image/png", 1.0);
-
-          const summaryCanvas = await html2canvas(summaryContainerRef.current, captureOptions);
-          const summaryImage = summaryCanvas.toDataURL("image/png", 1.0);
-
-          const imagesData = {
-            bar: {
-              image: barImage,
-              aspectRatio: barCanvas.width / barCanvas.height,
-            },
-            summary: {
-              image: summaryImage,
-              aspectRatio: summaryCanvas.width / summaryCanvas.height,
-            },
-          };
+          // if (!barContainerRef.current || !summaryContainerRef.current) {
+          //   console.error(
+          //     "No se pudo obtener alguna de las referencias necesarias para los gráficos"
+          //   );
+          //   setLoadingReport("");
+          //   return;
+          // }
 
           generateReport(
             filteredData,
@@ -196,7 +202,8 @@ const Consumption = () => {
             () => setLoadingReport(""),
             companyData,
             locationData,
-            userData
+            userData,
+            imagesData
           );
         }
       } catch (error) {
@@ -1101,7 +1108,8 @@ const generateReportByUser = (
   onFinish,
   companyData,
   locationNames,
-  userData
+  userData,
+  imagesData
 ) => {
   const doc = new jsPDF("landscape");
 
@@ -1157,8 +1165,54 @@ const generateReportByUser = (
   doc.text(`${companyData.email}`, 285, 44, { align: "right" });
   doc.text(`Cantidad de consumos: ${filteredData.length}`, 12, 68);
 
+  const margin = 12;
+  const pdfWidth = doc.internal.pageSize.getWidth();
+  const availableWidth = pdfWidth - 2 * margin;
+  const graphsStartY = 72;
+  const maxGraphHeight = 70;
+  const spaceBetween = 10;
+
+  let barHeight = maxGraphHeight;
+  let barWidth = barHeight * imagesData.bar.aspectRatio;
+
+  let summaryHeight = maxGraphHeight;
+  let summaryWidth = summaryHeight * imagesData.summary.aspectRatio;
+
+  const totalWidth = barWidth + spaceBetween + summaryWidth;
+
+  if (totalWidth > availableWidth) {
+    const scaleFactor = availableWidth / totalWidth;
+    barWidth *= scaleFactor;
+    barHeight *= scaleFactor;
+    summaryWidth *= scaleFactor;
+    summaryHeight *= scaleFactor;
+  }
+
+  const startX =
+    margin + (availableWidth - (barWidth + spaceBetween + summaryWidth)) / 2;
+
+  doc.addImage(
+    imagesData.bar.image,
+    "PNG",
+    startX,
+    graphsStartY,
+    barWidth,
+    barHeight
+  );
+
+  doc.addImage(
+    imagesData.summary.image,
+    "PNG",
+    startX + barWidth + spaceBetween,
+    graphsStartY,
+    summaryWidth,
+    summaryHeight
+  );
+
+  const tableStartY = graphsStartY + Math.max(barHeight, summaryHeight) + 10;
+
   autoTable(doc, {
-    startY: 80,
+    startY: tableStartY,
     margin: { left: 12 },
     head: [
       [

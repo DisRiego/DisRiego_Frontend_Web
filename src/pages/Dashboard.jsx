@@ -140,10 +140,10 @@ const Dashboard = () => {
         return <Consumption />;
       case `consumptions/${id}`:
         return <Consumption_detail />;
-      case `audit`:
-        return <Audit />;
-      case `audit/${id}`:
-        return <Audit_detail />;
+      // case `audit`:
+      //   return <Audit />;
+      // case `audit/${id}`:
+      //   return <Audit_detail />;
       case "company":
         return <Company_data />;
       case `certificate`:

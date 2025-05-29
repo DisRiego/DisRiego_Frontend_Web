@@ -173,13 +173,13 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
       icon: <MdOutlineWaterDrop />,
       label: "Mis consumo",
     },
-    {
-      permission: ["Ver todos los eventos"],
-      path: "/dashboard/audit",
-      selectoption: "audit",
-      icon: <TbReport />,
-      label: "Auditoria",
-    },
+    // {
+    //   permission: ["Ver todos los eventos"],
+    //   path: "/dashboard/audit",
+    //   selectoption: "audit",
+    //   icon: <TbReport />,
+    //   label: "Auditoria",
+    // },
   ];
 
   const optionsFiltered = optionsMenu.filter((option) => {
