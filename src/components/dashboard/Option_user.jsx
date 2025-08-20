@@ -168,11 +168,18 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
     },
     {
       permission: ["Ver todos los consumos de un usuario"],
-      path: "/dashboard/consumption",
-      selectoption: "consumption",
+      path: "/dashboard/consumptions",
+      selectoption: "consumptions",
       icon: <MdOutlineWaterDrop />,
       label: "Mis consumo",
     },
+    // {
+    //   permission: ["Ver todos los eventos"],
+    //   path: "/dashboard/audit",
+    //   selectoption: "audit",
+    //   icon: <TbReport />,
+    //   label: "Auditoria",
+    // },
   ];
 
   const optionsFiltered = optionsMenu.filter((option) => {
@@ -205,7 +212,9 @@ const Option_user = ({ handleOptionChange, selectedOption, isCollapsed }) => {
     if (path.startsWith("/dashboard/invoices")) return "invoices";
     if (path.startsWith("/dashboard/invoice")) return "invoice";
     if (path.startsWith("/dashboard/transaction")) return "invoice";
+    if (path.startsWith("/dashboard/consumptions")) return "consumptions";
     if (path.startsWith("/dashboard/consumption")) return "consumption";
+    if (path.startsWith("/dashboard/audit")) return "audit";
     if (path.startsWith("/dashboard/profile")) return "profile";
 
     return null;

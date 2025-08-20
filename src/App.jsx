@@ -43,7 +43,9 @@ function AppContent() {
           <Route path="/dashboard/invoice/:id" element={<Dashboard />} />
           <Route path="/dashboard/invoices/:id" element={<Dashboard />} />
           <Route path="/dashboard/transaction/:id" element={<Dashboard />} />
+          <Route path="/dashboard/consumption/:id" element={<Dashboard />} />
           <Route path="/dashboard/consumptions/:id" element={<Dashboard />} />
+          <Route path="/dashboard/audit/:id" element={<Dashboard />} />
           <Route
             path="/dashboard/property/:id/lot/:id/device/:id"
             element={<Dashboard />}
@@ -61,7 +63,10 @@ function AppContent() {
             element={<Dashboard />}
           />
           <Route path="/dashboard/invoice/pay/:id" element={<Dashboard />} />
-          <Route path="/dashboard/invoices/pay/:id" element={<Dashboard />} />
+          <Route
+            path="/dashboard/invoices/payment/:id"
+            element={<Dashboard />}
+          />
         </Route>
       </Routes>
     </>

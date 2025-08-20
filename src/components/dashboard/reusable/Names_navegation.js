@@ -85,13 +85,30 @@ const Names_navegation = {
     },
     "pay": {
       submodules: {
-        "detail": "Pago de factura #",
+        "detail": "Pago de la factura #",
+      },  
+    },
+    "payment": {
+      submodules: {
+        "detail": "Pago de la factura #",
       },  
     },
     "consumption": {
       name: "Gestión de consumo",
       submodules: {
         "detail": "Detalles de consumo del lote #",
+      },  
+    },
+    "consumptions": {
+      name: "Gestión de consumo",
+      submodules: {
+        "detail": "Detalles de consumo del lote #",
+      },  
+    },
+    "audit": {
+      name: "Auditoría",
+      submodules: {
+        "detail": "Detalles del evento #",
       },  
     },
   };

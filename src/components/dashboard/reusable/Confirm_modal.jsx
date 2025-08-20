@@ -43,6 +43,8 @@ const Confirm_modal = ({
 
   onSuccess,
   updateData,
+
+  setUrlPse,
 }) => {
   const [isProcessing, setIsProcessing] = useState(false); // Evita repetir la acción mientras está en proceso
 
@@ -86,6 +88,10 @@ const Confirm_modal = ({
       onClose(); // Cierra el modal
       onSuccess?.(); // Cierra la ventana de confirmación
       updateData?.(); // Refresca la información si se pasó esta función
+
+      if (typeForm === "create_pay") {
+        setUrlPse(response.data.data);
+      }
     } catch (error) {
       console.log(error);
       // Muestra el mensaje de error
@@ -95,7 +101,18 @@ const Confirm_modal = ({
         "Ocurrió un error inesperado.";
 
       setTitleMessage?.(errorMsg);
-      setMessage?.(errorText);
+
+      if (typeForm === "create_pay") {
+        if (error.status === 400) {
+          setMessage?.(
+            `No se pudo completar el pago porque ya se ha generado uno
+            \nrecientemente. Por favor, inténtelo de nuevo en 5 o 10 minutos.`
+          );
+        }
+      } else {
+        setMessage?.(errorText);
+      }
+
       setStatus?.("is-false");
       setShowMessage?.(true);
     } finally {

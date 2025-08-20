@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import axios from "axios";
 import useUserPermissions from "../../hooks/useUserPermissions";
 import Head from "./reusable/Head";
@@ -14,6 +14,33 @@ import Icon from "../../assets/icons/Disriego_title.png";
 import { autoTable } from "jspdf-autotable";
 import RobotoNormalFont from "../../assets/fonts/Roboto-Regular.ttf";
 import RobotoBoldFont from "../../assets/fonts/Roboto-Bold.ttf";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
+import { Bar, Doughnut } from "react-chartjs-2";
+import { es } from "date-fns/locale";
+
+// Registrar los componentes de Chart.js
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 const Transaction = () => {
   const [data, setData] = useState([]);
@@ -23,7 +50,10 @@ const Transaction = () => {
   const [loadingTable, setLoadingTable] = useState(false);
   const [loadingReport, setLoadingReport] = useState("");
   const [buttonDisabled, setButtonDisabled] = useState(true);
-  const itemsPerPage = 5;
+  const itemsPerPage = 6;
+  const barContainerRef = useRef(null); // Referencia para la gráfica de barras
+  const donutContainerRef = useRef(null); // Referencia para la gráfica de dona
+  const cardsContainerRef = useRef(null); // <--- AÑADIR ESTA LÍNEA
 
   const {
     permissions: permissionsUser,
@@ -72,6 +102,7 @@ const Transaction = () => {
     "Noviembre",
     "Diciembre",
   ];
+  const tableRef = useRef(null);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -85,61 +116,133 @@ const Transaction = () => {
     description:
       "En esta sección podrás gestionar y monitorear las facturas y transacciones del sistema.",
     buttons: {
-      button1: {
-        icon: "LuDownload",
-        class: "",
-        text: "Descargar reporte",
-      },
+      ...(hasPermission("Generar reporte de todas las transacciones") && {
+        button1: {
+          icon: "LuDownload",
+          class: "",
+          text: "Descargar reporte",
+        },
+      }),
     },
   };
 
-  const handleButtonClick = async (buttonText) => {
-    if (buttonText === "Descargar reporte") {
-      try {
-        setLoadingReport("is-loading");
+const handleButtonClick = async (buttonText) => {
+  if (buttonText === "Descargar reporte") {
+    try {
+      setLoadingReport("is-loading");
 
-        // 1. Obtener datos de empresa y ubicación
-        const response = await axios.get(
-          import.meta.env.VITE_URI_BACKEND +
-            import.meta.env.VITE_ROUTE_BACKEND_COMPANY
+      // Verificar si tenemos todas las referencias
+      if (
+        !barContainerRef.current ||
+        !donutContainerRef.current ||
+        !cardsContainerRef.current
+      ) {
+        console.error(
+          "No se pudo obtener alguna de las referencias necesarias"
         );
-        const companyData = response.data.data;
-
-        const locationData = await fetchLocationNames(
-          companyData.country,
-          companyData.state,
-          companyData.city
-        );
-
-        const response_2 = await axios.get(
-          import.meta.env.VITE_URI_BACKEND +
-            import.meta.env.VITE_ROUTE_BACKEND_USERS +
-            decodedToken.id
-        );
-        const userData = response_2.data.data[0];
-
-        // 3. Generar reporte con los datos obtenidos
-        generateReport(
-          filteredData,
-          toTitleCase,
-          () => setLoadingReport(""),
-          companyData,
-          locationData,
-          userData
-        );
-      } catch (error) {
-        console.log(error);
-        setTitleMessage?.("Error al generar el reporte");
-        setMessage?.(
-          `No se pudo generar el reporte debido a un problema con el servidor.
-          \n Por favor, Inténtelo de nuevo más tarde.`
-        );
-        setStatus?.("is-false");
-        setShowMessage?.(true);
         setLoadingReport("");
+        return;
       }
+
+      // 1. Obtener datos de empresa y ubicación
+      const response = await axios.get(
+        import.meta.env.VITE_URI_BACKEND +
+          import.meta.env.VITE_ROUTE_BACKEND_COMPANY
+      );
+      const companyData = response.data.data;
+
+      const locationData = await fetchLocationNames(
+        companyData.country,
+        companyData.state,
+        companyData.city
+      );
+
+      const response_2 = await axios.get(
+        import.meta.env.VITE_URI_BACKEND +
+          import.meta.env.VITE_ROUTE_BACKEND_USERS +
+          decodedToken.id
+      );
+      const userData = response_2.data.data[0];
+
+      // Capturar las imágenes de los componentes
+      const html2canvas = (await import("html2canvas")).default;
+
+      // SOLUCIÓN: Configuración mejorada para html2canvas
+      const captureOptions = {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: null,
+        // Añadir estas opciones para mejor compatibilidad móvil
+        windowWidth: 1200, // Forzar un ancho de ventana consistente
+        windowHeight: 800,
+        // Importante: estas opciones ayudan en dispositivos móviles
+        onclone: (clonedElement) => {
+          // Buscar el canvas dentro del elemento clonado
+          const canvas = clonedElement.querySelector('canvas');
+          if (canvas && canvas.parentElement) {
+            // Asegurar que el padre directo del canvas tenga 100% de ancho
+            canvas.parentElement.style.width = '100%';
+            
+            // Asegurar que el canvas mismo ocupe el 100% de su padre
+            canvas.style.display = 'block';
+            canvas.style.width = '100%';
+            canvas.style.height = '100%';
+          }
+        }
+      };
+
+      // Capturar el contenedor de la gráfica de barras
+      const barCanvas = await html2canvas(barContainerRef.current, captureOptions);
+      const barImage = barCanvas.toDataURL("image/png", 1.0);
+
+      // Capturar el contenedor de la gráfica de dona
+      const donutCanvas = await html2canvas(donutContainerRef.current, captureOptions);
+      const donutImage = donutCanvas.toDataURL("image/png", 1.0);
+      
+      // Capturar el contenedor de tarjetas de resumen
+      const cardsCanvas = await html2canvas(cardsContainerRef.current, captureOptions);
+      const cardsImage = cardsCanvas.toDataURL("image/png", 1.0);
+
+      // Preparar los datos de las imágenes con sus proporciones
+      const imagesData = {
+        cards: {
+          image: cardsImage,
+          aspectRatio: cardsCanvas.width / cardsCanvas.height,
+        },
+        bar: {
+          image: barImage,
+          aspectRatio: barCanvas.width / barCanvas.height,
+        },
+        donut: {
+          image: donutImage,
+          aspectRatio: donutCanvas.width / donutCanvas.height,
+        },
+      };
+
+      // 3. Generar reporte con los datos obtenidos
+      generateReportWithCharts(
+        filteredData,
+        toTitleCase,
+        () => setLoadingReport(""),
+        companyData,
+        locationData,
+        userData,
+        imagesData
+      );
+    } catch (error) {
+      console.log(error);
+      setTitleMessage?.("Error al generar el reporte");
+      setMessage?.(
+        `No se pudo generar el reporte debido a un problema con el servidor.
+        \n Por favor, Inténtelo de nuevo más tarde.`
+      );
+      setStatus?.("is-false");
+      setShowMessage?.(true);
+      setLoadingReport("");
     }
-  };
+  }
+};
 
   const tabs = [
     {
@@ -155,7 +258,8 @@ const Transaction = () => {
   ].filter(Boolean);
 
   const columns = [
-    "ID de transacción",
+    "ID de la transacción",
+    "Código de la factura",
     "Número de documento",
     "Referencia de pago",
     "Metodo de pago",
@@ -166,13 +270,9 @@ const Transaction = () => {
   ];
 
   const options = [
-    {
+    hasPermission("Ver detalles de una transacción") && {
       icon: "BiShow",
       name: "Ver detalles",
-    },
-    {
-      icon: "TbCoin",
-      name: "Pagar",
     },
   ].filter(Boolean);
 
@@ -183,196 +283,11 @@ const Transaction = () => {
   const fetchBilling = async () => {
     try {
       setLoadingTable(true);
-      //   const response = await axios.get(
-      //     import.meta.env.VITE_URI_BACKEND_MAINTENANCE +
-      //       import.meta.env.VITE_ROUTE_BACKEND_REPORT
-      //   );
-      //   const sortedData = response.data.data.sort((a, b) => b.id - a.id);
-      const transfer = [
-        {
-          id: 1,
-          owner_document_number: "9876543210",
-          payment_reference: "REF00001",
-          payment_method: "Tarjeta",
-          value: 180000,
-          date_payment: "2023-03-15 14:32:00",
-          status_name: "Aprobada",
-        },
-        {
-          id: 2,
-          owner_document_number: "1234567890",
-          payment_reference: "REF00002",
-          payment_method: "PSE",
-          value: 245000,
-          date_payment: "2023-06-21 10:15:00",
-          status_name: "Pendiente",
-        },
-        {
-          id: 3,
-          owner_document_number: "1098765432",
-          payment_reference: "REF00003",
-          payment_method: "Tarjeta",
-          value: 320000,
-          date_payment: "2024-01-05 08:40:00",
-          status_name: "Aprobada",
-        },
-        {
-          id: 4,
-          owner_document_number: "2223334445",
-          payment_reference: "REF00004",
-          payment_method: "PSE",
-          value: 150000,
-          date_payment: "2025-02-28 12:00:00",
-          status_name: "Aprobada",
-        },
-        {
-          id: 5,
-          owner_document_number: "9988776655",
-          payment_reference: "REF00005",
-          payment_method: "Tarjeta",
-          value: 275000,
-          date_payment: "2024-08-10 16:45:00",
-          status_name: "Rechazada",
-        },
-        {
-          id: 6,
-          owner_document_number: "8765432109",
-          payment_reference: "REF00006",
-          payment_method: "PSE",
-          value: 220000,
-          date_payment: "2023-12-19 09:30:00",
-          status_name: "Pendiente",
-        },
-        {
-          id: 7,
-          owner_document_number: "1122334455",
-          payment_reference: "REF00007",
-          payment_method: "Tarjeta",
-          value: 310000,
-          date_payment: "2025-04-10 11:10:00",
-          status_name: "Aprobada",
-        },
-        {
-          id: 8,
-          owner_document_number: "4433221100",
-          payment_reference: "REF00008",
-          payment_method: "PSE",
-          value: 195000,
-          date_payment: "2024-05-14 13:00:00",
-          status_name: "Pendiente",
-        },
-        {
-          id: 9,
-          owner_document_number: "3216549870",
-          payment_reference: "REF00009",
-          payment_method: "Tarjeta",
-          value: 360000,
-          date_payment: "2025-07-22 07:20:00",
-          status_name: "Aprobada",
-        },
-        {
-          id: 10,
-          owner_document_number: "7891234560",
-          payment_reference: "REF00010",
-          payment_method: "PSE",
-          value: 200000,
-          date_payment: "2023-09-17 18:05:00",
-          status_name: "Pendiente",
-        },
-        {
-          id: 11,
-          owner_document_number: "6547893210",
-          payment_reference: "REF00011",
-          payment_method: "Tarjeta",
-          value: 245500,
-          date_payment: "2025-01-26 15:30:00",
-          status_name: "Aprobada",
-        },
-        {
-          id: 12,
-          owner_document_number: "1010101010",
-          payment_reference: "REF00012",
-          payment_method: "PSE",
-          value: 289000,
-          date_payment: "2024-03-30 14:10:00",
-          status_name: "Rechazada",
-        },
-        {
-          id: 13,
-          owner_document_number: "2020202020",
-          payment_reference: "REF00013",
-          payment_method: "Tarjeta",
-          value: 275500,
-          date_payment: "2025-06-12 09:50:00",
-          status_name: "Pendiente",
-        },
-        {
-          id: 14,
-          owner_document_number: "3030303030",
-          payment_reference: "REF00014",
-          payment_method: "PSE",
-          value: 330000,
-          date_payment: "2023-10-25 08:00:00",
-          status_name: "Aprobada",
-        },
-        {
-          id: 15,
-          owner_document_number: "4040404040",
-          payment_reference: "REF00015",
-          payment_method: "Tarjeta",
-          value: 198000,
-          date_payment: "2024-07-07 17:40:00",
-          status_name: "Rechazada",
-        },
-        {
-          id: 16,
-          owner_document_number: "5050505050",
-          payment_reference: "REF00016",
-          payment_method: "PSE",
-          value: 215000,
-          date_payment: "2024-09-13 10:25:00",
-          status_name: "Aprobada",
-        },
-        {
-          id: 17,
-          owner_document_number: "6060606060",
-          payment_reference: "REF00017",
-          payment_method: "Tarjeta",
-          value: 248000,
-          date_payment: "2023-11-01 11:45:00",
-          status_name: "Pendiente",
-        },
-        {
-          id: 18,
-          owner_document_number: "7070707070",
-          payment_reference: "REF00018",
-          payment_method: "PSE",
-          value: 220000,
-          date_payment: "2025-03-03 07:55:00",
-          status_name: "Rechazada",
-        },
-        {
-          id: 19,
-          owner_document_number: "8080808080",
-          payment_reference: "REF00019",
-          payment_method: "Tarjeta",
-          value: 290000,
-          date_payment: "2023-04-04 19:00:00",
-          status_name: "Aprobada",
-        },
-        {
-          id: 20,
-          owner_document_number: "9090909090",
-          payment_reference: "REF00020",
-          payment_method: "PSE",
-          value: 180000,
-          date_payment: "2024-02-11 06:30:00",
-          status_name: "Rechazada",
-        },
-      ];
-
-      const sortedData = transfer.sort((a, b) => b.id - a.id);
-
+      const response = await axios.get(
+        import.meta.env.VITE_URI_BACKEND_FACTURACTION +
+          import.meta.env.VITE_ROUTE_BACKEND_GET_PAYMENT
+      );
+      const sortedData = response.data.data.sort((a, b) => b.id - a.id);
       setData(sortedData);
     } catch (error) {
       console.error("Error al obtener las facturas:", error);
@@ -420,10 +335,19 @@ const Transaction = () => {
     }
   };
 
+  const getUniqueTransactionsByInvoice = (transactions) => {
+    const seen = new Set();
+    return transactions.filter((tx) => {
+      if (seen.has(tx.reference_code)) return false;
+      seen.add(tx.reference_code);
+      return true;
+    });
+  };
+
   useEffect(() => {
     if (data.length > 0) {
       const sortedDates = data
-        .map((item) => new Date(item.date_payment))
+        .map((item) => new Date(item.payment_date))
         .sort((a, b) => b - a);
 
       const latestYear = sortedDates[0].getFullYear();
@@ -449,14 +373,14 @@ const Transaction = () => {
 
     if (yearFilter && yearFilter !== "ALL") {
       filtered = filtered.filter((item) => {
-        const date = new Date(item.date_payment);
+        const date = new Date(item.payment_date);
         return date.getFullYear() === parseInt(yearFilter);
       });
     }
 
     if (monthFilter && monthFilter !== "" && yearFilter !== "ALL") {
       filtered = filtered.filter((item) => {
-        const date = new Date(item.date_payment);
+        const date = new Date(item.payment_date);
         return date.getMonth() + 1 === parseInt(monthFilter);
       });
     }
@@ -469,20 +393,22 @@ const Transaction = () => {
 
     if (statusFilterValue && statusFilterValue !== "ALL") {
       filtered = filtered.filter(
-        (item) => item.status_name === statusFilterValue
+        (item) => item.payment_status_name === statusFilterValue
       );
     }
 
     const formatted = filtered.map((info) => ({
       ID: info.id,
-      "ID de transacción": info.id,
-      "Número de documento": info.owner_document_number,
-      "Referencia de pago": info.payment_reference,
-      "Metodo de pago": info.payment_method,
-      "Valor pagado": formatCurrency(info.value),
-      "Fecha del pago": formatDateTime(info.date_payment),
-      Estado: info.status_name,
+      "ID de la transacción": info?.id,
+      "Código de la factura": info?.reference_code,
+      "Número de documento": info?.payer_document,
+      "Referencia de pago": info?.transaction_id,
+      "Metodo de pago": info?.payment_method,
+      "Valor pagado": formatCurrency(info?.paid_amount),
+      "Fecha del pago": formatDateTime(info?.payment_date),
+      Estado: info.payment_status_name,
     }));
+    console.log(formatted);
 
     setFilteredData(formatted);
   }, [data, yearFilter, monthFilter, methodFilter, statusFilterValue]);
@@ -495,7 +421,7 @@ const Transaction = () => {
 
   const availableYears = useMemo(() => {
     return [
-      ...new Set(data.map((item) => new Date(item.date_payment).getFullYear())),
+      ...new Set(data.map((item) => new Date(item.payment_date).getFullYear())),
     ].sort((a, b) => a - b);
   }, [data]);
 
@@ -505,9 +431,9 @@ const Transaction = () => {
     const monthsInYear = data
       .filter(
         (item) =>
-          new Date(item.date_payment).getFullYear() === parseInt(yearFilter)
+          new Date(item.payment_date).getFullYear() === parseInt(yearFilter)
       )
-      .map((item) => new Date(item.date_payment).getMonth());
+      .map((item) => new Date(item.payment_date).getMonth());
 
     const uniqueMonths = Array.from(new Set(monthsInYear)).sort(
       (a, b) => a - b
@@ -520,8 +446,8 @@ const Transaction = () => {
   }, [data]);
 
   const availableStatuses = useMemo(() => {
-    return [...new Set(data.map((item) => item.status_name))].sort((a, b) =>
-      a.localeCompare(b)
+    return [...new Set(data.map((item) => item.payment_status_name))].sort(
+      (a, b) => a.localeCompare(b)
     );
   }, [data]);
 
@@ -529,42 +455,50 @@ const Transaction = () => {
     const selectedYear = parseInt(yearFilter);
     const selectedMonth = parseInt(monthFilter);
 
-    const filtered = data.filter((item) => {
-      const date = new Date(item.date_payment);
-      const yearMatch = !yearFilter || date.getFullYear() === selectedYear;
-      const monthMatch = !monthFilter || date.getMonth() + 1 === selectedMonth;
-      const methodMatch = !methodFilter || item.payment_method === methodFilter;
-      const statusMatch =
-        !statusFilterValue || item.status_name === statusFilterValue;
-      return yearMatch && monthMatch && methodMatch && statusMatch;
-    });
+    const uniqueTransactions = getUniqueTransactionsByInvoice(data);
 
-    const annualIncome = filtered
-      .filter(
-        (item) => new Date(item.date_payment).getFullYear() === selectedYear
-      )
-      .reduce((sum, item) => sum + item.value, 0);
-
-    const monthlyIncome = filtered
+    const annualIncome = uniqueTransactions
       .filter((item) => {
-        const date = new Date(item.date_payment);
+        const date = new Date(item.payment_date);
         return (
-          date.getFullYear() === selectedYear &&
-          date.getMonth() + 1 === selectedMonth
+          (!yearFilter ||
+            yearFilter === "ALL" ||
+            date.getFullYear() === selectedYear) &&
+          (!methodFilter ||
+            methodFilter === "ALL" ||
+            item.payment_method === methodFilter)
         );
       })
-      .reduce((sum, item) => sum + item.value, 0);
+      .reduce((sum, item) => sum + item.paid_amount, 0);
 
-    const monthlyTransactions = filtered.filter((item) => {
-      const date = new Date(item.date_payment);
+    const monthlyIncome = uniqueTransactions
+      .filter((item) => {
+        const date = new Date(item.payment_date);
+        return (
+          (!yearFilter ||
+            yearFilter === "ALL" ||
+            date.getFullYear() === selectedYear) &&
+          (!monthFilter ||
+            monthFilter === "" ||
+            date.getMonth() + 1 === selectedMonth)
+        );
+      })
+      .reduce((sum, item) => sum + item.paid_amount, 0);
+
+    const monthlyTransactions = uniqueTransactions.filter((item) => {
+      const date = new Date(item.payment_date);
       return (
-        date.getFullYear() === selectedYear &&
-        date.getMonth() + 1 === selectedMonth
+        (!yearFilter ||
+          yearFilter === "ALL" ||
+          date.getFullYear() === selectedYear) &&
+        (!monthFilter ||
+          monthFilter === "" ||
+          date.getMonth() + 1 === selectedMonth)
       );
     });
 
     const rejectedTransactions = monthlyTransactions.filter(
-      (item) => item.status_name === "Rechazada"
+      (item) => item.payment_status_name === "Rechazado"
     );
 
     const rejectionRate = monthlyTransactions.length
@@ -575,12 +509,56 @@ const Transaction = () => {
       annualIncome,
       monthlyIncome,
       rejectionRate,
+      filteredTransactions: uniqueTransactions, // sin filtro de estado
     };
-  }, [data, yearFilter, monthFilter, methodFilter, statusFilterValue]);
+  }, [data, yearFilter, monthFilter, methodFilter]);
 
   const totalIncome = useMemo(() => {
-    return data.reduce((sum, item) => sum + item.value, 0);
+    const uniqueTransactions = getUniqueTransactionsByInvoice(data);
+    return uniqueTransactions.reduce((sum, tx) => sum + tx.paid_amount, 0);
   }, [data]);
+
+  useEffect(() => {
+    let base = getUniqueTransactionsByInvoice(data);
+
+    if (yearFilter && yearFilter !== "ALL") {
+      base = base.filter(
+        (item) =>
+          new Date(item.payment_date).getFullYear() === parseInt(yearFilter)
+      );
+    }
+
+    if (monthFilter && monthFilter !== "") {
+      base = base.filter(
+        (item) =>
+          new Date(item.payment_date).getMonth() + 1 === parseInt(monthFilter)
+      );
+    }
+
+    if (methodFilter && methodFilter !== "ALL") {
+      base = base.filter((item) => item.payment_method === methodFilter);
+    }
+
+    if (statusFilterValue && statusFilterValue !== "ALL") {
+      base = base.filter(
+        (item) => item.payment_status_name === statusFilterValue
+      );
+    }
+
+    const formatted = base.map((info) => ({
+      ID: info.id,
+      "ID de la transacción": info?.id,
+      "Código de la factura": info?.reference_code,
+      "Número de documento": info?.payer_document,
+      "Referencia de pago": info?.transaction_id,
+      "Metodo de pago": info?.payment_method,
+      "Valor pagado": formatCurrency(info?.paid_amount),
+      "Fecha del pago": formatDateTime(info?.payment_date),
+      Estado: info.payment_status_name,
+    }));
+
+    setFilteredData(formatted);
+  }, [data, yearFilter, monthFilter, methodFilter, statusFilterValue]);
 
   const toTitleCase = (str) => {
     if (typeof str !== "string") return str;
@@ -597,6 +575,424 @@ const Transaction = () => {
       currency: "COP",
       minimumFractionDigits: 0,
     }).format(value);
+  };
+
+  // Función para generar datos del gráfico de barras basados en los filtros
+  const getBarChartData = () => {
+    if (
+      !filteredStats.filteredTransactions ||
+      filteredStats.filteredTransactions.length === 0
+    ) {
+      return { labels: [], datasets: [] };
+    }
+
+    // Seleccionar los datos según el filtro de año y mes
+    let transactionsToProcess = filteredStats.filteredTransactions;
+
+    // Preparar la estructura para agrupar transacciones
+    const monthlyData = Array.from({ length: 12 }, (_, i) => ({
+      month: i + 1,
+      aprobadas: 0,
+      pendientes: 0,
+      rechazadas: 0,
+    }));
+
+    // Agrupar transacciones por mes y estado
+    transactionsToProcess.forEach((transaction) => {
+      const date = new Date(transaction.payment_date);
+      const month = date.getMonth(); // 0-indexed
+      const status = transaction.payment_status_name.toLowerCase();
+
+      // Sumar los montos según el estado
+      if (status === "aprobado") {
+        monthlyData[month].aprobadas += 1;
+      } else if (status === "pendiente") {
+        monthlyData[month].pendientes += 1;
+      } else if (status === "rechazado") {
+        monthlyData[month].rechazadas += 1;
+      }
+    });
+
+    // Crear etiquetas de los meses en español
+    const labels = monthlyData.map((_, i) => {
+      const date = new Date(2024, i, 1); // Año no importa, solo queremos el nombre del mes
+      return format(date, "MMM", { locale: es });
+    });
+
+    // Extraer los datos para el gráfico
+    const aprobadas = monthlyData.map((m) => m.aprobadas);
+    const pendientes = monthlyData.map((m) => m.pendientes);
+    const rechazadas = monthlyData.map((m) => m.rechazadas);
+
+    return {
+      labels,
+      datasets: [
+        {
+          label: "Transacciones rechazadas",
+          data: rechazadas,
+          backgroundColor: "rgba(255,165,137,1.000)",
+          stack: "Stack 0",
+          borderRadius: 6,
+        },
+        {
+          label: "Transacciones pendientes",
+          data: pendientes,
+          backgroundColor: "rgba(255, 214, 107, 1)",
+          stack: "Stack 0",
+          borderRadius: 6,
+        },
+        {
+          label: "Transacciones aprobadas",
+          data: aprobadas,
+          backgroundColor: "rgba(124, 168, 255, 1)",
+          stack: "Stack 0",
+          borderRadius: 6,
+        },
+      ],
+    };
+  };
+
+  // Opciones para el gráfico de barras
+const getBarOptions = () => {
+  return {
+    responsive: true,
+    maintainAspectRatio: false,
+    // NUEVO: Deshabilitar animaciones para captura más consistente
+    animation: {
+      duration: 0
+    },
+    plugins: {
+      legend: {
+        display: false,
+        labels: {
+          font: { family: "Roboto" }
+        }
+      },
+      title: {
+        display: true,
+        text:
+          yearFilter !== "ALL"
+            ? `Transacciones por mes (${yearFilter})`
+            : "Transacciones por mes (Todos los años)",
+        font: {
+          size: 14,
+          family: "Roboto",
+        },
+      },
+      tooltip: {
+        bodyFont: { family: "Roboto" },
+        titleFont: { family: "Roboto" }
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        stacked: true,
+        ticks: {
+          beginAtZero: true,
+          font: { family: "Roboto" }
+        },
+        title: {
+          display: true,
+          text: "Cantidad de transacciones",
+          font: { family: "Roboto" }
+        },
+      },
+      x: {
+        stacked: true,
+        title: {
+          display: true,
+          text: "Mes",
+          font: { family: "Roboto" }
+        },
+        ticks: {
+          font: { family: "Roboto" }
+        }
+      },
+    },
+    // NUEVO: Configuración para mejor renderizado en dispositivos móviles
+    devicePixelRatio: 2,
+    layout: {
+      padding: {
+        left: 0,
+        right: 0,
+        top: 0,
+        bottom: 0
+      }
+    }
+  };
+};
+
+  // Función para generar datos del gráfico circular (donut)
+  const getDonutChartData = () => {
+    if (
+      !filteredStats.filteredTransactions ||
+      filteredStats.filteredTransactions.length === 0
+    ) {
+      return { labels: [], datasets: [{ data: [0, 0, 0] }] };
+    }
+
+    // Calcular montos totales por estado
+    const montosPorEstado = {
+      pendiente: 0,
+      aprobado: 0,
+      rechazado: 0,
+    };
+
+    // Sumar montos según el estado
+    filteredStats.filteredTransactions.forEach((transaction) => {
+      const status = transaction.payment_status_name.toLowerCase();
+      if (status === "pendiente") montosPorEstado.pendiente += 1;
+      else if (status === "aprobado") montosPorEstado.aprobado += 1;
+      else if (status === "rechazado") montosPorEstado.rechazado += 1;
+    });
+
+    return {
+      labels: ["Pendientes", "Aprobadas", "Rechazadas"],
+      datasets: [
+        {
+          data: [
+            montosPorEstado.pendiente,
+            montosPorEstado.aprobado,
+            montosPorEstado.rechazado,
+          ],
+          backgroundColor: [
+            "rgba(255, 214, 107, 1)",
+            "rgba(91, 147, 255, 1)",
+            "rgba(255, 143, 107, 1)",
+          ],
+          borderColor: [
+            "rgba(255, 214, 107, 1)",
+            "rgba(54, 162, 235, 1)",
+            "rgba(255, 99, 132, 1)",
+          ],
+          borderWidth: 1,
+        },
+      ],
+    };
+  };
+
+  // Opciones para el gráfico circular
+const getDonutOptions = () => {
+  return {
+    responsive: true,
+    maintainAspectRatio: false,
+    // NUEVO: Deshabilitar animaciones
+    animation: {
+      duration: 0
+    },
+    plugins: {
+      legend: {
+        display: false,
+      },
+      title: {
+        display: false,
+      },
+    },
+    cutout: "80%",
+    // NUEVO: Configuración para mejor renderizado
+    devicePixelRatio: 2
+  };
+};
+
+
+  // Calcular el total de transacciones
+  const calcularMontoTotal = () => {
+    if (!filteredStats.filteredTransactions) return 0;
+
+    return filteredStats.filteredTransactions.reduce((total, transaction) => {
+      return total + transaction.paid_amount;
+    }, 0);
+  };
+
+  const montoTotal = formatCurrency(calcularMontoTotal());
+
+  // Renderizar las gráficas
+  const renderCharts = () => {
+    return (
+      <div className="container-cont mb-5">
+        <div className="columns">
+          <div className="column is-8">
+            <div className="rol-detail" ref={barContainerRef}>
+              <div className="is-flex is-justify-content-space-between is-align-items-center mb-2">
+                <h3 className="subtitle is-6 mb-2">Transacciones generadas</h3>
+                <div className="is-flex is-align-items-center">
+                  <div className="is-flex is-align-items-center mr-4">
+                    <div className="is-flex is-align-items-center mr-3">
+                      <span
+                        style={{
+                          display: "inline-block",
+                          width: "12px",
+                          height: "12px",
+                          backgroundColor: "rgba(255,165,137,1.000)",
+                          marginRight: "5px",
+                        }}
+                      />
+                      <span className="is-size-7">
+                        Transacciones rechazadas
+                      </span>
+                    </div>
+
+                    <div className="is-flex is-align-items-center mr-3">
+                      <span
+                        style={{
+                          display: "inline-block",
+                          width: "12px",
+                          height: "12px",
+                          backgroundColor: "rgba(255, 214, 107, 1)",
+                          marginRight: "5px",
+                        }}
+                      />
+                      <span className="is-size-7">
+                        Transacciones pendientes
+                      </span>
+                    </div>
+
+                    <div className="is-flex is-align-items-center">
+                      <span
+                        style={{
+                          display: "inline-block",
+                          width: "12px",
+                          height: "12px",
+                          backgroundColor: "rgba(124, 168, 255, 1)",
+                          marginRight: "5px",
+                        }}
+                      />
+                      <span className="is-size-7">Transacciones aprobadas</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div style={{ height: "300px", width: "100%" }}>
+                <Bar data={getBarChartData()} options={getBarOptions()} />
+              </div>
+            </div>
+          </div>
+          <div className="column is-4">
+            <div ref={donutContainerRef} className="rol-detail">
+              <div className="is-flex is-justify-content-space-between is-align-items-center mb-4">
+                <h3 className="subtitle is-6 mb-0">Total transacciones</h3>
+              </div>
+              <div
+                className="is-flex is-flex-direction-column"
+                style={{ height: "292px" }}
+              >
+                {/* Gráfico de dona en la parte superior */}
+                <div
+                  style={{
+                    position: "relative",
+                    height: "55%",
+                    width: "100%",
+                    marginBottom: "20px",
+                  }}
+                >
+                  <Doughnut
+                    data={getDonutChartData()}
+                    options={getDonutOptions()}
+                  />
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: "50%",
+                      left: "50%",
+                      transform: "translate(-50%, -50%)",
+                      textAlign: "center",
+                    }}
+                  >
+                    <p className="is-size-6 mb-0">Total</p>
+                    <p className="is-size-5 has-text-weight-bold">
+                      {filteredStats.filteredTransactions.length}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Leyenda debajo del gráfico */}
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "flex-start",
+                  }}
+                >
+                  {/* Transacciones aprobadas */}
+                  <div className="is-flex is-align-items-center mb-2">
+                    <span
+                      style={{
+                        display: "inline-block",
+                        width: "12px",
+                        height: "12px",
+                        borderRadius: "50%",
+                        backgroundColor: "rgba(91, 147, 255, 1)",
+                        marginRight: "8px",
+                      }}
+                    />
+                    <div
+                      className="is-flex is-justify-content-space-between"
+                      style={{ width: "100%" }}
+                    >
+                      <span className="is-size-7">Transacciones aprobadas</span>
+                      <span className="is-size-7">
+                        {getDonutChartData().datasets[0].data[1]}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Transacciones pendientes */}
+                  <div className="is-flex is-align-items-center mb-2">
+                    <span
+                      style={{
+                        display: "inline-block",
+                        width: "12px",
+                        height: "12px",
+                        borderRadius: "50%",
+                        backgroundColor: "rgba(255,214,107, 1)",
+                        marginRight: "8px",
+                      }}
+                    />
+                    <div
+                      className="is-flex is-justify-content-space-between"
+                      style={{ width: "100%" }}
+                    >
+                      <span className="is-size-7">
+                        Transacciones pendientes
+                      </span>
+                      <span className="is-size-7">
+                        {getDonutChartData().datasets[0].data[0]}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Transacciones rechazadas */}
+                  <div className="is-flex is-align-items-center">
+                    <span
+                      style={{
+                        display: "inline-block",
+                        width: "12px",
+                        height: "12px",
+                        borderRadius: "50%",
+                        backgroundColor: "rgba(255, 143, 107, 1)",
+                        marginRight: "8px",
+                      }}
+                    />
+                    <div
+                      className="is-flex is-justify-content-space-between"
+                      style={{ width: "100%" }}
+                    >
+                      <span className="is-size-7">
+                        Transacciones rechazadas
+                      </span>
+                      <span className="is-size-7">
+                        {getDonutChartData().datasets[0].data[2]}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -653,7 +1049,7 @@ const Transaction = () => {
                             onChange={(e) => setMonthFilter(e.target.value)}
                             disabled={yearFilter === "ALL"}
                           >
-                            <option value="">Mes</option>
+                            <option value="">Todos los meses</option>
                             {availableMonths.map((monthIndex) => (
                               <option
                                 key={monthIndex + 1}
@@ -694,9 +1090,15 @@ const Transaction = () => {
                         <div class="select ">
                           <select
                             value={statusFilterValue}
-                            onChange={(e) =>
-                              setStatusFilterValue(e.target.value)
-                            }
+                            onChange={(e) => {
+                              setStatusFilterValue(e.target.value);
+                              setTimeout(() => {
+                                tableRef.current?.scrollIntoView({
+                                  behavior: "smooth",
+                                  block: "start",
+                                });
+                              }, 100); // pequeño delay para asegurar que se renderice primero
+                            }}
                           >
                             <option value="ALL">Todos los estados</option>
                             {availableStatuses.map((status) => (
@@ -716,7 +1118,7 @@ const Transaction = () => {
           <div className="container-cont">
             <div className="total_amount">
               <div className="fixed-grid has-4-cols-desktop has-2-cols-mobile">
-                <div className="grid">
+                <div className="grid" ref={cardsContainerRef}>
                   <div className="cell rol-detail">
                     <p className="has-text-weight-bold mb-2">
                       Ingresos totales
@@ -752,25 +1154,20 @@ const Transaction = () => {
                 </div>
               </div>
             </div>
-            <div className="columns mb-1">
-              <div className="column is-three-quarters">
-                <div className="rol-detail"></div>
-              </div>
-              <div className="column">
-                <div className="rol-detail"></div>
-              </div>
-            </div>
           </div>
+          {renderCharts()}
           <div className="container-search">
             <Search onSearch={setSearchTerm} buttonDisabled={buttonDisabled} />
           </div>
-          <Table
-            columns={columns}
-            data={paginatedData}
-            options={options}
-            loadingTable={loadingTable}
-            setId={setId}
-          />
+          <div ref={tableRef}>
+            <Table
+              columns={columns}
+              data={paginatedData}
+              options={options}
+              loadingTable={loadingTable}
+              setId={setId}
+            />
+          </div>
           <Pagination
             totalItems={filteredData.length}
             itemsPerPage={itemsPerPage}
@@ -793,46 +1190,47 @@ const Transaction = () => {
 
 export default Transaction;
 
-const generateReport = (
+const generateReportWithCharts = (
   filteredData,
   toTitleCase,
   onFinish,
   companyData,
   locationNames,
-  userData
+  userData,
+  imagesData
 ) => {
   const doc = new jsPDF("landscape");
+  const margin = 12;
 
-  // Add Roboto font to the document
   doc.addFont(RobotoNormalFont, "Roboto", "normal");
   doc.addFont(RobotoBoldFont, "Roboto", "bold");
 
-  //colorear fondo
   doc.setFillColor(243, 242, 247);
-  doc.rect(0, 0, 300, 53, "F"); // Colorear una parte de la página
+  doc.rect(0, 0, 300, 53, "F");
 
-  // Agregar logo
   doc.addImage(Icon, "PNG", 246, 10, 39, 11);
 
   doc.setTextColor(0, 0, 0);
   doc.setFontSize(17);
   doc.setFont("Roboto", "bold");
-  doc.text("CONSOLIDADOS DE TRANSACCIONES", 12, 18);
+  doc.text("CONSOLIDADOS DE TRANSACCIONES", margin, 18);
   doc.setFontSize(11);
-  doc.text(`Fecha de generación:`, 12, 27);
-  doc.text(`Generado por:`, 12, 39);
-  /*doc.setTextColor(94, 100, 112);*/
-  doc.text("Transacciones actuales", 12, 63);
+  doc.text(`Fecha de generación:`, margin, 27);
+  doc.text(`Generado por:`, margin, 39);
 
   doc.setTextColor(94, 100, 112);
   doc.setFont("Roboto", "normal");
   doc.setFontSize(10);
-  doc.text(`${new Date().toLocaleString()}`, 12, 32);
+  doc.text(`${new Date().toLocaleString()}`, margin, 32);
   doc.text(
-    [userData?.name, userData?.first_last_name, userData?.second_last_name]
-      .filter(Boolean) // Elimina null, undefined y strings vacíos
+    [
+      toTitleCase(userData?.name),
+      toTitleCase(userData?.first_last_name),
+      toTitleCase(userData?.second_last_name),
+    ]
+      .filter(Boolean)
       .join(" "),
-    12,
+    margin,
     44
   );
 
@@ -851,17 +1249,144 @@ const generateReport = (
     32,
     { align: "right" }
   );
-
   doc.text(`${companyData.email}`, 285, 44, { align: "right" });
-  doc.text(`Cantidad: ${filteredData.length}`, 12, 68);
 
-  // Resto de cosas del PDF
+  let currentY = 60;
+
+  doc.setTextColor(0, 0, 0);
+  doc.setFont("Roboto", "bold");
+  doc.setFontSize(12);
+  doc.text("Resumen de transacciones", margin, currentY);
+  currentY += 6;
+
+  doc.setTextColor(94, 100, 112);
+  doc.setFont("Roboto", "normal");
+  doc.setFontSize(10);
+
+  doc.text(
+    `Total de transacciones mostradas: ${filteredData.length}`,
+    margin,
+    currentY
+  );
+  currentY += 8;
+
+  // CAMBIOS APLICADOS: Configuración de dimensiones con límites máximos
+  const pdfWidth = doc.internal.pageSize.getWidth();
+  const availableWidth = pdfWidth - 2 * margin;
+
+  // Añadir las tarjetas de resumen con límite de altura
+  if (
+    imagesData.cards &&
+    imagesData.cards.image &&
+    imagesData.cards.aspectRatio
+  ) {
+    const maxCardsHeight = 40; // Altura máxima para las tarjetas
+    const cardsAspectRatio = imagesData.cards.aspectRatio;
+    let cardsWidth = availableWidth;
+    let cardsHeight = cardsWidth / cardsAspectRatio;
+
+    // Si la altura calculada es muy grande, limitarla
+    if (cardsHeight > maxCardsHeight) {
+      cardsHeight = maxCardsHeight;
+      cardsWidth = cardsHeight * cardsAspectRatio;
+      // Centrar horizontalmente si el ancho es menor que el disponible
+      const xOffset = (availableWidth - cardsWidth) / 2;
+      doc.addImage(
+        imagesData.cards.image,
+        "PNG",
+        margin + xOffset,
+        currentY,
+        cardsWidth,
+        cardsHeight
+      );
+    } else {
+      doc.addImage(
+        imagesData.cards.image,
+        "PNG",
+        margin,
+        currentY,
+        cardsWidth,
+        cardsHeight
+      );
+    }
+    currentY += cardsHeight + 7;
+  } else {
+    console.error(
+      "Datos de imagen de tarjetas no encontrados o incompletos en imagesData."
+    );
+  }
+
+  // CAMBIOS APLICADOS: Control de dimensiones para las gráficas
+  const graphsStartY = currentY;
+  const maxGraphHeight = 70; // Altura máxima para las gráficas
+  const spaceBetween = 10;
+
+  if (
+    imagesData.bar &&
+    imagesData.bar.image &&
+    imagesData.bar.aspectRatio &&
+    imagesData.donut &&
+    imagesData.donut.image &&
+    imagesData.donut.aspectRatio
+  ) {
+    // Calcular dimensiones óptimas para las gráficas
+    let barHeight = maxGraphHeight;
+    let barWidth = barHeight * imagesData.bar.aspectRatio;
+    
+    let donutHeight = maxGraphHeight;
+    let donutWidth = donutHeight * imagesData.donut.aspectRatio;
+
+    // Verificar si caben lado a lado
+    const totalWidth = barWidth + spaceBetween + donutWidth;
+    
+    if (totalWidth > availableWidth) {
+      // Escalar proporcionalmente para que quepan
+      const scaleFactor = availableWidth / totalWidth;
+      barWidth *= scaleFactor;
+      barHeight *= scaleFactor;
+      donutWidth *= scaleFactor;
+      donutHeight *= scaleFactor;
+    }
+
+    // Centrar el conjunto de gráficas
+    const startX = margin + (availableWidth - (barWidth + spaceBetween + donutWidth)) / 2;
+
+    // Añadir las gráficas con las dimensiones controladas
+    doc.addImage(
+      imagesData.bar.image,
+      "PNG",
+      startX,
+      graphsStartY,
+      barWidth,
+      barHeight
+    );
+
+    doc.addImage(
+      imagesData.donut.image,
+      "PNG",
+      startX + barWidth + spaceBetween,
+      graphsStartY,
+      donutWidth,
+      donutHeight
+    );
+    
+    currentY = graphsStartY + Math.max(barHeight, donutHeight) + 10;
+  } else {
+    console.error(
+      "Datos de imagen de gráficos (barra o dona) no encontrados o incompletos en imagesData."
+    );
+    currentY += 10;
+  }
+
+  // Calcular la posición Y para la tabla
+  const tableStartY = currentY;
+
   autoTable(doc, {
-    startY: 80,
-    margin: { left: 12 },
+    startY: tableStartY,
+    margin: { left: margin },
     head: [
       [
-        "ID de transacción",
+        "ID de la transacción",
         "Número de documento",
         "Referencia de pago",
         "Metodo de pago",
@@ -871,7 +1396,7 @@ const generateReport = (
       ],
     ],
     body: filteredData.map((bill) => [
-      bill["ID de transacción"],
+      bill["ID de la transacción"],
       bill["Número de documento"],
       bill["Referencia de pago"],
       bill["Metodo de pago"],
@@ -887,11 +1412,11 @@ const generateReport = (
       fontStyle: "bold",
       lineColor: [234, 236, 240],
       lineWidth: 0.5,
-      font: "Roboto", // Add Roboto font to table headers
+      font: "Roboto",
     },
     bodyStyles: {
       textColor: [89, 89, 89],
-      font: "Roboto", // Add Roboto font to table body
+      font: "Roboto",
     },
     styles: {
       fontSize: 10,
@@ -900,30 +1425,30 @@ const generateReport = (
     },
   });
 
-  //Pie de pagina
-  doc.addImage(Icon, "PNG", 12, 190, 32, 9);
+  // Pie de página con logo
+  doc.addImage(
+    Icon,
+    "PNG",
+    margin,
+    doc.internal.pageSize.getHeight() - 20,
+    32,
+    9
+  );
 
-  // Agregar numeración de páginas en el pie de página
   const pageCount = doc.internal.getNumberOfPages();
   for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i);
     doc.setFontSize(10);
-
-    doc.setFont("Roboto", "normal"); // Set Roboto font for page numbers
+    doc.setFont("Roboto", "normal");
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
-    doc.text(`Página ${i}/${pageCount}`, pageWidth - 10, pageHeight - 10, {
+    doc.text(`Página ${i}/${pageCount}`, pageWidth - margin, pageHeight - 10, {
       align: "right",
     });
   }
 
-  // Convertir el PDF a un Blob
   const pdfBlob = doc.output("blob");
-
-  // Crear una URL del Blob
   const pdfUrl = URL.createObjectURL(pdfBlob);
-
-  // Abrir el PDF en una nueva pestaña
   setTimeout(() => {
     window.open(pdfUrl, "_blank");
     onFinish();

@@ -585,6 +585,16 @@ tbody > tr > .loader-cell {
   margin: 0 auto;
 }
 
+.loader-cell > .loader.loader-graph {
+  width: 1em;
+  height: 1em;
+  border: 2px solid rgba(0, 0, 0, 0.1);
+  border-top: 2px solid var(--bulma-table-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto;
+}
+
 .loader-text {
   text-align: center;
   color: var(--bulma-table-color);
@@ -1149,6 +1159,11 @@ form > .columns.columns-pb {
   border-top: 4px solid var(--bulma-text-strong);
 }
 
+.loader-cell > .cont-loader.loader-graph {
+  border: 2px solid rgba(0, 0, 0, 0.1);
+  border-top: 2px solid var(--bulma-text-strong);
+}
+
 .loader-cell > .loader-text {
   color: var(--bulma-text-strong);
 }
@@ -1214,7 +1229,7 @@ td > td.status-rechazada,
 td > td.status-sin-asignar,
 td > td.status-finalizado,
 td > td.status-pagada,
-td > td.status-vencida {
+td > td.status-vencida td > td.status-aprobado td > td.status-rechazado {
   padding: 0em;
   border-bottom: none;
 }
@@ -1223,7 +1238,8 @@ td > td.status-vencida {
 .button.status-operativo,
 .button.status-aprobada,
 .button.status-finalizado,
-.button.status-pagada {
+.button.status-pagada,
+.button.status-aprobado {
   width: 100%;
   pointer-events: none;
   cursor: text;
@@ -1269,7 +1285,8 @@ td > td.status-vencida {
 .button.status-expirado,
 .button.status-fallo-detectado,
 .button.status-rechazada,
-.button.status-vencida {
+.button.status-vencida,
+.button.status-rechazado {
   width: 100%;
   pointer-events: none;
   cursor: text;
@@ -1321,7 +1338,8 @@ td > td.status-vencida {
   .button.detail-status.status-3,
   .button.detail-status.status-14,
   .button.detail-status.status-18,
-  .button.detail-status.status-23 {
+  .button.detail-status.status-23,
+  .button.detail-status.status-pendiente {
     background-color: #fff7e2;
     color: #9f7700;
   }
@@ -1343,6 +1361,33 @@ td > td.status-vencida {
     background-color: #e4daff;
     color: #4e3985;
   }
+
+  .button.detail-status-pagada {
+    background-color: #ecfdf3;
+    color: #027a48;
+  }
+
+  .button.detail-status-pendiente {
+    background-color: #fff7e2;
+    color: #9f7700;
+  }
+
+  .button.detail-status-vencida {
+    background-color: #ffc6c3;
+    color: #b42c24;
+  }
+
+  .status-aprobado {
+    color: #027a48;
+  }
+
+  .status-pendiente {
+    color: #9f7700;
+  }
+
+  .status-rechazado {
+    color: #b42c24;
+  }
 }
 
 @media (prefers-color-scheme: dark) {
@@ -1355,7 +1400,8 @@ td > td.status-vencida {
   .button.status-operativo,
   .button.status-aprobada,
   .button.status-finalizado,
-  .button.status-pagada {
+  .button.status-pagada,
+  .button.status-aprobado {
     background-color: transparent;
     color: #b3ff9e;
     border-color: #b3ff9e;
@@ -1389,7 +1435,8 @@ td > td.status-vencida {
   .button.status-expirado,
   .button.status-fallo-detectado,
   .button.status-rechazada,
-  .button.status-vencida {
+  .button.status-vencida,
+  .button.status-rechazado {
     background-color: transparent;
     color: #ff7e77;
     border-color: #ff7e77;
@@ -1423,7 +1470,8 @@ td > td.status-vencida {
   .button.detail-status.status-3,
   .button.detail-status.status-14,
   .button.detail-status.status-18,
-  .button.detail-status.status-23 {
+  .button.detail-status.status-23,
+  .button.detail-status.status-pendiente {
     color: #ffc100;
     border-color: #ffc100;
     opacity: 0.8;
@@ -1449,6 +1497,39 @@ td > td.status-vencida {
     background-color: transparent;
     color: #bfa6ff;
     border-color: #bfa6ff;
+    opacity: 0.8;
+  }
+
+  .button.detail-status-pagada {
+    color: #b3ff9e;
+    border-color: #b3ff9e;
+    opacity: 0.8;
+  }
+
+  .button.detail-status-pendiente {
+    color: #ffc100;
+    border-color: #ffc100;
+    opacity: 0.8;
+  }
+
+  .button.detail-status-vencida {
+    color: #ff7e77;
+    border-color: #ff7e77;
+    opacity: 0.8;
+  }
+
+  .status-aprobado {
+    color: #b3ff9e;
+    opacity: 0.8;
+  }
+
+  .status-pendiente {
+    color: #ffc100;
+    opacity: 0.8;
+  }
+
+  .status-rechazado {
+    color: #ff7e77;
     opacity: 0.8;
   }
 }
@@ -1544,4 +1625,16 @@ td > td.status-vencida {
 
 .container-filter {
   margin-bottom: 1em;
+}
+
+.graph-consumption {
+  height: 100%;
+}
+
+.rol-detail > .rol-detail {
+  margin-bottom: 0em;
+}
+
+.accordion > .accordion-body.accordion-columns {
+  overflow-y: hidden;
 }

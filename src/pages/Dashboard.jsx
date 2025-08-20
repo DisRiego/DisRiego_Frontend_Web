@@ -27,11 +27,13 @@ import System_fault from "../components/dashboard/System_fault";
 import System_report_detail from "../components/dashboard/details/System_report_detail";
 import Billing from "../components/dashboard/Billing";
 import Billing_detail from "../components/dashboard/details/Billing_detail";
-import Billing_user from "../components/dashboard/Billing_user";
 import Form_pay from "../components/dashboard/forms/adds/Form_pay";
 import Transaction from "../components/dashboard/Transaction";
 import Transaction_detail from "../components/dashboard/details/Transaction_detail";
 import Consumption from "../components/dashboard/Consumption";
+import Consumption_detail from "../components/dashboard/details/Consumption_detail";
+import Audit from "../components/dashboard/Audit";
+import Audit_detail from "../components/dashboard/details/Audit_detail";
 
 const Dashboard = () => {
   const { id } = useParams();
@@ -119,7 +121,7 @@ const Dashboard = () => {
       case `invoice/${id}`:
         return <Billing_detail />;
       case `invoices`:
-        return <Billing_user />;
+        return <Billing />;
       case `invoices/${id}`:
         return <Billing_detail />;
       case `transaction`:
@@ -128,8 +130,20 @@ const Dashboard = () => {
         return <Transaction_detail />;
       case `pay/${id}`:
         return <Form_pay />;
+      case `payment/${id}`:
+        return <Form_pay />;
       case `consumption`:
         return <Consumption />;
+      case `consumption/${id}`:
+        return <Consumption_detail />;
+      case `consumptions`:
+        return <Consumption />;
+      case `consumptions/${id}`:
+        return <Consumption_detail />;
+      // case `audit`:
+      //   return <Audit />;
+      // case `audit/${id}`:
+      //   return <Audit_detail />;
       case "company":
         return <Company_data />;
       case `certificate`:

@@ -24,6 +24,11 @@ const permissionMapModules = {
   ],
   systems: ["Ver todos los fallos autogenerados para un usuario"],
   reports: ["Ver todos los reportes de fallos para un usuario"],
+  invoice: ["Ver todas las facturas"],
+  invoices: ["Ver todas las facturas de un usuario"],
+  consumptions: ["Ver todos los consumos de un usuario"],
+  consumption: ["Ver todos los consumos"],
+  audit: ["Ver todos los eventos"],
   profile: [], // no requiere permisos
 };
 
@@ -44,6 +49,14 @@ const permissionMapDetails = {
   report: ["Ver detalles de un reporte de fallo"],
   systems: ["Ver detalles de un fallo autogenerado para un usuario"],
   reports: ["Ver detalles de un reporte de fallo para un usuario"],
+  pay: ["Pagar una factura"],
+  payment: ["Pagar una factura de un usuario"],
+  invoice: ["Ver detalles de una factura"],
+  invoices: ["Ver detalles de una factura de un usuario"],
+  transaction: ["Ver detalles de una transacción"],
+  consumptions: ["Ver detalles de un consumo de un usuario"],
+  consumption: ["Ver detalles de un consumo"],
+  audit: ["Ver los detalles de un evento"],
   company: ["Ver detalles de la empresa"],
 };
 
@@ -55,19 +68,24 @@ const ProtectedRoute = ({ requiredPermissions = [] }) => {
   const isDashboardRoot = location.pathname === "/dashboard";
   const isProfileRoute = location.pathname === "/dashboard/profile";
 
+  // Detectar si es vista de detalle tipo /dashboard/module/action/id
+  const isDetailView = pathSegments.length >= 4;
+
+  // Extraer segmento relevante del path para detalle o módulo
+  const detailSegment = pathSegments[pathSegments.length - 2]; // ej: 'pay' en /dashboard/invoice/pay/63
   const moduleSegment = pathSegments.find((segment) =>
     Object.keys(permissionMapModules).includes(segment)
   );
 
-  const isDetailView =
-    !isDashboardRoot && !isProfileRoute && pathSegments.length >= 3;
-
   const permissionList = useMemo(() => {
-    if (requiredPermissions.length) return requiredPermissions;
-    return isDetailView
-      ? permissionMapDetails[moduleSegment] || []
-      : permissionMapModules[moduleSegment] || [];
-  }, [requiredPermissions, isDetailView, moduleSegment]);
+    if (requiredPermissions.length > 0) return requiredPermissions;
+
+    if (isDetailView && permissionMapDetails[detailSegment]) {
+      return permissionMapDetails[detailSegment];
+    }
+
+    return permissionMapModules[moduleSegment] || [];
+  }, [requiredPermissions, isDetailView, detailSegment, moduleSegment]);
 
   if (isLoading) return null;
 
@@ -75,6 +93,7 @@ const ProtectedRoute = ({ requiredPermissions = [] }) => {
     return <Navigate to="/login" replace state={{ from: location }} />;
   }
 
+  // Si no se requieren permisos explícitos
   if (permissionList.length === 0) {
     return <Outlet />;
   }

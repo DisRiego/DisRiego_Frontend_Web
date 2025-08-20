@@ -389,7 +389,7 @@ const Table = ({
     }
 
     if (id === "invoices" && option.name === "Pagar") {
-      navigate("pay/" + row.ID);
+      navigate("payment/" + row.ID);
     }
   };
 
