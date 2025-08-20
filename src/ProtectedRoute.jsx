@@ -50,7 +50,7 @@ const permissionMapDetails = {
   systems: ["Ver detalles de un fallo autogenerado para un usuario"],
   reports: ["Ver detalles de un reporte de fallo para un usuario"],
   pay: ["Pagar una factura"],
-  payment: ["Pagar una factura de un usuario"],
+  payment: ["Pagar una factura de un usuario", "Pagar una factura"],
   invoice: ["Ver detalles de una factura"],
   invoices: ["Ver detalles de una factura de un usuario"],
   transaction: ["Ver detalles de una transacción"],
