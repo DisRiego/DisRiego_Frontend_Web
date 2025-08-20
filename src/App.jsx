@@ -77,7 +77,7 @@ function App() {
   return (
     <>
       <AuthProvider>
-        <BrowserRouter>
+        <BrowserRouter basename="/disriego">
           <AppContent />
         </BrowserRouter>
       </AuthProvider>
