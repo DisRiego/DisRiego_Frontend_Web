@@ -2,6 +2,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { useState } from "react";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
+import SSOLogin from './pages/SSOLogin';
 import Dashboard from "./pages/Dashboard";
 import Signup from "./pages/Signup";
 import Reset_password from "./components/Reset_password";
@@ -17,6 +18,7 @@ function AppContent() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/sso" element={<SSOLogin />} />
         <Route path="/login/resetpassword" element={<Reset_password />} />
         <Route
           path="/login/resetpassword/:id"
